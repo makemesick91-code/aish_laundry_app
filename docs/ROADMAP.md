@@ -15,7 +15,7 @@ quietly deferred.
 | Step | Title | Status |
 | --- | --- | --- |
 | 0 | Master Source and Governance | GO |
-| 1 | Product Requirement and Domain Model | IN PROGRESS |
+| 1 | Product Requirement and Domain Model | GO WITH ACCEPTED DEVIATION |
 | 2 | Design System and UX Foundation | PLANNED |
 | 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | PLANNED |
 | 4 | Laundry Master Data | PLANNED |
@@ -58,10 +58,14 @@ schema, no migration, no API, no UI, no deployment.
 
 ## Step 1 — Product Requirement and Domain Model
 
-**Status: IN PROGRESS**
+**Status: GO WITH ACCEPTED DEVIATION** — conferred by the repository owner on 19 July 2026 against
+exact-SHA evidence, tagged `aish-laundry-step-01-product-requirement-domain-model-v1.2.0-go` at commit
+`4eadbc73f8bacdc9cd2acfcc62280ac932116089`. The accepted deviation is **single-maintainer governance
+with no independent human review**
+([DEC-0017](decisions/DEC-0017-single-maintainer-approval-standing-deviation.md)).
 
-This step produces **documentation only**: requirements, domain model, business rules, state machines, an
-initial threat model, acceptance criteria, and the governance rules that bind them. It creates **no
+This step produced **documentation only**: requirements, domain model, business rules, state machines, an
+initial threat model, acceptance criteria, and the governance rules that bind them. It created **no
 runtime** — no Flutter workspace, no Laravel application, no schema, no migration, no API, no UI, no
 deployment. Application CI remains **NOT APPLICABLE**.
 

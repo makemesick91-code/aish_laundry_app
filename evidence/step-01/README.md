@@ -1,7 +1,9 @@
 # Step 1 Evidence Pack — Product Requirement and Domain Model
 
 **Step:** 1 — Product Requirement and Domain Model
-**Status:** `IN PROGRESS` (this pack is produced while the pull request is open)
+**Status:** `GO WITH ACCEPTED DEVIATION` — conferred by the repository owner, 19 July 2026
+**Tagged commit:** `4eadbc73f8bacdc9cd2acfcc62280ac932116089`
+**Accepted deviation:** single-maintainer governance, no independent human review (DEC-0017)
 **Master Source version:** 1.2.0
 **Canonical policy:** [`../../docs/governance/EVIDENCE_POLICY.md`](../../docs/governance/EVIDENCE_POLICY.md)
 
@@ -57,6 +59,8 @@ Every file here is world-readable and permanently so.
 | [`security-review.md`](security-review.md) | Internal security re-verification and findings by severity |
 | [`tooling-report.md`](tooling-report.md) | Skills, subagents, MCP, and Limit Saver status — what was used and what was not |
 | [`corpus-inventory.md`](corpus-inventory.md) | The Step 1 document set with counts, bound to the SHA |
+| [`post-tag-evidence.md`](post-tag-evidence.md) | Tag facts, the ten independent pre-tag verifications, and the ruleset state at tag time |
+| [`final-closure.md`](final-closure.md) | The Step 1 closure record |
 
 ## Governance mode
 
@@ -68,5 +72,14 @@ and recorded internal re-verification.
 
 ## `GO`
 
-`GO` is conferred by the repository owner and is never self-declared by an agent (Rule 01). Nothing in
-this pack asserts `GO` for Step 1.
+`GO` is conferred by the repository owner and is **never** self-declared by an agent (Rule 01).
+
+The owner conferred **`GO WITH ACCEPTED DEVIATION`** for Step 1 on 19 July 2026, against exact-SHA
+evidence, after instructing that the authorisation text itself **not** be relied upon. Ten independent
+verifications were re-run directly against the repository and the GitHub API before the tag was created;
+they are recorded in [`post-tag-evidence.md`](post-tag-evidence.md).
+
+The accepted deviation is **single-maintainer governance with no independent human review**
+([DEC-0017](../../docs/decisions/DEC-0017-single-maintainer-approval-standing-deviation.md)). Step 1 GO
+means every technical and governance gate passed **with that requirement deliberately deviated from and
+documented** — not that it was met.
