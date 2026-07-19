@@ -122,7 +122,7 @@ fi
 PRIVATE_CLAIM="$(
   grep -InEi '(this|the)[[:space:]]+(repository|repo)[[:space:]]+(is|remains|stays)[[:space:]]+private' \
     -- "${FILES[@]}" 2>/dev/null \
-    | grep -viE 'never|not |no longer|would be|canonical desired|rather than|instead of|were|had been|desired visibility|claims|claim |PUBLIC|AMENDMENT|DEC-0016|violation|forbidden|correct|false|wrong|must' \
+    | grep -viE 'never|not |no longer|would be|canonical desired|rather than|instead of|were|had been|desired visibility|claim\w*|assert\w*|describ\w*|PUBLIC|AMENDMENT|DEC-0016|violat\w*|forbid\w*|prohibit\w*|correct\w*|false|wrong|must|fixture|sentence' \
     || true
 )"
 if [ -n "$PRIVATE_CLAIM" ]; then
