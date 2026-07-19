@@ -13,7 +13,7 @@ Canonical source: [`MASTER_SOURCE.md`](MASTER_SOURCE.md)
 | Step | Title | Status |
 | --- | --- | --- |
 | Step 0 | Master Source and Governance | GO |
-| Step 1 | Product Requirement and Domain Model | PLANNED |
+| Step 1 | Product Requirement and Domain Model | IN PROGRESS |
 | Step 2 | Design System and UX Foundation | PLANNED |
 | Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | PLANNED |
 | Step 4 | Laundry Master Data | PLANNED |

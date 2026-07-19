@@ -32,7 +32,8 @@ date **19 July 2026**).
 | Item | Status |
 |---|---|
 | Step 0 — Master Source and Governance | **GO** (owner-conferred 19 July 2026, with a recorded deviation) |
-| Step 1–14 | **PLANNED** |
+| Step 1 — Product Requirement and Domain Model | **IN PROGRESS** |
+| Step 2–14 | **PLANNED** |
 | All product features | **NOT IMPLEMENTED** |
 | Backend runtime | **ABSENT** |
 | Flutter workspace | **ABSENT** |
@@ -157,7 +158,16 @@ A change to `docs/MASTER_SOURCE.md` requires **all three** of:
 A Master Source edit without a version bump and refreshed checksum is a governance violation and
 must be reverted.
 
-## 12. Step 0 boundary — no runtime, no application code
+## 12. Step 0 and Step 1 boundary — no runtime, no application code
+
+**Step 1 creates no runtime either.** Step 1 produces requirements, a domain model, business rules, state
+machines, an initial threat model, acceptance criteria, and governance rules — **documentation only**.
+The forbidden list below applies unchanged to Step 1. See `.claude/rules/24-current-step-01-status.md`.
+
+**Documentation is not implementation.** A requirement, an invariant, a state machine, or an acceptance
+criterion describes an obligation, never an achievement. A written acceptance criterion is not a passed
+test. Claiming otherwise is a false claim under Rule 01.
+
 
 Step 0 creates **no runtime**. It is FORBIDDEN in this step to run or create: `flutter create`,
 `dart create`, `laravel new`, `composer create-project`, `npm create`, `pubspec.yaml`,
@@ -208,6 +218,15 @@ Each file below is binding. Read the relevant one before working in its area.
 | [`.claude/rules/13-testing-and-definition-of-done.md`](.claude/rules/13-testing-and-definition-of-done.md) | Testing per step and Definition of Done gates |
 | [`.claude/rules/14-pricing-and-commercial.md`](.claude/rules/14-pricing-and-commercial.md) | Locked pricing table and commercial guardrails |
 | [`.claude/rules/15-current-product-status.md`](.claude/rules/15-current-product-status.md) | Canonical status snapshot |
+| [`.claude/rules/16-product-requirements.md`](.claude/rules/16-product-requirements.md) | PRD as requirement baseline, stable requirement IDs, MVP boundary |
+| [`.claude/rules/17-domain-model-and-bounded-contexts.md`](.claude/rules/17-domain-model-and-bounded-contexts.md) | Binding glossary, the twenty bounded contexts, aggregate ownership |
+| [`.claude/rules/18-domain-invariants.md`](.claude/rules/18-domain-invariants.md) | Invariants that must hold at every entry point, including both hard gates |
+| [`.claude/rules/19-state-machines.md`](.claude/rules/19-state-machines.md) | Canonical statuses and enumerated transitions; no arbitrary status writes |
+| [`.claude/rules/20-domain-events-and-idempotency.md`](.claude/rules/20-domain-events-and-idempotency.md) | Commands, events, policies, `client_reference`, exactly-once effect |
+| [`.claude/rules/21-threat-model-and-data-classification.md`](.claude/rules/21-threat-model-and-data-classification.md) | STRIDE threat model, abuse cases, five data classes |
+| [`.claude/rules/22-acceptance-criteria-and-traceability.md`](.claude/rules/22-acceptance-criteria-and-traceability.md) | Testable criteria and bidirectional traceability, no orphans |
+| [`.claude/rules/23-public-repository-safety.md`](.claude/rules/23-public-repository-safety.md) | Public-repo authoring constraints, single-maintainer governance |
+| [`.claude/rules/24-current-step-01-status.md`](.claude/rules/24-current-step-01-status.md) | Step 1 status and the documentation-is-not-implementation boundary |
 
 ## 16. Violation handling
 
