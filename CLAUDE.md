@@ -13,7 +13,7 @@ Primary language: Bahasa Indonesia. Currency: Rupiah. Timezone: Asia/Jakarta.
 
 ## 1. Canonical source
 
-The single canonical source of truth is **`docs/MASTER_SOURCE.md`** (version **1.0.0**, baseline
+The single canonical source of truth is **`docs/MASTER_SOURCE.md`** (version **1.0.1**, baseline
 date **19 July 2026**).
 
 - This file (`CLAUDE.md`) and everything under `.claude/rules/` are **derived enforcement layers**.
@@ -31,7 +31,7 @@ date **19 July 2026**).
 
 | Item | Status |
 |---|---|
-| Step 0 — Master Source and Governance | **IN PROGRESS** (until merge) |
+| Step 0 — Master Source and Governance | **GO** (owner-conferred 19 July 2026, with a recorded deviation) |
 | Step 1–14 | **PLANNED** |
 | All product features | **NOT IMPLEMENTED** |
 | Backend runtime | **ABSENT** |
@@ -40,8 +40,20 @@ date **19 July 2026**).
 | Application CI | **NOT APPLICABLE** |
 | UAT | **NOT STARTED** |
 
-Repository visibility is **PUBLIC** by deliberate owner decision (AMENDMENT-0001). Never describe
-this repository as private. Commercial pricing in this repo is publicly visible; treat it as such.
+Repository visibility is **PUBLIC** by deliberate owner decision (AMENDMENT-0001), locked as an
+**accepted deviation** from a canonical desired **PRIVATE** by DEC-0016. Never describe this repository
+as private, and never present PUBLIC as the desired end state. Commercial pricing in this repo is
+publicly visible; treat it as such.
+
+Because the repository is public, **every file is world-readable and permanently so — deletion is not
+remediation**. Never commit customer data, real phone numbers, names or addresses, laundry photographs,
+credentials, tokens, OTP values, private keys, `.env` files, production configuration, dumps, backups,
+sensitive server addresses, or provider and billing secrets. Every example datum is fictional; evidence
+packs are sanitised and say so. See Master Source §15.8 and `.claude/rules/03-security-and-privacy.md`.
+
+Governance operates in **single-maintainer** mode: independent human approval is **ABSENT**. The
+compensating controls are the active ruleset, exact-SHA CI, deterministic validators, and recorded
+internal re-verification. Never describe internal re-verification as independent peer review.
 
 ## 3. Roadmap lock
 

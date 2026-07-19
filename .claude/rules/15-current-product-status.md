@@ -6,13 +6,13 @@ To hold one authoritative, honest statement of what exists in Aish Laundry App t
 document, pull request, report, or agent response can drift into describing a product that has not
 been built.
 
-Master Source version **1.0.0**, baseline date **19 July 2026**.
+Master Source version **1.0.1**, baseline date **19 July 2026**.
 
 ## Canonical status snapshot
 
 | Item | Status |
 |---|---|
-| Step 0 — Master Source and Governance | **IN PROGRESS** (until merge) |
+| Step 0 — Master Source and Governance | **GO** (owner-conferred 19 July 2026, with a recorded deviation) |
 | Step 1 — Product Requirement and Domain Model | **PLANNED** |
 | Step 2 — Design System and UX Foundation | **PLANNED** |
 | Step 3 — Runtime, Authentication, Multi-Tenancy, and RBAC | **PLANNED** |
@@ -72,8 +72,10 @@ one.**
 
 1. This snapshot is updated **only** when reality changes, and only alongside the Master Source.
 2. Statuses move forward on **exact-SHA evidence** only (Rule 01).
-3. **Never write `GO` as the Step 0 status.** The maximum permissible Step 0 status is `IN PROGRESS`,
-   `TESTED`, or `WATCH`.
+3. **`GO` is owner-conferred and never self-declared by an agent.** While a Step's pull request is open,
+   the maximum permissible status is `IN PROGRESS`, `TESTED`, or `WATCH`. Step 0 carries `GO` because the
+   owner conferred it on 19 July 2026 against exact-SHA evidence after merge, with the PUBLIC-visibility
+   deviation recorded rather than hidden (DEC-0016).
 4. Use the approved status vocabulary only (Rule 01). No synonyms, no softening adjectives.
 5. If another document contradicts this snapshot, the other document is wrong — unless the Master
    Source itself has moved, in which case update this file to match it.
@@ -85,6 +87,9 @@ one.**
   visibly; state that the earlier claim was wrong (Rule 01).
 - **An empty folder or README presented as an implemented feature** — remove the claim.
 - **This snapshot advanced without exact-SHA evidence** — revert the advancement.
-- **`GO` written for Step 0** — revert before the pull request proceeds.
-- **This repository described as private** — correct it to PUBLIC and cite AMENDMENT-0001.
+- **`GO` written by an agent for a Step whose pull request is still open** — revert the wording before
+  the pull request proceeds. `GO` is the owner's to confer.
+- **This repository described as private** — correct it to PUBLIC and cite AMENDMENT-0001 and DEC-0016.
+  Note also that PUBLIC is an accepted *deviation*: describing it as the canonical desired state is a
+  different error, and equally wrong.
 - Repeated status inflation is grounds for the owner to reject the branch entirely.

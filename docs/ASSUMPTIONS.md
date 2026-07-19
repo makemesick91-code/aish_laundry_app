@@ -14,7 +14,7 @@ deleted; it is resolved, rejected, or superseded, and it keeps its identifier fo
 | ID | Subject | Status |
 | --- | --- | --- |
 | ASSUMPTION-0001 | Local directory name versus remote repository name | RESOLVED / ACCEPTED |
-| AMENDMENT-0001 | Repository visibility | ACCEPTED — visibility is PUBLIC |
+| AMENDMENT-0001 | Repository visibility | ACCEPTED — visibility is PUBLIC; locked by DEC-0016 |
 
 ---
 
@@ -126,10 +126,27 @@ If the repository is later moved to a paid plan or a different host, visibility 
 new amendment and, if it changes any canonical statement, a decision record and a Master Source version
 bump.
 
+### Locked by a decision record
+
+This amendment recorded the visibility **fact**. It is now locked, and extended, by
+[**DEC-0016 — Public Repository Visibility Accepted Deviation**](decisions/DEC-0016-public-repository-visibility-accepted-deviation.md),
+which additionally records three things this amendment did not:
+
+1. **PRIVATE remains the canonical desired visibility.** PUBLIC is an accepted deviation with a defined
+   upgrade path, not a settled preference.
+2. **The binding public-repository authoring constraints** now canonical in
+   [`MASTER_SOURCE.md`](MASTER_SOURCE.md) §15.8 — what may never be committed, that every example datum
+   is fictional, and that evidence packs are sanitised.
+3. **Governance operates in single-maintainer mode**, with independent human approval ABSENT and the
+   compensating controls named explicitly.
+
+This amendment is not superseded and its text is unedited above; DEC-0016 supplements it.
+
 ### Related
 
-[`MASTER_SOURCE.md`](MASTER_SOURCE.md) §21.6, §33.4; [`../SECURITY.md`](../SECURITY.md);
-[`GIT_AND_RELEASE_POLICY.md`](GIT_AND_RELEASE_POLICY.md).
+[`MASTER_SOURCE.md`](MASTER_SOURCE.md) §15.8, §21.6, §33.4; [`../SECURITY.md`](../SECURITY.md);
+[`GIT_AND_RELEASE_POLICY.md`](GIT_AND_RELEASE_POLICY.md);
+[DEC-0016](decisions/DEC-0016-public-repository-visibility-accepted-deviation.md).
 
 ---
 

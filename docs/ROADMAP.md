@@ -14,7 +14,7 @@ quietly deferred.
 
 | Step | Title | Status |
 | --- | --- | --- |
-| 0 | Master Source and Governance | IN PROGRESS |
+| 0 | Master Source and Governance | GO |
 | 1 | Product Requirement and Domain Model | PLANNED |
 | 2 | Design System and UX Foundation | PLANNED |
 | 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | PLANNED |
@@ -34,7 +34,10 @@ quietly deferred.
 
 ## Step 0 — Master Source and Governance
 
-**Status: IN PROGRESS**
+**Status: GO** — conferred by the repository owner on 19 July 2026 against exact-SHA evidence, carrying
+one recorded deviation: repository visibility is PUBLIC where the canonical requirement was PRIVATE
+([`MASTER_SOURCE.md`](MASTER_SOURCE.md) §15.8,
+[DEC-0016](decisions/DEC-0016-public-repository-visibility-accepted-deviation.md)).
 
 Establish the canonical foundation before any code exists.
 

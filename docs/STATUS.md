@@ -2,7 +2,7 @@
 
 **This file is machine-validated. The status words below are exact and must not be paraphrased.**
 
-Baseline date: 19 July 2026 · Master Source version: 1.0.0
+Baseline date: 19 July 2026 · Master Source version: 1.0.1
 Status vocabulary: [`governance/STATUS_MODEL.md`](governance/STATUS_MODEL.md)
 Canonical source: [`MASTER_SOURCE.md`](MASTER_SOURCE.md)
 
@@ -50,6 +50,12 @@ enforcement could be applied. See `ASSUMPTIONS.md` — `AMENDMENT-0001`.
 Step 0 GO therefore means: every technical and governance gate passed, with the
 visibility requirement deliberately amended by the owner and documented. It does
 not mean the original PRIVATE requirement was met.
+
+The deviation is locked as a decision record —
+[`DEC-0016`](decisions/DEC-0016-public-repository-visibility-accepted-deviation.md) — which records that
+the **canonical desired visibility remains PRIVATE**, enumerates the binding public-repository authoring
+constraints, and states that governance operates in **single-maintainer** mode with independent human
+approval **ABSENT**.
 
 ---
 
@@ -152,7 +158,10 @@ applicable at Step 3. Governance validation is performed by `scripts/verify-step
 1. Only the canonical vocabulary in [`governance/STATUS_MODEL.md`](governance/STATUS_MODEL.md) may be used.
 2. A status may only be advanced with evidence bound to an exact commit SHA
    ([`governance/EVIDENCE_POLICY.md`](governance/EVIDENCE_POLICY.md)).
-3. Step 0 must never be recorded here with the release status word; while the foundation pull request is
-   open its status is IN PROGRESS, and after validation it may be TESTED or WATCH.
+3. **`GO` is conferred by the repository owner and is never self-declared by an agent.** While a Step's
+   pull request is open, its status is IN PROGRESS, and after validation it may be TESTED or WATCH.
+   `GO` is written here only after the owner confers it against exact-SHA evidence and the Step has
+   merged — as happened for Step 0 on 19 July 2026. An agent that writes `GO` for a Step whose pull
+   request is still open has committed a status-inflation violation and the wording is reverted.
 4. A status is never advanced to make a report look better. An honest NO-GO outranks a convenient claim.
 5. Any change to this file is reflected in [`CHANGELOG.md`](CHANGELOG.md).

@@ -18,8 +18,19 @@ MASTER = "docs/MASTER_SOURCE.md"
 DIGEST_FILE = "docs/MASTER_SOURCE.sha256"
 
 PRODUCT_NAME = "Aish Laundry App"
-VERSION = "1.0.0"
+VERSION = "1.0.1"
 MIN_LINES = 400
+
+# The declared version must appear in the document header, not merely somewhere in
+# the prose. Historical versions are quoted in the changelog section, so a loose
+# substring search would pass even after a botched version bump.
+VERSION_HEADER = re.compile(
+    r"^\*{0,2}Document version:\s*\*{0,2}\s*(\d+\.\d+\.\d+)\s*\*{0,2}\s*$",
+    re.MULTILINE,
+)
+VERSION_FOOTER = re.compile(
+    r"End of Master Source,\s*version\s*(\d+\.\d+\.\d+)", re.IGNORECASE
+)
 
 # Baseline date accepted in a few equivalent renderings.
 BASELINE_DATE_PATTERNS = [
@@ -76,11 +87,32 @@ def main() -> int:
     lines = text.splitlines()
     lower = text.lower()
 
-    # --- version ---
-    rep.check(
-        re.search(r"(?<!\d)" + re.escape(VERSION) + r"(?!\d)", text) is not None,
-        f"declares Master Source version {VERSION}",
-    )
+    # --- version: header, footer, and agreement between them ---
+    header_m = VERSION_HEADER.search(text)
+    if header_m is None:
+        rep.fail(f"declares 'Document version: {VERSION}' in the header")
+    else:
+        rep.check(
+            header_m.group(1) == VERSION,
+            f"header declares Master Source version {VERSION} "
+            f"(found {header_m.group(1)})",
+        )
+
+    footer_m = VERSION_FOOTER.search(text)
+    if footer_m is None:
+        rep.fail(f"declares closing 'End of Master Source, version {VERSION}'")
+    else:
+        rep.check(
+            footer_m.group(1) == VERSION,
+            f"footer declares Master Source version {VERSION} "
+            f"(found {footer_m.group(1)})",
+        )
+
+    if header_m and footer_m:
+        rep.check(
+            header_m.group(1) == footer_m.group(1),
+            "header and footer declare the same Master Source version",
+        )
 
     # --- baseline date ---
     date_hit = next(
