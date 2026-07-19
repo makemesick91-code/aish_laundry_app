@@ -12,7 +12,7 @@ Canonical source: [`MASTER_SOURCE.md`](MASTER_SOURCE.md)
 
 | Step | Title | Status |
 | --- | --- | --- |
-| Step 0 | Master Source and Governance | IN PROGRESS |
+| Step 0 | Master Source and Governance | GO |
 | Step 1 | Product Requirement and Domain Model | PLANNED |
 | Step 2 | Design System and UX Foundation | PLANNED |
 | Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | PLANNED |
@@ -28,7 +28,28 @@ Canonical source: [`MASTER_SOURCE.md`](MASTER_SOURCE.md)
 | Step 13 | Security, Performance, Backup, and Recovery | PLANNED |
 | Step 14 | Pilot and Commercial Launch | PLANNED |
 
-Step 0 remains IN PROGRESS until its pull request is merged into `main`.
+Step 0 reached **GO** on 19 July 2026.
+
+| Closure item | Value |
+|---|---|
+| Foundation PR | `#1`, merged |
+| Foundation merge SHA | `8494bc8543b9301351da6055337832597f1f2d9f` |
+| GO tag | `aish-laundry-step-00-master-source-governance-v1.0.0-go` |
+| GO tag peeled commit | `8494bc8543b9301351da6055337832597f1f2d9f` |
+| Ruleset | ID `19164588`, active, enforcement proven |
+| Governance validators | 11 / 11 PASS |
+| Security findings | 4 CRITICAL, 6 HIGH — all closed and re-verified |
+
+**One Definition of Done item is NOT satisfied and is recorded as a deviation,
+not as a pass:** the repository is **PUBLIC**, whereas the canonical facts
+required PRIVATE. GitHub's free plan cannot apply a ruleset to a private
+repository, so private visibility and enforced branch protection were mutually
+exclusive. The repository owner was shown the tradeoff and chose PUBLIC so that
+enforcement could be applied. See `ASSUMPTIONS.md` — `AMENDMENT-0001`.
+
+Step 0 GO therefore means: every technical and governance gate passed, with the
+visibility requirement deliberately amended by the owner and documented. It does
+not mean the original PRIVATE requirement was met.
 
 ---
 
