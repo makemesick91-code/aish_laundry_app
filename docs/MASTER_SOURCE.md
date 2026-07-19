@@ -1,6 +1,6 @@
 # Aish Laundry App — Master Source
 
-**Document version: 1.1.0**
+**Document version: 1.2.0**
 **Baseline date: 19 July 2026**
 
 Owner: Aish Tech Solution
@@ -1276,6 +1276,21 @@ A Step is Done only when every applicable item below is true and evidenced.
 11. An evidence pack exists under `evidence/step-NN/`, bound to the **exact commit SHA** under review,
     and sanitised per [`governance/EVIDENCE_POLICY.md`](governance/EVIDENCE_POLICY.md).
 12. The pull request is reviewed and approved by someone other than the author for a Step-closing change.
+
+    **Standing deviation — independent approval is `ABSENT`.** This project operates under
+    single-maintainer governance: there is one maintainer, who is also the owner, so the second person
+    this item presupposes does not exist. The item is **not** deleted — it states the correct
+    requirement and becomes binding the moment a second maintainer exists — but it **cannot currently
+    be satisfied**, and it is recorded as an accepted deviation rather than waived silently or
+    re-reported as a fresh failure at every Step. See
+    [DEC-0017](decisions/DEC-0017-single-maintainer-approval-standing-deviation.md) for the
+    compensating controls (active ruleset, exact-SHA CI, deterministic validators, adversarial
+    validator testing, recorded internal re-verification) and for the honest limitation: those controls
+    are **not equivalent** to independent review, and a defect that both the maintainer and the
+    validators miss is not caught.
+
+    **Internal re-verification is never described as review or approval** (§1.3). The deviation excuses
+    this item only; it lowers no other gate, and `GO` remains the owner's to confer.
 13. Every claim in the pull request description is true.
 
 ### 25.2 Step 0 Definition of Done
@@ -1521,9 +1536,9 @@ must be claims the software can substantiate — the honesty rule (§3.1) applie
 
 ## 31. Decision records
 
-Sixteen decisions are locked. Fifteen were locked at the 1.0.0 baseline; DEC-0016 was added at version
-1.0.1. All carry status **ACCEPTED** and date **19 July 2026**. Each has a full record in
-[`decisions/`](decisions/).
+Seventeen decisions are locked. Fifteen were locked at the 1.0.0 baseline; DEC-0016 was added at version
+1.0.1 and DEC-0017 at version 1.2.0. All carry status **ACCEPTED** and date **19 July 2026**. Each has a
+full record in [`decisions/`](decisions/).
 
 | ID | Title | Status | Record |
 | --- | --- | --- | --- |
@@ -1543,6 +1558,7 @@ Sixteen decisions are locked. Fifteen were locked at the 1.0.0 baseline; DEC-001
 | DEC-0014 | Customer Android Does Not Replace Public Tracking | ACCEPTED | [DEC-0014](decisions/DEC-0014-customer-android-does-not-replace-public-tracking.md) |
 | DEC-0015 | MVP Focuses on Laundry Operations | ACCEPTED | [DEC-0015](decisions/DEC-0015-mvp-focuses-on-laundry-operations.md) |
 | DEC-0016 | Public Repository Visibility Accepted Deviation | ACCEPTED | [DEC-0016](decisions/DEC-0016-public-repository-visibility-accepted-deviation.md) |
+| DEC-0017 | Single-Maintainer Approval Standing Deviation | ACCEPTED | [DEC-0017](decisions/DEC-0017-single-maintainer-approval-standing-deviation.md) |
 
 ### 31.1 Decision record rules
 
@@ -1565,6 +1581,17 @@ Mapping from foundation area to rule file, decision record, and validator:
 
 The canonical changelog is [`CHANGELOG.md`](CHANGELOG.md), maintained in Keep a Changelog format with
 semantic versioning.
+
+### 32.000 Version 1.2.0
+
+**1.2.0 — 19 July 2026 — Single-maintainer approval recorded as a standing deviation.**
+
+Added DEC-0017 and a note on §25.1 item 12 recording that independent human approval is `ABSENT` under
+single-maintainer governance, naming the compensating controls and stating plainly that they are **not
+equivalent** to independent review. The item itself is **not** deleted and becomes binding when a second
+maintainer exists. Classified MINOR under §1.2 because the note changes whether that gate blocks Step
+closure, which is a change of meaning rather than a clarification. No product decision, pricing figure,
+roadmap number, or architectural lock was changed.
 
 ### 32.00 Version 1.1.0
 
@@ -1745,4 +1772,4 @@ end-to-end tests in Step 1, because there is no application, and none may be cla
 
 ---
 
-*End of Master Source, version 1.1.0, baseline date 19 July 2026.*
+*End of Master Source, version 1.2.0, baseline date 19 July 2026.*

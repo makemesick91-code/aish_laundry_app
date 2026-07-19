@@ -14,7 +14,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _common import Reporter, read_text, repo_root, run_main  # noqa: E402
 
 FIRST_DEC = 1
-LAST_DEC = 16
+LAST_DEC = 17
 
 # label -> list of accepted heading keywords (lowercase, substring match)
 REQUIRED_HEADINGS: list[tuple[str, list[str]]] = [

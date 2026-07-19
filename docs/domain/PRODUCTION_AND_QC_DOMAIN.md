@@ -2,7 +2,7 @@
 
 **Step:** 1 — Product Requirement and Domain Model
 **Status:** `NOT IMPLEMENTED` (documentation only)
-**Canonical source:** [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) v1.1.0
+**Canonical source:** [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) v1.2.0
 **State machines:**
 [`../state-machines/PRODUCTION_STATE_MACHINE.md`](../state-machines/PRODUCTION_STATE_MACHINE.md),
 [`../state-machines/QUALITY_CONTROL_STATE_MACHINE.md`](../state-machines/QUALITY_CONTROL_STATE_MACHINE.md)

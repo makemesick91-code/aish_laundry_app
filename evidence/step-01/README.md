@@ -2,7 +2,7 @@
 
 **Step:** 1 — Product Requirement and Domain Model
 **Status:** `IN PROGRESS` (this pack is produced while the pull request is open)
-**Master Source version:** 1.1.0
+**Master Source version:** 1.2.0
 **Canonical policy:** [`../../docs/governance/EVIDENCE_POLICY.md`](../../docs/governance/EVIDENCE_POLICY.md)
 
 ---

@@ -2,7 +2,7 @@
 
 **Step:** 1 — Product Requirement and Domain Model
 **Status:** `NOT IMPLEMENTED` (documentation only)
-**Canonical source:** [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) v1.1.0
+**Canonical source:** [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) v1.2.0
 **Hard gate:** [DEC-0012](../decisions/DEC-0012-tenant-isolation-and-financial-integrity-hard-gate.md)
 **State machines:**
 [`../state-machines/PAYMENT_STATE_MACHINE.md`](../state-machines/PAYMENT_STATE_MACHINE.md),

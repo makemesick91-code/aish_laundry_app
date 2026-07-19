@@ -2,7 +2,10 @@
 # Aish Laundry App — Step 1 domain model gates.
 #
 # Rendered check names (referenced by branch protection, do not rename):
-#   "Domain Model / validate"
+#   "Domain Model / domain-model"
+#
+# Distinct job name so branch protection can require this gate separately; see
+# the note in product-requirements.yml.
 #
 # SCOPE NOTE: Step 1 produces a CONCEPTUAL domain model, not a database schema.
 # No migration, no schema, and no runtime is created or validated here. The
@@ -25,8 +28,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  validate:
-    name: validate
+  domain-model:
+    name: domain-model
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

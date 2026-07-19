@@ -2,7 +2,7 @@
 
 **Step:** 1 — Product Requirement and Domain Model
 **Status:** `NOT IMPLEMENTED` (documentation only)
-**Canonical source:** [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) v1.1.0
+**Canonical source:** [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) v1.2.0
 **State machine:** [`../state-machines/SUBSCRIPTION_STATE_MACHINE.md`](../state-machines/SUBSCRIPTION_STATE_MACHINE.md)
 
 Subscription is where the commercial decision meets the domain model. Pricing itself is a **locked

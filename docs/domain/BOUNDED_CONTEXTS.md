@@ -2,7 +2,7 @@
 
 **Step:** 1 — Product Requirement and Domain Model
 **Status:** `NOT IMPLEMENTED` (documentation only; backend runtime `ABSENT`)
-**Canonical source:** [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) v1.1.0
+**Canonical source:** [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) v1.2.0
 
 The domain is divided into **twenty bounded contexts**. The names below are canonical for Step 1 and
 are not renamed, merged, or split without a decision record. Each context maps onto a module boundary

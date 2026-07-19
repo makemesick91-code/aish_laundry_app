@@ -78,7 +78,8 @@ operationalised.
 | [DEC-0013](decisions/DEC-0013-exact-sha-evidence-before-go.md) | Exact-SHA Evidence Before GO | `01-status-and-evidence.md`, `11-git-and-ci.md`, `12-autonomous-execution.md` | [Evidence](governance/EVIDENCE_POLICY.md) |
 | [DEC-0014](decisions/DEC-0014-customer-android-does-not-replace-public-tracking.md) | Customer Android Does Not Replace Public Tracking | `05-flutter-client-foundation.md`, `15-current-product-status.md` | — |
 | [DEC-0015](decisions/DEC-0015-mvp-focuses-on-laundry-operations.md) | MVP Focuses on Laundry Operations | `15-current-product-status.md` | — |
-| [DEC-0016](decisions/DEC-0016-public-repository-visibility-accepted-deviation.md) | Public Repository Visibility Accepted Deviation | `00-canonical-source.md`, `03-security-and-privacy.md`, `11-git-and-ci.md` | [Evidence](governance/EVIDENCE_POLICY.md) |
+| [DEC-0016](decisions/DEC-0016-public-repository-visibility-accepted-deviation.md) | Public Repository Visibility Accepted Deviation | `00-canonical-source.md`, `03-security-and-privacy.md`, `11-git-and-ci.md`, `23-public-repository-safety.md` | [Evidence](governance/EVIDENCE_POLICY.md) |
+| [DEC-0017](decisions/DEC-0017-single-maintainer-approval-standing-deviation.md) | Single-Maintainer Approval Standing Deviation | `01-status-and-evidence.md`, `11-git-and-ci.md`, `13-testing-and-definition-of-done.md`, `23-public-repository-safety.md` | [Evidence](governance/EVIDENCE_POLICY.md), [Definition of Done](DEFINITION_OF_DONE.md) |
 
 ---
 

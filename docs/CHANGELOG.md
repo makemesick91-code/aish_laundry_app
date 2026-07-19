@@ -16,6 +16,49 @@ Nothing yet.
 
 ---
 
+## [1.2.0] — 2026-07-19
+
+Records single-maintainer approval as a standing accepted deviation, and gives the
+Step 1 CI checks unambiguous names so branch protection can require them
+individually. **No runtime was created. No product decision, pricing figure,
+roadmap number, or architectural lock was changed.**
+
+### Added
+
+- **`DEC-0017` — Single-Maintainer Approval Standing Deviation**
+  ([record](decisions/DEC-0017-single-maintainer-approval-standing-deviation.md)).
+  `MASTER_SOURCE.md` §25.1 item 12 requires approval by someone other than the
+  author. Under single-maintainer governance the second person it presupposes
+  does not exist, so the item **cannot be satisfied**. It is recorded once as a
+  standing deviation rather than waived silently or re-reported as a fresh
+  failure at every Step. The compensating controls are named — active ruleset,
+  exact-SHA CI, deterministic validators, adversarial validator testing, and
+  recorded internal re-verification — together with the honest limitation that
+  they are **not equivalent** to independent review: a defect that both the
+  maintainer and the validators miss is not caught.
+- `MASTER_SOURCE.md` §25.1 item 12 gains the corresponding note. The item is
+  **not** deleted; it states the correct requirement and becomes binding the
+  moment a second maintainer exists.
+
+### Changed
+
+- CI job names made unambiguous: `Product Requirements / product-requirements`
+  and `Domain Model / domain-model`, replacing two further jobs named
+  `validate`. Three workflows each publishing a context called `validate` meant
+  a required-status-check entry naming `validate` could not distinguish them,
+  so the new gates could not have been required separately. The existing
+  `Governance / validate` context is unchanged.
+- `MASTER_SOURCE.md` §31 — decision-record count moved from sixteen to
+  seventeen.
+
+### Not included
+
+- No change to any Definition-of-Done gate other than item 12. The deviation
+  excuses exactly one item: it lowers no validator threshold, permits no
+  self-declared `GO`, and authorises no merge without green required checks.
+
+---
+
 ## [1.1.0] — 2026-07-19
 
 Step 1 — Product Requirement and Domain Model. **Documentation only. No runtime,
@@ -281,6 +324,7 @@ Aish Laundry App. **No runtime, no application, no deployment was created.**
 
 [Unreleased]: https://github.com/makemesick91-code/aish_laundry_app/compare/main...HEAD
 [1.0.0]: https://github.com/makemesick91-code/aish_laundry_app/releases
+[1.2.0]: https://github.com/makemesick91-code/aish_laundry_app/releases
 [1.1.0]: https://github.com/makemesick91-code/aish_laundry_app/releases
 [1.0.1]: https://github.com/makemesick91-code/aish_laundry_app/releases
 

@@ -2,7 +2,7 @@
 
 **Step:** 1 — Product Requirement and Domain Model
 **Status:** `NOT IMPLEMENTED` (documentation only)
-**Canonical source:** [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) v1.1.0
+**Canonical source:** [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) v1.2.0
 **Decision record:** [DEC-0008](../decisions/DEC-0008-h1-h3-h7-reminder-as-core-product.md)
 **State machine:** [`../state-machines/UNCLAIMED_LAUNDRY_STATE_MACHINE.md`](../state-machines/UNCLAIMED_LAUNDRY_STATE_MACHINE.md)
 
