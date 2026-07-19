@@ -20,7 +20,7 @@ SaaS product owned by **Aish Tech Solution**. It targets laundry UMKM and laundr
 | --- | --- |
 | Step 0 — Master Source and Governance | GO (owner-conferred 19 July 2026, with a recorded deviation) |
 | Step 1 — Product Requirement and Domain Model | GO (owner-conferred 19 July 2026, with a recorded deviation) |
-| Step 2 — Design System and UX Foundation | IN PROGRESS |
+| Step 2 — Design System and UX Foundation | GO (owner-conferred 20 July 2026, with four recorded deviations) |
 | Step 3 — Runtime, Authentication, Multi-Tenancy, and RBAC | PLANNED |
 | Step 4 — Laundry Master Data | PLANNED |
 | Step 5 — POS, Order, and Payment Foundation | PLANNED |

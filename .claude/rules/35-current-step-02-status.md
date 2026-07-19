@@ -13,7 +13,7 @@ Canonical status: [`../../docs/STATUS.md`](../../docs/STATUS.md). Master Source 
 |---|---|
 | Step 0 — Master Source and Governance | **GO** (owner-conferred 19 July 2026, with a recorded deviation) |
 | Step 1 — Product Requirement and Domain Model | **GO** (owner-conferred 19 July 2026, with a recorded deviation) |
-| Step 2 — Design System and UX Foundation | **IN PROGRESS** |
+| Step 2 — Design System and UX Foundation | **GO** (owner-conferred 20 July 2026, with four recorded deviations) |
 | Steps 3–14 | **PLANNED** |
 | All product features | **NOT IMPLEMENTED** |
 | Backend runtime | **ABSENT** |
@@ -23,9 +23,18 @@ Canonical status: [`../../docs/STATUS.md`](../../docs/STATUS.md). Master Source 
 | Application CI | **NOT APPLICABLE** |
 | UAT | **NOT STARTED** |
 
-Step 2 may carry `IN PROGRESS`, and after validation `TESTED` or `WATCH`. **`GO` is conferred by the
-repository owner and is never self-declared by an agent** (Rule 01). While the Step 2 pull request is open,
-the maximum permissible status is `IN PROGRESS`, `TESTED`, or `WATCH`.
+Step 2 carries **`GO`**, conferred by the repository owner on 20 July 2026 against exact-SHA evidence and
+tagged `aish-laundry-step-02-design-system-ux-foundation-v1.3.0-go` at
+`47c07d360e8802fd78f61d41435cae3f28313137`. **`GO` is conferred by the repository owner and is never
+self-declared by an agent** (Rule 01); while a Step's pull request is open, the maximum permissible status
+is `IN PROGRESS`, `TESTED`, or `WATCH`.
+
+**Four deviations were accepted at Step 2 `GO`**, and none of them is silent: PUBLIC repository visibility
+(DEC-0016), single-maintainer governance, no independent human review (DEC-0017), and design-only
+accessibility that is **not yet runtime-tested** (DEC-0021). **The compensating controls are not equivalent
+to independent peer review or to runtime accessibility testing.** Step 2 `GO` means every gate passed with
+those four deviations deliberately taken and documented — it does not mean the deviated requirements were
+met.
 
 ## What Step 2 produces
 

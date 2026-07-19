@@ -87,6 +87,64 @@ created**, and none may be claimed.
 
 ---
 
+## Step 2 closure — 2026-07-20
+
+Evidence-only synchronization after the Step 2 GO tag. **No product decision, no
+design decision, no requirement, and no Master Source content was changed by
+this entry**; the Master Source remains v1.3.0 with an unchanged checksum
+(`92039ba7b54362615c003390b3d5dd80da174869c27d0dc1325c48bde8fe1b1a`).
+
+### Changed
+
+- `docs/STATUS.md` — Step 2 moved from `IN PROGRESS` to
+  `GO WITH ACCEPTED DEVIATION`, with the closure SHAs recorded and all four
+  deviations stated explicitly.
+- `docs/ROADMAP.md` — Step 2 status and tag recorded.
+- `.claude/rules/35-current-step-02-status.md` — Step 2 snapshot moved to `GO`
+  with the four accepted deviations named.
+- `.claude/rules/15-current-product-status.md` — Step 1 and Step 2 statuses
+  corrected to `GO`.
+- `CLAUDE.md`, `README.md` — status tables updated.
+
+### Added
+
+- `evidence/step-02/post-tag-evidence.md` — the annotated tag object and peeled
+  commit, all three GO tags verified unmoved on the remote, the fifteen pre-tag
+  checks, the closure chain, the four accepted deviations, and the residual
+  items disclosed rather than resolved.
+
+### Step 2 closure facts
+
+| Item | Value |
+|---|---|
+| Step 2 PR | `#9`, merged at `fc4449e922a0effa86b9770f5a2863a99fe776d6` |
+| Pre-tag evidence PR | `#11`, merged at `47c07d360e8802fd78f61d41435cae3f28313137` |
+| Tagged commit | `47c07d360e8802fd78f61d41435cae3f28313137` |
+| GO tag | `aish-laundry-step-02-design-system-ux-foundation-v1.3.0-go` |
+| GO tag object SHA | `d02598b1e3a43db0ebfb6217d7e1d9ddf8484c3a` |
+| Ruleset | `19164588` — active, 0 bypass actors, strict, **12** required contexts |
+| Governance validators | 53 / 53 PASS |
+| Adversarial mutations | 30 / 30 caught |
+| Required CI at the tagged SHA | 12 / 12 success |
+| Requirements classified | 498 / 498, 0 unclassified |
+| Open `CRITICAL` / `HIGH` findings | 0 / 0 |
+| Relationship orphans | 0 across 12 classes |
+
+### Not changed, and deliberately so
+
+- **Step 2 created no runtime.** All product features remain `NOT IMPLEMENTED`;
+  the backend runtime, Flutter workspace, database and deployment remain
+  `ABSENT`; application CI remains `NOT APPLICABLE`; UAT remains `NOT STARTED`.
+- Steps 3–14 remain `PLANNED`. **Step 3 has not begun.**
+- Accessibility remains **DESIGNED TO MEET WCAG 2.2 AA REQUIREMENTS — NOT YET
+  RUNTIME-TESTED**. Runtime accessibility testing belongs to Step 13 and is
+  `NOT STARTED`.
+- Dark mode remains `PLANNED` / `NOT IMPLEMENTED`. **LOGO STATUS: NOT APPROVED.**
+- Dependabot PR #2 remains `OPEN` and unmerged, outside Step 2 scope.
+- No GO tag was moved, deleted, recreated, or force-pushed.
+
+---
+
 ## Step 1 closure — 2026-07-19
 
 Evidence-only synchronization after the Step 1 GO tag. **No product decision, no
