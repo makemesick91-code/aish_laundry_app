@@ -1,16 +1,23 @@
 # Validation Results — Step 1
 
-**Exact commit SHA:** `663f432d68eeaec4a7cd7d5f7b0d477bd9fa2948`
+**Exact commit SHA:** `6f6c38a7e2821562ef8e176f3ce39a97e3c5e06b`
 **Branch:** `feature/step-01-product-requirement-domain-model`
-**Timestamp:** 2026-07-19 17:35:55 WIB
+**Timestamp:** 2026-07-19 17:39:08 WIB
 **Environment:** Linux 7.0.0-27-generic · bash 5.3.9(1)-release · Python 3.14.4 · git 2.53.0
 **Command:** `bash scripts/verify-step-01.sh`
-**Exit code:** 1
+**Exit code:** 0
 
 Evidence produced at this SHA does not carry over to any other SHA (DEC-0013).
 
 **Sanitisation:** no secrets, credentials, tokens, OTP values, or personal data appear below. No
 redaction was necessary. Absolute local paths appear and are not sensitive (ASSUMPTION-0001).
+
+## Relationship to the head SHA
+
+This output was captured at `6f6c38a7e2821562ef8e176f3ce39a97e3c5e06b`. If a later commit exists on the branch, the **only** difference
+between that commit and this SHA is the re-capture of this file itself — a file cannot contain the SHA
+of the commit that introduces it. **CI at the exact head SHA is the binding proof**, and its result is
+recorded in the pull request against that SHA, not asserted here.
 
 ## Scope note
 
@@ -28,9 +35,9 @@ widget, integration, or end-to-end tests, because no application exists. Applica
 # repo root : /home/fikri/Projects/aish_laundry
 # python    : Python 3.14.4
 # bash      : 5.3.9(1)-release
-# git sha   : 663f432d68eeaec4a7cd7d5f7b0d477bd9fa2948
+# git sha   : 6f6c38a7e2821562ef8e176f3ce39a97e3c5e06b
 # branch    : feature/step-01-product-requirement-domain-model
-# started   : 2026-07-19T10:35:55Z
+# started   : 2026-07-19T10:39:08Z
 ########################################################################
 
 ========================================================================
@@ -415,25 +422,16 @@ RESULT: PASS (no-runtime)
 ========================================================================
 VALIDATOR: markdown-links
 ========================================================================
-      checking 145 markdown files
-FAIL  broken relative link: 'validation-results.md' (evidence/step-01/README.md:54)
-      resolved to: evidence/step-01/validation-results.md (does not exist)
-FAIL  broken relative link: 'adversarial-validator-tests.md' (evidence/step-01/README.md:55)
-      resolved to: evidence/step-01/adversarial-validator-tests.md (does not exist)
-FAIL  broken relative link: 'graphify-summary.md' (evidence/step-01/README.md:56)
-      resolved to: evidence/step-01/graphify-summary.md (does not exist)
-FAIL  broken relative link: 'corpus-inventory.md' (evidence/step-01/README.md:59)
-      resolved to: evidence/step-01/corpus-inventory.md (does not exist)
-FAIL  broken relative link: 'graphify-summary.md' (evidence/step-01/tooling-report.md:73)
-      resolved to: evidence/step-01/graphify-summary.md (does not exist)
+      checking 149 markdown files
+PASS  all 1101 relative markdown links resolve to existing paths
 ------------------------------------------------------------------------
-SUMMARY [markdown-links]: 0/5 checks passed, 5 failed
-RESULT: FAIL (markdown-links)
+SUMMARY [markdown-links]: 1/1 checks passed, 0 failed
+RESULT: PASS (markdown-links)
 
 ========================================================================
 VALIDATOR: secrets
 ========================================================================
-      scanning 198 files (excluding scripts/validate-secrets.sh)
+      scanning 202 files (excluding scripts/validate-secrets.sh)
 PASS  no match for credential pattern: private key block
 PASS  no match for credential pattern: PGP/private key armor
 PASS  no match for credential pattern: AWS access key id
@@ -1217,7 +1215,7 @@ RESULT: PASS (step-01-traceability)
 ========================================================================
 VALIDATOR: mermaid-blocks
 ========================================================================
-      checking 145 markdown files
+      checking 149 markdown files
 PASS  every markdown file has balanced code fences
 PASS  no Mermaid block is empty
 PASS  every Mermaid block declares a recognised diagram type
@@ -1231,7 +1229,7 @@ RESULT: PASS (mermaid-blocks)
 ========================================================================
 VALIDATOR: public-repository-safety
 ========================================================================
-      scanning 195 tracked files
+      scanning 199 tracked files
 PASS  no real-looking Indonesian mobile number
 PASS  no private key block
 PASS  no AWS access key id
@@ -1263,7 +1261,7 @@ status                     PASS   0
 pricing                    PASS   0
 rules-traceability         PASS   0
 no-runtime                 PASS   0
-markdown-links             FAIL   1
+markdown-links             PASS   0
 secrets                    PASS   0
 destructive-guard          PASS   0
 product-requirements       PASS   0
@@ -1288,10 +1286,10 @@ step-01-traceability       PASS   0
 mermaid-blocks             PASS   0
 public-repo-safety         PASS   0
 ------------------------------------------------------------------------
-GATES PASSED: 31 / 32
+GATES PASSED: 32 / 32
 
 Scope note: Step 1 is documentation only. These are governance validators.
 There are no application unit, widget, integration, or end-to-end tests,
 because no application exists. Application CI is NOT APPLICABLE.
-STEP 1 VERIFICATION: FAIL
+STEP 1 VERIFICATION: PASS
 ```
