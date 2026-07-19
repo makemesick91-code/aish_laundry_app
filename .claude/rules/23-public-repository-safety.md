@@ -53,9 +53,14 @@ data, evidence packs, commit messages, issue text, and pull request descriptions
 
 ## Single-maintainer governance
 
-20. **Independent human approval is `ABSENT`.** Governance operates in single-maintainer mode.
-21. The compensating controls are: the active ruleset, exact-SHA CI, deterministic validators, and
-    recorded internal re-verification.
+20. **Independent human approval is `ABSENT`.** Governance operates in single-maintainer mode. This is
+    a **standing accepted deviation** from Master Source §25.1 item 12, recorded in
+    [DEC-0017](../../docs/decisions/DEC-0017-single-maintainer-approval-standing-deviation.md). It is
+    not re-argued per Step and is not re-reported as a fresh failure.
+21. The compensating controls are: the active ruleset, exact-SHA CI, deterministic validators,
+    adversarial validator testing, and recorded internal re-verification. They are **load-bearing, not
+    supplementary** — and they are **not equivalent** to independent review. A defect that both the
+    maintainer and the validators miss is not caught. That residual risk is accepted, not eliminated.
 22. **Never describe internal re-verification as independent peer review**, and never describe a
     self-review as an approval. Where a report would normally say "reviewed", it says
     "internally re-verified under single-maintainer governance".

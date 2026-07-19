@@ -2,7 +2,7 @@
 
 **Step:** 1 — Product Requirement and Domain Model
 **Status:** `NOT IMPLEMENTED` (documentation only; no event bus, no publisher, no subscriber)
-**Canonical source:** [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) v1.1.0
+**Canonical source:** [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) v1.2.0
 
 This catalogue records **144 domain events** across the twenty bounded contexts, of which **138 are
 fully specified here** and 6 are named but deliberately deferred. An event is a

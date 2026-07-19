@@ -6,7 +6,7 @@ To hold one authoritative, honest statement of what exists in Aish Laundry App t
 document, pull request, report, or agent response can drift into describing a product that has not
 been built.
 
-Master Source version **1.1.0**, baseline date **19 July 2026**.
+Master Source version **1.2.0**, baseline date **19 July 2026**.
 
 ## Canonical status snapshot
 

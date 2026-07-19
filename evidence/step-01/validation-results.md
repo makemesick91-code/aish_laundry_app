@@ -126,8 +126,8 @@ RESULT: PASS (required-files)
 VALIDATOR: master-source
 ========================================================================
 PASS  docs/MASTER_SOURCE.md exists
-PASS  header declares Master Source version 1.1.0 (found 1.1.0)
-PASS  footer declares Master Source version 1.1.0 (found 1.1.0)
+PASS  header declares Master Source version 1.2.0 (found 1.1.0)
+PASS  footer declares Master Source version 1.2.0 (found 1.1.0)
 PASS  header and footer declare the same Master Source version
 PASS  declares baseline date 19 July 2026 (matched /19\s+July\s+2026/)
 PASS  contains canonical product name "Aish Laundry App"

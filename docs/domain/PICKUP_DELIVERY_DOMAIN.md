@@ -2,7 +2,7 @@
 
 **Step:** 1 — Product Requirement and Domain Model
 **Status:** `NOT IMPLEMENTED` (documentation only)
-**Canonical source:** [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) v1.1.0
+**Canonical source:** [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) v1.2.0
 **Decision record:** [DEC-0007](../decisions/DEC-0007-pickup-and-delivery-as-core-product.md)
 **State machines:**
 [`../state-machines/PICKUP_DELIVERY_STATE_MACHINE.md`](../state-machines/PICKUP_DELIVERY_STATE_MACHINE.md),

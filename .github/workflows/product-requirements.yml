@@ -2,7 +2,12 @@
 # Aish Laundry App — Step 1 product requirement gates.
 #
 # Rendered check names (referenced by branch protection, do not rename):
-#   "Product Requirements / validate"
+#   "Product Requirements / product-requirements"
+#
+# The job is NOT named "validate": three workflows would then each publish a
+# context called "validate", and a required-status-check entry naming "validate"
+# could not distinguish them. Distinct job names keep branch protection able to
+# require each gate separately.
 #
 # SCOPE NOTE: Step 1 is documentation only. Nothing in this workflow builds,
 # deploys, or tests an application, because no application exists. Application CI
@@ -25,8 +30,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  validate:
-    name: validate
+  product-requirements:
+    name: product-requirements
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

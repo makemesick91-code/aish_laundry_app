@@ -2,7 +2,7 @@
 
 **Step:** 1 — Product Requirement and Domain Model
 **Status:** `NOT IMPLEMENTED` (documentation only)
-**Canonical source:** [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) v1.1.0
+**Canonical source:** [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) v1.2.0
 
 The Ops Android app runs at a laundry counter and on a courier's motorbike in Indonesian conditions:
 patchy mobile data, dead zones, cheap devices, interruptions mid-transaction. **The app must keep

@@ -12,7 +12,7 @@ Product: **Aish Laundry App** (Aish Tech Solution). Bahasa Indonesia, Rupiah, As
 
 ## 1. Read the canonical source first
 
-`docs/MASTER_SOURCE.md` is the single source of truth (version 1.1.0, baseline 19 July 2026).
+`docs/MASTER_SOURCE.md` is the single source of truth (version 1.2.0, baseline 19 July 2026).
 **Read it before making any change.** Recollection is not a substitute.
 
 Conflict order: Master Source → decision records in `docs/decisions/` → `CLAUDE.md` →
