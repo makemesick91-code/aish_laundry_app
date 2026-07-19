@@ -16,6 +16,40 @@ Nothing yet.
 
 ---
 
+## Step 0 closure — 2026-07-19
+
+Evidence-only synchronization after the GO tag. No product decision, no canonical
+fact, and no Master Source content was changed by this entry; the Master Source
+remains v1.0.0 with an unchanged checksum.
+
+### Changed
+
+- `docs/STATUS.md` — Step 0 status moved from `IN PROGRESS` to `GO`, with the
+  closure SHAs recorded and the visibility deviation stated explicitly.
+
+### Added
+
+- Step 0 evidence pack populated: exact-SHA CI, ruleset verification,
+  clean-checkout verification, merge verification, GO tag verification, post-tag
+  evidence, and final closure.
+
+### Closure record
+
+| Item | Value |
+|---|---|
+| Foundation PR | `#1` |
+| Foundation candidate SHA | `b1bd1549b50f828b009c2241a0836ae23fcf4608` |
+| Foundation merge SHA | `8494bc8543b9301351da6055337832597f1f2d9f` |
+| GO tag | `aish-laundry-step-00-master-source-governance-v1.0.0-go` |
+| GO tag object SHA | `e95c60a14c6b976fc8cdb94e7ba0d3a7b0cce9b9` |
+| GO tag peeled commit | `8494bc8543b9301351da6055337832597f1f2d9f` |
+| Ruleset ID | `19164588` |
+
+Steps 1–14 remain `PLANNED`. All product features remain `NOT IMPLEMENTED`. No
+runtime exists. No Step 1 work has started.
+
+---
+
 ## [1.0.0] — 2026-07-19
 
 Step 0 — Master Source and Governance. Baseline of the canonical governance foundation for
