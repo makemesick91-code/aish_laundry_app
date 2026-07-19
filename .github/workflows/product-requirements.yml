@@ -1,0 +1,62 @@
+---
+# Aish Laundry App — Step 1 product requirement gates.
+#
+# Rendered check names (referenced by branch protection, do not rename):
+#   "Product Requirements / validate"
+#
+# SCOPE NOTE: Step 1 is documentation only. Nothing in this workflow builds,
+# deploys, or tests an application, because no application exists. Application CI
+# is NOT APPLICABLE (MASTER_SOURCE.md §26.6). Claiming otherwise would be a false
+# claim under Rule 01.
+
+name: Product Requirements
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: product-requirements-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Record the exact SHA under validation
+        run: |
+          set -euo pipefail
+          echo "Validating commit: ${GITHUB_SHA}"
+          echo "Evidence produced at one SHA does not carry over to another (DEC-0013)."
+
+      - name: Validate the product requirements document set
+        run: python3 scripts/validate-product-requirements.py
+
+      - name: Validate requirement identifiers are unique and well-formed
+        run: python3 scripts/validate-requirement-ids.py
+
+      - name: Validate the fourteen mandatory personas
+        run: python3 scripts/validate-personas.py
+
+      - name: Validate use cases, MVP scope, journeys, and success metrics
+        run: python3 scripts/validate-use-cases.py
+
+      - name: Validate acceptance criteria and non-functional requirements
+        run: python3 scripts/validate-acceptance-criteria.py
+
+      - name: Validate bidirectional Step 1 traceability
+        run: python3 scripts/validate-step-01-traceability.py

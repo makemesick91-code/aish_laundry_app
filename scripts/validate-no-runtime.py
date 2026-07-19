@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
-"""Assert Step 0 created NO application runtime anywhere in the repository.
+"""Assert NO application runtime exists anywhere in the repository.
+
+In force for Step 0 AND Step 1. Both steps are documentation only: Step 0 creates
+the governance foundation, Step 1 creates requirements and a conceptual domain
+model. Neither creates a Flutter workspace, a Laravel application, a schema, a
+migration, an API, a UI, or a deployment. Runtime work begins at Step 3.
+
+A conceptual domain model is not a database schema, and a requirement is not an
+implementation. If this validator ever fails during Step 1, the correct response
+is to remove the runtime artefact and report the scope breach — never to relax
+the list below.
 
 Standard library only.
 """

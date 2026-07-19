@@ -15,7 +15,7 @@ from _common import Reporter, read_text, repo_root, run_main  # noqa: E402
 
 RULES_DIR = ".claude/rules"
 TRACEABILITY = "docs/GOVERNANCE_TRACEABILITY.md"
-EXPECTED_RULE_COUNT = 16
+EXPECTED_RULE_COUNT = 25
 
 RULE_FILE = re.compile(r"^(\d{2})-(.+)\.md$")
 
@@ -62,7 +62,7 @@ def main() -> int:
         len(by_number) == EXPECTED_RULE_COUNT,
         f"all {EXPECTED_RULE_COUNT} rule files exist (found {len(by_number)})",
     )
-    # Rules are numbered 00..15 (sixteen files).
+    # Rules are numbered 00..24 (twenty-five files).
     for n in range(0, EXPECTED_RULE_COUNT):
         key = f"{n:02d}"
         rep.check(key in by_number, f"rule {key} file exists")

@@ -11,9 +11,24 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from _common import Reporter, read_text, repo_root, run_main  # noqa: E402
+from _common import (  # noqa: E402
+    Reporter,
+    declared_statuses,
+    read_text,
+    repo_root,
+    run_main,
+)
 
 ROADMAP = "docs/ROADMAP.md"
+
+# The step currently under way. Bump this only when a step actually starts, in the
+# same pull request that moves the status in ROADMAP.md and STATUS.md.
+CURRENT_STEP = 1
+CURRENT_STEP_ALLOWED = ["IN PROGRESS", "TESTED", "WATCH", "GO"]
+
+# Statuses that must never appear against a step later than CURRENT_STEP. Work
+# leaking forward out of its declared scope is a roadmap-lock violation.
+FORWARD_LEAK_STATUSES = ["IN PROGRESS", "TESTED", "WATCH", "GO", "NO-GO"]
 
 CANONICAL_TITLES = {
     0: "Master Source and Governance",
@@ -101,20 +116,57 @@ def main() -> int:
             rep.fail(f"Step {n} title does not match canonical '{title}'")
             rep.info(f"line: {line.strip()}")
 
-    # Steps 1-14 marked PLANNED (same line or its block until the next entry).
+    # Step status posture.
+    #
+    # Step 1 is the step currently under way, so it may legitimately carry a
+    # working status. Steps 2..14 must still be PLANNED: a later step showing any
+    # other status means work has leaked forward out of its declared scope, which
+    # the roadmap lock in MASTER_SOURCE.md §24 forbids.
     entry_lines = sorted(i for i, _ in order)
-    for n in range(1, 15):
+
+    def block_for(n: int) -> str | None:
         hits = entries.get(n, [])
         if len(hits) != 1:
-            continue
+            return None
         start = hits[0][0]
         following = [i for i in entry_lines if i > start]
         end = following[0] if following else len(lines)
-        block = "\n".join(lines[start:end]).upper()
-        rep.check(
-            "PLANNED" in block,
-            f"Step {n} is marked PLANNED",
-        )
+        return "\n".join(lines[start:end]).upper()
+
+    declared = declared_statuses(block_for(CURRENT_STEP))
+    if declared:
+        allowed = [s for s in declared if s in CURRENT_STEP_ALLOWED]
+        if allowed:
+            rep.ok(
+                f"Step {CURRENT_STEP} carries an allowed working status "
+                f"(declared: {', '.join(sorted(set(declared)))})"
+            )
+        else:
+            rep.fail(
+                f"Step {CURRENT_STEP} must carry one of {CURRENT_STEP_ALLOWED}; "
+                f"declared: {', '.join(sorted(set(declared)))}"
+            )
+    else:
+        rep.fail(f"Step {CURRENT_STEP} declares a recognisable status")
+
+    for n in range(CURRENT_STEP + 1, 15):
+        declared = declared_statuses(block_for(n))
+        if not declared:
+            rep.fail(f"Step {n} declares a recognisable status")
+            continue
+        leaked = sorted({s for s in declared if s in FORWARD_LEAK_STATUSES})
+        if leaked:
+            rep.fail(
+                f"Step {n} must be PLANNED only, but declares: "
+                + ", ".join(leaked)
+            )
+        elif "PLANNED" in declared:
+            rep.ok(f"Step {n} is marked PLANNED")
+        else:
+            rep.fail(
+                f"Step {n} is marked PLANNED; declared: "
+                + ", ".join(sorted(set(declared)))
+            )
 
     return rep.finish()
 
