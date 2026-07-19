@@ -96,22 +96,29 @@ behaviour and it caught a real defect.
 | SR-06 | **MEDIUM** | Step 0 status read `IN PROGRESS` in six places after the Step 0 GO tag had been created, so the repository contradicted itself about its own release state. | **FIXED** in the v1.0.1 amendment. |
 | SR-07 | **MEDIUM** | `STATUS.md` §7 rule 3 forbade recording Step 0 with the release status word while `STATUS.md` §1 recorded exactly that. A rule that contradicts the document containing it will be resolved by whoever reads it next, in whichever direction suits them. | **FIXED** — reworded to the accurate rule: `GO` is owner-conferred, never self-declared. |
 | SR-08 | **LOW** | The changelog asserted "no release tag has been created yet" after the Step 0 GO tag existed — a false claim under Rule 01. | **FIXED**, and the correction stated rather than silently applied. |
-| SR-09 | **INFORMATIONAL** | The repository ruleset does **not** yet require the three new Step 1 checks. Until the owner adds them, those checks run and report but do not block a merge. | **OPEN — owner action required.** Not performed by an agent: branch protection is owner territory (Rule 11 rule 21, Rule 12). |
+| SR-09 | **INFORMATIONAL** | The repository ruleset did **not** require the three new Step 1 checks, so they ran and reported but did not block a merge. | **CLOSED.** The owner applied the change; ruleset `19164588` now requires 9 contexts, enforcement `active`, 0 bypass actors, strict policy true — **re-read independently through the API**, not accepted on report. Note: the destructive-operations guard **blocked** the agent's own attempt to apply it via `gh api`, correctly, and was not bypassed or edited. |
+| SR-11 | **LOW** | Two new workflows each named their job `validate`, so three workflows published a context called `validate`. A required-status-check entry naming `validate` could not distinguish them, meaning the new gates **could not have been required separately** — adding them to the ruleset would have produced an ambiguous rule rather than real enforcement. | **FIXED** in PR #7 — contexts renamed to `product-requirements` and `domain-model`, verified reporting under those names before the ruleset was updated. |
 | SR-10 | **INFORMATIONAL** | Independent human review is `ABSENT`. A defect that both the maintainer and the validators miss is not caught by a second human. | **ACCEPTED** — recorded in DEC-0016 with its compensating controls. |
 
 ### 3.3 Closure position
+
+Position at the tagged commit `4eadbc73f8bacdc9cd2acfcc62280ac932116089`:
 
 | Severity | Open | Closed |
 |---|---|---|
 | `CRITICAL` | **0** | 0 |
 | `HIGH` | **0** | 0 |
 | `MEDIUM` | 0 | 5 |
-| `LOW` | 0 | 3 |
-| `INFORMATIONAL` | 2 | 0 |
+| `LOW` | 0 | 4 |
+| `INFORMATIONAL` | **1** | 1 |
 
-The two open `INFORMATIONAL` items are SR-09 (ruleset update — owner action) and SR-10 (single-maintainer
-governance — accepted deviation). Neither blocks the Step; both are stated rather than closed by
-assertion.
+SR-09 (ruleset) was **closed** by the owner applying the change; it was then re-read independently
+through the API rather than accepted on report.
+
+The one remaining open item is **SR-10 — single-maintainer governance, independent human review
+`ABSENT`**. It is not closed and is not closeable by this project's current shape: it is an **accepted
+standing deviation** recorded in DEC-0017, carried visibly rather than resolved. It does not block the
+Step; the owner conferred `GO WITH ACCEPTED DEVIATION` in full knowledge of it.
 
 ## 4. Public-repository exposure scan
 

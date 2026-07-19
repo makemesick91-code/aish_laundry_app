@@ -12,8 +12,8 @@ Canonical source: [`MASTER_SOURCE.md`](MASTER_SOURCE.md)
 
 | Step | Title | Status |
 | --- | --- | --- |
-| Step 0 | Master Source and Governance | GO |
-| Step 1 | Product Requirement and Domain Model | IN PROGRESS |
+| Step 0 | Master Source and Governance | GO WITH ACCEPTED DEVIATION |
+| Step 1 | Product Requirement and Domain Model | GO WITH ACCEPTED DEVIATION |
 | Step 2 | Design System and UX Foundation | PLANNED |
 | Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | PLANNED |
 | Step 4 | Laundry Master Data | PLANNED |
@@ -56,6 +56,48 @@ The deviation is locked as a decision record —
 the **canonical desired visibility remains PRIVATE**, enumerates the binding public-repository authoring
 constraints, and states that governance operates in **single-maintainer** mode with independent human
 approval **ABSENT**.
+
+---
+
+## 1a. Step 1 closure
+
+Step 1 reached **GO WITH ACCEPTED DEVIATION** on 19 July 2026, conferred by the repository owner
+against exact-SHA evidence (DEC-0013).
+
+| Closure item | Value |
+|---|---|
+| Step 1 PR | `#6`, merged |
+| Step 1 merge SHA | `a518ab56e1bee53751fa99b6741b7ae598283fcf` |
+| Governance amendment PR | `#7`, merged (DEC-0017, unambiguous CI contexts) |
+| **Tagged commit** | `4eadbc73f8bacdc9cd2acfcc62280ac932116089` |
+| GO tag | `aish-laundry-step-01-product-requirement-domain-model-v1.2.0-go` |
+| GO tag object SHA | `faed53c7ed3c5c164e48c861ed065661f6461270` |
+| GO tag type | annotated, immutable |
+| Ruleset | ID `19164588`, active, 0 bypass actors, 9 required checks |
+| Governance validators | 32 / 32 PASS |
+| Required CI checks at the tagged SHA | 9 / 9 success |
+| Open `CRITICAL` findings | 0 |
+| Open `HIGH` findings | 0 |
+
+**Accepted deviation — single-maintainer governance, no independent human review.**
+`MASTER_SOURCE.md` §25.1 item 12 requires a Step-closing pull request to be approved by someone other
+than the author. Under single-maintainer governance that person does not exist, so the item **cannot be
+satisfied**. It is recorded as a standing accepted deviation in
+[`DEC-0017`](decisions/DEC-0017-single-maintainer-approval-standing-deviation.md), which names the
+compensating controls and states plainly that they are **not equivalent** to independent review: a
+defect that both the maintainer and the validators miss is not caught.
+
+Step 1 GO therefore means every technical and governance gate passed, **with the independent-approval
+requirement deliberately deviated from and documented**. It does not mean the requirement was met.
+
+**Step 1 delivered documentation only.** No runtime was created. **Documentation is not
+implementation**, and a written acceptance criterion is not a passed test.
+
+**26 documented open questions remain open** for the repository owner
+([`product/ASSUMPTIONS_AND_OPEN_QUESTIONS.md`](product/ASSUMPTIONS_AND_OPEN_QUESTIONS.md)). None was
+closed by inventing a product decision, and none is a retroactive Step 1 blocker.
+
+**Step 2 has not begun.**
 
 ---
 
@@ -135,7 +177,11 @@ feature.**
 | UAT | NOT STARTED |
 
 There is no application code, therefore there is nothing to build or test. Application CI becomes
-applicable at Step 3. Governance validation is performed by `scripts/verify-step-00.sh`.
+applicable at Step 3. Governance validation is performed by `scripts/verify-step-01.sh`, which runs the
+Step 0 gates still in force plus the Step 1 gates (32 gates in total).
+
+**A written acceptance criterion is not a passed test.** Step 1 defined acceptance criteria; it executed
+none of them, because there is nothing to execute them against.
 
 ---
 

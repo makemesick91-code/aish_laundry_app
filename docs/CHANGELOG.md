@@ -16,6 +16,57 @@ Nothing yet.
 
 ---
 
+## Step 1 closure — 2026-07-19
+
+Evidence-only synchronization after the Step 1 GO tag. **No product decision, no
+canonical fact, and no Master Source content was changed by this entry**; the
+Master Source remains v1.2.0 with an unchanged checksum.
+
+### Changed
+
+- `docs/STATUS.md` — Step 1 moved from `IN PROGRESS` to
+  `GO WITH ACCEPTED DEVIATION`, with the closure SHAs recorded and the deviation
+  stated explicitly. Step 0 restated as `GO WITH ACCEPTED DEVIATION` for
+  consistency with how its own deviation was recorded.
+- `docs/ROADMAP.md` — Step 1 status and tag reference.
+- `evidence/step-01/security-review.md` — **SR-09 closed** (the owner applied the
+  ruleset change; it was then re-read independently through the API rather than
+  accepted on report). **SR-11 added and fixed**: two workflows each named their
+  job `validate`, so the new gates could not have been required separately —
+  adding them to the ruleset would have produced an ambiguous rule rather than
+  real enforcement.
+
+### Added
+
+- `evidence/step-01/post-tag-evidence.md` — tag facts, the ten independent
+  pre-tag verifications, and the ruleset state at tag time.
+- `evidence/step-01/final-closure.md` — the Step 1 closure record.
+
+### Closure record
+
+| Item | Value |
+|---|---|
+| Step 1 PR | `#6` |
+| Step 1 merge SHA | `a518ab56e1bee53751fa99b6741b7ae598283fcf` |
+| Governance amendment PR | `#7` |
+| **Tagged commit** | `4eadbc73f8bacdc9cd2acfcc62280ac932116089` |
+| GO tag | `aish-laundry-step-01-product-requirement-domain-model-v1.2.0-go` |
+| GO tag object SHA | `faed53c7ed3c5c164e48c861ed065661f6461270` |
+| Ruleset | ID `19164588`, active, 0 bypass actors, **9 required checks** |
+| Governance gates | 32 / 32 PASS |
+| Open `CRITICAL` / `HIGH` findings | 0 / 0 |
+
+**Accepted deviation:** single-maintainer governance, no independent human review
+(DEC-0017). Step 1 GO means every technical and governance gate passed **with
+that requirement deliberately deviated from and documented** — not that it was
+met.
+
+Steps 2–14 remain `PLANNED`. All product features remain `NOT IMPLEMENTED`. No
+runtime exists. **No Step 2 work has started.** The 26 documented open questions
+remain open and are not retroactive Step 1 blockers.
+
+---
+
 ## [1.2.0] — 2026-07-19
 
 Records single-maintainer approval as a standing accepted deviation, and gives the
