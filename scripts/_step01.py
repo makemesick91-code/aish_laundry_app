@@ -336,6 +336,56 @@ def requirement_ids(text: str) -> set[str]:
     return {f"{m.group(1)}-{int(m.group(2)):03d}" for m in REQUIREMENT_ID.finditer(text)}
 
 
+#: Negation vocabulary, stem-matched so "forbidden" and "prohibited" both count.
+#: An earlier version used ``\bforbid\b``, which does not match "forbidden", and
+#: forced correct prose to be reworded to satisfy the checker.
+NEGATION = re.compile(
+    r"\b(?:never|not|no|must\s+not|cannot|forbid\w*|prohibit\w*|disallow\w*"
+    r"|avoid\w*|refuse\w*|reject\w*|without|out\s+of\s+scope|non-goal)\b",
+    re.IGNORECASE,
+)
+
+
+def block_at(text: str, pos: int) -> str:
+    """Return the markdown block containing ``pos`` — a paragraph or a table row.
+
+    Scope selection here is load-bearing and was got wrong twice:
+
+    * A character window is wrong in both directions. Too narrow and correct
+      prose is flagged; too wide and a real violation is excused because some
+      unrelated neighbouring sentence contained the word "not". Widening a
+      window to silence false positives measurably broke the disposal and
+      route-optimization gates.
+    * Splitting on every newline is also wrong, because markdown wraps a single
+      sentence across lines. "…must never claim a route optimisation engine"
+      wrapped mid-clause, so the negation landed on the previous physical line
+      and the phrase read as an unnegated claim.
+
+    A paragraph (text between blank lines) or a single table row is the smallest
+    unit that reliably holds a statement together with its negation.
+    """
+    line_start = text.rfind("\n", 0, pos) + 1
+    line_end = text.find("\n", pos)
+    if line_end == -1:
+        line_end = len(text)
+
+    # A table row is self-contained: the negation often sits in a later cell.
+    if text[line_start:line_end].lstrip().startswith("|"):
+        return text[line_start:line_end]
+
+    para_start = text.rfind("\n\n", 0, pos)
+    para_start = 0 if para_start == -1 else para_start + 2
+    para_end = text.find("\n\n", pos)
+    if para_end == -1:
+        para_end = len(text)
+    return text[para_start:para_end]
+
+
+def is_negated(text: str, pos: int) -> bool:
+    """True when the block containing ``pos`` negates the matched phrase."""
+    return NEGATION.search(block_at(text, pos)) is not None
+
+
 def strip_code_blocks(text: str) -> str:
     """Remove fenced code blocks so prose checks are not fooled by examples."""
     return re.sub(r"```.*?```", "", text, flags=re.DOTALL)

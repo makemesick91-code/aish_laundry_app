@@ -14,7 +14,13 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _common import Reporter, repo_root, run_main  # noqa: E402
-from _step01 import DELIVERY_STATUSES, corpus, read, strip_code_blocks  # noqa: E402
+from _step01 import (  # noqa: E402
+    DELIVERY_STATUSES,
+    corpus,
+    is_negated,
+    read,
+    strip_code_blocks,
+)
 
 DOMAIN_DOC = "docs/domain/PICKUP_DELIVERY_DOMAIN.md"
 SM_DOC = "docs/state-machines/PICKUP_DELIVERY_STATE_MACHINE.md"
@@ -94,12 +100,10 @@ def main() -> int:
     for pattern, label in FALSE_OPTIMIZATION:
         offending = []
         for m in re.finditer(pattern, whole, re.IGNORECASE):
-            window = whole[max(0, m.start() - 200) : m.start() + 200].lower()
-            # A negated mention ("never claim an optimal route") is correct.
-            if re.search(
-                r"\b(?:never|not|no|must not|forbid|prohibit|avoid|refuse|without)\b",
-                window,
-            ):
+            # Sentence scope: "the product never claims an optimal route" is
+            # correct prose and must not be flagged, while a claim sitting near
+            # an unrelated negated sentence must not be excused.
+            if is_negated(whole, m.start()):
                 continue
             offending.append(m.group(0))
         if offending:

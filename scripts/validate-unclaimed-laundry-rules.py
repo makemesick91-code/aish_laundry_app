@@ -14,7 +14,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _common import Reporter, repo_root, run_main  # noqa: E402
-from _step01 import corpus, read  # noqa: E402
+from _step01 import corpus, is_negated, read  # noqa: E402
 
 DOMAIN_DOC = "docs/domain/UNCLAIMED_LAUNDRY_DOMAIN.md"
 SM_DOC = "docs/state-machines/UNCLAIMED_LAUNDRY_STATE_MACHINE.md"
@@ -135,9 +135,9 @@ def main() -> int:
     offending = []
     for term in DISPOSAL_TERMS:
         for m in re.finditer(re.escape(term), whole):
-            window = whole[max(0, m.start() - 160) : m.start() + 160]
-            # A negated mention ("never automatically discard") is the correct form.
-            if re.search(r"\b(?:never|no|not|prohibit|forbid|must not|refuse)\b", window):
+            # Sentence scope, not a window: "the product never automatically
+            # discards laundry" is the correct form and must not be flagged.
+            if is_negated(whole, m.start()):
                 continue
             offending.append(term)
             break
