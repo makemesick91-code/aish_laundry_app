@@ -1,16 +1,26 @@
 ---
-# Aish Laundry App — runtime detection.
+# Aish Laundry App — runtime scope classification.
 #
-# Rendered check name (referenced by branch protection, do not rename):
-#   "Runtime Detection / classify"
+# Rendered check name (referenced by branch protection ruleset 19164588 — DO NOT RENAME):
+#   "classify"
 #
-# Step 0 forbids any application runtime. This job does NOT pretend to run
-# Flutter or backend pipelines and never prints a fake "tests passed". It
-# genuinely inspects the working tree:
-#   - if no runtime manifest exists, every application-level check is reported
-#     as NOT_APPLICABLE_UNTIL_RUNTIME_EXISTS;
-#   - if a runtime manifest IS found, the job FAILS loudly, because its presence
-#     violates the Step 0 scope guard.
+# HISTORY OF THIS WORKFLOW
+# ------------------------
+# Through Steps 0-2 this job asserted that NO application runtime existed anywhere,
+# and failed loudly if a runtime manifest appeared. That was correct for those steps.
+#
+# Step 3 is the first canonical step authorised to introduce runtime (DEC-0024), so
+# an absence guard can no longer be the policy for current main — it would make Step 3
+# impossible to perform. The guard is therefore TRANSITIONED, not deleted:
+#
+#   current main / Step 3+  -> scripts/validate-runtime-scope.py   (allowlist, fail-closed)
+#   Step 0-2 GO tags        -> scripts/validate-no-runtime.py      (absence, unchanged)
+#
+# Neither guard is applied to the other's period. Applying the absence guard to current
+# main would block authorised work; applying the scope guard to a historical tag would
+# re-judge a GO under rules that did not exist when it was conferred.
+#
+# This job classifies SCOPE. It runs no application test and claims no test result.
 
 name: Runtime Detection
 
@@ -31,7 +41,7 @@ jobs:
   classify:
     name: classify
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     permissions:
       contents: read
     steps:
@@ -39,86 +49,122 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
           persist-credentials: false
+          fetch-depth: 0   # tags required for the historical regression check
 
-      - name: Detect Flutter and backend runtime manifests
-        id: detect
+      - name: Classify current runtime scope
         run: |
           set -euo pipefail
 
-          detected=""
+          echo "=================================================================="
+          echo "CURRENT TREE — runtime scope classification"
+          echo "=================================================================="
 
-          check_path() {
-            # check_path <label> <path>
-            if [ -e "$2" ]; then
-              echo "DETECTED  $1 -> $2"
-              detected="${detected} $2"
-            else
-              echo "absent    $1 -> $2"
-            fi
-          }
-
-          echo "--- Flutter runtime manifests ---"
-          check_path "Flutter pubspec"        "pubspec.yaml"
-          check_path "Flutter build cache"    ".dart_tool"
-          check_path "Flutter analysis config" "analysis_options.yaml"
-          check_path "Android app module"     "android/app"
-
-          echo "--- Flutter manifests inside app packages ---"
-          while IFS= read -r found; do
-            echo "DETECTED  Flutter pubspec -> ${found}"
-            detected="${detected} ${found}"
-          done < <(find . -path ./.git -prune -o -name pubspec.yaml -print 2>/dev/null)
-
-          while IFS= read -r found; do
-            echo "DETECTED  Android app module -> ${found}"
-            detected="${detected} ${found}"
-          done < <(find . -path ./.git -prune -o -type d -path '*/android/app' -print 2>/dev/null)
-
-          echo "--- Backend runtime manifests ---"
-          check_path "Laravel composer manifest" "backend/composer.json"
-          check_path "Laravel artisan console"   "backend/artisan"
-          check_path "Laravel bootstrap"         "backend/bootstrap/app.php"
-          check_path "Root composer manifest"    "composer.json"
-
-          detected="$(echo "${detected}" | tr -s ' ' | sed 's/^ //;s/ $//')"
-          echo "detected=${detected}" >> "${GITHUB_OUTPUT}"
-
-      - name: Report application check applicability
-        env:
-          DETECTED: ${{ steps.detect.outputs.detected }}
-        run: |
-          set -euo pipefail
-
-          checks="Flutter analyze
-          Flutter test
-          Android build
-          Backend lint
-          Backend static analysis
-          Application dependency scan"
-
-          if [ -n "${DETECTED}" ]; then
-            echo "=================================================================="
-            echo "RUNTIME DETECTED — Step 0 scope guard VIOLATED"
-            echo "=================================================================="
-            for path in ${DETECTED}; do
-              echo "  runtime manifest: ${path}"
-            done
+          if ! python3 scripts/validate-runtime-scope.py; then
             echo ""
-            echo "Step 0 (Master Source and Governance) must create NO application"
-            echo "runtime. A runtime manifest is present, so this workflow fails"
-            echo "rather than pretending the application pipelines ran."
+            echo "The runtime scope guard REJECTED this tree."
+            echo "The CLASSIFICATION line above states which class failed:"
+            echo "  FORBIDDEN_RUNTIME_SCOPE_DETECTED      runtime outside an approved root,"
+            echo "                                        a secret, personal data, or a missing"
+            echo "                                        governance transition"
+            echo "  STEP_4_PLUS_FEATURE_LEAKAGE_DETECTED  a Step 4+ business feature"
+            echo "  DEPLOYMENT_ARTIFACT_DETECTED          a deployment artifact"
+            echo "  VALIDATION_ERROR                      the guard could not complete"
             echo ""
-            echo "Resolution: remove the runtime, or advance the roadmap with a"
-            echo "decision record before introducing it."
+            echo "Resolution: remove the out-of-scope artefact. Do NOT widen the guard"
+            echo "to accommodate it — widening requires a superseding decision record."
             exit 1
           fi
 
+      - name: Verify Step 0-2 historical runtime absence at their immutable tags
+        run: |
+          set -euo pipefail
+
           echo "=================================================================="
-          echo "NO APPLICATION RUNTIME PRESENT"
+          echo "HISTORICAL REGRESSION — Steps 0-2 were runtime-free when tagged"
           echo "=================================================================="
-          echo "${checks}" | sed 's/^[[:space:]]*//' | while IFS= read -r check; do
-            [ -n "${check}" ] || continue
-            printf '%-30s -> %s\n' "${check}" "NOT_APPLICABLE_UNTIL_RUNTIME_EXISTS"
-          done
+          echo "Checked with the ABSENCE policy that governed those steps, against the"
+          echo "tagged commits themselves. Current main is NOT required to satisfy it."
           echo ""
-          echo "No application test was executed. No application test result is claimed."
+
+          workdir="$(mktemp -d)"
+          trap 'rm -rf "${workdir}"' EXIT
+
+          for tag in \
+            aish-laundry-step-00-master-source-governance-v1.0.0-go \
+            aish-laundry-step-01-product-requirement-domain-model-v1.2.0-go \
+            aish-laundry-step-02-design-system-ux-foundation-v1.3.0-go
+          do
+            echo "------------------------------------------------------------------"
+            echo "tag: ${tag}"
+
+            objtype="$(git cat-file -t "${tag}" 2>/dev/null || echo MISSING)"
+            if [ "${objtype}" != "tag" ]; then
+              echo "  FAIL  not an annotated tag (got: ${objtype})"
+              echo ""
+              echo "STATE: VALIDATION_ERROR"
+              exit 1
+            fi
+            echo "  ok    annotated tag"
+
+            peeled="$(git rev-parse "${tag}^{}")"
+            echo "  peeled commit: ${peeled}"
+
+            dest="${workdir}/${tag}"
+            mkdir -p "${dest}"
+            git archive "${peeled}" | tar -x -C "${dest}"
+
+            # Run the ABSENCE validator as it existed AT THAT COMMIT, against that
+            # commit's own tree. That is the policy which actually governed the snapshot.
+            if [ ! -f "${dest}/scripts/validate-no-runtime.py" ]; then
+              echo "  FAIL  historical absence validator missing at this tag"
+              echo ""
+              echo "STATE: VALIDATION_ERROR"
+              exit 1
+            fi
+
+            if ( cd "${dest}" && python3 scripts/validate-no-runtime.py >/dev/null 2>&1 ); then
+              echo "  PASS  RUNTIME ABSENCE VERIFIED at ${peeled}"
+            else
+              echo "  FAIL  runtime found at a tagged commit that must be runtime-free"
+              echo ""
+              echo "STATE: VALIDATION_ERROR"
+              exit 1
+            fi
+          done
+
+          echo ""
+          echo "STATE: STEP_0_TO_2_HISTORICAL_RUNTIME_ABSENCE_VERIFIED"
+
+      - name: Report application check applicability
+        run: |
+          set -euo pipefail
+
+          echo "=================================================================="
+          echo "APPLICATION PIPELINE APPLICABILITY"
+          echo "=================================================================="
+
+          runtime_present=0
+          for probe in backend/composer.json \
+                       apps/ops_android/pubspec.yaml \
+                       apps/customer_android/pubspec.yaml \
+                       apps/admin_web/pubspec.yaml
+          do
+            if [ -e "${probe}" ]; then runtime_present=1; fi
+          done
+
+          if [ "${runtime_present}" -eq 0 ]; then
+            echo "No Step 3 runtime manifest present yet."
+            for check in "Flutter analyze" "Flutter test" "Android build" \
+                         "Backend lint" "Backend static analysis" "Application dependency scan"
+            do
+              printf '  %-30s -> %s\n' "${check}" "NOT_APPLICABLE_UNTIL_RUNTIME_EXISTS"
+            done
+          else
+            echo "Step 3 runtime manifests present. Application pipelines are APPLICABLE"
+            echo "and are executed by their own dedicated workflows — not by this job."
+            echo ""
+            echo "  This job classified SCOPE only."
+            echo "  A runtime manifest is not evidence that a feature works."
+            echo "  No application test was executed here, and no application test"
+            echo "  result is claimed by this job."
+          fi

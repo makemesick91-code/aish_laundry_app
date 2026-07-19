@@ -13,7 +13,7 @@ Primary language: Bahasa Indonesia. Currency: Rupiah. Timezone: Asia/Jakarta.
 
 ## 1. Canonical source
 
-The single canonical source of truth is **`docs/MASTER_SOURCE.md`** (version **1.3.0**, baseline
+The single canonical source of truth is **`docs/MASTER_SOURCE.md`** (version **1.4.0**, baseline
 date **19 July 2026**).
 
 - This file (`CLAUDE.md`) and everything under `.claude/rules/` are **derived enforcement layers**.

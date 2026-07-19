@@ -5,7 +5,7 @@
 To hold one honest statement of what Step 1 is, what it produces, and — most importantly — what it does
 **not** produce, so that a large body of documentation is never mistaken for a working product.
 
-Canonical status: [`../../docs/STATUS.md`](../../docs/STATUS.md). Master Source version **1.3.0**.
+Canonical status: [`../../docs/STATUS.md`](../../docs/STATUS.md). Master Source version **1.4.0**.
 
 ## Status snapshot
 

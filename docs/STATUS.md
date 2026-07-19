@@ -2,7 +2,7 @@
 
 **This file is machine-validated. The status words below are exact and must not be paraphrased.**
 
-Baseline date: 19 July 2026 · Master Source version: 1.3.0
+Baseline date: 19 July 2026 · Master Source version: 1.4.0
 Status vocabulary: [`governance/STATUS_MODEL.md`](governance/STATUS_MODEL.md)
 Canonical source: [`MASTER_SOURCE.md`](MASTER_SOURCE.md)
 

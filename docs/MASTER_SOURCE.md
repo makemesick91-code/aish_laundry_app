@@ -1,6 +1,6 @@
 # Aish Laundry App — Master Source
 
-**Document version: 1.3.0**
+**Document version: 1.4.0**
 **Baseline date: 19 July 2026**
 
 Owner: Aish Tech Solution
@@ -1558,9 +1558,11 @@ must be claims the software can substantiate — the honesty rule (§3.1) applie
 
 ## 31. Decision records
 
-Twenty-three decisions are locked. Fifteen were locked at the 1.0.0 baseline; DEC-0016 was added at
-version 1.0.1, DEC-0017 at version 1.2.0, and DEC-0018 … DEC-0023 at version 1.3.0. All carry status
-**ACCEPTED** and date **19 July 2026**. Each has a full record in [`decisions/`](decisions/).
+Twenty-four decisions are locked. Fifteen were locked at the 1.0.0 baseline; DEC-0016 was added at
+version 1.0.1, DEC-0017 at version 1.2.0, DEC-0018 … DEC-0023 at version 1.3.0, and DEC-0024 at
+version 1.4.0. DEC-0001 … DEC-0023 carry date **19 July 2026**; DEC-0024 carries date
+**20 July 2026**. All carry status **ACCEPTED**. Each has a full record in
+[`decisions/`](decisions/).
 
 | ID | Title | Status | Record |
 | --- | --- | --- | --- |
@@ -1587,6 +1589,7 @@ version 1.0.1, DEC-0017 at version 1.2.0, and DEC-0018 … DEC-0023 at version 1
 | DEC-0021 | WCAG 2.2 AA-Aligned Accessibility Target | ACCEPTED | [DEC-0021](decisions/DEC-0021-wcag-22-aa-aligned-accessibility-target.md) |
 | DEC-0022 | Canonical UX State Taxonomy and Role-Adaptive Navigation | ACCEPTED | [DEC-0022](decisions/DEC-0022-canonical-ux-state-taxonomy-and-role-adaptive-navigation.md) |
 | DEC-0023 | Low-Fidelity SVG Wireframes; No Final-Logo Fabrication | ACCEPTED | [DEC-0023](decisions/DEC-0023-low-fidelity-wireframes-and-no-final-logo-fabrication.md) |
+| DEC-0024 | Step 3 Runtime Introduction and Runtime Scope Guard Transition | ACCEPTED | [DEC-0024](decisions/DEC-0024-step-3-runtime-introduction-and-runtime-scope-guard-transition.md) |
 
 ### 31.1 Decision record rules
 
@@ -1609,6 +1612,39 @@ Mapping from foundation area to rule file, decision record, and validator:
 
 The canonical changelog is [`CHANGELOG.md`](CHANGELOG.md), maintained in Keep a Changelog format with
 semantic versioning.
+
+### 32.0000 Version 1.4.0
+
+**1.4.0 — 20 July 2026 — Step 3 runtime introduction and runtime scope guard transition.**
+
+Added DEC-0024, which authorises the first application runtime in this repository and transitions the
+mechanical guard that enforced its absence.
+
+Steps 0, 1, and 2 prohibited all application runtime, enforced by `scripts/validate-no-runtime.py` and
+by the required `Runtime Detection / classify` check. Step 3 is the first canonical step authorised to
+introduce runtime. Those two facts conflict, and the conflict is resolved by **versioning the guard
+semantics** rather than by deleting enforcement or by rewriting history:
+
+- current `main` and Step 3 onward are governed by an allowlist-based, fail-closed **runtime scope**
+  guard, `scripts/validate-runtime-scope.py`;
+- Steps 0–2 remain governed by the **runtime absence** guard, which is retained and executed against
+  their immutable `GO` tags;
+- neither guard is ever applied to the other's period, because doing so would either make Step 3
+  impossible or retroactively invalidate a `GO` conferred under rules that did not yet exist.
+
+The required status check context remains exactly `classify`. Its published name is unchanged; only
+the states it reports are extended, and it now reports a specific classification rather than a generic
+success message.
+
+The new guard is **stricter than the guard it replaces** in every dimension except the single one the
+owner authorised. In addition to placement rules it adds structural Step 4+ feature detection,
+deployment-artifact detection, credential detection, personal-data detection, and status-claim honesty
+checks — none of which the absence guard performed, because forbidding all runtime made them
+unnecessary.
+
+**Runtime existing is not runtime working.** A manifest is not a feature, a migration is not a tested
+schema, and this version bump confers no implementation status whatsoever. All product features remain
+`NOT IMPLEMENTED`, deployment remains `ABSENT`, and Step 4+ business features remain forbidden.
 
 ### 32.0000 Version 1.3.0
 
@@ -1939,4 +1975,4 @@ was met.
 
 ---
 
-*End of Master Source, version 1.3.0, baseline date 19 July 2026.*
+*End of Master Source, version 1.4.0, baseline date 19 July 2026.*
