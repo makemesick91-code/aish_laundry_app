@@ -2,7 +2,7 @@
 
 **Step:** 1 — Product Requirement and Domain Model
 **Status:** `NOT IMPLEMENTED` (documentation only; backend runtime `ABSENT`)
-**Canonical source:** [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) v1.0.1
+**Canonical source:** [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) v1.1.0
 
 This document maps the relationships between the twenty bounded contexts defined in
 [`BOUNDED_CONTEXTS.md`](BOUNDED_CONTEXTS.md). The diagrams are illustrations of the written rules

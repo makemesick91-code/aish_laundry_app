@@ -5,7 +5,7 @@
 **Step: 1 — Product Requirement and Domain Model**
 **Every requirement in this document has implementation status `NOT IMPLEMENTED`.**
 
-Canonical source: [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) version 1.0.1, baseline date
+Canonical source: [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) version 1.1.0, baseline date
 19 July 2026. This document is **subordinate**: where it disagrees with the Master Source, the Master
 Source wins and this document is defective and must be corrected.
 
@@ -61,7 +61,7 @@ Source wins and this document is defective and must be corrected.
 | Version | 1.0.0 |
 | Status | PLANNED until Step 1 GO; ACCEPTED thereafter |
 | Owner | Aish Tech Solution |
-| Canonical source | [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) v1.0.1, baseline 19 July 2026 |
+| Canonical source | [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) v1.1.0, baseline 19 July 2026 |
 | Roadmap Step | Step 1 — Product Requirement and Domain Model |
 | Primary language | Bahasa Indonesia |
 | Currency | Rupiah, stored as integer |

@@ -709,6 +709,169 @@ token plaintext, credentials, or OTP values. A retry, scheduler restart, or queu
 produce a second identical message; a duplicate reaching a customer is treated as a defect of the same
 class as a duplicate payment — investigate the deduplication key, fix it, and add a regression test.
 
+## 9A. Non-functional measurement scenarios
+
+The scenarios in this section differ in kind from those above. A functional criterion asks whether a
+behaviour is correct; a non-functional criterion asks whether a **measurement was taken, under stated
+conditions, against a stated threshold**.
+
+**Read this before any figure below.** Every numeric target reproduced here is a **TARGET THAT HAS NOT
+BEEN MEASURED**, exactly as stated in [`NON_FUNCTIONAL_REQUIREMENTS.md`](NON_FUNCTIONAL_REQUIREMENTS.md)
+§2. Nothing has been benchmarked, profiled, load-tested, or observed. **No scenario below asserts or
+implies that any target has been met.** Each describes the measurement that a future Step must perform
+and the evidence it must produce. A "Then" clause here is satisfied by *having measured and recorded the
+result at an exact SHA* — including when the recorded result is a failure. Recording a failure honestly
+satisfies the criterion; claiming an unmeasured pass does not.
+
+### AC-038 — Performance measurement on the baseline device class
+- **Context:** Cross-cutting — Performance
+- **Requirements:** NFR-001, NFR-003, NFR-007, NFR-011, NFR-041, NFR-047
+- **Step:** 13
+
+**Given** a production-equivalent environment and a defined device sample of the baseline class — a
+**low-end to mid-range Android phone on a congested mobile network**, which is the normal case and not a
+degraded one,
+**When** Step 13 executes the performance measurement programme: a load profile at defined normal load
+against common API endpoints; cold-start instrumentation after device reboot; image payload measurement
+per surface; a load test driving portal traffic while measuring the kasir intake path; a load test
+driving one tenant hard while measuring another; and a full flow walkthrough on the device sample,
+**Then** each measurement is recorded with its metric, environment, and observed value, bound to the
+exact commit SHA, and compared against its stated threshold — common API **p95 under 500 ms under
+defined normal load**; Android cold start **under 3.5 seconds on target device class**; the kasir path
+within its Step 13 budget under defined portal load; the cross-tenant latency impact within the bound
+Step 13 fixes; images compressed on device, served resized, and never loaded at full resolution in a
+list; and zero functional failures on the baseline device sample.
+
+**Negative path.** No target may be reported as met without a recorded measurement at the exact SHA —
+an unmeasured target is an **unverified claim** and must be labelled as such. A measurement taken at one
+SHA must **not** be carried over to another. A result must **not** be rounded, restated, or summarised in
+a way that changes its meaning. A failing measurement must be reported as failing rather than re-run
+until it passes and reported selectively. Measuring on a high-end device and presenting it as the
+baseline class is a false claim.
+
+### AC-039 — Availability, durability, and recovery drills
+- **Context:** Cross-cutting — Availability, durability, recovery
+- **Requirements:** NFR-009, NFR-010, NFR-017, NFR-043, NFR-044
+- **Step:** 13, availability baselined in 14
+
+**Given** a production-equivalent environment with encrypted backups configured,
+**When** Step 13 runs external synthetic availability checks against defined critical paths, injects a
+Redis outage, and performs a timed restore drill from a declared failure through to service restored,
+**Then** availability is measured over a defined window against the **99.9%** commercial availability
+target; the Redis outage is confirmed to have lost **zero orders and zero payments**; actual data loss in
+the restore drill is measured against **RPO 15 minutes maximum**; time to restored service is measured
+against **RTO 4 hours maximum**; and the drill produces unedited output recorded as evidence at the exact
+SHA.
+
+**Negative path.** **Restore is exercised, not assumed** — a backup never restored is not a backup, and
+no restore capability may be claimed on the strength of configuration alone. The Redis outage must
+**not** lose money or orders; losing either is an **automatic NO-GO** regardless of how availability
+measured. Availability must **not** be quoted from a provider's marketing figure in place of an observed
+measurement. There is currently no production environment and no observed availability, so **no
+availability figure may be stated as achieved** at this Step or any Step before one exists.
+
+### AC-040 — Observability signal coverage and redaction
+- **Context:** Cross-cutting — Observability and privacy
+- **Requirements:** NFR-023, NFR-033, NFR-034, NFR-036
+- **Step:** 13
+
+**Given** a running system emitting logs, traces, and metrics,
+**When** Step 13 validates log output against the declared schema, reconstructs a sampled customer
+interaction that crosses an API request, a queue, and a background job, inventories the collected
+signals, inventories configured alerts, and runs automated content assertions plus sampled review over
+the log and telemetry stores,
+**Then** production log output conforms to a stable structured schema; the correlation identifier is
+present at every hop of the reconstructed interaction; all seven minimum signals are present — API error
+rate and latency percentiles, queue depth and job failure rate, notification delivery outcomes per
+provider, offline sync backlog and conflict count, payment success/retry/duplicate-suppression counts,
+authentication failure and lockout rates, and unclaimed-laundry aging distribution; every alert has a
+named owner; and occurrences of personal data, credentials, OTPs, or tokens in the stores measure
+**zero**.
+
+**Negative path.** A single occurrence of a password, OTP, token, or credential in any log or telemetry
+store is an **automatic NO-GO** — redaction is enforced at the logging boundary, not by hoping nobody
+logs the wrong object, and "we did not find any" is only meaningful after having actually looked. Tenant
+context must appear as an identifier and **never** as personal data. An alert nobody acts on is deleted
+rather than retained, because alert fatigue is itself a security risk. A missing signal must **not** be
+substituted by an adjacent one and reported as coverage.
+
+### AC-041 — Accessibility and localisation conformance
+- **Context:** Cross-cutting — Accessibility, localisation
+- **Requirements:** NFR-025, NFR-026, NFR-027, NFR-045
+- **Step:** 2, enforced per surface thereafter
+
+**Given** the design system and every screen built on it,
+**When** a device font-scaling sweep is run at the largest supported scale, the design-system tokens are
+audited for contrast ratio and tap-target dimension, every status indicator is reviewed, and UI copy,
+currency formatting, and timezone handling are reviewed,
+**Then** zero critical truncations occur at the largest font scale; contrast and tap-target thresholds
+fixed in Step 2 are met; **status is never conveyed by colour alone** — every status carries text and/or
+an icon in addition to colour; and UI copy and user-facing error messages are in **Bahasa Indonesia**,
+currency is **Rupiah** formatted for Indonesian conventions and backed by **integer** values, business-day
+logic uses **Asia/Jakarta**, and quiet hours use **outlet local time**.
+
+**Negative path.** A layout that truncates critical information at a large font scale is a Definition of
+Done failure for the Step that introduced it, not a cosmetic backlog item. A status distinguished only by
+colour must **not** ship. An error message consisting of a code alone is not acceptable — errors explain
+what happened and what to do next. A currency value backed by a floating-point number must **not** ship
+regardless of how it renders.
+
+### AC-042 — Architectural and data-layer discipline
+- **Context:** Cross-cutting — Maintainability, scalability
+- **Requirements:** NFR-006, NFR-008, NFR-037, NFR-038
+- **Step:** 3 onward, budgets measured in 13
+
+**Given** the modular monolith backend and its PostgreSQL system of record,
+**When** module boundaries are reviewed for direct cross-module table access, query plans are reviewed
+for index support on tenant-scoped queries, request paths are reviewed for synchronous heavy work, and
+the API contract is diffed per release,
+**Then** cross-module direct table accesses measure zero; every tenant-scoped query in a user-facing path
+has a supporting index; zero user requests perform notification sending, report generation, or reminder
+evaluation inline; and zero breaking changes have been applied in place to `/api/v1` semantics.
+
+**Negative path.** **A tenant-scoped query without a supporting index is a defect, not a tuning
+opportunity**, and must be rejected rather than scheduled. A module reaching into another module's tables
+must be rejected — that is what turns a modular monolith into a mud ball. A breaking change to `/api/v1`
+must be reverted and shipped as a new version instead; mobile clients update slowly and old versions stay
+in the field. Splitting into microservices without a new accepted ADR must be refused.
+
+### AC-043 — Security register closure and audit-trail immutability
+- **Context:** Cross-cutting — Security, auditability
+- **Requirements:** SEC-021, SEC-050, SEC-055, NFR-021, NFR-022, NFR-050
+- **Step:** per owning criterion; audit and fail-closed behaviour measured in 13
+
+**Given** the security register `SEC-001` … `SEC-068` and the financial and security audit trails,
+**When** each Step verifies the criteria it owns and records the result at the exact SHA, a fault is
+injected making the rate-limit counter store unavailable, and mutation of an existing audit record is
+attempted,
+**Then** the count of unsatisfied criteria owned by that Step is zero at its Definition of Done; zero
+abusable requests are permitted while the counter store is unavailable; the audit-record mutation
+attempt fails because the trail is append-only and not subject to log rotation; each entry carries actor,
+tenant, outlet, timestamp, amounts before and after, and reason; and every completion claim is bound to
+an **exact 40-character commit SHA**.
+
+**Negative path.** Rate limiting must **fail closed**, never open — an outage must not silently remove a
+security control at the moment the system is least healthy. An audit record must **not** be editable or
+deletable by any ordinary path. A claim without SHA-bound evidence is an **unverified claim** and must be
+labelled as such rather than counted as satisfied. **Fabricated output is an automatic NO-GO** and voids
+every other claim from the same session until re-verified.
+
+### AC-044 — Pilot client stability
+- **Context:** Cross-cutting — Reliability
+- **Requirements:** NFR-012
+- **Step:** 14
+
+**Given** the pilot running with real laundry tenants on the target device class,
+**When** crash reporting is collected with personal data redacted at source across the pilot period,
+**Then** crash-free sessions are measured against the target of **at least 99.5%**, and the observed
+figure is recorded with its measurement window and device sample, bound to the exact SHA.
+
+**Negative path.** No crash-free figure may be stated before the pilot has run — **UAT is NOT STARTED and
+no session exists**, so any figure quoted today would be fabricated. Crash reports must **not** carry
+personal data; redaction happens at source. A figure measured on a narrow device sample must **not** be
+presented as representative of the target device class. A pilot period shortened until the number looks
+acceptable is status inflation, not measurement.
+
 ---
 
 ## 10. Coverage summary
@@ -752,8 +915,15 @@ class as a duplicate payment — investigate the deduplication key, fix it, and 
 | AC-035 | Tenant scoping of derived stores, artefacts, and audit | Identity and Tenancy | 3 |
 | AC-036 | Offline queue integrity, ordering, and conflict resolution | Order and Payment (offline) | 5 |
 | AC-037 | Notification content safety and deduplication | Tracking and Notification | 7 |
+| AC-038 | Performance measurement on the baseline device class | Performance | 13 |
+| AC-039 | Availability, durability, and recovery drills | Availability and recovery | 13 / 14 |
+| AC-040 | Observability signal coverage and redaction | Observability and privacy | 13 |
+| AC-041 | Accessibility and localisation conformance | Accessibility and localisation | 2 onward |
+| AC-042 | Architectural and data-layer discipline | Maintainability and scalability | 3 onward / 13 |
+| AC-043 | Security register closure and audit-trail immutability | Security and auditability | per criterion / 13 |
+| AC-044 | Pilot client stability | Reliability | 14 |
 
-**Total: 37 scenarios.** Every one carries both a happy path and a negative path. Tenant boundary,
+**Total: 44 scenarios.** Every one carries both a happy path and a negative path. Tenant boundary,
 financial integrity, and offline behaviour are named explicitly wherever they apply.
 
 ### 10.1 Requirement coverage
@@ -780,6 +950,16 @@ payment idempotency (AC-007), reversal-only correction (AC-028), offline `client
 courier cash reconciliation (AC-031), aging anchored to the first `READY_FOR_PICKUP` (AC-010) with the
 H+1/H+3/H+7/H+14 ladder (AC-013, AC-019), and quiet hours, deduplication, opt-out, and provider failure
 never changing order state (AC-013, AC-014, AC-015, AC-037).
+
+**Non-functional series.** All 50 of `NFR-001` … `NFR-050` are cited. The 23 that exercise a specific
+behaviour are cited from the functional scenarios; the remaining 27 are cited from the measurement
+scenarios in §9A, which state metric, environment, threshold, and the Step that measures them.
+
+Those measurement scenarios are satisfied by **having measured and recorded a result at an exact SHA**,
+not by the result being favourable. A recorded failure satisfies the criterion and must be reported as a
+failure; an unmeasured target reported as met is an **unverified claim** and, if presented as evidence,
+a false claim under Rule 01. Every numeric target in §9A is reproduced exactly as it appears in
+[`NON_FUNCTIONAL_REQUIREMENTS.md`](NON_FUNCTIONAL_REQUIREMENTS.md) §3 and **remains unmeasured**.
 
 **Deliberately uncovered.** Product-series requirements at `SHOULD` and `COULD` priority — FR-030,
 FR-032, FR-033, FR-042, FR-045, FR-054, FR-083, FR-118, FR-120, and RPT-017 — are not covered here. They

@@ -2,7 +2,7 @@
 
 **Step:** 1 — Product Requirement and Domain Model
 **Status:** `NOT IMPLEMENTED` (documentation only)
-**Canonical source:** [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) v1.0.1
+**Canonical source:** [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) v1.1.0
 **Decision records:**
 [DEC-0006](../decisions/DEC-0006-public-tracking-without-app-installation.md),
 [DEC-0014](../decisions/DEC-0014-customer-android-does-not-replace-public-tracking.md)

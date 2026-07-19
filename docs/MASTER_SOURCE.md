@@ -1,6 +1,6 @@
 # Aish Laundry App — Master Source
 
-**Document version: 1.0.1**
+**Document version: 1.1.0**
 **Baseline date: 19 July 2026**
 
 Owner: Aish Tech Solution
@@ -51,6 +51,7 @@ Repository visibility: **PUBLIC** — an accepted deviation from a canonical des
 | 31 | Decision records |
 | 32 | Changelog |
 | 33 | AI instructions |
+| 34 | Step 1 artefacts — requirements and domain model |
 
 ---
 
@@ -1215,7 +1216,7 @@ The roadmap is **locked**. Step numbers are never reused or swapped without a de
 | Step | Title | Status |
 | --- | --- | --- |
 | Step 0 | Master Source and Governance | GO |
-| Step 1 | Product Requirement and Domain Model | PLANNED |
+| Step 1 | Product Requirement and Domain Model | IN PROGRESS |
 | Step 2 | Design System and UX Foundation | PLANNED |
 | Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | PLANNED |
 | Step 4 | Laundry Master Data | PLANNED |
@@ -1565,6 +1566,16 @@ Mapping from foundation area to rule file, decision record, and validator:
 The canonical changelog is [`CHANGELOG.md`](CHANGELOG.md), maintained in Keep a Changelog format with
 semantic versioning.
 
+### 32.00 Version 1.1.0
+
+**1.1.0 — 19 July 2026 — Step 1 requirements and domain model.**
+
+Added §34, making the Step 1 artefacts canonical for their subject matter: the requirement identifier
+scheme, the fifteen order statuses, the eleven pickup/delivery statuses, the four quality-control
+statuses, and the twenty bounded contexts. Moved Step 1 to `IN PROGRESS` in §24. Classified MINOR under
+§1.2 because §34 is new canonical scope; **no existing product decision, pricing figure, roadmap
+number, or architectural lock was changed**, so no new decision record was required.
+
 ### 32.0 Version 1.0.1
 
 **1.0.1 — 19 July 2026 — Public repository deviation codified.**
@@ -1638,4 +1649,100 @@ files in `.claude/rules/`.
 
 ---
 
-*End of Master Source, version 1.0.1, baseline date 19 July 2026.*
+## 34. Step 1 artefacts — requirements and domain model
+
+Step 1 turns this document into precise, buildable requirements and a conceptual domain model. The
+artefacts below are **canonical for their subject matter** and subordinate to this document: where any
+of them disagrees with the Master Source, the Master Source wins and the artefact is defective (§1.1).
+
+### 34.1 Status
+
+**Step 1 produces documentation only.** It creates **no runtime**: no Flutter workspace, no Laravel
+application, no schema, no migration, no API, no UI, no deployment. Every product feature remains
+`NOT IMPLEMENTED`, the backend runtime and Flutter workspace remain `ABSENT`, application CI remains
+`NOT APPLICABLE`, and UAT remains `NOT STARTED`.
+
+**Documentation is not implementation.** A requirement, an invariant, a state machine, a threat, or an
+acceptance criterion states an obligation, never an achievement. **A written acceptance criterion is not
+a passed test.** Claiming otherwise is a false claim under §1.3.
+
+### 34.2 Canonical artefacts
+
+| Subject | Canonical artefact |
+| --- | --- |
+| Product requirements | [`product/PRODUCT_REQUIREMENTS.md`](product/PRODUCT_REQUIREMENTS.md) |
+| MVP boundary | [`product/MVP_SCOPE.md`](product/MVP_SCOPE.md) |
+| Personas | [`product/PERSONAS.md`](product/PERSONAS.md) |
+| Requirement traceability | [`product/REQUIREMENT_TRACEABILITY.md`](product/REQUIREMENT_TRACEABILITY.md) |
+| Domain vocabulary | [`domain/DOMAIN_GLOSSARY.md`](domain/DOMAIN_GLOSSARY.md) |
+| Bounded contexts | [`domain/BOUNDED_CONTEXTS.md`](domain/BOUNDED_CONTEXTS.md) |
+| Aggregates | [`domain/AGGREGATE_CATALOG.md`](domain/AGGREGATE_CATALOG.md) |
+| Domain invariants | [`domain/DOMAIN_INVARIANTS.md`](domain/DOMAIN_INVARIANTS.md) |
+| Tenant boundaries | [`domain/TENANT_BOUNDARIES.md`](domain/TENANT_BOUNDARIES.md) |
+| Order lifecycle | [`state-machines/ORDER_STATE_MACHINE.md`](state-machines/ORDER_STATE_MACHINE.md) |
+| Initial threat model | [`security/INITIAL_THREAT_MODEL.md`](security/INITIAL_THREAT_MODEL.md) |
+| Data classification | [`security/DATA_CLASSIFICATION.md`](security/DATA_CLASSIFICATION.md) |
+| Non-functional requirements | [`quality/NON_FUNCTIONAL_REQUIREMENTS.md`](quality/NON_FUNCTIONAL_REQUIREMENTS.md) |
+| Acceptance criteria | [`quality/ACCEPTANCE_CRITERIA.md`](quality/ACCEPTANCE_CRITERIA.md) |
+
+The full sets live under `docs/product/`, `docs/domain/`, `docs/state-machines/`, `docs/security/`, and
+`docs/quality/`.
+
+### 34.3 Requirement identifiers
+
+Requirements carry stable, permanent identifiers using these canonical prefixes: `FR-` functional,
+`NFR-` non-functional, `SEC-` security, `TEN-` tenancy, `FIN-` financial, `OFF-` offline, `TRK-`
+tracking, `DEL-` delivery, `UCL-` unclaimed laundry, `NOT-` notification, `SUB-` subscription, `RPT-`
+reporting.
+
+An identifier is **never reused**. A withdrawn requirement keeps its identifier and gains a withdrawal
+note, because every document that cited it would otherwise silently change meaning.
+
+### 34.4 The canonical status sets
+
+Fixed in Step 1 and binding on every later Step. Changing, adding, removing, or renaming any value
+requires a decision record.
+
+**Order status** — fifteen values: `DRAFT`, `RECEIVED`, `AWAITING_PROCESS`, `SORTING`, `WASHING`,
+`DRYING`, `FINISHING`, `QUALITY_CONTROL`, `REWORK`, `READY_FOR_PICKUP`, `SCHEDULED_FOR_DELIVERY`,
+`OUT_FOR_DELIVERY`, `COMPLETED`, `CANCELLED`, `ISSUE`.
+
+**Pickup and delivery job status** — eleven values: `REQUESTED`, `CONFIRMED`, `SCHEDULED`, `ASSIGNED`,
+`EN_ROUTE`, `ARRIVED`, `PICKED_UP`, `DELIVERED`, `FAILED`, `RESCHEDULED`, `CANCELLED`.
+
+**Quality control status** — four values: `PENDING`, `PASSED`, `FAILED_REWORK_REQUIRED`,
+`WAIVED_WITH_AUTHORIZATION`. A waiver requires an explicit permission, a recorded reason, and an audit
+entry.
+
+Every transition is explicitly enumerated in `docs/state-machines/`. There is no arbitrary status write
+and no generic client-controlled "set status" operation.
+
+### 34.5 The twenty bounded contexts
+
+Identity and Access · Tenant and Organization · Subscription and Entitlement · Customer Management ·
+Service Catalog and Pricing · Order Intake and POS · Production Operations · Quality Control and
+Rework · Payment and Receivables · Customer Tracking · Pickup and Delivery · Courier Assignment and
+Settlement · Notification and Communication · Unclaimed Laundry Recovery · Loyalty, Membership, and
+Deposit · Reporting and Owner Portfolio · Audit and Compliance · Platform Administration · Offline
+Synchronization · File and Evidence Management.
+
+Every aggregate belongs to exactly one bounded context, and backend module boundaries mirror this set
+(§6.2). Adding, removing, renaming, or merging a context requires a decision record.
+
+### 34.6 Conceptual, not physical
+
+The Step 1 domain model is **conceptual**. Any entity-relationship diagram in it carries the literal
+marker `CONCEPTUAL DOMAIN MODEL — NOT DATABASE SCHEMA`. Physical schema, indexes, and migrations arrive
+at **Step 3** and are forbidden before then (§24.1).
+
+### 34.7 Verification
+
+Step 1 is verified by `bash scripts/verify-step-01.sh`, which runs the Step 0 governance gates that
+remain in force plus the Step 1 gates. Its output is bound to an exact commit SHA (DEC-0013).
+
+These are **governance validators**, not application tests. There are no unit, widget, integration, or
+end-to-end tests in Step 1, because there is no application, and none may be claimed (§28.1).
+
+---
+
+*End of Master Source, version 1.1.0, baseline date 19 July 2026.*

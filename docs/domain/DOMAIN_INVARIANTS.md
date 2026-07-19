@@ -2,7 +2,7 @@
 
 **Step:** 1 — Product Requirement and Domain Model
 **Status:** `NOT IMPLEMENTED` (documentation only; nothing here is built, tested, or verified)
-**Canonical source:** [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) v1.0.1
+**Canonical source:** [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) v1.1.0
 
 This is the **numbered requirement register** for the domain-model half of Step 1. Every identifier
 below is owned by this document; other Step 1 documents reference these identifiers rather than

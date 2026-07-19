@@ -2,7 +2,7 @@
 
 **Step:** 1 — Product Requirement and Domain Model
 **Status:** `NOT IMPLEMENTED` (documentation only; no schema, no class, no migration)
-**Canonical source:** [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) v1.0.1
+**Canonical source:** [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) v1.1.0
 
 This catalogue defines the **24 canonical value objects** of the domain and the rules that make them
 correct. A value object is defined by its value, is immutable once constructed, validates itself at

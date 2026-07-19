@@ -2,7 +2,7 @@
 
 **Step:** 1 — Product Requirement and Domain Model
 **Status:** `NOT IMPLEMENTED` (documentation only; backend runtime `ABSENT`, Flutter workspace `ABSENT`)
-**Canonical source:** [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) v1.0.1
+**Canonical source:** [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) v1.1.0
 
 This glossary fixes the vocabulary of the Aish Laundry App domain so that every later document, API
 contract, and (eventually) implementation uses one word for one concept. Where a term is canonical in
