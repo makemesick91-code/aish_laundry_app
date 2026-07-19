@@ -74,6 +74,30 @@ security and privacy baseline for every step of the roadmap.
 - Exports carry the same access rules as the underlying records.
 - Personal data appearing in error reports, analytics, or crash traces must be redacted at source.
 
+## Public-repository authoring constraints
+
+This repository is **PUBLIC** — an accepted deviation from a canonical desired **PRIVATE**
+(Master Source §15.8,
+[DEC-0016](../../docs/decisions/DEC-0016-public-repository-visibility-accepted-deviation.md)). Every file
+is world-readable and permanently so. **Deletion is not remediation**: assume anything committed is
+mirrored, cached, and indexed the moment it is pushed.
+
+25. **Never commit** customer data of any kind; real customer phone numbers, names, or addresses; or
+    photographs of customer laundry or premises.
+26. **Never commit** credentials, tokens, OTP values, private keys, `.env` files, or production
+    configuration.
+27. **Never commit** database dumps, backups, sensitive server addresses, or internal network topology.
+28. **Never commit** internal incident data containing personal data, raw authentication output, or
+    third-party provider and billing secrets.
+29. **Evidence packs are sanitised before commit**, and they state that sanitisation occurred.
+30. **Every example datum is fictional** and recognisably so. Invent examples; never copy them from
+    reality — not from a real customer, not from a real device, not from a real log.
+31. **Only `PUBLIC` and sanitised `INTERNAL` material is committed.** The `CONFIDENTIAL`, `RESTRICTED`,
+    and `SECRET` classes may be described and modelled, but never instantiated with real values.
+32. **Governance is single-maintainer.** Independent human approval is **ABSENT**. The compensating
+    controls are the active ruleset, exact-SHA CI, deterministic validators, and recorded internal
+    re-verification. Never present internal re-verification as independent peer review.
+
 ## Step 0 note
 
 None of the above is implemented yet. Security is delivered progressively across Steps 3, 7, 8, 12

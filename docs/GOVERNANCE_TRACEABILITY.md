@@ -32,6 +32,7 @@ validator, it is unverified. Gaps are stated openly rather than hidden.
 | 15 | §21 Pricing and commercial guardrails | [`14-pricing-and-commercial.md`](../.claude/rules/14-pricing-and-commercial.md) | [DEC-0009](decisions/DEC-0009-initial-commercial-pricing.md), [DEC-0010](decisions/DEC-0010-no-lifetime-cloud-subscription.md), [DEC-0011](decisions/DEC-0011-transparent-third-party-messaging-costs.md) | [`scripts/verify-step-00.sh`](../scripts/verify-step-00.sh) |
 | 16 | §22, §23, §24 Current product status, MVP, and non-goals | [`15-current-product-status.md`](../.claude/rules/15-current-product-status.md) | [DEC-0015](decisions/DEC-0015-mvp-focuses-on-laundry-operations.md) | [`scripts/verify-step-00.sh`](../scripts/verify-step-00.sh) |
 | 17 | §9 Public tracking portal | [`03-security-and-privacy.md`](../.claude/rules/03-security-and-privacy.md), [`15-current-product-status.md`](../.claude/rules/15-current-product-status.md) | [DEC-0006](decisions/DEC-0006-public-tracking-without-app-installation.md), [DEC-0014](decisions/DEC-0014-customer-android-does-not-replace-public-tracking.md) | [`scripts/verify-step-00.sh`](../scripts/verify-step-00.sh) |
+| 18 | §15.8 Public repository authoring constraints and single-maintainer governance | [`00-canonical-source.md`](../.claude/rules/00-canonical-source.md), [`03-security-and-privacy.md`](../.claude/rules/03-security-and-privacy.md), [`11-git-and-ci.md`](../.claude/rules/11-git-and-ci.md) | [DEC-0016](decisions/DEC-0016-public-repository-visibility-accepted-deviation.md) | [`scripts/verify-step-00.sh`](../scripts/verify-step-00.sh) |
 
 ---
 
@@ -57,6 +58,7 @@ operationalised.
 | [DEC-0013](decisions/DEC-0013-exact-sha-evidence-before-go.md) | Exact-SHA Evidence Before GO | `01-status-and-evidence.md`, `11-git-and-ci.md`, `12-autonomous-execution.md` | [Evidence](governance/EVIDENCE_POLICY.md) |
 | [DEC-0014](decisions/DEC-0014-customer-android-does-not-replace-public-tracking.md) | Customer Android Does Not Replace Public Tracking | `05-flutter-client-foundation.md`, `15-current-product-status.md` | — |
 | [DEC-0015](decisions/DEC-0015-mvp-focuses-on-laundry-operations.md) | MVP Focuses on Laundry Operations | `15-current-product-status.md` | — |
+| [DEC-0016](decisions/DEC-0016-public-repository-visibility-accepted-deviation.md) | Public Repository Visibility Accepted Deviation | `00-canonical-source.md`, `03-security-and-privacy.md`, `11-git-and-ci.md` | [Evidence](governance/EVIDENCE_POLICY.md) |
 
 ---
 

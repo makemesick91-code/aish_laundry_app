@@ -71,7 +71,16 @@ pipeline exists is a false claim under Rule 01.
 21. Repository visibility, branch protection, rulesets, collaborators, and secrets are **owner
     territory**. An agent never changes them. Unrequested visibility changes via `gh api` are blocked
     by the destructive-operations guard.
-22. Never describe this repository as private. It is **PUBLIC** by deliberate owner decision.
+22. Never describe this repository as private. It is **PUBLIC** by deliberate owner decision — an
+    accepted deviation from a canonical desired PRIVATE, locked by
+    [DEC-0016](../../docs/decisions/DEC-0016-public-repository-visibility-accepted-deviation.md). PUBLIC
+    visibility is what buys platform-enforced branch protection on a free plan; it is the reason the
+    ruleset can be enforced at all, and it is also why every commit must satisfy the authoring
+    constraints in Rule 03.
+23. **A future move to PRIVATE requires re-verifying the ruleset after the change.** Changing repository
+    visibility can silently drop ruleset enforcement, which would turn a governance improvement into a
+    governance regression. Visibility changes remain owner territory (rule 21) and require a superseding
+    decision record.
 
 ## Violation handling
 

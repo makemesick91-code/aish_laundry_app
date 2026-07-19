@@ -16,6 +16,65 @@ Nothing yet.
 
 ---
 
+## [1.0.1] — 2026-07-19
+
+Master Source amendment codifying the public-repository deviation as a canonical,
+re-examinable decision rather than an unexamined default. **No product decision,
+no pricing figure, no roadmap number, and no architectural lock was changed.**
+Classified MINOR under [`MASTER_SOURCE.md`](MASTER_SOURCE.md) §1.2 because §15.8
+is new canonical scope rather than a clarification.
+
+### Added
+
+- **`DEC-0016` — Public Repository Visibility Accepted Deviation**
+  ([record](decisions/DEC-0016-public-repository-visibility-accepted-deviation.md)).
+  Records that the **canonical desired visibility remains PRIVATE** and that
+  PUBLIC is an accepted deviation taken to obtain platform-enforced branch
+  protection on a free plan; enumerates the binding authoring constraints; states
+  that governance operates in **single-maintainer** mode with independent human
+  approval **ABSENT**; and defines the upgrade path, including re-verification of
+  the ruleset **after** any future visibility change.
+- **`MASTER_SOURCE.md` §15.8 — Public repository authoring constraints.** Every
+  file is world-readable and permanently so; deletion is not remediation. No
+  customer data, credentials, tokens, OTP values, private keys, `.env` files,
+  production configuration, dumps, backups, sensitive server addresses, internal
+  incident data containing personal data, raw authentication output, or provider
+  and billing secrets. Evidence packs are sanitised and say so; every example
+  datum is fictional; only `PUBLIC` and sanitised `INTERNAL` material is
+  committed.
+
+### Changed
+
+- `MASTER_SOURCE.md` header, footer, and §21.6 — visibility is now stated as
+  PUBLIC **as an accepted deviation from a canonical desired PRIVATE**, rather
+  than as a bare fact.
+- `MASTER_SOURCE.md` §24, `ROADMAP.md`, and `STATUS.md` — Step 0 is recorded as
+  **GO**, conferred by the owner on 19 July 2026 against exact-SHA evidence,
+  carrying the visibility deviation explicitly. Previously these files still read
+  `IN PROGRESS`, which had become stale after the Step 0 tag.
+- `MASTER_SOURCE.md` §31 — decision-record count moved from fifteen to sixteen.
+- `STATUS.md` §7 rule 3 — reworded from "Step 0 must never be recorded with the
+  release status word" to the accurate rule: `GO` is owner-conferred, never
+  self-declared, and is written only after the owner confers it against
+  exact-SHA evidence and the Step has merged.
+- `ASSUMPTIONS.md` — AMENDMENT-0001 now points at DEC-0016 as the record that
+  locks and extends it. The amendment text itself is unedited.
+- `scripts/validate-master-source.py` — the version assertion is now anchored to
+  the document header **and** footer and requires them to agree. The previous
+  loose substring search would have passed even after a botched version bump,
+  because historical versions are quoted in the changelog section.
+- `scripts/validate-decisions.py` and `scripts/validate-required-files.py` —
+  decision-record range extended to DEC-0016.
+
+### Fixed
+
+- The changelog footer previously stated *"no release tag has been created yet"*.
+  That became false when
+  `aish-laundry-step-00-master-source-governance-v1.0.0-go` was created. The
+  statement is corrected below rather than quietly deleted.
+
+---
+
 ## Step 0 closure — 2026-07-19
 
 Evidence-only synchronization after the GO tag. No product decision, no canonical
@@ -137,7 +196,16 @@ Aish Laundry App. **No runtime, no application, no deployment was created.**
 
 [Unreleased]: https://github.com/makemesick91-code/aish_laundry_app/compare/main...HEAD
 [1.0.0]: https://github.com/makemesick91-code/aish_laundry_app/releases
+[1.0.1]: https://github.com/makemesick91-code/aish_laundry_app/releases
 
-Note: no release tag has been created yet. A tag is only created when Step 0 satisfies its Definition of
-Done with exact-SHA evidence, following the naming convention in
-[`GIT_AND_RELEASE_POLICY.md`](GIT_AND_RELEASE_POLICY.md).
+**Tag status.** One annotated tag exists:
+`aish-laundry-step-00-master-source-governance-v1.0.0-go`, tag object
+`e95c60a14c6b976fc8cdb94e7ba0d3a7b0cce9b9`, peeled to commit
+`8494bc8543b9301351da6055337832597f1f2d9f`. It is immutable and is never moved,
+deleted, or re-pointed.
+
+A tag is created only when a Step satisfies its Definition of Done with exact-SHA
+evidence, following the naming convention in
+[`GIT_AND_RELEASE_POLICY.md`](GIT_AND_RELEASE_POLICY.md). Master Source version
+1.0.1 is a document amendment, not a Step closure, and therefore carries **no
+tag of its own**.

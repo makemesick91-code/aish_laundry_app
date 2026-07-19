@@ -10,8 +10,12 @@ document wins is how products silently drift away from their owner's decisions.
 
 **`docs/MASTER_SOURCE.md`** is the canonical source of truth.
 
-- Master Source version: **1.0.0**
+- Master Source version: **1.0.1**
 - Baseline date: **19 July 2026**
+
+The repository is **PUBLIC**, which is an accepted deviation from a canonical desired **PRIVATE**
+(§15.8, [DEC-0016](../../docs/decisions/DEC-0016-public-repository-visibility-accepted-deviation.md)).
+Never describe this repository as private, and never treat the deviation as a settled preference.
 
 ## Hard rules
 

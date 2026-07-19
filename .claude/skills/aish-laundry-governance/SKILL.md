@@ -12,7 +12,7 @@ Product: **Aish Laundry App** (Aish Tech Solution). Bahasa Indonesia, Rupiah, As
 
 ## 1. Read the canonical source first
 
-`docs/MASTER_SOURCE.md` is the single source of truth (version 1.0.0, baseline 19 July 2026).
+`docs/MASTER_SOURCE.md` is the single source of truth (version 1.0.1, baseline 19 July 2026).
 **Read it before making any change.** Recollection is not a substitute.
 
 Conflict order: Master Source → decision records in `docs/decisions/` → `CLAUDE.md` →
@@ -25,7 +25,7 @@ Never invent a product decision. Unanswered questions go to the repository owner
 
 | Item | Status |
 |---|---|
-| Step 0 — Master Source and Governance | IN PROGRESS |
+| Step 0 — Master Source and Governance | GO (owner-conferred, with a recorded deviation) |
 | Steps 1–14 | PLANNED |
 | All product features | NOT IMPLEMENTED |
 | Backend runtime | ABSENT |
@@ -35,10 +35,16 @@ Never invent a product decision. Unanswered questions go to the repository owner
 | UAT | NOT STARTED |
 
 Approved vocabulary only: `PLANNED`, `IN PROGRESS`, `TESTED`, `WATCH`, `NOT IMPLEMENTED`, `ABSENT`,
-`NOT APPLICABLE`, `NOT STARTED`, `NO-GO`. **Never write `GO` as the Step 0 status** — the maximum is
-`IN PROGRESS`, `TESTED`, or `WATCH`. `GO` is conferred by the owner.
+`NOT APPLICABLE`, `NOT STARTED`, `NO-GO`. **`GO` is conferred by the owner and never self-declared by an
+agent** — while a Step's pull request is open the maximum is `IN PROGRESS`, `TESTED`, or `WATCH`. Step 0
+carries `GO` because the owner conferred it after merge against exact-SHA evidence.
 
-The repository is **PUBLIC** by deliberate owner decision (AMENDMENT-0001). Never call it private.
+The repository is **PUBLIC** by deliberate owner decision (AMENDMENT-0001), locked by DEC-0016 as an
+accepted deviation from a canonical desired **PRIVATE**. Never call it private, and never present PUBLIC
+as the desired end state. Every file is world-readable and permanently so; deletion is not remediation.
+Never commit customer data, credentials, tokens, OTPs, keys, `.env` files, dumps, or provider secrets.
+Every example datum is fictional. Governance is **single-maintainer**: independent human approval is
+ABSENT, and internal re-verification is never described as peer review.
 
 ## 3. Evidence discipline
 

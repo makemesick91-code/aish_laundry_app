@@ -1,6 +1,6 @@
 # Aish Laundry App — Master Source
 
-**Document version: 1.0.0**
+**Document version: 1.0.1**
 **Baseline date: 19 July 2026**
 
 Owner: Aish Tech Solution
@@ -8,7 +8,9 @@ Category: Multi-Tenant Laundry Operations, Customer Tracking, Pickup and Deliver
 Primary market: Laundry UMKM dan jaringan laundry Indonesia
 Primary language: Bahasa Indonesia · Currency: Rupiah · Timezone: Asia/Jakarta
 Local monorepo root: `aish_laundry` · Remote repository: `aish_laundry_app` · Default branch: `main`
-Repository visibility: **PUBLIC** (see [`ASSUMPTIONS.md`](ASSUMPTIONS.md), AMENDMENT-0001)
+Repository visibility: **PUBLIC** — an accepted deviation from a canonical desired **PRIVATE**
+(see [`ASSUMPTIONS.md`](ASSUMPTIONS.md) AMENDMENT-0001, and
+[DEC-0016](decisions/DEC-0016-public-repository-visibility-accepted-deviation.md))
 
 ---
 
@@ -811,6 +813,44 @@ a GO tag, and is not subject to schedule negotiation.
 
 Full policy: [`governance/TENANT_ISOLATION_POLICY.md`](governance/TENANT_ISOLATION_POLICY.md).
 
+### 15.8 Public repository authoring constraints
+
+This repository is **PUBLIC**. That is an accepted deviation from a canonical desired **PRIVATE**,
+recorded in AMENDMENT-0001 and locked by
+[DEC-0016](decisions/DEC-0016-public-repository-visibility-accepted-deviation.md). The deviation is not a
+judgement that public is adequate; it is the price paid for platform-enforced branch protection on a free
+plan.
+
+Two consequences are canonical.
+
+**First, every file in this repository is world-readable and permanently so.** Deletion is not
+remediation: anything committed must be assumed mirrored, cached, and indexed. A secret is compromised at
+the moment it is pushed, and rotation — not removal — is the first response ([`../SECURITY.md`](../SECURITY.md)).
+
+**Second, the following must never be committed**, in any file type, including documentation, examples,
+test fixtures, and evidence packs:
+
+20. Customer data of any kind; real customer phone numbers, names, or addresses; photographs of customer
+    laundry or premises.
+21. Credentials, tokens, OTP values, private keys, `.env` files, or production configuration.
+22. Database dumps, backups, sensitive server addresses, or internal network topology.
+23. Internal incident data containing personal data, raw authentication output, third-party provider
+    secrets, or billing credentials.
+
+Stated positively:
+
+- **Evidence packs are sanitised before commit**, and they state that sanitisation occurred.
+- **Every example datum is fictional** and recognisably so. An example is invented, never copied from
+  reality.
+- **Only `PUBLIC` and sanitised `INTERNAL` material is committed.** The `CONFIDENTIAL`, `RESTRICTED`, and
+  `SECRET` classes may be described and modelled, but never instantiated with real values.
+- **This repository is never described as private** (§1.3, §33.4).
+
+**Governance operates in single-maintainer mode.** Independent human approval is **ABSENT**. The
+compensating controls are the active ruleset, exact-SHA CI, deterministic validators, and recorded
+internal re-verification. That is stated plainly here so that no report can present internal
+re-verification as independent peer review.
+
 ---
 
 ## 16. Financial integrity
@@ -1079,9 +1119,15 @@ laundry from operating mid-shift.
 
 ### 21.6 Public visibility notice
 
-Because the repository is PUBLIC (AMENDMENT-0001 in [`ASSUMPTIONS.md`](ASSUMPTIONS.md)), the pricing
-above and the commercial reasoning behind it are publicly visible. This is an accepted consequence of the
-owner's deliberate decision to enable branch protection.
+Because the repository is PUBLIC (AMENDMENT-0001 in [`ASSUMPTIONS.md`](ASSUMPTIONS.md), locked by
+[DEC-0016](decisions/DEC-0016-public-repository-visibility-accepted-deviation.md)), the pricing above and
+the commercial reasoning behind it are publicly visible. This is an accepted consequence of the owner's
+deliberate decision to enable branch protection.
+
+The canonical desired visibility remains **PRIVATE**. PUBLIC is an accepted deviation, re-examinable
+under the upgrade path in DEC-0016, not a settled preference. Because pricing is publicly readable, every
+figure in this section must be accurate at all times; a stale price on a public repository is a
+commercial risk, not a typo (§15.8).
 
 ---
 
@@ -1168,7 +1214,7 @@ The roadmap is **locked**. Step numbers are never reused or swapped without a de
 
 | Step | Title | Status |
 | --- | --- | --- |
-| Step 0 | Master Source and Governance | IN PROGRESS |
+| Step 0 | Master Source and Governance | GO |
 | Step 1 | Product Requirement and Domain Model | PLANNED |
 | Step 2 | Design System and UX Foundation | PLANNED |
 | Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | PLANNED |
@@ -1186,6 +1232,14 @@ The roadmap is **locked**. Step numbers are never reused or swapped without a de
 
 Scope summaries for each Step: [`ROADMAP.md`](ROADMAP.md).
 Current machine-validated status: [`STATUS.md`](STATUS.md).
+
+Step 0 reached **GO** on 19 July 2026, conferred by the repository owner against exact-SHA evidence
+(DEC-0013). That GO carries one recorded deviation: repository visibility is PUBLIC where the canonical
+requirement was PRIVATE (§15.8, DEC-0016). Step 0 GO therefore means every technical and governance gate
+passed **with the visibility requirement deliberately amended and documented** — it does not mean the
+original PRIVATE requirement was met. The honesty rule in §1.3 item 4 governs what may be written *during*
+a foundation pull request and is not retroactively violated by an owner-conferred GO recorded after
+merge.
 
 ### 24.1 Step 0 scope guard
 
@@ -1227,8 +1281,9 @@ A Step is Done only when every applicable item below is true and evidenced.
 
 Step 0 additionally requires:
 
-1. `docs/MASTER_SOURCE.md` exists at version 1.0.0 with baseline date 19 July 2026 and covers all
-   thirty-three canonical sections.
+1. `docs/MASTER_SOURCE.md` existed at version 1.0.0 with baseline date 19 July 2026 and covered all
+   thirty-three canonical sections. (The document has since moved to 1.0.1 under §1.2; the Step 0
+   Definition of Done is assessed against the 1.0.0 state that Step 0 delivered.)
 2. All fifteen decision records DEC-0001 … DEC-0015 exist, each with status ACCEPTED, date 19 July 2026,
    and every required heading.
 3. Governance policies exist: required files, status model, evidence policy, tenant isolation policy,
@@ -1465,8 +1520,9 @@ must be claims the software can substantiate — the honesty rule (§3.1) applie
 
 ## 31. Decision records
 
-Fifteen decisions are locked at the 1.0.0 baseline. All carry status **ACCEPTED** and date
-**19 July 2026**. Each has a full record in [`decisions/`](decisions/).
+Sixteen decisions are locked. Fifteen were locked at the 1.0.0 baseline; DEC-0016 was added at version
+1.0.1. All carry status **ACCEPTED** and date **19 July 2026**. Each has a full record in
+[`decisions/`](decisions/).
 
 | ID | Title | Status | Record |
 | --- | --- | --- | --- |
@@ -1485,6 +1541,7 @@ Fifteen decisions are locked at the 1.0.0 baseline. All carry status **ACCEPTED*
 | DEC-0013 | Exact-SHA Evidence Before GO | ACCEPTED | [DEC-0013](decisions/DEC-0013-exact-sha-evidence-before-go.md) |
 | DEC-0014 | Customer Android Does Not Replace Public Tracking | ACCEPTED | [DEC-0014](decisions/DEC-0014-customer-android-does-not-replace-public-tracking.md) |
 | DEC-0015 | MVP Focuses on Laundry Operations | ACCEPTED | [DEC-0015](decisions/DEC-0015-mvp-focuses-on-laundry-operations.md) |
+| DEC-0016 | Public Repository Visibility Accepted Deviation | ACCEPTED | [DEC-0016](decisions/DEC-0016-public-repository-visibility-accepted-deviation.md) |
 
 ### 31.1 Decision record rules
 
@@ -1507,6 +1564,16 @@ Mapping from foundation area to rule file, decision record, and validator:
 
 The canonical changelog is [`CHANGELOG.md`](CHANGELOG.md), maintained in Keep a Changelog format with
 semantic versioning.
+
+### 32.0 Version 1.0.1
+
+**1.0.1 — 19 July 2026 — Public repository deviation codified.**
+
+Added §15.8 (public repository authoring constraints and single-maintainer governance), recorded the
+canonical desired visibility as PRIVATE with PUBLIC as an accepted deviation (§21.6), recorded Step 0 as
+GO with its deviation (§24), and added DEC-0016. No product decision, no pricing figure, no roadmap
+number, and no architectural lock was changed. Classified MINOR under §1.2 because §15.8 is new canonical
+scope rather than a clarification.
 
 ### 32.1 Baseline entry
 
@@ -1571,4 +1638,4 @@ files in `.claude/rules/`.
 
 ---
 
-*End of Master Source, version 1.0.0, baseline date 19 July 2026.*
+*End of Master Source, version 1.0.1, baseline date 19 July 2026.*
