@@ -60,7 +60,10 @@ GITHUB_FILES = [
 ]
 
 EXPECTED_RULE_COUNT = 36
-EXPECTED_DECISION_COUNT = 23
+# DEC-0024 (Step 3 runtime introduction and runtime scope guard transition) added at
+# Master Source 1.4.0. Raising this count WIDENS coverage — every record up to the
+# count must exist — so it can never be used to skip a record.
+EXPECTED_DECISION_COUNT = 24
 
 
 def main() -> int:
