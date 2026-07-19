@@ -1,0 +1,97 @@
+# Aish Laundry App — ignored paths.
+#
+# This file must NEVER ignore anything Step 0 has to commit:
+#   README.md, CLAUDE.md, CONTRIBUTING.md, SECURITY.md, .editorconfig,
+#   docs/**, scripts/**, .github/**, .claude/rules/**, .claude/hooks/**,
+#   .claude/skills/**, and the runtime placeholder READMEs.
+
+# ---------------------------------------------------------------------------
+# Secrets and credentials — never commit these.
+# ---------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+id_rsa
+id_rsa.*
+id_dsa
+id_dsa.*
+id_ecdsa
+id_ecdsa.*
+id_ed25519
+id_ed25519.*
+credentials.json
+service-account*.json
+secrets.yml
+secrets.yaml
+
+# ---------------------------------------------------------------------------
+# Local tooling state (not part of the governed repository).
+# ---------------------------------------------------------------------------
+.claude/settings.local.json
+graphify-out/
+
+# ---------------------------------------------------------------------------
+# Logs and temporary output.
+# ---------------------------------------------------------------------------
+*.log
+logs/
+log/
+tmp/
+temp/
+.cache/
+*.tmp
+*.bak
+*.orig
+*.rej
+
+# ---------------------------------------------------------------------------
+# OS junk.
+# ---------------------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ---------------------------------------------------------------------------
+# Editor and IDE junk.
+# ---------------------------------------------------------------------------
+.idea/
+*.iml
+*.iws
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*.swo
+*~
+.history/
+*.sublime-workspace
+*.sublime-project
+
+# ---------------------------------------------------------------------------
+# Node (no Node runtime exists in Step 0; this is defensive only).
+# ---------------------------------------------------------------------------
+node_modules/
+.npm/
+.yarn/
+.pnpm-store/
+
+# ---------------------------------------------------------------------------
+# Python bytecode from running the validators locally.
+# ---------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/

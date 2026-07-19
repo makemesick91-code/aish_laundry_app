@@ -1,0 +1,124 @@
+---
+# Aish Laundry App — runtime detection.
+#
+# Rendered check name (referenced by branch protection, do not rename):
+#   "Runtime Detection / classify"
+#
+# Step 0 forbids any application runtime. This job does NOT pretend to run
+# Flutter or backend pipelines and never prints a fake "tests passed". It
+# genuinely inspects the working tree:
+#   - if no runtime manifest exists, every application-level check is reported
+#     as NOT_APPLICABLE_UNTIL_RUNTIME_EXISTS;
+#   - if a runtime manifest IS found, the job FAILS loudly, because its presence
+#     violates the Step 0 scope guard.
+
+name: Runtime Detection
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: runtime-detection-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  classify:
+    name: classify
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Detect Flutter and backend runtime manifests
+        id: detect
+        run: |
+          set -euo pipefail
+
+          detected=""
+
+          check_path() {
+            # check_path <label> <path>
+            if [ -e "$2" ]; then
+              echo "DETECTED  $1 -> $2"
+              detected="${detected} $2"
+            else
+              echo "absent    $1 -> $2"
+            fi
+          }
+
+          echo "--- Flutter runtime manifests ---"
+          check_path "Flutter pubspec"        "pubspec.yaml"
+          check_path "Flutter build cache"    ".dart_tool"
+          check_path "Flutter analysis config" "analysis_options.yaml"
+          check_path "Android app module"     "android/app"
+
+          echo "--- Flutter manifests inside app packages ---"
+          while IFS= read -r found; do
+            echo "DETECTED  Flutter pubspec -> ${found}"
+            detected="${detected} ${found}"
+          done < <(find . -path ./.git -prune -o -name pubspec.yaml -print 2>/dev/null)
+
+          while IFS= read -r found; do
+            echo "DETECTED  Android app module -> ${found}"
+            detected="${detected} ${found}"
+          done < <(find . -path ./.git -prune -o -type d -path '*/android/app' -print 2>/dev/null)
+
+          echo "--- Backend runtime manifests ---"
+          check_path "Laravel composer manifest" "backend/composer.json"
+          check_path "Laravel artisan console"   "backend/artisan"
+          check_path "Laravel bootstrap"         "backend/bootstrap/app.php"
+          check_path "Root composer manifest"    "composer.json"
+
+          detected="$(echo "${detected}" | tr -s ' ' | sed 's/^ //;s/ $//')"
+          echo "detected=${detected}" >> "${GITHUB_OUTPUT}"
+
+      - name: Report application check applicability
+        env:
+          DETECTED: ${{ steps.detect.outputs.detected }}
+        run: |
+          set -euo pipefail
+
+          checks="Flutter analyze
+          Flutter test
+          Android build
+          Backend lint
+          Backend static analysis
+          Application dependency scan"
+
+          if [ -n "${DETECTED}" ]; then
+            echo "=================================================================="
+            echo "RUNTIME DETECTED — Step 0 scope guard VIOLATED"
+            echo "=================================================================="
+            for path in ${DETECTED}; do
+              echo "  runtime manifest: ${path}"
+            done
+            echo ""
+            echo "Step 0 (Master Source and Governance) must create NO application"
+            echo "runtime. A runtime manifest is present, so this workflow fails"
+            echo "rather than pretending the application pipelines ran."
+            echo ""
+            echo "Resolution: remove the runtime, or advance the roadmap with a"
+            echo "decision record before introducing it."
+            exit 1
+          fi
+
+          echo "=================================================================="
+          echo "NO APPLICATION RUNTIME PRESENT"
+          echo "=================================================================="
+          echo "${checks}" | sed 's/^[[:space:]]*//' | while IFS= read -r check; do
+            [ -n "${check}" ] || continue
+            printf '%-30s -> %s\n' "${check}" "NOT_APPLICABLE_UNTIL_RUNTIME_EXISTS"
+          done
+          echo ""
+          echo "No application test was executed. No application test result is claimed."

@@ -1,0 +1,25 @@
+---
+# Aish Laundry App — dependency updates.
+#
+# Step 0 has no application runtime, so only the github-actions ecosystem is
+# configured. Application ecosystems (pub, composer) are added in the step that
+# actually introduces them.
+
+version: 2
+
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "02:00"
+      timezone: "Asia/Jakarta"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "ci"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    reviewers:
+      - "makemesick91-code"

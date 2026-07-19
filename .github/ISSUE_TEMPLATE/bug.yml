@@ -1,0 +1,95 @@
+---
+name: Bug report
+description: Laporkan perilaku yang salah pada artefak yang benar-benar ada di repositori.
+title: "[BUG] "
+labels:
+  - bug
+  - triage
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Step 0 hanya berisi dokumentasi, tata kelola, validator, dan CI.
+        Belum ada aplikasi, backend, atau deployment. Jangan melaporkan bug
+        untuk fitur yang statusnya PLANNED.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Bagian repositori yang bermasalah.
+      options:
+        - Master Source document
+        - Decision record
+        - Governance document
+        - Rule file (.claude/rules)
+        - Validator script (scripts/)
+        - GitHub Actions workflow
+        - Repository configuration
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: file
+    attributes:
+      label: File path
+      description: Path relatif terhadap root repositori.
+      placeholder: docs/MASTER_SOURCE.md
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+      description: Apa yang seharusnya terjadi.
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+      description: Apa yang benar-benar terjadi.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction steps
+      description: Perintah persis yang dijalankan dan keluarannya.
+      placeholder: |
+        1. bash scripts/verify-step-00.sh
+        2. Gate "pricing" melaporkan FAIL
+      render: shell
+    validations:
+      required: true
+
+  - type: input
+    id: commit
+    attributes:
+      label: Commit SHA
+      description: SHA persis tempat masalah diamati.
+      placeholder: 0000000000000000000000000000000000000000
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact
+      description: Apakah ini melanggar hard gate (tenant isolation, financial integrity, no-runtime)?
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Confirmations
+      options:
+        - label: Saya tidak menyertakan secret, token, atau kredensial apa pun.
+          required: true
+        - label: Saya sudah memeriksa bahwa fitur terkait tidak berstatus PLANNED.
+          required: true

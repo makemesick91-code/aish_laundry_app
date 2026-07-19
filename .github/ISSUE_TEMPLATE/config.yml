@@ -1,0 +1,12 @@
+---
+blank_issues_enabled: false
+contact_links:
+  - name: Master Source (single source of truth)
+    url: https://github.com/makemesick91-code/aish_laundry_app/blob/main/docs/MASTER_SOURCE.md
+    about: Baca dokumen kanonik lebih dulu. Sebagian besar pertanyaan sudah dijawab di sana.
+  - name: Roadmap and current status
+    url: https://github.com/makemesick91-code/aish_laundry_app/blob/main/docs/STATUS.md
+    about: Status resmi setiap step. Fitur berstatus PLANNED belum diimplementasikan.
+  - name: Security policy
+    url: https://github.com/makemesick91-code/aish_laundry_app/blob/main/SECURITY.md
+    about: Laporkan kerentanan keamanan lewat jalur ini, bukan lewat issue publik.
