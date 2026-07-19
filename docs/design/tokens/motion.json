@@ -1,0 +1,107 @@
+{
+  "$meta": {
+    "layer": "primitive",
+    "file": "motion.json",
+    "step": "Step 2 — Design System and UX Foundation",
+    "status": "NOT IMPLEMENTED",
+    "theme": "none",
+    "description": "Motion durations and easing, plus the reduced-motion contract. Motion serves comprehension, never decoration."
+  },
+  "tokens": {
+    "motion.duration.instant": {
+      "value": 0,
+      "type": "duration",
+      "unit": "ms",
+      "description": "Duration instant.",
+      "scope": [
+        "global"
+      ]
+    },
+    "motion.duration.fast": {
+      "value": 120,
+      "type": "duration",
+      "unit": "ms",
+      "description": "Duration fast.",
+      "scope": [
+        "global"
+      ]
+    },
+    "motion.duration.normal": {
+      "value": 200,
+      "type": "duration",
+      "unit": "ms",
+      "description": "Duration normal.",
+      "scope": [
+        "global"
+      ]
+    },
+    "motion.duration.slow": {
+      "value": 320,
+      "type": "duration",
+      "unit": "ms",
+      "description": "Duration slow.",
+      "scope": [
+        "global"
+      ]
+    },
+    "motion.duration.deliberate": {
+      "value": 480,
+      "type": "duration",
+      "unit": "ms",
+      "description": "Duration deliberate.",
+      "scope": [
+        "global"
+      ]
+    },
+    "motion.easing.standard": {
+      "value": "cubic-bezier(0.2, 0, 0, 1)",
+      "type": "cubicBezier",
+      "unit": "none",
+      "description": "Easing curve standard.",
+      "scope": [
+        "global"
+      ]
+    },
+    "motion.easing.decelerate": {
+      "value": "cubic-bezier(0, 0, 0, 1)",
+      "type": "cubicBezier",
+      "unit": "none",
+      "description": "Easing curve decelerate.",
+      "scope": [
+        "global"
+      ]
+    },
+    "motion.easing.accelerate": {
+      "value": "cubic-bezier(0.3, 0, 1, 1)",
+      "type": "cubicBezier",
+      "unit": "none",
+      "description": "Easing curve accelerate.",
+      "scope": [
+        "global"
+      ]
+    },
+    "motion.easing.linear": {
+      "value": "cubic-bezier(0, 0, 1, 1)",
+      "type": "cubicBezier",
+      "unit": "none",
+      "description": "Easing curve linear.",
+      "scope": [
+        "global"
+      ]
+    },
+    "motion.reduced.duration": {
+      "value": 0,
+      "type": "duration",
+      "unit": "ms",
+      "description": "Duration applied to every non-essential transition when the user has requested reduced motion. Motion is removed, never merely shortened.",
+      "scope": [
+        "global"
+      ],
+      "accessibilityNotes": "When prefers-reduced-motion is set, decorative transitions, parallax and looping animation are disabled. Essential feedback (a progress indicator, a sync spinner) is replaced by a non-animated equivalent that still communicates state, never by silence.",
+      "prohibitedUsage": [
+        "Never ignored.",
+        "Never used as an excuse to remove the state signal along with the animation."
+      ]
+    }
+  }
+}

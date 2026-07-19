@@ -1,0 +1,84 @@
+{
+  "$meta": {
+    "layer": "primitive",
+    "file": "radius.json",
+    "step": "Step 2 — Design System and UX Foundation",
+    "status": "NOT IMPLEMENTED",
+    "theme": "none",
+    "description": "Corner radius scale. Radius never conveys meaning or state."
+  },
+  "tokens": {
+    "radius.none": {
+      "value": 0,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Corner radius none. Radius is decorative and never conveys state.",
+      "scope": [
+        "global"
+      ]
+    },
+    "radius.xs": {
+      "value": 2,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Corner radius xs. Radius is decorative and never conveys state.",
+      "scope": [
+        "global"
+      ]
+    },
+    "radius.sm": {
+      "value": 4,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Corner radius sm. Radius is decorative and never conveys state.",
+      "scope": [
+        "global"
+      ]
+    },
+    "radius.md": {
+      "value": 8,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Corner radius md. Radius is decorative and never conveys state.",
+      "scope": [
+        "global"
+      ]
+    },
+    "radius.lg": {
+      "value": 12,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Corner radius lg. Radius is decorative and never conveys state.",
+      "scope": [
+        "global"
+      ]
+    },
+    "radius.xl": {
+      "value": 16,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Corner radius xl. Radius is decorative and never conveys state.",
+      "scope": [
+        "global"
+      ]
+    },
+    "radius.pill": {
+      "value": 999,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Corner radius pill. Radius is decorative and never conveys state.",
+      "scope": [
+        "global"
+      ]
+    },
+    "radius.full": {
+      "value": 999,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Fully rounded corner for pills, avatars and circular icon buttons. Synonym of radius.pill; components may name either. Radius is decorative and never conveys state.",
+      "scope": [
+        "global"
+      ]
+    }
+  }
+}

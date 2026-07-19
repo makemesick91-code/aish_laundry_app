@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 720" width="360" height="720">
+  <rect x="0" y="0" width="360" height="720" rx="0" fill="#f8fafc" stroke="#94a3b8" stroke-width="1"/>
+  <rect x="0" y="0" width="360" height="58" rx="0" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"/>
+  <text x="14" y="26" font-family="sans-serif" font-size="16" fill="#1e293b" font-weight="bold" text-anchor="start">Pembayaran</text>
+  <text x="14" y="46" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">SCR-OPS-016 | Aish Laundry Ops Android</text>
+  <rect x="0" y="58" width="360" height="46" rx="0" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="10" y="76" font-family="sans-serif" font-size="10" fill="#1e293b" font-weight="normal" text-anchor="start">Laundry Bersih Sejahtera / Outlet Cempaka / Kasir</text>
+  <text x="10" y="94" font-family="sans-serif" font-size="9" fill="#475569" font-weight="normal" text-anchor="start">Konteks tenant aktif dikunci di setiap layar</text>
+  <rect x="238" y="74" width="112" height="20" rx="10" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+  <text x="294" y="88" font-family="sans-serif" font-size="10" fill="#1e293b" font-weight="bold" text-anchor="middle">MENUNGGU SINKRON 3</text>
+  <rect x="14" y="114" width="332" height="70" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="134" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">AL-2026-000123</text>
+  <text x="26" y="151" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Siti Rahmawati | 1,5 kg</text>
+  <rect x="226" y="122" width="108" height="20" rx="10" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+  <text x="280" y="136" font-family="sans-serif" font-size="10" fill="#1e293b" font-weight="bold" text-anchor="middle">READY_FOR_PICKUP</text>
+  <rect x="14" y="192" width="332" height="70" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="212" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Total tagihan</text>
+  <text x="26" y="229" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Rp25.000</text>
+  <text x="26" y="246" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Rupiah bulat, tanpa bilangan pecahan</text>
+  <rect x="14" y="270" width="332" height="70" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="290" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Diterima tunai</text>
+  <text x="26" y="307" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Rp25.000</text>
+  <text x="26" y="324" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Total otoritatif dihitung di server</text>
+  <rect x="14" y="348" width="332" height="76" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="368" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Status pembayaran luring</text>
+  <text x="26" y="385" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">BELUM DIKONFIRMASI SERVER</text>
+  <text x="26" y="402" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Konfirmasi muncul setelah sinkronisasi berhasil</text>
+  <rect x="14" y="432" width="332" height="70" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="452" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Idempotensi</text>
+  <text x="26" y="469" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">client_reference: cr-pay-000125</text>
+  <text x="26" y="486" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Percobaan ulang tidak membuat pembayaran kedua</text>
+  <rect x="14" y="510" width="332" height="62" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="530" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Koreksi</text>
+  <text x="26" y="547" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Tanpa hapus. Koreksi lewat pembalikan atau penyesuaian</text>
+  <rect x="14" y="636" width="332" height="48" rx="6" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"/>
+  <text x="180" y="666" font-family="sans-serif" font-size="14" fill="#1e293b" font-weight="bold" text-anchor="middle">Catat Pembayaran Rp25.000</text>
+  <line x1="14" y1="692" x2="346" y2="692" stroke="#94a3b8" stroke-width="1"/>
+  <text x="14" y="706" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="bold" text-anchor="start">LOW-FIDELITY — NOT IMPLEMENTED</text>
+  <text x="14" y="717" font-family="sans-serif" font-size="9" fill="#475569" font-weight="normal" text-anchor="start">Wireframe tata letak saja. Bukan UI final. Data contoh fiktif.</text>
+  <text x="346" y="706" font-family="sans-serif" font-size="9" fill="#475569" font-weight="normal" text-anchor="end">360x720</text>
+</svg>

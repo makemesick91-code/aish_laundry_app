@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 720" width="360" height="720">
+  <rect x="0" y="0" width="360" height="720" rx="0" fill="#f8fafc" stroke="#94a3b8" stroke-width="1"/>
+  <rect x="0" y="0" width="360" height="58" rx="0" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"/>
+  <text x="14" y="26" font-family="sans-serif" font-size="16" fill="#1e293b" font-weight="bold" text-anchor="start">Beranda Pelanggan</text>
+  <text x="14" y="46" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">SCR-CUS-004 | Aish Laundry Customer Android</text>
+  <rect x="14" y="68" width="332" height="62" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="88" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Halo, Budi Santoso</text>
+  <text x="26" y="105" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Outlet Cempaka | Laundry Bersih Sejahtera</text>
+  <rect x="14" y="138" width="332" height="80" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="158" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Pesanan aktif</text>
+  <text x="26" y="175" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">AL-2026-000123 | 1,5 kg</text>
+  <text x="26" y="192" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Perkiraan selesai hari ini 14:30</text>
+  <rect x="226" y="146" width="108" height="20" rx="10" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+  <text x="280" y="160" font-family="sans-serif" font-size="10" fill="#1e293b" font-weight="bold" text-anchor="middle">WASHING</text>
+  <rect x="14" y="226" width="332" height="62" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="246" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Aksi cepat</text>
+  <text x="26" y="263" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Lacak Pesanan | Minta Jemput | Riwayat</text>
+  <rect x="14" y="296" width="332" height="62" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="316" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Tagihan berjalan</text>
+  <text x="26" y="333" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Total sementara Rp25.000</text>
+  <text x="26" y="350" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Angka final muncul setelah penimbangan</text>
+  <rect x="14" y="366" width="332" height="62" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="386" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Jadwal antar</text>
+  <text x="26" y="403" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Jendela waktu 14:30</text>
+  <text x="26" y="420" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Alamat: Jl. Melati (detail dibuka saat tiba)</text>
+  <rect x="14" y="436" width="332" height="60" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="456" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Pemberitahuan terbaru</text>
+  <text x="26" y="473" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Pengingat pengambilan H+1 terkirim</text>
+  <rect x="14" y="504" width="332" height="56" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="524" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Program loyalitas</text>
+  <text x="26" y="541" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Poin tersimpan per tenant, tidak lintas tenant</text>
+  <rect x="14" y="636" width="332" height="48" rx="6" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"/>
+  <text x="180" y="666" font-family="sans-serif" font-size="14" fill="#1e293b" font-weight="bold" text-anchor="middle">Buat Permintaan Jemput</text>
+  <line x1="14" y1="692" x2="346" y2="692" stroke="#94a3b8" stroke-width="1"/>
+  <text x="14" y="706" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="bold" text-anchor="start">LOW-FIDELITY — NOT IMPLEMENTED</text>
+  <text x="14" y="717" font-family="sans-serif" font-size="9" fill="#475569" font-weight="normal" text-anchor="start">Wireframe tata letak saja. Bukan UI final. Data contoh fiktif.</text>
+  <text x="346" y="706" font-family="sans-serif" font-size="9" fill="#475569" font-weight="normal" text-anchor="end">360x720</text>
+</svg>

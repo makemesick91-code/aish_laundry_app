@@ -51,7 +51,7 @@ is a **false claim** and is corrected immediately and visibly.
 Step 1 is Done only when **every** gate below holds and is evidenced.
 
 ### Gate 1 — Master Source alignment
-All Step 1 documentation is consistent with [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) v1.2.0. Nothing
+All Step 1 documentation is consistent with [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) v1.3.0. Nothing
 contradicts, extends, or softens it. No product decision was invented to close a gap; unanswered
 questions are raised to the owner or recorded as assumptions, never resolved by invention. Any change to
 the Master Source itself carries a version bump, a tool-regenerated checksum, and a decision record —

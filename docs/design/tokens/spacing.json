@@ -1,0 +1,138 @@
+{
+  "$meta": {
+    "layer": "primitive",
+    "file": "spacing.json",
+    "step": "Step 2 — Design System and UX Foundation",
+    "status": "NOT IMPLEMENTED",
+    "theme": "none",
+    "description": "Spacing scale on a strict 4px grid."
+  },
+  "tokens": {
+    "space.0": {
+      "value": 0,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Spacing step 0 on the 4px grid (0px). All spacing derives from this scale; arbitrary spacing values are forbidden.",
+      "scope": [
+        "global"
+      ]
+    },
+    "space.1": {
+      "value": 4,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Spacing step 1 on the 4px grid (4px). All spacing derives from this scale; arbitrary spacing values are forbidden.",
+      "scope": [
+        "global"
+      ]
+    },
+    "space.2": {
+      "value": 8,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Spacing step 2 on the 4px grid (8px). All spacing derives from this scale; arbitrary spacing values are forbidden.",
+      "scope": [
+        "global"
+      ]
+    },
+    "space.3": {
+      "value": 12,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Spacing step 3 on the 4px grid (12px). All spacing derives from this scale; arbitrary spacing values are forbidden.",
+      "scope": [
+        "global"
+      ]
+    },
+    "space.4": {
+      "value": 16,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Spacing step 4 on the 4px grid (16px). All spacing derives from this scale; arbitrary spacing values are forbidden.",
+      "scope": [
+        "global"
+      ]
+    },
+    "space.5": {
+      "value": 20,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Spacing step 5 on the 4px grid (20px). All spacing derives from this scale; arbitrary spacing values are forbidden.",
+      "scope": [
+        "global"
+      ]
+    },
+    "space.6": {
+      "value": 24,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Spacing step 6 on the 4px grid (24px). All spacing derives from this scale; arbitrary spacing values are forbidden.",
+      "scope": [
+        "global"
+      ]
+    },
+    "space.8": {
+      "value": 32,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Spacing step 8 on the 4px grid (32px). All spacing derives from this scale; arbitrary spacing values are forbidden.",
+      "scope": [
+        "global"
+      ]
+    },
+    "space.10": {
+      "value": 40,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Spacing step 10 on the 4px grid (40px). All spacing derives from this scale; arbitrary spacing values are forbidden.",
+      "scope": [
+        "global"
+      ]
+    },
+    "space.12": {
+      "value": 48,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Spacing step 12 on the 4px grid (48px). All spacing derives from this scale; arbitrary spacing values are forbidden.",
+      "scope": [
+        "global"
+      ]
+    },
+    "space.16": {
+      "value": 64,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Spacing step 16 on the 4px grid (64px). All spacing derives from this scale; arbitrary spacing values are forbidden.",
+      "scope": [
+        "global"
+      ]
+    },
+    "space.20": {
+      "value": 80,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Spacing step 20 on the 4px grid (80px). All spacing derives from this scale; arbitrary spacing values are forbidden.",
+      "scope": [
+        "global"
+      ]
+    },
+    "space.24": {
+      "value": 96,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Spacing step 24 on the 4px grid (96px). All spacing derives from this scale; arbitrary spacing values are forbidden.",
+      "scope": [
+        "global"
+      ]
+    },
+    "space.grid.base": {
+      "value": 4,
+      "type": "dimension",
+      "unit": "px",
+      "description": "The base unit of the spacing grid. Every spacing token is an integer multiple of this value.",
+      "scope": [
+        "global"
+      ]
+    }
+  }
+}

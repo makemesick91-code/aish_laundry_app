@@ -2,7 +2,7 @@
 
 **Step:** 1 — Product Requirement and Domain Model
 **Status:** `NOT IMPLEMENTED` (documentation only; backend runtime `ABSENT`, no schema, no migration)
-**Canonical source:** [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) v1.2.0
+**Canonical source:** [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) v1.3.0
 
 This catalogue models **31 aggregates**. Each entry records: aggregate root, entities, value objects,
 commands, invariants, allowed transitions, forbidden transitions, domain events, tenant ownership,

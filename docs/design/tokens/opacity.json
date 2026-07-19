@@ -1,0 +1,74 @@
+{
+  "$meta": {
+    "layer": "primitive",
+    "file": "opacity.json",
+    "step": "Step 2 — Design System and UX Foundation",
+    "status": "NOT IMPLEMENTED",
+    "theme": "none",
+    "description": "Opacity scale. Opacity never substitutes for a contrast-compliant colour."
+  },
+  "tokens": {
+    "opacity.transparent": {
+      "value": 0,
+      "type": "opacity",
+      "unit": "ratio",
+      "description": "Opacity transparent.",
+      "scope": [
+        "global"
+      ],
+      "prohibitedUsage": []
+    },
+    "opacity.subtle": {
+      "value": 0.08,
+      "type": "opacity",
+      "unit": "ratio",
+      "description": "Opacity subtle.",
+      "scope": [
+        "global"
+      ],
+      "prohibitedUsage": []
+    },
+    "opacity.muted": {
+      "value": 0.32,
+      "type": "opacity",
+      "unit": "ratio",
+      "description": "Opacity muted.",
+      "scope": [
+        "global"
+      ],
+      "prohibitedUsage": []
+    },
+    "opacity.disabled": {
+      "value": 0.38,
+      "type": "opacity",
+      "unit": "ratio",
+      "description": "Opacity disabled.",
+      "scope": [
+        "global"
+      ],
+      "prohibitedUsage": [
+        "Never used to dim text below its contrast target. A disabled control uses color.semantic.disabled and an explanatory label, not a lowered opacity on readable text."
+      ]
+    },
+    "opacity.scrim": {
+      "value": 0.56,
+      "type": "opacity",
+      "unit": "ratio",
+      "description": "Opacity scrim.",
+      "scope": [
+        "global"
+      ],
+      "prohibitedUsage": []
+    },
+    "opacity.opaque": {
+      "value": 1,
+      "type": "opacity",
+      "unit": "ratio",
+      "description": "Opacity opaque.",
+      "scope": [
+        "global"
+      ],
+      "prohibitedUsage": []
+    }
+  }
+}

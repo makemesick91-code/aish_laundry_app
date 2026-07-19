@@ -1,0 +1,92 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/makemesick91-code/aish_laundry_app/docs/design/tokens/token-schema.json",
+  "title": "Aish Laundry App — Design Token Schema",
+  "description": "Structural contract for every design token file in docs/design/tokens/. Step 2 artifact — documentation only. No runtime consumes this schema yet; the design token system is NOT IMPLEMENTED.",
+  "type": "object",
+  "required": ["$meta", "tokens"],
+  "additionalProperties": false,
+  "properties": {
+    "$meta": {
+      "type": "object",
+      "required": ["layer", "file", "step", "status", "description"],
+      "additionalProperties": false,
+      "properties": {
+        "layer": {
+          "type": "string",
+          "enum": ["primitive", "semantic", "alias"],
+          "description": "primitive = raw value, no meaning. semantic = meaning, references a primitive. alias = component-scoped, references a semantic."
+        },
+        "file": { "type": "string" },
+        "step": { "type": "string", "const": "Step 2 — Design System and UX Foundation" },
+        "status": { "type": "string", "const": "NOT IMPLEMENTED" },
+        "theme": { "type": "string", "enum": ["light", "none"] },
+        "description": { "type": "string", "minLength": 10 }
+      }
+    },
+    "tokens": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "$ref": "#/definitions/token" }
+    }
+  },
+  "definitions": {
+    "token": {
+      "type": "object",
+      "required": ["value", "type", "description", "scope"],
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "description": "Literal value, or a reference of the form {other.token.name}. A reference must resolve; circular references are forbidden.",
+          "type": ["string", "number"]
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "color", "dimension", "fontFamily", "fontSize", "fontWeight",
+            "lineHeight", "letterSpacing", "duration", "cubicBezier",
+            "number", "opacity", "shadow", "border", "string"
+          ]
+        },
+        "unit": {
+          "type": "string",
+          "enum": ["px", "dp", "sp", "ms", "percent", "ratio", "unitless", "none"]
+        },
+        "description": { "type": "string", "minLength": 10 },
+        "scope": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "enum": [
+              "global", "customer-android", "ops-android", "console-web",
+              "tracking-portal", "print-receipt"
+            ]
+          }
+        },
+        "rgb": {
+          "type": "string",
+          "pattern": "^rgb\\([0-9]{1,3}, [0-9]{1,3}, [0-9]{1,3}\\)$",
+          "description": "Required on every primitive colour token."
+        },
+        "intendedUsage": { "type": "string" },
+        "allowedBackground": { "type": "array", "items": { "type": "string" } },
+        "prohibitedUsage": { "type": "array", "items": { "type": "string" } },
+        "contrastTarget": {
+          "type": "string",
+          "enum": [
+            "normal-text-4.5", "large-text-3.0", "interactive-boundary-3.0",
+            "decorative-exempt", "inactive-exempt", "background-only"
+          ]
+        },
+        "measuredContrast": {
+          "type": "object",
+          "description": "Contrast ratios measured against the canonical light-theme backgrounds. Computed, never asserted.",
+          "additionalProperties": { "type": "number" }
+        },
+        "accessibilityNotes": { "type": "string" },
+        "deprecated": { "type": "boolean" }
+      }
+    }
+  }
+}

@@ -1,0 +1,435 @@
+{
+  "$meta": {
+    "layer": "primitive",
+    "file": "typography.json",
+    "step": "Step 2 — Design System and UX Foundation",
+    "status": "NOT IMPLEMENTED",
+    "theme": "none",
+    "description": "Typography primitives. System-first strategy: no font binary is committed. Tabular figures are mandatory for every financial and tabular numeric value."
+  },
+  "tokens": {
+    "font.family.sans": {
+      "value": "system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', 'Helvetica Neue', Arial, sans-serif",
+      "type": "fontFamily",
+      "unit": "none",
+      "description": "System-first sans stack. No font binary is committed to this repository; every surface uses the platform's own UI face. This keeps the download small on low-end Android devices and avoids shipping a licensed binary in a PUBLIC repository.",
+      "scope": [
+        "global"
+      ]
+    },
+    "font.family.mono": {
+      "value": "ui-monospace, 'Roboto Mono', 'DejaVu Sans Mono', 'Courier New', monospace",
+      "type": "fontFamily",
+      "unit": "none",
+      "description": "Monospace stack for receipt previews and any place a fixed column grid carries meaning.",
+      "scope": [
+        "global"
+      ]
+    },
+    "font.feature.tabularNumbers": {
+      "value": "tnum",
+      "type": "string",
+      "unit": "none",
+      "description": "OpenType feature enabling tabular (fixed-width) figures. Mandatory wherever integer Rupiah amounts, weights, quantities or timestamps are stacked in a column, so digits align and a misread total is harder to produce.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "Money fields, data tables, receipt previews, KPI cards, courier cash reconciliation."
+    },
+    "font.size.caption": {
+      "value": 12,
+      "type": "fontSize",
+      "unit": "px",
+      "description": "Font size for the caption role. Scales with the platform text-size setting; layouts must survive 200% scaling without losing a primary action.",
+      "scope": [
+        "global"
+      ],
+      "accessibilityNotes": "Never used as a fixed pixel value that ignores the user's text-size preference."
+    },
+    "font.lineHeight.caption": {
+      "value": 16,
+      "type": "lineHeight",
+      "unit": "px",
+      "description": "Line height paired with font.size.caption. Ratio 1.33.",
+      "scope": [
+        "global"
+      ]
+    },
+    "font.size.label": {
+      "value": 14,
+      "type": "fontSize",
+      "unit": "px",
+      "description": "Font size for the label role. Scales with the platform text-size setting; layouts must survive 200% scaling without losing a primary action.",
+      "scope": [
+        "global"
+      ],
+      "accessibilityNotes": "Never used as a fixed pixel value that ignores the user's text-size preference."
+    },
+    "font.lineHeight.label": {
+      "value": 20,
+      "type": "lineHeight",
+      "unit": "px",
+      "description": "Line height paired with font.size.label. Ratio 1.43.",
+      "scope": [
+        "global"
+      ]
+    },
+    "font.size.body.sm": {
+      "value": 14,
+      "type": "fontSize",
+      "unit": "px",
+      "description": "Font size for the body.sm role. Scales with the platform text-size setting; layouts must survive 200% scaling without losing a primary action.",
+      "scope": [
+        "global"
+      ],
+      "accessibilityNotes": "Never used as a fixed pixel value that ignores the user's text-size preference."
+    },
+    "font.lineHeight.body.sm": {
+      "value": 20,
+      "type": "lineHeight",
+      "unit": "px",
+      "description": "Line height paired with font.size.body.sm. Ratio 1.43.",
+      "scope": [
+        "global"
+      ]
+    },
+    "font.size.body.md": {
+      "value": 16,
+      "type": "fontSize",
+      "unit": "px",
+      "description": "Font size for the body.md role. Scales with the platform text-size setting; layouts must survive 200% scaling without losing a primary action.",
+      "scope": [
+        "global"
+      ],
+      "accessibilityNotes": "Never used as a fixed pixel value that ignores the user's text-size preference."
+    },
+    "font.lineHeight.body.md": {
+      "value": 24,
+      "type": "lineHeight",
+      "unit": "px",
+      "description": "Line height paired with font.size.body.md. Ratio 1.5.",
+      "scope": [
+        "global"
+      ]
+    },
+    "font.size.body.lg": {
+      "value": 18,
+      "type": "fontSize",
+      "unit": "px",
+      "description": "Font size for the body.lg role. Scales with the platform text-size setting; layouts must survive 200% scaling without losing a primary action.",
+      "scope": [
+        "global"
+      ],
+      "accessibilityNotes": "Never used as a fixed pixel value that ignores the user's text-size preference."
+    },
+    "font.lineHeight.body.lg": {
+      "value": 26,
+      "type": "lineHeight",
+      "unit": "px",
+      "description": "Line height paired with font.size.body.lg. Ratio 1.44.",
+      "scope": [
+        "global"
+      ]
+    },
+    "font.size.title.sm": {
+      "value": 18,
+      "type": "fontSize",
+      "unit": "px",
+      "description": "Font size for the title.sm role. Scales with the platform text-size setting; layouts must survive 200% scaling without losing a primary action.",
+      "scope": [
+        "global"
+      ],
+      "accessibilityNotes": "Never used as a fixed pixel value that ignores the user's text-size preference."
+    },
+    "font.lineHeight.title.sm": {
+      "value": 24,
+      "type": "lineHeight",
+      "unit": "px",
+      "description": "Line height paired with font.size.title.sm. Ratio 1.33.",
+      "scope": [
+        "global"
+      ]
+    },
+    "font.size.title.md": {
+      "value": 20,
+      "type": "fontSize",
+      "unit": "px",
+      "description": "Font size for the title.md role. Scales with the platform text-size setting; layouts must survive 200% scaling without losing a primary action.",
+      "scope": [
+        "global"
+      ],
+      "accessibilityNotes": "Never used as a fixed pixel value that ignores the user's text-size preference."
+    },
+    "font.lineHeight.title.md": {
+      "value": 28,
+      "type": "lineHeight",
+      "unit": "px",
+      "description": "Line height paired with font.size.title.md. Ratio 1.4.",
+      "scope": [
+        "global"
+      ]
+    },
+    "font.size.title.lg": {
+      "value": 24,
+      "type": "fontSize",
+      "unit": "px",
+      "description": "Font size for the title.lg role. Scales with the platform text-size setting; layouts must survive 200% scaling without losing a primary action.",
+      "scope": [
+        "global"
+      ],
+      "accessibilityNotes": "Never used as a fixed pixel value that ignores the user's text-size preference."
+    },
+    "font.lineHeight.title.lg": {
+      "value": 32,
+      "type": "lineHeight",
+      "unit": "px",
+      "description": "Line height paired with font.size.title.lg. Ratio 1.33.",
+      "scope": [
+        "global"
+      ]
+    },
+    "font.size.headline.sm": {
+      "value": 28,
+      "type": "fontSize",
+      "unit": "px",
+      "description": "Font size for the headline.sm role. Scales with the platform text-size setting; layouts must survive 200% scaling without losing a primary action.",
+      "scope": [
+        "global"
+      ],
+      "accessibilityNotes": "Never used as a fixed pixel value that ignores the user's text-size preference."
+    },
+    "font.lineHeight.headline.sm": {
+      "value": 36,
+      "type": "lineHeight",
+      "unit": "px",
+      "description": "Line height paired with font.size.headline.sm. Ratio 1.29.",
+      "scope": [
+        "global"
+      ]
+    },
+    "font.size.headline.md": {
+      "value": 32,
+      "type": "fontSize",
+      "unit": "px",
+      "description": "Font size for the headline.md role. Scales with the platform text-size setting; layouts must survive 200% scaling without losing a primary action.",
+      "scope": [
+        "global"
+      ],
+      "accessibilityNotes": "Never used as a fixed pixel value that ignores the user's text-size preference."
+    },
+    "font.lineHeight.headline.md": {
+      "value": 40,
+      "type": "lineHeight",
+      "unit": "px",
+      "description": "Line height paired with font.size.headline.md. Ratio 1.25.",
+      "scope": [
+        "global"
+      ]
+    },
+    "font.size.display": {
+      "value": 40,
+      "type": "fontSize",
+      "unit": "px",
+      "description": "Font size for the display role. Scales with the platform text-size setting; layouts must survive 200% scaling without losing a primary action.",
+      "scope": [
+        "global"
+      ],
+      "accessibilityNotes": "Never used as a fixed pixel value that ignores the user's text-size preference."
+    },
+    "font.lineHeight.display": {
+      "value": 48,
+      "type": "lineHeight",
+      "unit": "px",
+      "description": "Line height paired with font.size.display. Ratio 1.2.",
+      "scope": [
+        "global"
+      ]
+    },
+    "font.weight.regular": {
+      "value": 400,
+      "type": "fontWeight",
+      "unit": "unitless",
+      "description": "Regular weight. Weight alone never conveys status.",
+      "scope": [
+        "global"
+      ]
+    },
+    "font.weight.medium": {
+      "value": 500,
+      "type": "fontWeight",
+      "unit": "unitless",
+      "description": "Medium weight. Weight alone never conveys status.",
+      "scope": [
+        "global"
+      ]
+    },
+    "font.weight.semibold": {
+      "value": 600,
+      "type": "fontWeight",
+      "unit": "unitless",
+      "description": "Semibold weight. Weight alone never conveys status.",
+      "scope": [
+        "global"
+      ]
+    },
+    "font.weight.bold": {
+      "value": 700,
+      "type": "fontWeight",
+      "unit": "unitless",
+      "description": "Bold weight. Weight alone never conveys status.",
+      "scope": [
+        "global"
+      ]
+    },
+    "font.letterSpacing.tight": {
+      "value": -0.2,
+      "type": "letterSpacing",
+      "unit": "px",
+      "description": "Tight letter spacing.",
+      "scope": [
+        "global"
+      ]
+    },
+    "font.letterSpacing.normal": {
+      "value": 0,
+      "type": "letterSpacing",
+      "unit": "px",
+      "description": "Normal letter spacing.",
+      "scope": [
+        "global"
+      ]
+    },
+    "font.letterSpacing.wide": {
+      "value": 0.4,
+      "type": "letterSpacing",
+      "unit": "px",
+      "description": "Wide letter spacing.",
+      "scope": [
+        "global"
+      ]
+    },
+    "font.maxLineLength.body": {
+      "value": 72,
+      "type": "number",
+      "unit": "unitless",
+      "description": "Maximum comfortable measure for body copy, in characters. Longer measures reduce reading accuracy on wide Console Web layouts.",
+      "scope": [
+        "global"
+      ]
+    },
+    "font.size.label.sm": {
+      "value": 12,
+      "type": "fontSize",
+      "unit": "px",
+      "description": "Font size for the label.sm role. Scales with the platform text-size setting; layouts must survive 200% scaling without losing a primary action.",
+      "scope": [
+        "global"
+      ],
+      "accessibilityNotes": "Never used as a fixed pixel value that ignores the user's text-size preference."
+    },
+    "font.lineHeight.label.sm": {
+      "value": 16,
+      "type": "lineHeight",
+      "unit": "px",
+      "description": "Line height paired with font.size.label.sm. Ratio 1.33.",
+      "scope": [
+        "global"
+      ]
+    },
+    "font.size.label.md": {
+      "value": 14,
+      "type": "fontSize",
+      "unit": "px",
+      "description": "Font size for the label.md role. Scales with the platform text-size setting; layouts must survive 200% scaling without losing a primary action.",
+      "scope": [
+        "global"
+      ],
+      "accessibilityNotes": "Never used as a fixed pixel value that ignores the user's text-size preference."
+    },
+    "font.lineHeight.label.md": {
+      "value": 20,
+      "type": "lineHeight",
+      "unit": "px",
+      "description": "Line height paired with font.size.label.md. Ratio 1.43.",
+      "scope": [
+        "global"
+      ]
+    },
+    "font.size.label.lg": {
+      "value": 16,
+      "type": "fontSize",
+      "unit": "px",
+      "description": "Font size for the label.lg role. Scales with the platform text-size setting; layouts must survive 200% scaling without losing a primary action.",
+      "scope": [
+        "global"
+      ],
+      "accessibilityNotes": "Never used as a fixed pixel value that ignores the user's text-size preference."
+    },
+    "font.lineHeight.label.lg": {
+      "value": 22,
+      "type": "lineHeight",
+      "unit": "px",
+      "description": "Line height paired with font.size.label.lg. Ratio 1.38.",
+      "scope": [
+        "global"
+      ]
+    },
+    "font.size.display.md": {
+      "value": 40,
+      "type": "fontSize",
+      "unit": "px",
+      "description": "Font size for the display.md role. Scales with the platform text-size setting; layouts must survive 200% scaling without losing a primary action.",
+      "scope": [
+        "global"
+      ],
+      "accessibilityNotes": "Never used as a fixed pixel value that ignores the user's text-size preference."
+    },
+    "font.lineHeight.display.md": {
+      "value": 48,
+      "type": "lineHeight",
+      "unit": "px",
+      "description": "Line height paired with font.size.display.md. Ratio 1.2.",
+      "scope": [
+        "global"
+      ]
+    },
+    "font.size.display.lg": {
+      "value": 48,
+      "type": "fontSize",
+      "unit": "px",
+      "description": "Font size for the display.lg role. Scales with the platform text-size setting; layouts must survive 200% scaling without losing a primary action.",
+      "scope": [
+        "global"
+      ],
+      "accessibilityNotes": "Never used as a fixed pixel value that ignores the user's text-size preference."
+    },
+    "font.lineHeight.display.lg": {
+      "value": 56,
+      "type": "lineHeight",
+      "unit": "px",
+      "description": "Line height paired with font.size.display.lg. Ratio 1.17.",
+      "scope": [
+        "global"
+      ]
+    },
+    "font.size.headline.lg": {
+      "value": 36,
+      "type": "fontSize",
+      "unit": "px",
+      "description": "Font size for the headline.lg role. Scales with the platform text-size setting; layouts must survive 200% scaling without losing a primary action.",
+      "scope": [
+        "global"
+      ],
+      "accessibilityNotes": "Never used as a fixed pixel value that ignores the user's text-size preference."
+    },
+    "font.lineHeight.headline.lg": {
+      "value": 44,
+      "type": "lineHeight",
+      "unit": "px",
+      "description": "Line height paired with font.size.headline.lg. Ratio 1.22.",
+      "scope": [
+        "global"
+      ]
+    }
+  }
+}

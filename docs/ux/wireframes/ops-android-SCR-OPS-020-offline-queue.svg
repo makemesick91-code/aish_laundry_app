@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 720" width="360" height="720">
+  <rect x="0" y="0" width="360" height="720" rx="0" fill="#f8fafc" stroke="#94a3b8" stroke-width="1"/>
+  <rect x="0" y="0" width="360" height="58" rx="0" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"/>
+  <text x="14" y="26" font-family="sans-serif" font-size="16" fill="#1e293b" font-weight="bold" text-anchor="start">Antrean Luring</text>
+  <text x="14" y="46" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">SCR-OPS-020 | Aish Laundry Ops Android</text>
+  <rect x="0" y="58" width="360" height="46" rx="0" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="10" y="76" font-family="sans-serif" font-size="10" fill="#1e293b" font-weight="normal" text-anchor="start">Laundry Bersih Sejahtera / Outlet Cempaka / Kasir</text>
+  <text x="10" y="94" font-family="sans-serif" font-size="9" fill="#475569" font-weight="normal" text-anchor="start">Konteks tenant aktif dikunci di setiap layar</text>
+  <rect x="238" y="74" width="112" height="20" rx="10" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+  <text x="294" y="88" font-family="sans-serif" font-size="10" fill="#1e293b" font-weight="bold" text-anchor="middle">MENUNGGU SINKRON 3</text>
+  <rect x="14" y="114" width="332" height="68" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="134" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Buat Pesanan</text>
+  <text x="26" y="151" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">client_reference: cr-ops-000123</text>
+  <text x="26" y="168" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Keadaan: MENUNGGU KIRIM</text>
+  <rect x="14" y="190" width="332" height="68" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="210" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Catat Pembayaran Rp25.000</text>
+  <text x="26" y="227" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">client_reference: cr-pay-000125</text>
+  <text x="26" y="244" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Keadaan: MENUNGGU KIRIM (bergantung pada pesanan)</text>
+  <rect x="14" y="266" width="332" height="68" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="286" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Unggah Bukti Kondisi</text>
+  <text x="26" y="303" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">client_reference: cr-ops-000124</text>
+  <text x="26" y="320" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Keadaan: PERCOBAAN ULANG 3 (jeda bertingkat)</text>
+  <rect x="14" y="342" width="332" height="68" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="362" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Transisi Status ke WASHING</text>
+  <text x="26" y="379" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">client_reference: cr-sts-000126</text>
+  <text x="26" y="396" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Keadaan: GAGAL - PERLU PERHATIAN</text>
+  <rect x="14" y="418" width="332" height="72" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="438" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Aturan antrean</text>
+  <text x="26" y="455" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Antrean keuangan tidak dihapus oleh pembersihan cache</text>
+  <text x="26" y="472" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Penghapusan butuh izin khusus dan tercatat audit</text>
+  <rect x="14" y="498" width="332" height="62" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="518" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Urutan dipertahankan</text>
+  <text x="26" y="535" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Pembayaran tidak mendahului pembuatan pesanan</text>
+  <rect x="14" y="636" width="332" height="48" rx="6" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"/>
+  <text x="180" y="666" font-family="sans-serif" font-size="14" fill="#1e293b" font-weight="bold" text-anchor="middle">Coba Sinkron Sekarang</text>
+  <line x1="14" y1="692" x2="346" y2="692" stroke="#94a3b8" stroke-width="1"/>
+  <text x="14" y="706" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="bold" text-anchor="start">LOW-FIDELITY — NOT IMPLEMENTED</text>
+  <text x="14" y="717" font-family="sans-serif" font-size="9" fill="#475569" font-weight="normal" text-anchor="start">Wireframe tata letak saja. Bukan UI final. Data contoh fiktif.</text>
+  <text x="346" y="706" font-family="sans-serif" font-size="9" fill="#475569" font-weight="normal" text-anchor="end">360x720</text>
+</svg>

@@ -1,0 +1,134 @@
+{
+  "$meta": {
+    "layer": "primitive",
+    "file": "iconography.json",
+    "step": "Step 2 — Design System and UX Foundation",
+    "status": "NOT IMPLEMENTED",
+    "theme": "none",
+    "description": "Iconography policy and the semantic icon mapping. No icon binary is committed."
+  },
+  "tokens": {
+    "icon.strokeWidth": {
+      "value": 2,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Stroke width for the outline icon style at size.icon.lg.",
+      "scope": [
+        "global"
+      ]
+    },
+    "icon.style": {
+      "value": "outline",
+      "type": "string",
+      "unit": "none",
+      "description": "Canonical icon style: geometric outline, 2px stroke, rounded terminals. Filled variants are reserved for selected navigation states.",
+      "scope": [
+        "global"
+      ]
+    },
+    "icon.source": {
+      "value": "license-clean-open-source-set",
+      "type": "string",
+      "unit": "none",
+      "description": "Icons are drawn from a permissively licensed open-source set, referenced by name in the component specifications. No icon binary or font is committed to this repository in Step 2. The specific set is selected in Step 3 and is PLANNED, NOT IMPLEMENTED.",
+      "scope": [
+        "global"
+      ]
+    },
+    "icon.meaningRule": {
+      "value": "never-alone",
+      "type": "string",
+      "unit": "none",
+      "description": "An icon never carries meaning alone. Every meaning-bearing icon is paired with a text label or an accessible name.",
+      "scope": [
+        "global"
+      ],
+      "accessibilityNotes": "A decorative icon is hidden from assistive technology. A meaning-bearing icon exposes an accessible name in Bahasa Indonesia.",
+      "prohibitedUsage": [
+        "Never the sole indicator of status.",
+        "Never the sole label of an action in a destructive confirmation."
+      ]
+    },
+    "icon.semantic.success": {
+      "value": "check-circle",
+      "type": "string",
+      "unit": "none",
+      "description": "Canonical icon name for the success semantic. Always paired with text and with color.semantic.success where a matching colour token exists — three redundant signals, so status never depends on colour alone.",
+      "scope": [
+        "global"
+      ]
+    },
+    "icon.semantic.warning": {
+      "value": "alert-triangle",
+      "type": "string",
+      "unit": "none",
+      "description": "Canonical icon name for the warning semantic. Always paired with text and with color.semantic.warning where a matching colour token exists — three redundant signals, so status never depends on colour alone.",
+      "scope": [
+        "global"
+      ]
+    },
+    "icon.semantic.danger": {
+      "value": "alert-octagon",
+      "type": "string",
+      "unit": "none",
+      "description": "Canonical icon name for the danger semantic. Always paired with text and with color.semantic.danger where a matching colour token exists — three redundant signals, so status never depends on colour alone.",
+      "scope": [
+        "global"
+      ]
+    },
+    "icon.semantic.information": {
+      "value": "info-circle",
+      "type": "string",
+      "unit": "none",
+      "description": "Canonical icon name for the information semantic. Always paired with text and with color.semantic.information where a matching colour token exists — three redundant signals, so status never depends on colour alone.",
+      "scope": [
+        "global"
+      ]
+    },
+    "icon.semantic.offline": {
+      "value": "cloud-off",
+      "type": "string",
+      "unit": "none",
+      "description": "Canonical icon name for the offline semantic. Always paired with text and with color.semantic.offline where a matching colour token exists — three redundant signals, so status never depends on colour alone.",
+      "scope": [
+        "global"
+      ]
+    },
+    "icon.semantic.syncing": {
+      "value": "refresh-cw",
+      "type": "string",
+      "unit": "none",
+      "description": "Canonical icon name for the syncing semantic. Always paired with text and with color.semantic.syncing where a matching colour token exists — three redundant signals, so status never depends on colour alone.",
+      "scope": [
+        "global"
+      ]
+    },
+    "icon.semantic.conflict": {
+      "value": "git-branch-alert",
+      "type": "string",
+      "unit": "none",
+      "description": "Canonical icon name for the conflict semantic. Always paired with text and with color.semantic.conflict where a matching colour token exists — three redundant signals, so status never depends on colour alone.",
+      "scope": [
+        "global"
+      ]
+    },
+    "icon.semantic.pending": {
+      "value": "clock",
+      "type": "string",
+      "unit": "none",
+      "description": "Canonical icon name for the pending semantic. Always paired with text and with color.semantic.pending where a matching colour token exists — three redundant signals, so status never depends on colour alone.",
+      "scope": [
+        "global"
+      ]
+    },
+    "icon.semantic.locked": {
+      "value": "lock",
+      "type": "string",
+      "unit": "none",
+      "description": "Canonical icon name for the locked semantic. Always paired with text and with color.semantic.locked where a matching colour token exists — three redundant signals, so status never depends on colour alone.",
+      "scope": [
+        "global"
+      ]
+    }
+  }
+}

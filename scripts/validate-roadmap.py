@@ -23,7 +23,7 @@ ROADMAP = "docs/ROADMAP.md"
 
 # The step currently under way. Bump this only when a step actually starts, in the
 # same pull request that moves the status in ROADMAP.md and STATUS.md.
-CURRENT_STEP = 1
+CURRENT_STEP = 2
 CURRENT_STEP_ALLOWED = ["IN PROGRESS", "TESTED", "WATCH", "GO"]
 
 # Statuses that must never appear against a step later than CURRENT_STEP. Work

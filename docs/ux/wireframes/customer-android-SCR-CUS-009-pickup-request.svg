@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 720" width="360" height="720">
+  <rect x="0" y="0" width="360" height="720" rx="0" fill="#f8fafc" stroke="#94a3b8" stroke-width="1"/>
+  <rect x="0" y="0" width="360" height="58" rx="0" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"/>
+  <text x="14" y="26" font-family="sans-serif" font-size="16" fill="#1e293b" font-weight="bold" text-anchor="start">Permintaan Jemput</text>
+  <text x="14" y="46" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">SCR-CUS-009 | Aish Laundry Customer Android</text>
+  <rect x="14" y="68" width="332" height="68" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="88" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Outlet tujuan</text>
+  <text x="26" y="105" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Outlet Cempaka</text>
+  <text x="26" y="122" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Laundry Bersih Sejahtera</text>
+  <rect x="14" y="144" width="332" height="68" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="164" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Alamat penjemputan</text>
+  <text x="26" y="181" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Jl. Melati (detail dibuka saat tiba)</text>
+  <text x="26" y="198" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Alamat lengkap tidak ditampilkan di layar ringkasan</text>
+  <rect x="14" y="220" width="332" height="68" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="240" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Jadwal</text>
+  <text x="26" y="257" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Hari ini | Jendela waktu 14:30</text>
+  <text x="26" y="274" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Jendela waktu adalah perkiraan, bukan jaminan</text>
+  <rect x="14" y="296" width="332" height="68" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="316" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Estimasi</text>
+  <text x="26" y="333" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Perkiraan berat 1,5 kg</text>
+  <text x="26" y="350" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Berat final ditentukan di outlet</text>
+  <rect x="14" y="372" width="332" height="62" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="392" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Kontak</text>
+  <text x="26" y="409" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">0812-XXXX-1234</text>
+  <text x="26" y="426" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Nomor disamarkan pada tampilan kurir</text>
+  <rect x="14" y="442" width="332" height="60" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="462" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Status permintaan: REQUESTED</text>
+  <text x="26" y="479" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Menunggu konfirmasi outlet</text>
+  <rect x="14" y="636" width="332" height="48" rx="6" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"/>
+  <text x="180" y="666" font-family="sans-serif" font-size="14" fill="#1e293b" font-weight="bold" text-anchor="middle">Kirim Permintaan</text>
+  <line x1="14" y1="692" x2="346" y2="692" stroke="#94a3b8" stroke-width="1"/>
+  <text x="14" y="706" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="bold" text-anchor="start">LOW-FIDELITY — NOT IMPLEMENTED</text>
+  <text x="14" y="717" font-family="sans-serif" font-size="9" fill="#475569" font-weight="normal" text-anchor="start">Wireframe tata letak saja. Bukan UI final. Data contoh fiktif.</text>
+  <text x="346" y="706" font-family="sans-serif" font-size="9" fill="#475569" font-weight="normal" text-anchor="end">360x720</text>
+</svg>

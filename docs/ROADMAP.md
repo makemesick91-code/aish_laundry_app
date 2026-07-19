@@ -85,7 +85,7 @@ Turn the Master Source into precise, buildable requirements.
 
 ## Step 2 — Design System and UX Foundation
 
-**Status: PLANNED**
+**Status: IN PROGRESS**
 
 - The visual language: white, soft blue, dark blue, restrained gold accent.
 - Typography, spacing, elevation, and iconography, tuned for low-end Android and bright shop lighting.
@@ -94,9 +94,12 @@ Turn the Master Source into precise, buildable requirements.
 - Status representation that never relies on colour alone.
 - Accessibility rules: contrast, touch targets, device font scaling.
 - The courier-simplified interface pattern.
-- Delivered as `packages/design_system`.
+- Delivered as **specification only**. `packages/design_system` remains a placeholder containing a
+  `README` or a `.gitkeep`; the Flutter workspace is `ABSENT` and no runtime consumes any of it.
 
-**Out of scope:** product screens, business logic, backend.
+**Out of scope:** product screens, business logic, backend, any runtime, any theme implementation, and
+any accessibility test result. A design token is not a theme, a component specification is not a
+component, and a wireframe is not a screen.
 
 ---
 

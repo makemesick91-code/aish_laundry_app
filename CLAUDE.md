@@ -13,7 +13,7 @@ Primary language: Bahasa Indonesia. Currency: Rupiah. Timezone: Asia/Jakarta.
 
 ## 1. Canonical source
 
-The single canonical source of truth is **`docs/MASTER_SOURCE.md`** (version **1.2.0**, baseline
+The single canonical source of truth is **`docs/MASTER_SOURCE.md`** (version **1.3.0**, baseline
 date **19 July 2026**).
 
 - This file (`CLAUDE.md`) and everything under `.claude/rules/` are **derived enforcement layers**.
@@ -32,8 +32,9 @@ date **19 July 2026**).
 | Item | Status |
 |---|---|
 | Step 0 — Master Source and Governance | **GO** (owner-conferred 19 July 2026, with a recorded deviation) |
-| Step 1 — Product Requirement and Domain Model | **IN PROGRESS** |
-| Step 2–14 | **PLANNED** |
+| Step 1 — Product Requirement and Domain Model | **GO** (owner-conferred 19 July 2026, with a recorded deviation) |
+| Step 2 — Design System and UX Foundation | **IN PROGRESS** |
+| Step 3–14 | **PLANNED** |
 | All product features | **NOT IMPLEMENTED** |
 | Backend runtime | **ABSENT** |
 | Flutter workspace | **ABSENT** |
@@ -158,7 +159,21 @@ A change to `docs/MASTER_SOURCE.md` requires **all three** of:
 A Master Source edit without a version bump and refreshed checksum is a governance violation and
 must be reverted.
 
-## 12. Step 0 and Step 1 boundary — no runtime, no application code
+## 12. Step 0, Step 1, and Step 2 boundary — no runtime, no application code
+
+**Step 2 creates no runtime either.** Step 2 produces a design system specification, an information
+architecture, a screen inventory, critical journeys, a component catalog and state matrix, UX states,
+accessibility and privacy UX patterns, low-fidelity wireframes, governance rules, validators, and an
+exact-SHA evidence pack — **documentation only**. The forbidden list below applies unchanged to Step 2.
+See `.claude/rules/35-current-step-02-status.md`.
+
+**A design token is not a theme. A component specification is not a component. A wireframe is not a
+screen. An accessibility requirement is not a passed audit.** The light theme is the canonical MVP
+theme; **dark mode is `PLANNED` and `NOT IMPLEMENTED` and may never be described as available**.
+**LOGO STATUS: NOT APPROVED** — the text wordmark "Aish Laundry App" is the only permitted usage and no
+logo may be fabricated. Accessibility is stated as **DESIGNED TO MEET WCAG 2.2 AA REQUIREMENTS — NOT YET
+RUNTIME-TESTED**, and any stronger claim is a false claim under Rule 01.
+
 
 **Step 1 creates no runtime either.** Step 1 produces requirements, a domain model, business rules, state
 machines, an initial threat model, acceptance criteria, and governance rules — **documentation only**.
@@ -227,6 +242,17 @@ Each file below is binding. Read the relevant one before working in its area.
 | [`.claude/rules/22-acceptance-criteria-and-traceability.md`](.claude/rules/22-acceptance-criteria-and-traceability.md) | Testable criteria and bidirectional traceability, no orphans |
 | [`.claude/rules/23-public-repository-safety.md`](.claude/rules/23-public-repository-safety.md) | Public-repo authoring constraints, single-maintainer governance |
 | [`.claude/rules/24-current-step-01-status.md`](.claude/rules/24-current-step-01-status.md) | Step 1 status and the documentation-is-not-implementation boundary |
+| [`.claude/rules/25-design-system-foundation.md`](.claude/rules/25-design-system-foundation.md) | Design system layers, brand constraints, what a design artefact may claim |
+| [`.claude/rules/26-design-token-governance.md`](.claude/rules/26-design-token-governance.md) | Token layering, no hard-coded values, light theme MVP, dark mode deferred |
+| [`.claude/rules/27-accessibility-foundation.md`](.claude/rules/27-accessibility-foundation.md) | WCAG 2.2 AA-aligned target, contrast, focus, 48×48 touch target, colour independence |
+| [`.claude/rules/28-platform-adaptive-navigation.md`](.claude/rules/28-platform-adaptive-navigation.md) | Role-adaptive navigation; visibility is never authorization |
+| [`.claude/rules/29-ux-state-model.md`](.claude/rules/29-ux-state-model.md) | The 20 canonical UX states, honest offline and sync states, mandatory recovery |
+| [`.claude/rules/30-content-design-and-localization.md`](.claude/rules/30-content-design-and-localization.md) | Bahasa Indonesia glossary, Indonesian formats, no dark patterns |
+| [`.claude/rules/31-responsive-and-device-foundation.md`](.claude/rules/31-responsive-and-device-foundation.md) | Breakpoints, density, 320px portal and 1366×768 console guarantees |
+| [`.claude/rules/32-security-and-privacy-ux.md`](.claude/rules/32-security-and-privacy-ux.md) | Masking, tracking projection, external courier minimum access, confirmations |
+| [`.claude/rules/33-design-traceability.md`](.claude/rules/33-design-traceability.md) | Requirement → journey → screen → component → token, in both directions |
+| [`.claude/rules/34-component-and-screen-governance.md`](.claude/rules/34-component-and-screen-governance.md) | Component state and accessibility contracts; screen requirement references |
+| [`.claude/rules/35-current-step-02-status.md`](.claude/rules/35-current-step-02-status.md) | Step 2 status and the documentation-is-not-implementation boundary |
 
 ## 16. Violation handling
 

@@ -1,0 +1,70 @@
+---
+# Aish Laundry App — Step 2 UX foundation gates.
+#
+# Rendered check name (referenced by branch protection, do not rename):
+#   "ux-foundation"
+#
+# Distinct job name so branch protection can require this gate separately from
+# the Step 0 and Step 1 gates. Never reuse the ambiguous name "validate".
+#
+# SCOPE NOTE: A screen specification is not a screen. A wireframe is not an
+# implemented interface. A journey is not a tested flow. Step 2 records
+# obligations; the surfaces that satisfy them are built from Step 3 onward.
+# All product features remain NOT IMPLEMENTED.
+
+name: UX Foundation
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ux-foundation-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ux-foundation:
+    name: ux-foundation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Record the exact SHA under validation
+        run: |
+          set -euo pipefail
+          echo "Validating commit: ${GITHUB_SHA}"
+
+      - name: Validate the screen inventory
+        run: python3 scripts/validate-screen-inventory.py
+
+      - name: Validate the critical journeys
+        run: python3 scripts/validate-journeys.py
+
+      - name: Validate information architecture and role navigation
+        run: python3 scripts/validate-navigation.py
+
+      - name: Validate the UX state model
+        run: python3 scripts/validate-ux-states.py
+
+      - name: Validate the Bahasa Indonesia UX copy glossary
+        run: python3 scripts/validate-content-glossary.py
+
+      - name: Validate wireframe safety and honesty
+        run: python3 scripts/validate-wireframes.py
+
+      - name: Validate Mermaid block structure
+        run: python3 scripts/validate-mermaid-blocks.py
+
+      - name: Confirm no runtime was introduced
+        run: python3 scripts/validate-no-runtime.py

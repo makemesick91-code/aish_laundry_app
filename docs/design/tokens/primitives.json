@@ -1,0 +1,1368 @@
+{
+  "$meta": {
+    "layer": "primitive",
+    "file": "primitives.json",
+    "step": "Step 2 — Design System and UX Foundation",
+    "status": "NOT IMPLEMENTED",
+    "theme": "none",
+    "description": "Primitive colour ramps for Aish Laundry App. Primitives carry no meaning and are never referenced directly by a component; components reference semantic tokens, which reference these. Contrast ratios are computed from the hex values, not asserted. Light theme is the canonical MVP theme; dark mode is PLANNED and NOT IMPLEMENTED."
+  },
+  "tokens": {
+    "color.blue.50": {
+      "value": "#F0F6FC",
+      "type": "color",
+      "unit": "none",
+      "description": "Blue ramp step 50. Brand spine. 700 is the canonical primary. 50-200 are surfaces and selected backgrounds. 800-900 are pressed states and dark headers.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(240, 246, 252)",
+      "intendedUsage": "Brand spine. 700 is the canonical primary. 50-200 are surfaces and selected backgrounds. 800-900 are pressed states and dark headers.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only.",
+        "Never used as a foreground colour for text or icons."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onNeutral0": 1.09,
+        "onNeutral50": 1.02,
+        "whiteOnThis": 1.09
+      },
+      "accessibilityNotes": "Background role only. Foreground colour is chosen from the neutral or semantic text tokens and must meet its own target against this background."
+    },
+    "color.blue.100": {
+      "value": "#DBE9F6",
+      "type": "color",
+      "unit": "none",
+      "description": "Blue ramp step 100. Brand spine. 700 is the canonical primary. 50-200 are surfaces and selected backgrounds. 800-900 are pressed states and dark headers.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(219, 233, 246)",
+      "intendedUsage": "Brand spine. 700 is the canonical primary. 50-200 are surfaces and selected backgrounds. 800-900 are pressed states and dark headers.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only.",
+        "Never used as a foreground colour for text or icons."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onNeutral0": 1.24,
+        "onNeutral50": 1.16,
+        "whiteOnThis": 1.24
+      },
+      "accessibilityNotes": "Background role only. Foreground colour is chosen from the neutral or semantic text tokens and must meet its own target against this background."
+    },
+    "color.blue.200": {
+      "value": "#B7D2EC",
+      "type": "color",
+      "unit": "none",
+      "description": "Blue ramp step 200. Brand spine. 700 is the canonical primary. 50-200 are surfaces and selected backgrounds. 800-900 are pressed states and dark headers.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(183, 210, 236)",
+      "intendedUsage": "Brand spine. 700 is the canonical primary. 50-200 are surfaces and selected backgrounds. 800-900 are pressed states and dark headers.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only.",
+        "Never used as a foreground colour for text or icons."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onNeutral0": 1.56,
+        "onNeutral50": 1.47,
+        "whiteOnThis": 1.56
+      },
+      "accessibilityNotes": "Background role only. Foreground colour is chosen from the neutral or semantic text tokens and must meet its own target against this background."
+    },
+    "color.blue.300": {
+      "value": "#8AB6DF",
+      "type": "color",
+      "unit": "none",
+      "description": "Blue ramp step 300. Brand spine. 700 is the canonical primary. 50-200 are surfaces and selected backgrounds. 800-900 are pressed states and dark headers.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(138, 182, 223)",
+      "intendedUsage": "Brand spine. 700 is the canonical primary. 50-200 are surfaces and selected backgrounds. 800-900 are pressed states and dark headers.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only.",
+        "Never used as a foreground colour for text or icons."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onNeutral0": 2.13,
+        "onNeutral50": 2.01,
+        "whiteOnThis": 2.13
+      },
+      "accessibilityNotes": "Background role only. Foreground colour is chosen from the neutral or semantic text tokens and must meet its own target against this background."
+    },
+    "color.blue.400": {
+      "value": "#5A95CC",
+      "type": "color",
+      "unit": "none",
+      "description": "Blue ramp step 400. Brand spine. 700 is the canonical primary. 50-200 are surfaces and selected backgrounds. 800-900 are pressed states and dark headers.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(90, 149, 204)",
+      "intendedUsage": "Brand spine. 700 is the canonical primary. 50-200 are surfaces and selected backgrounds. 800-900 are pressed states and dark headers.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only.",
+        "Never used as a foreground colour for text or icons."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onNeutral0": 3.18,
+        "onNeutral50": 2.99,
+        "whiteOnThis": 3.18
+      },
+      "accessibilityNotes": "Background role only. Foreground colour is chosen from the neutral or semantic text tokens and must meet its own target against this background."
+    },
+    "color.blue.500": {
+      "value": "#2A6FA9",
+      "type": "color",
+      "unit": "none",
+      "description": "Blue ramp step 500. Brand spine. 700 is the canonical primary. 50-200 are surfaces and selected backgrounds. 800-900 are pressed states and dark headers.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(42, 111, 169)",
+      "intendedUsage": "Brand spine. 700 is the canonical primary. 50-200 are surfaces and selected backgrounds. 800-900 are pressed states and dark headers.",
+      "allowedBackground": [
+        "color.neutral.0",
+        "color.neutral.50"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onNeutral0": 5.32,
+        "onNeutral50": 5.01,
+        "whiteOnThis": 5.32
+      },
+      "accessibilityNotes": "Measured 5.32:1 on color.neutral.0 and 5.01:1 on color.neutral.50 — meets the 4.5:1 normal-text target on both canonical light-theme surfaces."
+    },
+    "color.blue.600": {
+      "value": "#1F5E96",
+      "type": "color",
+      "unit": "none",
+      "description": "Blue ramp step 600. Brand spine. 700 is the canonical primary. 50-200 are surfaces and selected backgrounds. 800-900 are pressed states and dark headers.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(31, 94, 150)",
+      "intendedUsage": "Brand spine. 700 is the canonical primary. 50-200 are surfaces and selected backgrounds. 800-900 are pressed states and dark headers.",
+      "allowedBackground": [
+        "color.neutral.0",
+        "color.neutral.50"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onNeutral0": 6.77,
+        "onNeutral50": 6.38,
+        "whiteOnThis": 6.77
+      },
+      "accessibilityNotes": "Measured 6.77:1 on color.neutral.0 — meets the 4.5:1 normal-text target."
+    },
+    "color.blue.700": {
+      "value": "#0A4F8F",
+      "type": "color",
+      "unit": "none",
+      "description": "Blue ramp step 700. Brand spine. 700 is the canonical primary. 50-200 are surfaces and selected backgrounds. 800-900 are pressed states and dark headers.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(10, 79, 143)",
+      "intendedUsage": "Brand spine. 700 is the canonical primary. 50-200 are surfaces and selected backgrounds. 800-900 are pressed states and dark headers.",
+      "allowedBackground": [
+        "color.neutral.0",
+        "color.neutral.50"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onNeutral0": 8.31,
+        "onNeutral50": 7.82,
+        "whiteOnThis": 8.31
+      },
+      "accessibilityNotes": "Measured 8.31:1 on color.neutral.0 — meets the 4.5:1 normal-text target."
+    },
+    "color.blue.800": {
+      "value": "#083D70",
+      "type": "color",
+      "unit": "none",
+      "description": "Blue ramp step 800. Brand spine. 700 is the canonical primary. 50-200 are surfaces and selected backgrounds. 800-900 are pressed states and dark headers.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(8, 61, 112)",
+      "intendedUsage": "Brand spine. 700 is the canonical primary. 50-200 are surfaces and selected backgrounds. 800-900 are pressed states and dark headers.",
+      "allowedBackground": [
+        "color.neutral.0",
+        "color.neutral.50"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onNeutral0": 10.98,
+        "onNeutral50": 10.34,
+        "whiteOnThis": 10.98
+      },
+      "accessibilityNotes": "Measured 10.98:1 on color.neutral.0 — meets the 4.5:1 normal-text target."
+    },
+    "color.blue.900": {
+      "value": "#0A2540",
+      "type": "color",
+      "unit": "none",
+      "description": "Blue ramp step 900. Brand spine. 700 is the canonical primary. 50-200 are surfaces and selected backgrounds. 800-900 are pressed states and dark headers.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(10, 37, 64)",
+      "intendedUsage": "Brand spine. 700 is the canonical primary. 50-200 are surfaces and selected backgrounds. 800-900 are pressed states and dark headers.",
+      "allowedBackground": [
+        "color.neutral.0",
+        "color.neutral.50"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onNeutral0": 15.54,
+        "onNeutral50": 14.62,
+        "whiteOnThis": 15.54
+      },
+      "accessibilityNotes": "Measured 15.54:1 on color.neutral.0 — meets the 4.5:1 normal-text target."
+    },
+    "color.gold.50": {
+      "value": "#FBF6E9",
+      "type": "color",
+      "unit": "none",
+      "description": "Gold ramp step 50. Restrained brand accent. 300-400 are decorative fills only. 600 is the only gold permitted to carry text or a meaning-bearing boundary.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(251, 246, 233)",
+      "intendedUsage": "Restrained brand accent. 300-400 are decorative fills only. 600 is the only gold permitted to carry text or a meaning-bearing boundary.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only.",
+        "Never used as a foreground colour for text or icons."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onNeutral0": 1.08,
+        "onNeutral50": 1.02,
+        "whiteOnThis": 1.08
+      },
+      "accessibilityNotes": "Background role only. Foreground colour is chosen from the neutral or semantic text tokens and must meet its own target against this background."
+    },
+    "color.gold.100": {
+      "value": "#F5E9C4",
+      "type": "color",
+      "unit": "none",
+      "description": "Gold ramp step 100. Restrained brand accent. 300-400 are decorative fills only. 600 is the only gold permitted to carry text or a meaning-bearing boundary.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(245, 233, 196)",
+      "intendedUsage": "Restrained brand accent. 300-400 are decorative fills only. 600 is the only gold permitted to carry text or a meaning-bearing boundary.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only.",
+        "Never used as a foreground colour for text or icons."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onNeutral0": 1.21,
+        "onNeutral50": 1.14,
+        "whiteOnThis": 1.21
+      },
+      "accessibilityNotes": "Background role only. Foreground colour is chosen from the neutral or semantic text tokens and must meet its own target against this background."
+    },
+    "color.gold.200": {
+      "value": "#EBD595",
+      "type": "color",
+      "unit": "none",
+      "description": "Gold ramp step 200. Restrained brand accent. 300-400 are decorative fills only. 600 is the only gold permitted to carry text or a meaning-bearing boundary.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(235, 213, 149)",
+      "intendedUsage": "Restrained brand accent. 300-400 are decorative fills only. 600 is the only gold permitted to carry text or a meaning-bearing boundary.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only.",
+        "Never used as a foreground colour for text or icons."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onNeutral0": 1.45,
+        "onNeutral50": 1.36,
+        "whiteOnThis": 1.45
+      },
+      "accessibilityNotes": "Background role only. Foreground colour is chosen from the neutral or semantic text tokens and must meet its own target against this background."
+    },
+    "color.gold.300": {
+      "value": "#DDBC5F",
+      "type": "color",
+      "unit": "none",
+      "description": "Gold ramp step 300. Restrained brand accent. 300-400 are decorative fills only. 600 is the only gold permitted to carry text or a meaning-bearing boundary.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(221, 188, 95)",
+      "intendedUsage": "Restrained brand accent. 300-400 are decorative fills only. 600 is the only gold permitted to carry text or a meaning-bearing boundary.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only.",
+        "Never body text.",
+        "Never the sole indicator of a warning or any other status.",
+        "Never a meaning-bearing boundary."
+      ],
+      "contrastTarget": "decorative-exempt",
+      "measuredContrast": {
+        "onNeutral0": 1.84,
+        "onNeutral50": 1.73,
+        "whiteOnThis": 1.84
+      },
+      "accessibilityNotes": "Measured 1.84:1 on color.neutral.0. Decorative only; carries no meaning and is never the sole indicator of anything."
+    },
+    "color.gold.400": {
+      "value": "#C79A2B",
+      "type": "color",
+      "unit": "none",
+      "description": "Gold ramp step 400. Restrained brand accent. 300-400 are decorative fills only. 600 is the only gold permitted to carry text or a meaning-bearing boundary.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(199, 154, 43)",
+      "intendedUsage": "Restrained brand accent. 300-400 are decorative fills only. 600 is the only gold permitted to carry text or a meaning-bearing boundary.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only.",
+        "Never body text.",
+        "Never the sole indicator of a warning or any other status.",
+        "Never a meaning-bearing boundary."
+      ],
+      "contrastTarget": "decorative-exempt",
+      "measuredContrast": {
+        "onNeutral0": 2.6,
+        "onNeutral50": 2.44,
+        "whiteOnThis": 2.6
+      },
+      "accessibilityNotes": "Measured 2.6:1 on color.neutral.0. Decorative only; carries no meaning and is never the sole indicator of anything."
+    },
+    "color.gold.500": {
+      "value": "#A87F17",
+      "type": "color",
+      "unit": "none",
+      "description": "Gold ramp step 500. Restrained brand accent. 300-400 are decorative fills only. 600 is the only gold permitted to carry text or a meaning-bearing boundary.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(168, 127, 23)",
+      "intendedUsage": "Restrained brand accent. 300-400 are decorative fills only. 600 is the only gold permitted to carry text or a meaning-bearing boundary.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only.",
+        "Never body text.",
+        "Never the sole indicator of a warning or any other status.",
+        "Never a meaning-bearing boundary."
+      ],
+      "contrastTarget": "decorative-exempt",
+      "measuredContrast": {
+        "onNeutral0": 3.68,
+        "onNeutral50": 3.46,
+        "whiteOnThis": 3.68
+      },
+      "accessibilityNotes": "Measured 3.68:1 on color.neutral.0. Decorative only; carries no meaning and is never the sole indicator of anything."
+    },
+    "color.gold.600": {
+      "value": "#8A6710",
+      "type": "color",
+      "unit": "none",
+      "description": "Gold ramp step 600. Restrained brand accent. 300-400 are decorative fills only. 600 is the only gold permitted to carry text or a meaning-bearing boundary.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(138, 103, 16)",
+      "intendedUsage": "Restrained brand accent. 300-400 are decorative fills only. 600 is the only gold permitted to carry text or a meaning-bearing boundary.",
+      "allowedBackground": [
+        "color.neutral.0",
+        "color.neutral.50"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onNeutral0": 5.21,
+        "onNeutral50": 4.91,
+        "whiteOnThis": 5.21
+      },
+      "accessibilityNotes": "Measured 5.21:1 on color.neutral.0 — meets the 4.5:1 normal-text target."
+    },
+    "color.gold.700": {
+      "value": "#6B4F0B",
+      "type": "color",
+      "unit": "none",
+      "description": "Gold ramp step 700. Restrained brand accent. 300-400 are decorative fills only. 600 is the only gold permitted to carry text or a meaning-bearing boundary.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(107, 79, 11)",
+      "intendedUsage": "Restrained brand accent. 300-400 are decorative fills only. 600 is the only gold permitted to carry text or a meaning-bearing boundary.",
+      "allowedBackground": [
+        "color.neutral.0",
+        "color.neutral.50"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onNeutral0": 7.64,
+        "onNeutral50": 7.19,
+        "whiteOnThis": 7.64
+      },
+      "accessibilityNotes": "Measured 7.64:1 on color.neutral.0 — meets the 4.5:1 normal-text target."
+    },
+    "color.neutral.0": {
+      "value": "#FFFFFF",
+      "type": "color",
+      "unit": "none",
+      "description": "Neutral ramp step 0. Surfaces, text, borders and dividers. 0 is the canonical page background.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(255, 255, 255)",
+      "intendedUsage": "Surfaces, text, borders and dividers. 0 is the canonical page background.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only.",
+        "Never used as a foreground colour for text or icons."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onNeutral0": 1.0,
+        "onNeutral50": 1.06,
+        "whiteOnThis": 1.0
+      },
+      "accessibilityNotes": "Background role only. Foreground colour is chosen from the neutral or semantic text tokens and must meet its own target against this background."
+    },
+    "color.neutral.50": {
+      "value": "#F7F8FA",
+      "type": "color",
+      "unit": "none",
+      "description": "Neutral ramp step 50. Surfaces, text, borders and dividers. 0 is the canonical page background.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(247, 248, 250)",
+      "intendedUsage": "Surfaces, text, borders and dividers. 0 is the canonical page background.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only.",
+        "Never used as a foreground colour for text or icons."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onNeutral0": 1.06,
+        "onNeutral50": 1.0,
+        "whiteOnThis": 1.06
+      },
+      "accessibilityNotes": "Background role only. Foreground colour is chosen from the neutral or semantic text tokens and must meet its own target against this background."
+    },
+    "color.neutral.100": {
+      "value": "#EFF1F4",
+      "type": "color",
+      "unit": "none",
+      "description": "Neutral ramp step 100. Surfaces, text, borders and dividers. 0 is the canonical page background.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(239, 241, 244)",
+      "intendedUsage": "Surfaces, text, borders and dividers. 0 is the canonical page background.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only.",
+        "Never used as a foreground colour for text or icons."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onNeutral0": 1.13,
+        "onNeutral50": 1.06,
+        "whiteOnThis": 1.13
+      },
+      "accessibilityNotes": "Background role only. Foreground colour is chosen from the neutral or semantic text tokens and must meet its own target against this background."
+    },
+    "color.neutral.200": {
+      "value": "#DFE3E8",
+      "type": "color",
+      "unit": "none",
+      "description": "Neutral ramp step 200. Surfaces, text, borders and dividers. 0 is the canonical page background.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(223, 227, 232)",
+      "intendedUsage": "Surfaces, text, borders and dividers. 0 is the canonical page background.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only.",
+        "Never used as a foreground colour for text or icons."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onNeutral0": 1.29,
+        "onNeutral50": 1.21,
+        "whiteOnThis": 1.29
+      },
+      "accessibilityNotes": "Background role only. Foreground colour is chosen from the neutral or semantic text tokens and must meet its own target against this background."
+    },
+    "color.neutral.300": {
+      "value": "#C4CAD3",
+      "type": "color",
+      "unit": "none",
+      "description": "Neutral ramp step 300. Surfaces, text, borders and dividers. 0 is the canonical page background.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(196, 202, 211)",
+      "intendedUsage": "Surfaces, text, borders and dividers. 0 is the canonical page background.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only.",
+        "Never used as a foreground colour for text or icons."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onNeutral0": 1.65,
+        "onNeutral50": 1.55,
+        "whiteOnThis": 1.65
+      },
+      "accessibilityNotes": "Background role only. Foreground colour is chosen from the neutral or semantic text tokens and must meet its own target against this background."
+    },
+    "color.neutral.400": {
+      "value": "#9AA3B0",
+      "type": "color",
+      "unit": "none",
+      "description": "Neutral ramp step 400. Surfaces, text, borders and dividers. 0 is the canonical page background.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(154, 163, 176)",
+      "intendedUsage": "Surfaces, text, borders and dividers. 0 is the canonical page background.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only.",
+        "Never used for active text. Permitted only for inactive (disabled) components, which WCAG 2.2 SC 1.4.3 exempts, and always paired with an explicit disabled text label."
+      ],
+      "contrastTarget": "inactive-exempt",
+      "measuredContrast": {
+        "onNeutral0": 2.55,
+        "onNeutral50": 2.4,
+        "whiteOnThis": 2.55
+      },
+      "accessibilityNotes": "Measured 2.55:1 on color.neutral.0. Below 4.5:1 by design; permitted only on inactive components (WCAG 2.2 SC 1.4.3 exemption) and never as the sole disabled indicator."
+    },
+    "color.neutral.500": {
+      "value": "#737D8C",
+      "type": "color",
+      "unit": "none",
+      "description": "Neutral ramp step 500. Surfaces, text, borders and dividers. 0 is the canonical page background.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(115, 125, 140)",
+      "intendedUsage": "Surfaces, text, borders and dividers. 0 is the canonical page background.",
+      "allowedBackground": [
+        "color.neutral.0",
+        "color.neutral.50"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only."
+      ],
+      "contrastTarget": "interactive-boundary-3.0",
+      "measuredContrast": {
+        "onNeutral0": 4.17,
+        "onNeutral50": 3.92,
+        "whiteOnThis": 4.17
+      },
+      "accessibilityNotes": "Measured 4.17:1 on color.neutral.0 — meets the 3:1 interactive-boundary target."
+    },
+    "color.neutral.600": {
+      "value": "#566070",
+      "type": "color",
+      "unit": "none",
+      "description": "Neutral ramp step 600. Surfaces, text, borders and dividers. 0 is the canonical page background.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(86, 96, 112)",
+      "intendedUsage": "Surfaces, text, borders and dividers. 0 is the canonical page background.",
+      "allowedBackground": [
+        "color.neutral.0",
+        "color.neutral.50"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onNeutral0": 6.36,
+        "onNeutral50": 5.98,
+        "whiteOnThis": 6.36
+      },
+      "accessibilityNotes": "Measured 6.36:1 on color.neutral.0 — meets the 4.5:1 normal-text target."
+    },
+    "color.neutral.700": {
+      "value": "#3E4756",
+      "type": "color",
+      "unit": "none",
+      "description": "Neutral ramp step 700. Surfaces, text, borders and dividers. 0 is the canonical page background.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(62, 71, 86)",
+      "intendedUsage": "Surfaces, text, borders and dividers. 0 is the canonical page background.",
+      "allowedBackground": [
+        "color.neutral.0",
+        "color.neutral.50"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onNeutral0": 9.37,
+        "onNeutral50": 8.82,
+        "whiteOnThis": 9.37
+      },
+      "accessibilityNotes": "Measured 9.37:1 on color.neutral.0 — meets the 4.5:1 normal-text target."
+    },
+    "color.neutral.800": {
+      "value": "#2A313D",
+      "type": "color",
+      "unit": "none",
+      "description": "Neutral ramp step 800. Surfaces, text, borders and dividers. 0 is the canonical page background.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(42, 49, 61)",
+      "intendedUsage": "Surfaces, text, borders and dividers. 0 is the canonical page background.",
+      "allowedBackground": [
+        "color.neutral.0",
+        "color.neutral.50"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onNeutral0": 13.08,
+        "onNeutral50": 12.31,
+        "whiteOnThis": 13.08
+      },
+      "accessibilityNotes": "Measured 13.08:1 on color.neutral.0 — meets the 4.5:1 normal-text target."
+    },
+    "color.neutral.900": {
+      "value": "#171C24",
+      "type": "color",
+      "unit": "none",
+      "description": "Neutral ramp step 900. Surfaces, text, borders and dividers. 0 is the canonical page background.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(23, 28, 36)",
+      "intendedUsage": "Surfaces, text, borders and dividers. 0 is the canonical page background.",
+      "allowedBackground": [
+        "color.neutral.0",
+        "color.neutral.50"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onNeutral0": 17.1,
+        "onNeutral50": 16.09,
+        "whiteOnThis": 17.1
+      },
+      "accessibilityNotes": "Measured 17.1:1 on color.neutral.0 — meets the 4.5:1 normal-text target."
+    },
+    "color.green.50": {
+      "value": "#E8F5EC",
+      "type": "color",
+      "unit": "none",
+      "description": "Green ramp step 50. Success semantics only. Never a decorative fill.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(232, 245, 236)",
+      "intendedUsage": "Success semantics only. Never a decorative fill.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only.",
+        "Never used as a foreground colour for text or icons."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onNeutral0": 1.12,
+        "onNeutral50": 1.06,
+        "whiteOnThis": 1.12
+      },
+      "accessibilityNotes": "Background role only. Foreground colour is chosen from the neutral or semantic text tokens and must meet its own target against this background."
+    },
+    "color.green.100": {
+      "value": "#C2E5CE",
+      "type": "color",
+      "unit": "none",
+      "description": "Green ramp step 100. Success semantics only. Never a decorative fill.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(194, 229, 206)",
+      "intendedUsage": "Success semantics only. Never a decorative fill.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only.",
+        "Never used as a foreground colour for text or icons."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onNeutral0": 1.36,
+        "onNeutral50": 1.28,
+        "whiteOnThis": 1.36
+      },
+      "accessibilityNotes": "Background role only. Foreground colour is chosen from the neutral or semantic text tokens and must meet its own target against this background."
+    },
+    "color.green.500": {
+      "value": "#0F7A3D",
+      "type": "color",
+      "unit": "none",
+      "description": "Green ramp step 500. Success semantics only. Never a decorative fill.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(15, 122, 61)",
+      "intendedUsage": "Success semantics only. Never a decorative fill.",
+      "allowedBackground": [
+        "color.neutral.0",
+        "color.neutral.50"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onNeutral0": 5.42,
+        "onNeutral50": 5.1,
+        "whiteOnThis": 5.42
+      },
+      "accessibilityNotes": "Measured 5.42:1 on color.neutral.0 — meets the 4.5:1 normal-text target."
+    },
+    "color.green.600": {
+      "value": "#0B5C2E",
+      "type": "color",
+      "unit": "none",
+      "description": "Green ramp step 600. Success semantics only. Never a decorative fill.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(11, 92, 46)",
+      "intendedUsage": "Success semantics only. Never a decorative fill.",
+      "allowedBackground": [
+        "color.neutral.0",
+        "color.neutral.50"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onNeutral0": 8.13,
+        "onNeutral50": 7.65,
+        "whiteOnThis": 8.13
+      },
+      "accessibilityNotes": "Measured 8.13:1 on color.neutral.0 — meets the 4.5:1 normal-text target."
+    },
+    "color.green.700": {
+      "value": "#08431F",
+      "type": "color",
+      "unit": "none",
+      "description": "Green ramp step 700. Success semantics only. Never a decorative fill.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(8, 67, 31)",
+      "intendedUsage": "Success semantics only. Never a decorative fill.",
+      "allowedBackground": [
+        "color.neutral.0",
+        "color.neutral.50"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onNeutral0": 11.46,
+        "onNeutral50": 10.78,
+        "whiteOnThis": 11.46
+      },
+      "accessibilityNotes": "Measured 11.46:1 on color.neutral.0 — meets the 4.5:1 normal-text target."
+    },
+    "color.amber.50": {
+      "value": "#FDF3E4",
+      "type": "color",
+      "unit": "none",
+      "description": "Amber ramp step 50. Warning semantics only. Never the sole indicator of a warning.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(253, 243, 228)",
+      "intendedUsage": "Warning semantics only. Never the sole indicator of a warning.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only.",
+        "Never used as a foreground colour for text or icons."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onNeutral0": 1.1,
+        "onNeutral50": 1.03,
+        "whiteOnThis": 1.1
+      },
+      "accessibilityNotes": "Background role only. Foreground colour is chosen from the neutral or semantic text tokens and must meet its own target against this background."
+    },
+    "color.amber.100": {
+      "value": "#F8E0B8",
+      "type": "color",
+      "unit": "none",
+      "description": "Amber ramp step 100. Warning semantics only. Never the sole indicator of a warning.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(248, 224, 184)",
+      "intendedUsage": "Warning semantics only. Never the sole indicator of a warning.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only.",
+        "Never used as a foreground colour for text or icons."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onNeutral0": 1.28,
+        "onNeutral50": 1.21,
+        "whiteOnThis": 1.28
+      },
+      "accessibilityNotes": "Background role only. Foreground colour is chosen from the neutral or semantic text tokens and must meet its own target against this background."
+    },
+    "color.amber.500": {
+      "value": "#9A5B00",
+      "type": "color",
+      "unit": "none",
+      "description": "Amber ramp step 500. Warning semantics only. Never the sole indicator of a warning.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(154, 91, 0)",
+      "intendedUsage": "Warning semantics only. Never the sole indicator of a warning.",
+      "allowedBackground": [
+        "color.neutral.0",
+        "color.neutral.50"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onNeutral0": 5.43,
+        "onNeutral50": 5.11,
+        "whiteOnThis": 5.43
+      },
+      "accessibilityNotes": "Measured 5.43:1 on color.neutral.0 — meets the 4.5:1 normal-text target."
+    },
+    "color.amber.600": {
+      "value": "#7A4800",
+      "type": "color",
+      "unit": "none",
+      "description": "Amber ramp step 600. Warning semantics only. Never the sole indicator of a warning.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(122, 72, 0)",
+      "intendedUsage": "Warning semantics only. Never the sole indicator of a warning.",
+      "allowedBackground": [
+        "color.neutral.0",
+        "color.neutral.50"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onNeutral0": 7.62,
+        "onNeutral50": 7.17,
+        "whiteOnThis": 7.62
+      },
+      "accessibilityNotes": "Measured 7.62:1 on color.neutral.0 — meets the 4.5:1 normal-text target."
+    },
+    "color.amber.700": {
+      "value": "#5C3600",
+      "type": "color",
+      "unit": "none",
+      "description": "Amber ramp step 700. Warning semantics only. Never the sole indicator of a warning.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(92, 54, 0)",
+      "intendedUsage": "Warning semantics only. Never the sole indicator of a warning.",
+      "allowedBackground": [
+        "color.neutral.0",
+        "color.neutral.50"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onNeutral0": 10.59,
+        "onNeutral50": 9.97,
+        "whiteOnThis": 10.59
+      },
+      "accessibilityNotes": "Measured 10.59:1 on color.neutral.0 — meets the 4.5:1 normal-text target."
+    },
+    "color.red.50": {
+      "value": "#FCEBEA",
+      "type": "color",
+      "unit": "none",
+      "description": "Red ramp step 50. Danger and destructive semantics only. Never a decorative fill.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(252, 235, 234)",
+      "intendedUsage": "Danger and destructive semantics only. Never a decorative fill.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only.",
+        "Never used as a foreground colour for text or icons."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onNeutral0": 1.15,
+        "onNeutral50": 1.09,
+        "whiteOnThis": 1.15
+      },
+      "accessibilityNotes": "Background role only. Foreground colour is chosen from the neutral or semantic text tokens and must meet its own target against this background."
+    },
+    "color.red.100": {
+      "value": "#F7C9C5",
+      "type": "color",
+      "unit": "none",
+      "description": "Red ramp step 100. Danger and destructive semantics only. Never a decorative fill.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(247, 201, 197)",
+      "intendedUsage": "Danger and destructive semantics only. Never a decorative fill.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only.",
+        "Never used as a foreground colour for text or icons."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onNeutral0": 1.49,
+        "onNeutral50": 1.4,
+        "whiteOnThis": 1.49
+      },
+      "accessibilityNotes": "Background role only. Foreground colour is chosen from the neutral or semantic text tokens and must meet its own target against this background."
+    },
+    "color.red.500": {
+      "value": "#B3261E",
+      "type": "color",
+      "unit": "none",
+      "description": "Red ramp step 500. Danger and destructive semantics only. Never a decorative fill.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(179, 38, 30)",
+      "intendedUsage": "Danger and destructive semantics only. Never a decorative fill.",
+      "allowedBackground": [
+        "color.neutral.0",
+        "color.neutral.50"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onNeutral0": 6.54,
+        "onNeutral50": 6.15,
+        "whiteOnThis": 6.54
+      },
+      "accessibilityNotes": "Measured 6.54:1 on color.neutral.0 — meets the 4.5:1 normal-text target."
+    },
+    "color.red.600": {
+      "value": "#8C1D17",
+      "type": "color",
+      "unit": "none",
+      "description": "Red ramp step 600. Danger and destructive semantics only. Never a decorative fill.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(140, 29, 23)",
+      "intendedUsage": "Danger and destructive semantics only. Never a decorative fill.",
+      "allowedBackground": [
+        "color.neutral.0",
+        "color.neutral.50"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onNeutral0": 9.12,
+        "onNeutral50": 8.58,
+        "whiteOnThis": 9.12
+      },
+      "accessibilityNotes": "Measured 9.12:1 on color.neutral.0 — meets the 4.5:1 normal-text target."
+    },
+    "color.red.700": {
+      "value": "#6B1611",
+      "type": "color",
+      "unit": "none",
+      "description": "Red ramp step 700. Danger and destructive semantics only. Never a decorative fill.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(107, 22, 17)",
+      "intendedUsage": "Danger and destructive semantics only. Never a decorative fill.",
+      "allowedBackground": [
+        "color.neutral.0",
+        "color.neutral.50"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onNeutral0": 12.01,
+        "onNeutral50": 11.31,
+        "whiteOnThis": 12.01
+      },
+      "accessibilityNotes": "Measured 12.01:1 on color.neutral.0 — meets the 4.5:1 normal-text target."
+    },
+    "color.teal.50": {
+      "value": "#E6F3F5",
+      "type": "color",
+      "unit": "none",
+      "description": "Teal ramp step 50. Synchronisation-in-progress semantics only.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(230, 243, 245)",
+      "intendedUsage": "Synchronisation-in-progress semantics only.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only.",
+        "Never used as a foreground colour for text or icons."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onNeutral0": 1.13,
+        "onNeutral50": 1.07,
+        "whiteOnThis": 1.13
+      },
+      "accessibilityNotes": "Background role only. Foreground colour is chosen from the neutral or semantic text tokens and must meet its own target against this background."
+    },
+    "color.teal.100": {
+      "value": "#BCDFE4",
+      "type": "color",
+      "unit": "none",
+      "description": "Teal ramp step 100. Synchronisation-in-progress semantics only.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(188, 223, 228)",
+      "intendedUsage": "Synchronisation-in-progress semantics only.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only.",
+        "Never used as a foreground colour for text or icons."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onNeutral0": 1.42,
+        "onNeutral50": 1.33,
+        "whiteOnThis": 1.42
+      },
+      "accessibilityNotes": "Background role only. Foreground colour is chosen from the neutral or semantic text tokens and must meet its own target against this background."
+    },
+    "color.teal.500": {
+      "value": "#0F6E7B",
+      "type": "color",
+      "unit": "none",
+      "description": "Teal ramp step 500. Synchronisation-in-progress semantics only.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(15, 110, 123)",
+      "intendedUsage": "Synchronisation-in-progress semantics only.",
+      "allowedBackground": [
+        "color.neutral.0",
+        "color.neutral.50"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onNeutral0": 5.94,
+        "onNeutral50": 5.59,
+        "whiteOnThis": 5.94
+      },
+      "accessibilityNotes": "Measured 5.94:1 on color.neutral.0 — meets the 4.5:1 normal-text target."
+    },
+    "color.teal.600": {
+      "value": "#0B535D",
+      "type": "color",
+      "unit": "none",
+      "description": "Teal ramp step 600. Synchronisation-in-progress semantics only.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(11, 83, 93)",
+      "intendedUsage": "Synchronisation-in-progress semantics only.",
+      "allowedBackground": [
+        "color.neutral.0",
+        "color.neutral.50"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onNeutral0": 8.72,
+        "onNeutral50": 8.2,
+        "whiteOnThis": 8.72
+      },
+      "accessibilityNotes": "Measured 8.72:1 on color.neutral.0 — meets the 4.5:1 normal-text target."
+    },
+    "color.teal.700": {
+      "value": "#083E45",
+      "type": "color",
+      "unit": "none",
+      "description": "Teal ramp step 700. Synchronisation-in-progress semantics only.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(8, 62, 69)",
+      "intendedUsage": "Synchronisation-in-progress semantics only.",
+      "allowedBackground": [
+        "color.neutral.0",
+        "color.neutral.50"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onNeutral0": 11.76,
+        "onNeutral50": 11.07,
+        "whiteOnThis": 11.76
+      },
+      "accessibilityNotes": "Measured 11.76:1 on color.neutral.0 — meets the 4.5:1 normal-text target."
+    },
+    "color.violet.50": {
+      "value": "#F3EBF6",
+      "type": "color",
+      "unit": "none",
+      "description": "Violet ramp step 50. Conflict semantics only. Chosen to be distinguishable from warning and danger for the most common forms of colour vision deficiency.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(243, 235, 246)",
+      "intendedUsage": "Conflict semantics only. Chosen to be distinguishable from warning and danger for the most common forms of colour vision deficiency.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only.",
+        "Never used as a foreground colour for text or icons."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onNeutral0": 1.17,
+        "onNeutral50": 1.1,
+        "whiteOnThis": 1.17
+      },
+      "accessibilityNotes": "Background role only. Foreground colour is chosen from the neutral or semantic text tokens and must meet its own target against this background."
+    },
+    "color.violet.100": {
+      "value": "#E0C9E8",
+      "type": "color",
+      "unit": "none",
+      "description": "Violet ramp step 100. Conflict semantics only. Chosen to be distinguishable from warning and danger for the most common forms of colour vision deficiency.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(224, 201, 232)",
+      "intendedUsage": "Conflict semantics only. Chosen to be distinguishable from warning and danger for the most common forms of colour vision deficiency.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only.",
+        "Never used as a foreground colour for text or icons."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onNeutral0": 1.53,
+        "onNeutral50": 1.44,
+        "whiteOnThis": 1.53
+      },
+      "accessibilityNotes": "Background role only. Foreground colour is chosen from the neutral or semantic text tokens and must meet its own target against this background."
+    },
+    "color.violet.500": {
+      "value": "#7A3B8F",
+      "type": "color",
+      "unit": "none",
+      "description": "Violet ramp step 500. Conflict semantics only. Chosen to be distinguishable from warning and danger for the most common forms of colour vision deficiency.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(122, 59, 143)",
+      "intendedUsage": "Conflict semantics only. Chosen to be distinguishable from warning and danger for the most common forms of colour vision deficiency.",
+      "allowedBackground": [
+        "color.neutral.0",
+        "color.neutral.50"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onNeutral0": 7.37,
+        "onNeutral50": 6.93,
+        "whiteOnThis": 7.37
+      },
+      "accessibilityNotes": "Measured 7.37:1 on color.neutral.0 — meets the 4.5:1 normal-text target."
+    },
+    "color.violet.600": {
+      "value": "#5E2D6E",
+      "type": "color",
+      "unit": "none",
+      "description": "Violet ramp step 600. Conflict semantics only. Chosen to be distinguishable from warning and danger for the most common forms of colour vision deficiency.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(94, 45, 110)",
+      "intendedUsage": "Conflict semantics only. Chosen to be distinguishable from warning and danger for the most common forms of colour vision deficiency.",
+      "allowedBackground": [
+        "color.neutral.0",
+        "color.neutral.50"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onNeutral0": 10.11,
+        "onNeutral50": 9.52,
+        "whiteOnThis": 10.11
+      },
+      "accessibilityNotes": "Measured 10.11:1 on color.neutral.0 — meets the 4.5:1 normal-text target."
+    },
+    "color.violet.700": {
+      "value": "#46224F",
+      "type": "color",
+      "unit": "none",
+      "description": "Violet ramp step 700. Conflict semantics only. Chosen to be distinguishable from warning and danger for the most common forms of colour vision deficiency.",
+      "scope": [
+        "global"
+      ],
+      "rgb": "rgb(70, 34, 79)",
+      "intendedUsage": "Conflict semantics only. Chosen to be distinguishable from warning and danger for the most common forms of colour vision deficiency.",
+      "allowedBackground": [
+        "color.neutral.0",
+        "color.neutral.50"
+      ],
+      "prohibitedUsage": [
+        "Never used directly by a component. Components reference semantic tokens only."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onNeutral0": 13.11,
+        "onNeutral50": 12.33,
+        "whiteOnThis": 13.11
+      },
+      "accessibilityNotes": "Measured 13.11:1 on color.neutral.0 — meets the 4.5:1 normal-text target."
+    }
+  }
+}

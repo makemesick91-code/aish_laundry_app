@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 720" width="360" height="720">
+  <rect x="0" y="0" width="360" height="720" rx="0" fill="#f8fafc" stroke="#94a3b8" stroke-width="1"/>
+  <rect x="0" y="0" width="360" height="58" rx="0" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"/>
+  <text x="14" y="26" font-family="sans-serif" font-size="16" fill="#1e293b" font-weight="bold" text-anchor="start">Pemeriksaan Mutu</text>
+  <text x="14" y="46" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">SCR-OPS-026 | Aish Laundry Ops Android</text>
+  <rect x="0" y="58" width="360" height="46" rx="0" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="10" y="76" font-family="sans-serif" font-size="10" fill="#1e293b" font-weight="normal" text-anchor="start">Laundry Bersih Sejahtera / Outlet Cempaka / Kasir</text>
+  <text x="10" y="94" font-family="sans-serif" font-size="9" fill="#475569" font-weight="normal" text-anchor="start">Konteks tenant aktif dikunci di setiap layar</text>
+  <rect x="238" y="74" width="112" height="20" rx="10" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+  <text x="294" y="88" font-family="sans-serif" font-size="10" fill="#1e293b" font-weight="bold" text-anchor="middle">TERSINKRON</text>
+  <rect x="14" y="114" width="332" height="68" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="134" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">AL-2026-000123</text>
+  <text x="26" y="151" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Siti Rahmawati | 1,5 kg</text>
+  <rect x="226" y="122" width="108" height="20" rx="10" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+  <text x="280" y="136" font-family="sans-serif" font-size="10" fill="#1e293b" font-weight="bold" text-anchor="middle">QUALITY_CONTROL</text>
+  <rect x="14" y="190" width="332" height="62" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="210" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Hasil: PENDING</text>
+  <text x="26" y="227" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Belum diputuskan</text>
+  <rect x="14" y="260" width="332" height="62" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="280" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Hasil: PASSED</text>
+  <text x="26" y="297" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Lanjut ke READY_FOR_PICKUP</text>
+  <rect x="14" y="330" width="332" height="68" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="350" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Hasil: FAILED_REWORK_REQUIRED</text>
+  <text x="26" y="367" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Pesanan kembali ke REWORK</text>
+  <text x="26" y="384" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Jam siap pertama tidak diatur ulang</text>
+  <rect x="14" y="406" width="332" height="72" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="426" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Hasil: WAIVED_WITH_AUTHORIZATION</text>
+  <text x="26" y="443" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Butuh izin eksplisit dan alasan tercatat</text>
+  <text x="26" y="460" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Pengecualian diam-diam adalah cacat</text>
+  <rect x="14" y="486" width="332" height="62" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="506" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Catatan pemeriksa</text>
+  <text x="26" y="523" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Aktor, waktu, dan alasan selalu tersimpan</text>
+  <rect x="14" y="636" width="332" height="48" rx="6" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"/>
+  <text x="180" y="666" font-family="sans-serif" font-size="14" fill="#1e293b" font-weight="bold" text-anchor="middle">Simpan Hasil Pemeriksaan</text>
+  <line x1="14" y1="692" x2="346" y2="692" stroke="#94a3b8" stroke-width="1"/>
+  <text x="14" y="706" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="bold" text-anchor="start">LOW-FIDELITY — NOT IMPLEMENTED</text>
+  <text x="14" y="717" font-family="sans-serif" font-size="9" fill="#475569" font-weight="normal" text-anchor="start">Wireframe tata letak saja. Bukan UI final. Data contoh fiktif.</text>
+  <text x="346" y="706" font-family="sans-serif" font-size="9" fill="#475569" font-weight="normal" text-anchor="end">360x720</text>
+</svg>
