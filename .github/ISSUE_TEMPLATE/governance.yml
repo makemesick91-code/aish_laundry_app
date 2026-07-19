@@ -1,0 +1,97 @@
+---
+name: Governance issue
+description: Ajukan perubahan tata kelola, decision record, status, atau kebijakan kanonik.
+title: "[GOVERNANCE] "
+labels:
+  - governance
+  - triage
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gunakan template ini untuk hal yang mengubah kebenaran kanonik:
+        Master Source, decision record, roadmap, status, harga, atau rule.
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Governance change type
+      options:
+        - Master Source correction
+        - New decision record
+        - Supersede an existing decision record
+        - Roadmap change
+        - Status change
+        - Pricing change
+        - Rule file change
+        - Policy document change
+        - Traceability gap
+    validations:
+      required: true
+
+  - type: textarea
+    id: current
+    attributes:
+      label: Current canonical statement
+      description: Kutip teks kanonik saat ini beserta path file dan nomor baris.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed
+    attributes:
+      label: Proposed canonical statement
+      description: Teks pengganti yang diusulkan, ditulis persis.
+    validations:
+      required: true
+
+  - type: textarea
+    id: rationale
+    attributes:
+      label: Rationale
+      description: Mengapa perubahan ini benar dan mengapa sekarang.
+    validations:
+      required: true
+
+  - type: input
+    id: decisions
+    attributes:
+      label: Affected decision records
+      description: Daftar ID, atau "none".
+      placeholder: DEC-0009, DEC-0010
+    validations:
+      required: true
+
+  - type: input
+    id: files
+    attributes:
+      label: Affected files
+      description: Semua file yang harus ikut berubah agar tetap konsisten.
+      placeholder: docs/MASTER_SOURCE.md, docs/MASTER_SOURCE.sha256, .claude/rules/14-pricing-and-commercial.md
+    validations:
+      required: true
+
+  - type: dropdown
+    id: hardgate
+    attributes:
+      label: Does this touch a hard gate?
+      description: Isolasi tenant, integritas finansial, atau larangan runtime pada Step 0.
+      options:
+        - "No"
+        - "Yes — tenant isolation"
+        - "Yes — financial integrity"
+        - "Yes — Step 0 no-runtime scope guard"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Confirmations
+      options:
+        - label: Perubahan ini akan memperbarui setiap file terdampak agar tidak ada angka atau status yang bertentangan.
+          required: true
+        - label: Saya paham perubahan harga dan keputusan mengikat memerlukan decision record.
+          required: true
+        - label: Saya tidak mengklaim implementasi, test, deployment, atau CI yang tidak ada.
+          required: true

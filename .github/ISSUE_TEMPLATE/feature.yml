@@ -1,0 +1,101 @@
+---
+name: Feature request
+description: Usulkan kemampuan produk baru untuk dipertimbangkan pada step roadmap tertentu.
+title: "[FEATURE] "
+labels:
+  - enhancement
+  - triage
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Usulan fitur tidak langsung dikerjakan. Fitur dijadwalkan pada step
+        roadmap dan, bila mengikat, memerlukan decision record.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Masalah nyata yang dialami pengguna laundry. Bukan solusi.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed capability
+      description: Kemampuan yang diusulkan, ditulis sebagai hasil bagi pengguna.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - Aish Laundry Customer Android
+        - Aish Laundry Ops Android
+        - Aish Laundry Console Web
+        - Portal Tracking Publik
+        - Backend
+        - Cross-platform
+        - Not sure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: step
+    attributes:
+      label: Target roadmap step
+      description: Step yang paling masuk akal untuk kemampuan ini.
+      options:
+        - "Step 1 — Product Requirement and Domain Model"
+        - "Step 2 — Design System and UX Foundation"
+        - "Step 3 — Runtime, Authentication, Multi-Tenancy, and RBAC"
+        - "Step 4 — Laundry Master Data"
+        - "Step 5 — POS, Order, and Payment Foundation"
+        - "Step 6 — Production Operations"
+        - "Step 7 — Customer Tracking and WhatsApp"
+        - "Step 8 — Pickup and Delivery Operations"
+        - "Step 9 — Unclaimed Laundry and Cashflow Recovery"
+        - "Step 10 — Finance, Reports, and Owner Portfolio"
+        - "Step 11 — Customer Android Experience"
+        - "Step 12 — Subscription and Platform Administration"
+        - "Step 13 — Security, Performance, Backup, and Recovery"
+        - "Step 14 — Pilot and Commercial Launch"
+        - "Unknown — needs triage"
+    validations:
+      required: true
+
+  - type: textarea
+    id: tenancy
+    attributes:
+      label: Multi-tenancy impact
+      description: Bagaimana kemampuan ini tetap ter-scope per tenant.
+    validations:
+      required: true
+
+  - type: textarea
+    id: financial
+    attributes:
+      label: Financial and pricing impact
+      description: Apakah menyentuh uang, paket harga, atau biaya pihak ketiga.
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Confirmations
+      options:
+        - label: Usulan ini tidak melanggar isolasi tenant maupun integritas finansial.
+          required: true
+        - label: Saya paham usulan ini mungkin memerlukan decision record sebelum dikerjakan.
+          required: true
