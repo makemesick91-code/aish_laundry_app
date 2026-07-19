@@ -116,8 +116,11 @@ fi
 # A line that *forbids* or *corrects* the claim necessarily contains the claim's
 # words. Those are the correct form and must not be flagged; only an unqualified
 # assertion is a finding.
+# Case-insensitive: an earlier revision matched only lowercase, so a claim at the
+# start of a sentence — "This repository is private." — passed undetected. The
+# adversarial harness caught that.
 PRIVATE_CLAIM="$(
-  grep -InE '(this|the)[[:space:]]+(repository|repo)[[:space:]]+(is|remains|stays)[[:space:]]+private' \
+  grep -InEi '(this|the)[[:space:]]+(repository|repo)[[:space:]]+(is|remains|stays)[[:space:]]+private' \
     -- "${FILES[@]}" 2>/dev/null \
     | grep -viE 'never|not |no longer|would be|canonical desired|rather than|instead of|were|had been|desired visibility|claims|claim |PUBLIC|AMENDMENT|DEC-0016|violation|forbidden|correct|false|wrong|must' \
     || true

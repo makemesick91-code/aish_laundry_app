@@ -82,7 +82,8 @@ Deferring these is a deliberate scope decision, not an oversight. In particular:
 Reproduced from [`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) §23. These are not "later"; they are **not
 part of the product**: a general-purpose ERP; a general-purpose POS for other retail verticals; an
 accounting system; a payroll system; a marketplace; a courier network; **a route optimisation engine**;
-an AI decision-maker for money; **automatic disposal of unclaimed laundry**; offline payment gateway
+an AI decision-maker for money; **automatic disposal of unclaimed laundry**, which the product never
+performs under any circumstance; offline payment gateway
 confirmation; iOS applications at this stage; on-premise deployment at this stage; a lifetime plan;
 multi-tenant data blending for cross-tenant analytics.
 

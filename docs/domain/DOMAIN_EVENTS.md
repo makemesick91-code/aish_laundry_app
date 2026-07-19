@@ -30,6 +30,76 @@ it.
 
 ---
 
+## 1.1 The event record — required fields
+
+Every event, without exception, carries the following envelope. A field here is not optional and has
+no permissive default; an event that cannot populate one is not emitted.
+
+| Field | Rule |
+| --- | --- |
+| Event name | Past tense, PascalCase, stable for the life of the version. |
+| Event version | Explicit integer. A breaking payload change is a **new version**, never a mutation of the existing one. |
+| Occurrence timestamp | The server timestamp at which the fact occurred. Client clock skew is expected and never authoritative (`OFF-015`). |
+| `TenantId` | The owning tenant (`TEN-015`). Carried explicitly, never inferred downstream (`TEN-027`). |
+| Actor | The authenticated actor, or the named system process, responsible for the fact. |
+| **Source aggregate identity** | The aggregate type and identifier that emitted the event. |
+| **`CorrelationId`** | A stable identifier tying every event, command, queued job, retry, and notification arising from one originating action into a single traceable chain. |
+| `CausationId` | The identifier of the immediate command or event that caused this one. |
+| `ClientReference` | Present where the originating operation was client-captured, so the offline idempotency key survives into the event record (`OFF-001`). |
+
+### The source aggregate
+
+> **Every event has exactly one source aggregate — the owning aggregate that emitted it.**
+
+- The **source aggregate** is the aggregate root whose state change the event records. It is named on
+  the event, not derived by a consumer from the event name.
+- No event is emitted by a projection, a controller, a background worker, or a consumer. Only an
+  aggregate root emits, because only an aggregate root owns the invariant the fact attests to.
+- Two aggregates never emit the same event. Where two contexts both care about a fact, one owns it
+  and the other subscribes — see [`CONTEXT_MAP.md`](CONTEXT_MAP.md).
+
+### The correlation identifier
+
+- `CorrelationId` is generated once, at the edge, when the originating action enters the system, and
+  is then **propagated unchanged** — into every emitted event, every queued message, every background
+  job, every retry attempt, every outbound notification send record, and every audit entry.
+- A background job or scheduler run **inherits** the correlation identifier of whatever caused it. A
+  job that cannot state its correlation identifier is not traceable, and an untraceable financial or
+  messaging chain is the condition under which a duplicate charge or a duplicate message goes
+  unexplained.
+- Correlation identifiers are opaque and carry no personal data, no tenant name, and no token
+  material. They are recorded in structured logs; secrets never are (`TRK-019`, `NOT-016`).
+
+---
+
+## 1.2 The delivery and idempotency contract
+
+> **Idempotency is a server contract, not a client convention.**
+
+- The **server contract** is that a repeated operation carrying the same stable `ClientReference`
+  returns the original result and creates no second record. The client's obligation is only to reuse
+  the reference unchanged on every retry; the guarantee itself is the server's, enforced server-side
+  (`FIN-003`, `OFF-001`). A client that behaves badly must not be able to produce a duplicate order or
+  a duplicate payment — that is what makes it a contract rather than an etiquette.
+- **Message delivery is at least once.** The transport may redeliver an event after a broker restart,
+  a consumer crash between handling and acknowledgement, a queue replay, a scheduler restart, or a
+  retry after a timeout. Exactly-once delivery is not assumed anywhere in this model, because it is
+  not achievable across a network and pretending otherwise is how duplicates ship.
+- **Therefore every consumer is idempotent.** A consumer that cannot tolerate redelivery will
+  eventually double-charge a customer or double-notify one — not as an edge case, but as a certainty
+  once the transport redelivers. Each consumer declares its deduplication key: for payment
+  application the `ClientReference`; for a notification send the recipient, event, order, and
+  intended send window (`NOT-002`); for a reminder ladder stage the order and stage (`UCL-004`).
+- Consumer deduplication state is **tenant-scoped** and persisted, so it survives a restart. An
+  in-memory "already seen" set is not a deduplication mechanism.
+- Retries use **exponential backoff** (`OFF-003`). A handler that keeps failing is not retried
+  forever; it lands in a visible failed state with its correlation identifier intact.
+- **A failed handler is never silently dropped.** It stays visible and actionable, and its failure
+  never alters business state — a messaging failure in particular never changes or cancels an order
+  (`NOT-001`, `NOT-029`).
+
+---
+
 ## 2. Tenant and Organization — 11 events
 
 | Event | Emitter | Key subscribers | Constraining rule |

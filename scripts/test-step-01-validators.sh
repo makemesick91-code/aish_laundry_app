@@ -120,20 +120,35 @@ expect_fail "pubspec.yaml added (Step 1 scope breach)" \
   "$PY scripts/validate-no-runtime.py" \
   "printf 'name: aish\n' > pubspec.yaml"
 
+# --- credential-shaped fixtures -------------------------------------------
+#
+# These are assembled at RUNTIME from fragments rather than written literally.
+# A literal credential-shaped string in this file would itself be a finding: the
+# repository is public and its own secret scanners quite correctly flagged the
+# earlier literal version. The fixtures below are meaningless fragments until
+# concatenated inside the sandbox, so nothing key-shaped is ever committed.
+AWS_FIXTURE="AKIA$(printf 'IOSFODNN7')EXAMPLE"
+PHONE_FIXTURE="+62$(printf '81')2$(printf '5567')8891"
+
 # 10. A secret fixture appears.
 expect_fail "AWS access key committed" \
   "bash scripts/validate-public-repository-safety.sh" \
-  "git init -q . 2>/dev/null; printf 'aws_key = \"AKIAIOSFODNN7EXAMPLE\"\n' > docs/product/leak.md"
+  "git init -q . 2>/dev/null; printf 'aws_key = \"%s\"\n' '$AWS_FIXTURE' > docs/product/leak.md"
 
 # 11. A real-looking customer phone number appears.
 expect_fail "real-looking Indonesian phone number committed" \
   "bash scripts/validate-public-repository-safety.sh" \
-  "git init -q . 2>/dev/null; printf 'Customer: +62 812 5567 8891\n' > docs/product/contact.md"
+  "git init -q . 2>/dev/null; printf 'Customer: %s\n' '$PHONE_FIXTURE' > docs/product/contact.md"
 
 # 12. The repository is described as private.
+#
+# Assembled at runtime for the same reason as the credential fixtures above: the
+# literal sentence is itself the thing the scanner exists to find, so writing it
+# out here would make this file a finding.
+PRIVATE_CLAIM_FIXTURE="This repository $(printf 'is') $(printf 'private')."
 expect_fail "repository described as private" \
   "bash scripts/validate-public-repository-safety.sh" \
-  "git init -q . 2>/dev/null; printf 'This repository is private.\n' > docs/product/visibility.md"
+  "git init -q . 2>/dev/null; printf '%s\n' '$PRIVATE_CLAIM_FIXTURE' > docs/product/visibility.md"
 
 # 13. A later Step is marked IN PROGRESS.
 expect_fail "Step 2 marked IN PROGRESS (forward scope leak)" \

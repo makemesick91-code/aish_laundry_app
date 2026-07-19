@@ -102,6 +102,55 @@ model; a surface not on it that later appears must be added before it ships.
 
 ---
 
+## 3.1 Every aggregate, and how it is bounded
+
+An aggregate absent from this table has no stated owner, and an unstated owner is exactly how a
+cross-tenant leak gets designed in. The table is therefore **exhaustive over the aggregate catalogue**
+(see [`AGGREGATE_CATALOG.md`](AGGREGATE_CATALOG.md)). "Direct" means the aggregate carries its own
+`TenantId`; "inherited" means it is a child of a root that carries one and is never addressable
+except through that root.
+
+| Aggregate | Tenant ownership | What a cross-tenant leak would expose | Scoping rule |
+| --- | --- | --- | --- |
+| `Tenant` | **Is** the boundary | The existence, name, and plan of a competitor's business | Readable only by a verified member of that tenant, or by the separated, audited platform-administration path (`TEN-029`) |
+| `Membership` | Direct | Who works for a competitor, in which role | Queried by tenant; a user lists only their own memberships (`TEN-004`) |
+| `LaundryBrand` | Direct | A competitor's brand portfolio | Scoped by `TenantId`; a brand is never resolvable by identifier alone |
+| `Outlet` | Direct | A competitor's locations and footprint | Scoped by `TenantId` through its brand |
+| `Customer` | Direct | **A competitor's entire customer list** — the most damaging leak in the product | One profile per tenant; never merged on matching phone, email, or name (`TEN-011`, `TEN-012`) |
+| `CustomerAddress` | Inherited via `Customer` | Home addresses of a competitor's customers | Reachable only through a tenant-scoped `Customer`; never by address identifier alone; never rendered in full on the public portal (`TRK-010`) |
+| `ServiceCatalog` | Direct | What services a competitor offers and at what positioning | Scoped by `TenantId`; catalogue identifiers are never global |
+| `PriceList` | Direct | **A competitor's pricing** — commercially decisive | Scoped by `TenantId`; a price list is never shared, inherited, or defaulted across tenants |
+| `PriceRule` | Inherited via `PriceList` | A competitor's discount and surcharge structure | Reachable only through its tenant-scoped `PriceList` |
+| `LaundryOrder` | Direct | A competitor's order volume, customers, and revenue | Scoped by `TenantId` and outlet; identifier guessing yields **no rows**, not another tenant's order (`TEN-025`) |
+| `OrderLine` | Inherited via `LaundryOrder` | Itemised customer belongings and the price snapshot taken at intake | Never addressable outside its order; the historical price snapshot is immutable (`FIN-012`, `FIN-017`) |
+| `OrderConditionEvidence` | Inherited via `LaundryOrder` | Photographs of a customer's garments and home interior | Private object storage, tenant-scoped unguessable keys, signed expiring URLs only; never on the public portal (`TEN-023`, `TRK-017`) |
+| `ProductionJob` | Direct | A competitor's throughput, capacity, and staff performance | Scoped by `TenantId` and outlet; a batch never spans two tenants |
+| `QualityControlInspection` | Direct | A competitor's defect and rework rates, and its waiver behaviour | Scoped by `TenantId`; inspection and waiver records are tenant-only, never benchmarked across tenants |
+| `Payment` | Direct | **A competitor's revenue, timing, and payment mix** | Scoped by `TenantId`; every financial query is tenant-scoped or it is both a security and a financial defect (`FIN-024`) |
+| `Refund` | Direct | A competitor's refund rate — a proxy for its service quality | Scoped by `TenantId`; reachable only through its tenant-scoped originating `Payment` |
+| `Receivable` | Direct | Which of a competitor's customers owe money, and how much | Scoped by `TenantId`; balances read only from tenant-scoped financial records |
+| `CashierShift` | Direct | A competitor's daily cash position and its variance history | Scoped by `TenantId` and outlet; a shift belongs to exactly one outlet of one tenant |
+| `PickupDeliveryJob` | Direct | Where a competitor's customers live and when they are served | Scoped by `TenantId`; a job references exactly one order in the same tenant (`DEL-018`) |
+| `CourierAssignment` | Direct | A competitor's courier roster and coverage | Scoped by `TenantId`; a rider working for two tenants holds two unrelated assignments with no traversal (`DEL-009`) |
+| `DeliveryProof` | Inherited via `PickupDeliveryJob` | A customer's doorway, signature, and recipient identity | Private storage, tenant-scoped unguessable keys, signed expiring URLs; **never on the public tracking portal** (`DEL-012`, `DEL-021`) |
+| `CourierSettlement` | Direct | A competitor's cash handling and its unexplained variances | Scoped by `TenantId`, per courier, per shift; integer Rupiah (`FIN-028`) |
+| `TrackingAccess` | Direct | Read access to an order, to an unauthenticated visitor | Grants exactly one order in exactly one tenant; tenant derived **server-side from the stored record**, never from the request (`TRK-020`, `TRK-021`) |
+| `Notification` | Direct | Who a competitor messages, when, and about what | Scoped by `TenantId`; every send records tenant, outlet, order, and recipient (`NOT-019`) |
+| `ReminderSchedule` | Direct | A competitor's unclaimed backlog and follow-up cadence | Scoped by `TenantId`; a scheduler run carries explicit tenant context and never infers it (`TEN-027`) |
+| `UnclaimedLaundryCase` | Direct | A competitor's uncollected pile and trapped cash | Scoped by `TenantId`; aggregates never cross a tenant boundary (`UCL-019`) |
+| `Subscription` | Direct | A competitor's plan, spend, and business size | Exactly one per tenant; billing operates at the tenant boundary only (`TEN-002`, `TEN-017`) |
+| `AuditEntry` | Direct | The full activity history of a competitor's staff | Tenant context recorded on every entry (`TEN-022`); readable by the tenant it concerns, and by the audited platform path |
+| `Attachment` | Direct, and inherited scoping via its owning record | Any private file in the system — evidence, proof, export | Tenant-scoped unguessable object keys, buckets never publicly readable or listable, signed expiring URLs only (`TEN-023`) |
+| `OfflineOperation` | Direct, captured with tenant **and** user | Queued operations, including unsynced payments, of another tenant | Device-local storage partitioned per tenant and per user; a replay under a different tenant or user context is **rejected** (`OFF-006`, `OFF-016`) |
+| `SyncConflict` | Direct | The disputed financial state of another tenant's order | Scoped by `TenantId`; a conflict is resolved within the tenant that raised it, and a money conflict escalates to a human (`OFF-011`) |
+
+**The rule the table encodes.** Every aggregate above is reachable **only** through a query already
+narrowed by a server-verified tenant context. A client-supplied tenant identifier is never
+authorisation proof (`TEN-024`), and a missing scope yields no rows rather than another tenant's rows
+(`TEN-025`).
+
+---
+
 ## 4. The customer identity rule, stated at length
 
 This rule is restated in full because it is the one most likely to be "optimised" away by someone

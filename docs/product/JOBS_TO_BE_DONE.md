@@ -141,7 +141,8 @@ offline capability ([`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) §13.3).
 ### Detail — JTBD-021, honest routing
 
 The product provides **simple route ordering** and **route suggestion**. It is forbidden to present a
-suggestion as a mathematically optimal route, and it is forbidden to promise a guaranteed arrival time
+suggestion as a mathematically optimal route — the product never claims one — and it is forbidden to
+promise a guaranteed arrival time, which the product never gives
 ([`../MASTER_SOURCE.md`](../MASTER_SOURCE.md) §10.1, §10.2 rule 4, §23 non-goal 7). Copy in every surface
 uses *usulan rute* semantics. The customer is given a **time window**, never a fictitious exact minute
 (§10.1). Missing a window is measurable and is measured (§29.1).
