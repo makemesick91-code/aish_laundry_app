@@ -85,7 +85,12 @@ Turn the Master Source into precise, buildable requirements.
 
 ## Step 2 — Design System and UX Foundation
 
-**Status: IN PROGRESS**
+**Status: GO WITH ACCEPTED DEVIATION** — conferred by the repository owner on
+20 July 2026 against exact-SHA evidence, tagged
+`aish-laundry-step-02-design-system-ux-foundation-v1.3.0-go` at
+`47c07d360e8802fd78f61d41435cae3f28313137`. Four deviations are recorded:
+PUBLIC repository visibility, single-maintainer governance, no independent human
+review, and design-only accessibility that is **not yet runtime-tested**.
 
 - The visual language: white, soft blue, dark blue, restrained gold accent.
 - Typography, spacing, elevation, and iconography, tuned for low-end Android and bright shop lighting.
