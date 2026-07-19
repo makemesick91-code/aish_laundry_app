@@ -4,6 +4,7 @@
 # Rendered check names (referenced by branch protection, do not rename):
 #   "Security / secret-scan"
 #   "Security / Workflow / actionlint"
+#   "Security / threat-model"        (added in Step 1)
 #
 # actionlint is installed from a PINNED GitHub release tarball. No
 # curl-pipe-to-shell is used anywhere. The download is verified by asserting the
@@ -43,6 +44,29 @@ jobs:
 
       - name: Scan repository for credential material
         run: bash scripts/validate-secrets.sh
+
+      - name: Scan for public-repository safety violations
+        run: bash scripts/validate-public-repository-safety.sh
+
+  threat-model:
+    name: threat-model
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false
+
+      # The gate that matters: a CRITICAL or HIGH threat with no mitigation fails
+      # the build. See .claude/rules/21-threat-model-and-data-classification.md.
+      - name: Validate the initial threat model
+        run: python3 scripts/validate-threat-model.py
+
+      - name: Validate the data classification model
+        run: python3 scripts/validate-data-classification.py
 
   actionlint:
     name: Workflow / actionlint

@@ -2,7 +2,7 @@
 
 **This file is machine-validated. The status words below are exact and must not be paraphrased.**
 
-Baseline date: 19 July 2026 · Master Source version: 1.0.1
+Baseline date: 19 July 2026 · Master Source version: 1.1.0
 Status vocabulary: [`governance/STATUS_MODEL.md`](governance/STATUS_MODEL.md)
 Canonical source: [`MASTER_SOURCE.md`](MASTER_SOURCE.md)
 
@@ -13,7 +13,7 @@ Canonical source: [`MASTER_SOURCE.md`](MASTER_SOURCE.md)
 | Step | Title | Status |
 | --- | --- | --- |
 | Step 0 | Master Source and Governance | GO |
-| Step 1 | Product Requirement and Domain Model | PLANNED |
+| Step 1 | Product Requirement and Domain Model | IN PROGRESS |
 | Step 2 | Design System and UX Foundation | PLANNED |
 | Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | PLANNED |
 | Step 4 | Laundry Master Data | PLANNED |

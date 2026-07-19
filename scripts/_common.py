@@ -89,6 +89,70 @@ def tracked_files(root: Path) -> list[Path]:
         return result
 
 
+#: The complete canonical status vocabulary. Nothing else is a status.
+STATUS_VOCABULARY = [
+    "NOT IMPLEMENTED",
+    "NOT APPLICABLE",
+    "NOT STARTED",
+    "IN PROGRESS",
+    "PLANNED",
+    "TESTED",
+    "WATCH",
+    "ABSENT",
+    "NO-GO",
+    "GO",
+]
+
+
+def declared_statuses(block: "str | None") -> list[str]:
+    """Extract status words that a roadmap/status block actually *declares*.
+
+    Only two shapes count as a declaration:
+
+    * a markdown table cell, e.g. ``| 1 | Title | IN PROGRESS |``
+    * a ``Status:`` line, e.g. ``**Status: IN PROGRESS**``
+
+    Prose is deliberately ignored. Scanning a whole block for status words gives
+    false positives that matter: "GO" is a substring of "GOVERNANCE", and a scope
+    line such as "restore is tested" is not a declaration that the step is
+    TESTED. Both produced spurious failures before this helper existed.
+
+    Longest-first matching prevents "NOT IMPLEMENTED" from also reporting the
+    substring "IMPLEMENTED", and prevents "NO-GO" from reporting "GO".
+    """
+    if not block:
+        return []
+
+    import re as _re
+
+    candidates: list[str] = []
+    for line in block.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("|"):
+            candidates.extend(
+                cell.strip() for cell in stripped.strip("|").split("|")
+            )
+        m = _re.match(
+            r"^[*_\s]*status[*_\s]*:\s*(.+?)\s*$", stripped, _re.IGNORECASE
+        )
+        if m:
+            # Trim trailing commentary after an em dash or parenthesis.
+            value = _re.split(r"[—(]", m.group(1))[0]
+            candidates.append(value)
+
+    found: list[str] = []
+    for cell in candidates:
+        text = _re.sub(r"[*_`]", "", cell).strip().upper()
+        if not text:
+            continue
+        remaining = text
+        for status in sorted(STATUS_VOCABULARY, key=len, reverse=True):
+            if _re.search(rf"(?<![A-Z-]){_re.escape(status)}(?![A-Z-])", remaining):
+                found.append(status)
+                remaining = remaining.replace(status, " ")
+    return found
+
+
 def run_main(func) -> None:
     """Run a validator main() and exit with its code, never with a traceback."""
     try:

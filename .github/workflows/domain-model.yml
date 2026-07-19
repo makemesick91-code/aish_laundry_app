@@ -1,0 +1,79 @@
+---
+# Aish Laundry App — Step 1 domain model gates.
+#
+# Rendered check names (referenced by branch protection, do not rename):
+#   "Domain Model / validate"
+#
+# SCOPE NOTE: Step 1 produces a CONCEPTUAL domain model, not a database schema.
+# No migration, no schema, and no runtime is created or validated here. The
+# aggregate validator actively fails if physical schema language leaks into the
+# Step 1 documents.
+
+name: Domain Model
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: domain-model-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Record the exact SHA under validation
+        run: |
+          set -euo pipefail
+          echo "Validating commit: ${GITHUB_SHA}"
+
+      - name: Validate the binding domain glossary
+        run: python3 scripts/validate-domain-glossary.py
+
+      - name: Validate the twenty bounded contexts and the context map
+        run: python3 scripts/validate-bounded-contexts.py
+
+      - name: Validate aggregates, entities, and value objects
+        run: python3 scripts/validate-aggregates.py
+
+      - name: Validate domain invariants
+        run: python3 scripts/validate-domain-invariants.py
+
+      - name: Validate domain events, commands, and idempotency
+        run: python3 scripts/validate-domain-events.py
+
+      - name: Validate canonical state machines
+        run: python3 scripts/validate-state-machines.py
+
+      - name: Validate tenant boundaries and data ownership
+        run: python3 scripts/validate-tenant-boundaries.py
+
+      - name: Validate financial integrity rules
+        run: python3 scripts/validate-money-rules.py
+
+      - name: Validate public tracking security rules
+        run: python3 scripts/validate-tracking-rules.py
+
+      - name: Validate pickup and delivery rules
+        run: python3 scripts/validate-delivery-rules.py
+
+      - name: Validate unclaimed laundry rules
+        run: python3 scripts/validate-unclaimed-laundry-rules.py
+
+      - name: Validate Mermaid block structure
+        run: python3 scripts/validate-mermaid-blocks.py

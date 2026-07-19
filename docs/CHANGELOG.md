@@ -16,6 +16,91 @@ Nothing yet.
 
 ---
 
+## [1.1.0] — 2026-07-19
+
+Step 1 — Product Requirement and Domain Model. **Documentation only. No runtime,
+no schema, no migration, no API, no UI, and no deployment was created.** Every
+product feature remains `NOT IMPLEMENTED`; the backend runtime and Flutter
+workspace remain `ABSENT`; application CI remains `NOT APPLICABLE`; UAT remains
+`NOT STARTED`.
+
+Classified MINOR under [`MASTER_SOURCE.md`](MASTER_SOURCE.md) §1.2: §34 is new
+canonical scope. **No existing product decision, pricing figure, roadmap number,
+or architectural lock was changed**, so no new decision record was required.
+
+### Added
+
+- **`MASTER_SOURCE.md` §34 — Step 1 artefacts.** Makes the Step 1 documents
+  canonical for their subject matter, and fixes the requirement-identifier
+  scheme, the fifteen order statuses, the eleven pickup/delivery statuses, the
+  four quality-control statuses, and the twenty bounded contexts.
+- **Product documentation** (`docs/product/`) — product requirements, MVP scope,
+  fourteen personas, jobs to be done, user and operational journeys, use-case
+  catalogue, success metrics, assumptions and open questions, and the
+  requirement traceability matrix.
+- **Domain model** (`docs/domain/`) — binding glossary, twenty bounded contexts,
+  context map, thirty-one aggregates, entity and value-object catalogue, domain
+  invariants, domain events, commands and policies, tenant boundaries, data
+  ownership, and nine per-domain models. Conceptual only, carrying the marker
+  `CONCEPTUAL DOMAIN MODEL — NOT DATABASE SCHEMA`.
+- **State machines** (`docs/state-machines/`) — ten canonical lifecycles, each
+  with a Mermaid diagram and a written transition table naming actors,
+  preconditions, emitted events, and forbidden transitions.
+- **Security and quality** (`docs/security/`, `docs/quality/`) — STRIDE threat
+  model with fifty threats, abuse cases, five-class data classification, trust
+  boundaries, privacy requirements, non-functional requirements, acceptance
+  criteria, and the Step 1 Definition of Done.
+- **Requirement identifiers** — 498 across twelve canonical series, each defined
+  once in its authoritative register and never reused.
+- **Rules 16–24** under `.claude/rules/`, binding the Step 1 foundations on all
+  later work.
+- **Step 1 validators** and `scripts/verify-step-01.sh`, plus
+  `scripts/test-step-01-validators.sh`, an adversarial harness that breaks the
+  corpus deliberately and asserts the responsible validator fails.
+- **CI checks** `Product Requirements / validate`, `Domain Model / validate`, and
+  `Security / threat-model`. Existing check names are unchanged.
+
+### Changed
+
+- Step 1 moved from `PLANNED` to `IN PROGRESS` in `MASTER_SOURCE.md` §24,
+  `ROADMAP.md`, `STATUS.md`, and `CLAUDE.md`. Steps 2–14 remain `PLANNED`.
+- `validate-roadmap.py` and `validate-status.py` now read the status a step
+  *declares* rather than substring-matching its prose, and additionally assert
+  that no step later than the current one carries a working status.
+
+### Fixed
+
+- Four defects in newly written validators, found by the adversarial harness
+  rather than by inspection: threat severity read from prose instead of the
+  declared `Severity` field; threat records split on cross-references; the
+  requirement-definition pattern not accepting backticked identifiers; and
+  acceptance-criteria documents wrongly excluded as definition sources, which
+  had erased all sixty-eight `SEC-` definitions. All four would have let a real
+  defect through.
+
+### Security
+
+- Initial threat model records fifty threats — 11 `CRITICAL`, 23 `HIGH`, 14
+  `MEDIUM`, 1 `LOW`, 1 `INFORMATIONAL`. **Every `CRITICAL` and `HIGH` threat
+  carries an explicit mitigation and is referenced by an acceptance criterion**,
+  both enforced by validators rather than asserted.
+- Public-repository safety scanning added for phone numbers, private keys,
+  provider tokens, connection strings, `.env` files, and database dumps.
+
+### Not included — stated explicitly to avoid false impressions
+
+- No application code, framework scaffolding, dependency manifest, schema,
+  migration, API endpoint, screen, or deployment.
+- **No application tests.** Step 1 defines acceptance criteria; it executes
+  none of them, because there is nothing to execute them against. A written
+  acceptance criterion is not a passed test.
+- No performance measurement. Every non-functional target is recorded as a
+  target that has **not** been measured; baselines are set at Step 14.
+- No independent human review. Governance is single-maintainer and independent
+  human approval is `ABSENT` (DEC-0016).
+
+---
+
 ## [1.0.1] — 2026-07-19
 
 Master Source amendment codifying the public-repository deviation as a canonical,
@@ -196,6 +281,7 @@ Aish Laundry App. **No runtime, no application, no deployment was created.**
 
 [Unreleased]: https://github.com/makemesick91-code/aish_laundry_app/compare/main...HEAD
 [1.0.0]: https://github.com/makemesick91-code/aish_laundry_app/releases
+[1.1.0]: https://github.com/makemesick91-code/aish_laundry_app/releases
 [1.0.1]: https://github.com/makemesick91-code/aish_laundry_app/releases
 
 **Tag status.** One annotated tag exists:

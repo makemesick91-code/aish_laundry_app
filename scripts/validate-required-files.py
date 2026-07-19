@@ -59,7 +59,7 @@ GITHUB_FILES = [
     ".github/ISSUE_TEMPLATE/config.yml",
 ]
 
-EXPECTED_RULE_COUNT = 16
+EXPECTED_RULE_COUNT = 25
 EXPECTED_DECISION_COUNT = 16
 
 
@@ -92,7 +92,7 @@ def main() -> int:
             f"rule files present: {len(found)} distinct numbers "
             f"(expected {EXPECTED_RULE_COUNT})",
         )
-        # Rules are numbered 00..15 (sixteen files).
+        # Rules are numbered 00..24 (twenty-five files).
         for n in range(0, EXPECTED_RULE_COUNT):
             key = f"{n:02d}"
             names = found.get(key, [])

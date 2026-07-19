@@ -15,7 +15,7 @@ quietly deferred.
 | Step | Title | Status |
 | --- | --- | --- |
 | 0 | Master Source and Governance | GO |
-| 1 | Product Requirement and Domain Model | PLANNED |
+| 1 | Product Requirement and Domain Model | IN PROGRESS |
 | 2 | Design System and UX Foundation | PLANNED |
 | 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | PLANNED |
 | 4 | Laundry Master Data | PLANNED |
@@ -58,7 +58,12 @@ schema, no migration, no API, no UI, no deployment.
 
 ## Step 1 — Product Requirement and Domain Model
 
-**Status: PLANNED**
+**Status: IN PROGRESS**
+
+This step produces **documentation only**: requirements, domain model, business rules, state machines, an
+initial threat model, acceptance criteria, and the governance rules that bind them. It creates **no
+runtime** — no Flutter workspace, no Laravel application, no schema, no migration, no API, no UI, no
+deployment. Application CI remains **NOT APPLICABLE**.
 
 Turn the Master Source into precise, buildable requirements.
 
