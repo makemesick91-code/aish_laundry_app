@@ -14,7 +14,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _common import Reporter, repo_root, run_main  # noqa: E402
-from _step01 import SEVERITIES, THREAT_ID, read  # noqa: E402
+from _step01 import (  # noqa: E402
+    SEVERITIES,
+    THREAT_ID,
+    declared_severity,
+    read,
+)
 
 THREAT_DOC = "docs/security/INITIAL_THREAT_MODEL.md"
 BOUNDARIES_DOC = "docs/security/TRUST_BOUNDARIES.md"
@@ -85,20 +90,27 @@ MITIGATION_SIGNALS = [
 MIN_THREATS = 20
 
 
+#: A threat RECORD begins at a heading or a bolded lead-in that names the threat.
+#: A bare mention in prose, a cross-reference, or a row in the severity summary
+#: table is a REFERENCE, not a record — treating those as records manufactured
+#: phantom sections with no Severity field.
+THREAT_RECORD_START = re.compile(
+    r"^\s{0,3}(?:#{1,6}\s*|\*{2})(THREAT-\d{3,4})\b", re.MULTILINE
+)
+
+
 def split_threat_sections(text: str) -> dict[str, str]:
     """Split the document into per-threat sections keyed by threat ID.
 
-    A threat's section runs from its identifier to the next threat identifier.
-    Table-row threats are handled too: the row itself becomes the section.
+    A record's section runs from its heading to the next record heading.
     """
     sections: dict[str, str] = {}
-    matches = list(THREAT_ID.finditer(text))
+    matches = list(THREAT_RECORD_START.finditer(text))
     for i, m in enumerate(matches):
-        tid = m.group(0)
-        start = m.start()
+        tid = m.group(1)
         end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
         sections.setdefault(tid, "")
-        sections[tid] += text[start:end]
+        sections[tid] += text[m.start() : end]
     return sections
 
 
@@ -153,19 +165,27 @@ def main() -> int:
 
     # --- THE GATE: every CRITICAL and HIGH threat has a mitigation ---
     unmitigated: list[tuple[str, str]] = []
+    undeclared: list[str] = []
     high_count = 0
     for tid, section in sorted(sections.items()):
-        section_upper = section.upper()
-        severity = None
-        for sev in ("CRITICAL", "HIGH"):
-            if re.search(rf"\b{sev}\b", section_upper):
-                severity = sev
-                break
+        severity = declared_severity(section)
         if severity is None:
+            # A record with no declared severity cannot be triaged at all, which
+            # is a worse defect than a high severity with no mitigation.
+            undeclared.append(tid)
+            continue
+        if severity not in ("CRITICAL", "HIGH"):
             continue
         high_count += 1
         if not any(sig in section.lower() for sig in MITIGATION_SIGNALS):
             unmitigated.append((tid, severity))
+
+    if undeclared:
+        rep.fail("every threat record declares an explicit Severity")
+        for tid in undeclared[:10]:
+            rep.info(f"{tid} has no declared Severity field")
+    else:
+        rep.ok("every threat record declares an explicit Severity")
 
     rep.info(f"CRITICAL/HIGH threats found: {high_count}")
     if unmitigated:

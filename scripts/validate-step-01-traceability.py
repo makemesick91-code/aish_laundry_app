@@ -16,11 +16,16 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _common import Reporter, repo_root, run_main  # noqa: E402
 from _step01 import (  # noqa: E402
-    REQUIREMENT_PREFIXES,
-    THREAT_ID,
-    existing_step01_docs,
+    declared_severity,
     read,
+    register_definitions,
     requirement_ids,
+)
+
+#: A threat RECORD begins at a heading naming the threat; a cross-reference is
+#: not a record. Kept in step with validate-threat-model.py.
+THREAT_RECORD_START = re.compile(
+    r"^\s{0,3}(?:#{1,6}\s*|\*{2})(THREAT-\d{3,4})\b", re.MULTILINE
 )
 
 # Documents that carry acceptance criteria. MVP_SCOPE.md is included because the
@@ -41,13 +46,6 @@ REQUIRED_AC_DOCS = [
 MATRIX = "docs/product/REQUIREMENT_TRACEABILITY.md"
 THREAT_DOC = "docs/security/INITIAL_THREAT_MODEL.md"
 
-DEFINITION_LINE = re.compile(
-    r"^\s{0,3}(?:#{1,6}\s*|[-*+]\s+|\|\s*|\d+\.\s+)?"
-    r"\*{0,2}\[?("
-    + "|".join(REQUIREMENT_PREFIXES)
-    + r")-(\d{3,4})\]?\*{0,2}\s*(?:\||[-—:]|\*{0,2}\s*$)"
-)
-
 #: An orphan is a defined requirement that appears in NEITHER an acceptance
 #: criteria document NOR the traceability matrix — it is reachable from nothing,
 #: which is precisely the "no orphans in either direction" defect Rule 22 names.
@@ -61,18 +59,8 @@ def main() -> int:
     root = repo_root()
     rep = Reporter("step-01-traceability")
 
-    docs = existing_step01_docs(root)
-    if not rep.check(bool(docs), "Step 1 documents exist to validate"):
-        return rep.finish()
-
-    # --- collect defined requirements ---
-    defined: dict[str, str] = {}
-    for path in docs:
-        rel = path.relative_to(root).as_posix()
-        for line in read(path).splitlines():
-            m = DEFINITION_LINE.match(line)
-            if m:
-                defined.setdefault(f"{m.group(1)}-{int(m.group(2)):03d}", rel)
+    # --- collect defined requirements from their authoritative registers ---
+    defined = register_definitions(root)
     rep.info(f"requirements defined: {len(defined)}")
     if not rep.check(bool(defined), "at least one requirement is defined"):
         return rep.finish()
@@ -134,13 +122,17 @@ def main() -> int:
     # --- direction 4: high-severity threats reach a criterion ---
     threat_text = read(root / THREAT_DOC)
     if threat_text:
-        matches = list(THREAT_ID.finditer(threat_text))
+        # Records are anchored to headings, and severity is read from the
+        # declared Severity field. Scanning a record for the word "HIGH" also
+        # matched "Likelihood: HIGH" on an INFORMATIONAL threat, which inflated
+        # this population and produced a spurious failure.
+        matches = list(THREAT_RECORD_START.finditer(threat_text))
         high: list[str] = []
         for i, m in enumerate(matches):
             end = matches[i + 1].start() if i + 1 < len(matches) else len(threat_text)
-            section = threat_text[m.start() : end].upper()
-            if re.search(r"\b(?:CRITICAL|HIGH)\b", section):
-                high.append(m.group(0))
+            section = threat_text[m.start() : end]
+            if declared_severity(section) in ("CRITICAL", "HIGH"):
+                high.append(m.group(1))
         rep.info(f"CRITICAL/HIGH threats: {len(high)}")
 
         criteria_upper = criteria_text.upper()

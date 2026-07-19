@@ -54,10 +54,17 @@ def main() -> int:
 
     text = read(path)
     lower = text.lower()
+    # A term may legitimately be written as one word, two words, or hyphenated —
+    # "ClientReference", "client reference", and "client-reference" are the same
+    # term. Collapsing separators avoids failing a glossary that defines the term
+    # correctly in its identifier form.
+    collapsed = re.sub(r"[\s_-]+", "", lower)
 
     # --- required terms defined ---
     for term in REQUIRED_TERMS:
-        rep.check(term.lower() in lower, f"glossary defines term: {term}")
+        needle = term.lower()
+        hit = needle in lower or re.sub(r"[\s_-]+", "", needle) in collapsed
+        rep.check(hit, f"glossary defines term: {term}")
 
     # --- canonical order statuses appear ---
     missing = [s for s in ORDER_STATUSES if s not in text]

@@ -13,8 +13,10 @@ Deployment ABSENT. Application CI NOT APPLICABLE. UAT NOT STARTED.
 
 ## 1. Purpose and register ownership
 
-This document is the authoritative register of **`SEC-001` … `SEC-060`**, the security requirements of
-Aish Laundry App. Every one is a requirement placed on a future roadmap Step.
+This document is the authoritative register of **`SEC-001` … `SEC-068`**, the security requirements of
+Aish Laundry App. Every one is a requirement placed on a future roadmap Step. `SEC-001` … `SEC-060` are
+stated as requirements in §2 … §10; `SEC-061` … `SEC-068` are stated as Given/When/Then verification
+scenarios in §11, each citing the specific threat it verifies.
 
 **No criterion below has been implemented, tested, scanned, or verified.** Every "Verified by" entry
 describes a verification that will be performed at the named Step, not one that has occurred. No
@@ -252,6 +254,14 @@ or by an unsigned URL. Reporting queries must **not** be built outside the tenan
 layer, and a hand-written analytics query is treated as production code subject to the same rule. Bulk
 cross-tenant disclosure is an **automatic NO-GO** under DEC-0012.
 
+**Extension covering THREAT-047 (HIGH).** The same scenario is run a second time with the user holding
+memberships in **both** `Tenant Contoh A` and `Tenant Contoh B`, and a third tenant `Tenant Contoh C`
+existing in which they hold none. The consolidated portfolio figures must then equal the sum of the two
+individually tenant-scoped queries, and must contain nothing from `Tenant Contoh C`. The dashboard must
+**not** be implemented as one broad query filtered afterwards — a defect in such a filter exposes every
+tenant at once, which is why the union approach is required despite its performance cost. Convenience,
+performance, reporting need, and demo pressure are never sufficient reason to widen the query surface.
+
 ### SEC-066 — A tenant or user switch leaves no readable cached data
 - **Verifies:** THREAT-030 (HIGH)
 - **Builds on:** SEC-007, SEC-013, SEC-016
@@ -352,7 +362,7 @@ No severity was lowered and no threat was restated to make a criterion easier to
 
 ---
 
-## 13. Related documents
+## 14. Related documents
 
 - [`INITIAL_THREAT_MODEL.md`](INITIAL_THREAT_MODEL.md)
 - [`ABUSE_CASES.md`](ABUSE_CASES.md)

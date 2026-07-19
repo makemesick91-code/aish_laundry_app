@@ -48,7 +48,7 @@ statuses: `REQUESTED`, `CONFIRMED`, `SCHEDULED`, `ASSIGNED`, `EN_ROUTE`, `ARRIVE
 
 ### AC-001 — Owner with multiple tenants
 - **Context:** Identity and Tenancy
-- **Requirements:** SEC-005, SEC-006, SEC-007, NFR-020
+- **Requirements:** SEC-005, SEC-006, SEC-007, NFR-020, FR-011, FR-012, FR-013, FR-014, FR-015, FR-016, FR-018, TEN-001, TEN-004, TEN-005, TEN-007, TEN-008, TEN-009
 - **Step:** 3
 
 **Given** an owner holds memberships in `Tenant Contoh A` and `Tenant Contoh B`, and a third tenant
@@ -64,7 +64,7 @@ identifier is never authorisation proof. Any cross-tenant read is an **automatic
 
 ### AC-002 — Customer number reused in different tenants
 - **Context:** Identity and Tenancy
-- **Requirements:** SEC-007, SEC-041, NFR-020
+- **Requirements:** SEC-007, SEC-041, NFR-020, FR-019, FR-021, FR-022, FR-023, FR-029, TEN-011, TEN-012, TEN-013
 - **Step:** 3, consent behaviour in 7
 
 **Given** the same fictional phone number `+62-8XX-CONTOH-0001` is registered as a customer in both
@@ -81,7 +81,7 @@ import in either.
 
 ### AC-003 — Cross-tenant order access denied
 - **Context:** Identity and Tenancy
-- **Requirements:** SEC-004, SEC-005, SEC-007, SEC-024, NFR-020
+- **Requirements:** SEC-004, SEC-005, SEC-007, SEC-024, NFR-020, FR-007, FR-017, FR-020, FR-057, TEN-015, TEN-024, TEN-025, TEN-030
 - **Step:** 3
 
 **Given** a kasir authenticated in `Tenant Contoh A`, and an order `ORD-CONTOH-0001` belonging to
@@ -96,7 +96,7 @@ endpoint, and by direct file URL,
 
 ### AC-004 — Portfolio dashboard authorisation
 - **Context:** Finance and Reporting
-- **Requirements:** SEC-007, SEC-010, NFR-020
+- **Requirements:** SEC-007, SEC-010, NFR-020, RPT-004, RPT-018
 - **Step:** 10
 
 **Given** an owner holding memberships in `Tenant Contoh A` and `Tenant Contoh B` opens the portfolio
@@ -116,7 +116,7 @@ convenience or performance. Convenience is never sufficient reason to relax isol
 
 ### AC-005 — Immutable price snapshot
 - **Context:** Order and Payment
-- **Requirements:** SEC-032, NFR-039
+- **Requirements:** SEC-032, NFR-039, FR-034, FR-035, FR-036, FR-040, FIN-010, FIN-011, FIN-012, FIN-017, FIN-033, FIN-036
 - **Step:** 5
 
 **Given** an order was created in `Tenant Contoh A` capturing the price that applied at that moment,
@@ -130,7 +130,7 @@ pricing, total, discount, or tax path.
 
 ### AC-006 — Partial payment
 - **Context:** Order and Payment
-- **Requirements:** SEC-032, SEC-033, NFR-014
+- **Requirements:** SEC-032, SEC-033, NFR-014, FR-037, FR-038, FR-051, FR-056, FR-061, FR-070, FIN-001, FIN-002, FIN-009, FIN-013, FIN-014, FIN-015, FIN-022, FIN-034, FIN-035, FIN-037
 - **Step:** 5
 
 **Given** an order in `Tenant Contoh A` with a total of a fictional integer Rupiah amount and a deposit
@@ -146,7 +146,7 @@ payments equal the total.
 
 ### AC-007 — Payment replay
 - **Context:** Order and Payment
-- **Requirements:** SEC-031, SEC-033, NFR-014
+- **Requirements:** SEC-031, SEC-033, NFR-014, FR-062, FR-063, FR-064, FR-068, FIN-003, FIN-004, FIN-005, FIN-016, FIN-039, FIN-040
 - **Step:** 5
 
 **Given** a payment for `ORD-CONTOH-0001` has been recorded following a verified gateway callback,
@@ -161,7 +161,7 @@ NO-GO**.
 
 ### AC-008 — Duplicate offline order
 - **Context:** Order and Payment (offline)
-- **Requirements:** SEC-033, NFR-013, NFR-018, NFR-029
+- **Requirements:** SEC-033, NFR-013, NFR-018, NFR-029, FR-048, FR-053, FR-059, FIN-019, OFF-001, OFF-002, OFF-007, OFF-017, OFF-018, OFF-019, OFF-025
 - **Step:** 5
 
 **Given** a kasir on the Ops Android app creates an order while the network is unavailable, and the app
@@ -181,7 +181,7 @@ target; any occurrence is an **automatic NO-GO**.
 
 ### AC-009 — Order lifecycle
 - **Context:** Production Operations
-- **Requirements:** SEC-002, SEC-051, NFR-005
+- **Requirements:** SEC-002, SEC-051, NFR-005, FR-060, FR-071, FR-072, FR-073, FR-076, FR-080
 - **Step:** 6
 
 **Given** an order in `Tenant Contoh A` at status `RECEIVED`,
@@ -198,7 +198,7 @@ permits.
 
 ### AC-010 — Quality control rework
 - **Context:** Production Operations
-- **Requirements:** SEC-051, NFR-005
+- **Requirements:** SEC-051, NFR-005, FR-077, FR-081, FR-082, FR-084, FR-085, UCL-001, UCL-002, UCL-017
 - **Step:** 6, aging interaction in 9
 
 **Given** an order reached `READY_FOR_PICKUP` on a given date, recording its first-ready timestamp,
@@ -216,7 +216,7 @@ adjustment. A restarted clock is a defect requiring a regression test.
 
 ### AC-011 — Tracking token expiry
 - **Context:** Tracking and Notification
-- **Requirements:** SEC-017, SEC-018, SEC-025, SEC-034, NFR-002, NFR-024, NFR-048
+- **Requirements:** SEC-017, SEC-018, SEC-025, SEC-034, NFR-002, NFR-024, NFR-048, FR-086, FR-088, FR-089, FR-090, FR-091, FR-119, OFF-023, TRK-005, TRK-008, TRK-009, TRK-010, TRK-011, TRK-012, TRK-013, TRK-014, TRK-015, TRK-016, TRK-017, TRK-018, TRK-025, TRK-026, TRK-027, TRK-028
 - **Step:** 7
 
 **Given** a tracking link was issued for `ORD-CONTOH-0001` with a defined expiry,
@@ -233,7 +233,7 @@ page must carry `noindex`. The expired link must **not** render any order conten
 
 ### AC-012 — Tracking token revocation
 - **Context:** Tracking and Notification
-- **Requirements:** SEC-012, SEC-017, SEC-018, SEC-019
+- **Requirements:** SEC-012, SEC-017, SEC-018, SEC-019, FR-087, FR-092, TRK-001, TRK-002, TRK-003, TRK-004, TRK-006, TRK-007, TRK-019, TRK-020, TRK-021, TRK-022, TRK-023, TRK-024, TRK-030
 - **Step:** 7
 
 **Given** a customer or an outlet revokes a tracking link that was shared too widely,
@@ -247,7 +247,7 @@ Bulk token guessing must be rate-limited and must not succeed.
 
 ### AC-013 — H+1, H+3, H+7 reminder ladder
 - **Context:** Unclaimed Laundry and Recovery
-- **Requirements:** SEC-042, SEC-043, SEC-044, SEC-045
+- **Requirements:** SEC-042, SEC-043, SEC-044, SEC-045, FR-097, FR-098, FR-112, FR-113, FR-114, FR-115, NOT-003, NOT-004, NOT-021, NOT-022, UCL-003, UCL-004, UCL-005, UCL-006, UCL-007, UCL-009, UCL-016, UCL-021, UCL-023
 - **Step:** 9, messaging in 7
 
 **Given** an order first reached `READY_FOR_PICKUP` and remains uncollected,
@@ -265,7 +265,7 @@ the order's state.
 
 ### AC-014 — Opt-out honoured
 - **Context:** Tracking and Notification
-- **Requirements:** SEC-041, SEC-042
+- **Requirements:** SEC-041, SEC-042, FR-027, FR-028, FR-096, NOT-005, NOT-006, NOT-011, NOT-013, NOT-023, NOT-024
 - **Step:** 7
 
 **Given** `Contoh Pelanggan A` has opted out of marketing in `Tenant Contoh A`,
@@ -282,7 +282,7 @@ per customer per tenant.
 
 ### AC-015 — Provider notification failure
 - **Context:** Tracking and Notification
-- **Requirements:** SEC-045, NFR-015, NFR-035
+- **Requirements:** SEC-045, NFR-015, NFR-035, FR-093, FR-094, FR-095, FR-099, DEL-016, DEL-035, NOT-001, NOT-007, NOT-009, NOT-010, NOT-017, NOT-018, NOT-026, NOT-027, NOT-029
 - **Step:** 7
 
 **Given** the WhatsApp provider is unavailable,
@@ -302,7 +302,7 @@ presented or described as automation.
 
 ### AC-016 — External courier guest access
 - **Context:** Pickup and Delivery
-- **Requirements:** SEC-018, SEC-039, SEC-040
+- **Requirements:** SEC-018, SEC-039, SEC-040, FR-108, FR-109, DEL-006, DEL-007, DEL-008, DEL-009, DEL-020, DEL-024, DEL-033
 - **Step:** 8
 
 **Given** an external ojek is assigned one delivery job in `Tenant Contoh A` and issued a guest link,
@@ -318,7 +318,7 @@ immediate effect, must be stored hashed, and must not be the order number or der
 
 ### AC-017 — Proof of delivery
 - **Context:** Pickup and Delivery
-- **Requirements:** SEC-028, SEC-037, SEC-038, NFR-028
+- **Requirements:** SEC-028, SEC-037, SEC-038, NFR-028, FR-103, FR-104, FR-105, FR-110, DEL-002, DEL-011, DEL-012, DEL-013, DEL-014, DEL-018, DEL-019, DEL-021, DEL-027, DEL-028, DEL-029, DEL-034, OFF-022
 - **Step:** 8
 
 **Given** a delivery job at status `OUT_FOR_DELIVERY` with the tenant's configured proof method,
@@ -336,7 +336,7 @@ accuracy may appear in the courier or customer interface.
 
 ### AC-018 — Failed delivery
 - **Context:** Pickup and Delivery
-- **Requirements:** SEC-038, SEC-039, NFR-016
+- **Requirements:** SEC-038, SEC-039, NFR-016, FR-106, FR-107, DEL-001, DEL-003, DEL-022, DEL-023, DEL-031
 - **Step:** 8
 
 **Given** a courier arrives at status `ARRIVED` and nobody is available to receive the laundry,
@@ -356,7 +356,7 @@ failure must respect quiet hours and opt-out.
 
 ### AC-019 — Overdue laundry escalation
 - **Context:** Unclaimed Laundry and Recovery
-- **Requirements:** SEC-043, SEC-044, NFR-035
+- **Requirements:** SEC-043, SEC-044, NFR-035, FR-116, FR-117, RPT-011, RPT-012, RPT-013, RPT-014, DEL-025, FIN-023, NOT-025, UCL-008, UCL-010, UCL-011, UCL-012, UCL-013, UCL-014, UCL-015, UCL-018, UCL-019, UCL-020, UCL-022, UCL-024, UCL-025, UCL-026, UCL-027, UCL-028, UCL-029, UCL-030
 - **Step:** 9
 
 **Given** an order whose first `READY_FOR_PICKUP` timestamp is fourteen days past and which remains
@@ -383,7 +383,7 @@ build it is refused outright and escalated to the repository owner.
 
 ### AC-020 — Subscription entitlement
 - **Context:** Subscription and Platform Administration
-- **Requirements:** SEC-046, NFR-040, NFR-042, NFR-049
+- **Requirements:** SEC-046, NFR-040, NFR-042, NFR-049, SUB-002, SUB-003, SUB-004, SUB-005, SUB-006, SUB-010, SUB-014, TEN-002, TEN-019, TEN-028
 - **Step:** 12
 
 **Given** `Tenant Contoh A` is on the Starter plan — 1 outlet, 5 staff, up to 1.000 order per month
@@ -406,7 +406,7 @@ configuration.
 
 ### AC-021 — Support impersonation is never silent
 - **Context:** Subscription and Platform Administration
-- **Requirements:** SEC-010, SEC-051, SEC-058
+- **Requirements:** SEC-010, SEC-051, SEC-058, SUB-016, SUB-017, TEN-029
 - **Step:** 12
 
 **Given** platform support needs to view a tenant's configuration to resolve a ticket,
@@ -422,7 +422,7 @@ platform access is an **automatic NO-GO**.
 
 ### AC-022 — Offline tenant switch leaks nothing
 - **Context:** Identity and Tenancy (offline)
-- **Requirements:** SEC-007, NFR-031
+- **Requirements:** SEC-007, NFR-031, FR-017, FR-059, FR-079, OFF-006, OFF-016, OFF-020
 - **Step:** 5
 
 **Given** a staff member holds memberships in `Tenant Contoh A` and `Tenant Contoh B` on one Ops device,
@@ -435,6 +435,279 @@ operation syncs into `Tenant Contoh A` where it originated, carrying its explici
 must **not** be re-attributed to the tenant that happens to be active at drain time. Local data is
 separated per tenant **and** per user. Any leak is treated as a tenant-isolation defect and is an
 **automatic NO-GO**.
+
+---
+
+### AC-023 — Authentication, session, and device lifecycle
+- **Context:** Identity and Tenancy
+- **Requirements:** SEC-002, SEC-011, SEC-013, SEC-014, SEC-015, SEC-020, SEC-022, SEC-051, FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-008, FR-009, FR-010, OFF-014, TEN-006, TEN-014
+- **Step:** 3
+
+**Given** a person authenticating with a phone number and a one-time password delivered to that number,
+holding exactly one user account,
+**When** they authenticate on two devices, an administrator later revokes one device, and separately
+revokes a session,
+**Then** a session is established on each device with permissions derived from Membership and defaulting
+to least privilege; the revoked device stops working immediately while the other continues without
+re-authenticating; the revoked session stops working immediately; and every authentication, permission
+grant, and revocation is recorded in the audit trail.
+
+**Negative path.** OTP issuance must be rate-limited and the code single-use and short-expiry, with the
+attempt counter bound to the OTP record so re-issuance does not reset it. A brute-force attempt must
+trigger progressive delay and lockout. A second user account must **not** be created for the same
+person. No permission may be granted that the granting actor does not already hold. Passwords, OTPs, and
+tokens must **not** appear in any log at any level.
+
+### AC-024 — Address and phone masking by context
+- **Context:** Customer Management
+- **Requirements:** SEC-034, SEC-035, SEC-036, FR-024, FR-025, FR-026
+- **Step:** 4, portal enforcement in 7
+
+**Given** `Contoh Pelanggan A` in `Tenant Contoh A` has a stored address `Alamat Contoh 1, Kota Contoh`
+and phone `+62-8XX-CONTOH-0001`,
+**When** the record is rendered to the customer themselves, to a kasir preparing a delivery, to a
+production operator, to an assigned courier, and to a public portal visitor,
+**Then** each context receives the masking level defined for it, applied **server-side** in the response
+itself.
+
+**Negative path.** The public portal must **never** receive a full address in any response, under any
+role, configuration, or tenant setting. A production operator must **not** receive the address at all.
+A courier must receive only the minimum detail the assigned job requires, never in a shareable or
+indexable form. A client must **not** receive a full value that it then hides — a value delivered is a
+value leaked.
+
+### AC-025 — Service catalogue and price override control
+- **Context:** Catalogue and Pricing
+- **Requirements:** SEC-032, NFR-039, FR-031, FR-039
+- **Step:** 4
+
+**Given** `Tenant Contoh A` has defined service types on a per-brand price list,
+**When** a kasir without override permission attempts a price override at intake, and a manager with
+override permission performs one,
+**Then** the kasir's attempt is refused server-side, and the manager's override is applied and recorded
+with actor, timestamp, original amount, new amount, and reason.
+
+**Negative path.** The override must **not** be applied because the client offered it. An override must
+**not** be recordable without a reason. The override must **not** alter the master price list, and must
+**not** propagate to any other order.
+
+### AC-026 — Outlet master data governing operations
+- **Context:** Catalogue and Master Data
+- **Requirements:** SEC-038, SEC-043, FR-041, FR-043, FR-044, FR-046, FR-047, TEN-010
+- **Step:** 4, consumed in 7 and 8
+
+**Given** `Tenant Contoh A` has configured operating hours, service zones, shift definitions, the proof
+policy for custody transfers, and quiet hours for an outlet,
+**When** a pickup is requested outside the zone, a delivery is completed under the configured proof
+policy, a shift is closed, and a non-urgent message falls due inside the quiet window,
+**Then** the out-of-zone request is refused or flagged per the zone definition, the proof method demanded
+matches the configured policy, the shift close uses the configured shift boundary, and the message is
+deferred to the next permitted window.
+
+**Negative path.** Quiet hours must default to **20.00–08.00 outlet local time** where not configured
+otherwise, and a configured window must **not** permit sending inside it. The proof policy must
+**not** be configurable to "no proof" — some recorded proof is always required. Zone and hour
+configuration is tenant-scoped and must **not** be visible to or settable by another tenant.
+
+### AC-027 — Counter order intake
+- **Context:** Order and Payment
+- **Requirements:** SEC-002, NFR-004, NFR-005, FR-049, FR-050, FR-052, FR-055, FR-058, FIN-018
+- **Step:** 5
+
+**Given** a kasir at a busy counter in `Tenant Contoh A`,
+**When** they create an order with several lines, record a special handling instruction, generate the
+nota, and later cancel a different order that has not yet entered production,
+**Then** the intake follows the shortest primary path, the lines and instruction are stored against the
+order, the nota reflects the server-computed integer Rupiah figures, and the cancellation is permissioned
+and recorded with a reason.
+
+**Negative path.** An order that has entered production must **not** be cancellable through the ordinary
+path. The order list must **not** load an unbounded result set. The nota must **not** be generated from
+client-computed totals. A special handling instruction must **not** be silently dropped when the order is
+edited.
+
+### AC-028 — Refund, void, and correction by reversal
+- **Context:** Order and Payment
+- **Requirements:** SEC-032, SEC-050, FR-065, FR-066, FR-067, FR-069, FIN-006, FIN-007, FIN-008, FIN-020, FIN-021, FIN-031, FIN-032, FIN-038
+- **Step:** 5
+
+**Given** a completed payment recorded against `ORD-CONTOH-0001`,
+**When** a kasir without permission attempts a refund, a manager with permission issues one with a
+recorded reason, and separately someone attempts to delete the original payment record,
+**Then** the unpermitted attempt is refused, the permitted refund is recorded as a reversal entry
+preserving the original payment with actor, tenant, outlet, timestamp, amounts before and after, and
+reason, and the deletion attempt is refused because no such path exists.
+
+**Negative path.** No delete path for a financial record may exist in ordinary UI for any regular role.
+A refund must **not** exceed what was actually received against that order. The original record must
+**not** be modified in place. The financial audit trail must be append-only and must **not** be subject
+to log rotation.
+
+### AC-029 — Batch production, item flags, and the ISSUE path
+- **Context:** Production Operations
+- **Requirements:** SEC-051, NFR-046, FR-074, FR-075, FR-078, FR-079, FR-080, OFF-015
+- **Step:** 6
+
+**Given** several orders in `Tenant Contoh A` are processed as a batch through `WASHING` and `DRYING`,
+with one item flagged as damaged on arrival,
+**When** an operator records stage progress for the batch while offline, a device clock is skewed, and
+one order is moved to `ISSUE`,
+**Then** progress is recorded against every order in the batch, the item-level flag persists
+independently of the order status, the offline records sync without duplication, ordering and reporting
+use **server** timestamps, and the `ISSUE` order is surfaced for resolution.
+
+**Negative path.** A skewed device clock must **not** determine the recorded sequence. A batch operation
+must **not** advance an order whose state does not permit the transition. An `ISSUE` order must **not**
+silently continue through the production flow or reach `COMPLETED` without resolution. Offline stage
+records must **not** produce duplicate history entries on replay.
+
+### AC-030 — Pickup request, scheduling, and window adherence
+- **Context:** Pickup and Delivery
+- **Requirements:** SEC-039, FR-100, FR-101, FR-102, RPT-015, DEL-004, DEL-005, DEL-010, DEL-015, DEL-017, DEL-026, DEL-032
+- **Step:** 8, reporting in 10
+
+**Given** a customer in `Tenant Contoh A` raises a pickup request for an address inside a defined service
+zone,
+**When** the request moves through `REQUESTED`, `CONFIRMED`, `SCHEDULED` with a time window, and
+`ASSIGNED`, and the courier subsequently arrives inside or outside the window,
+**Then** the zone match is validated, the window is stored against the job, and adherence to the window
+is measured and reported.
+
+**Negative path.** A request for an address outside every defined zone must **not** be silently accepted
+as schedulable. The time-window adherence report must **not** be presented as a delivery guarantee, and
+no interface may claim route optimisation, guaranteed arrival time, or ETA accuracy the system does not
+provide. A window missed must be reported honestly rather than recomputed to appear met.
+
+### AC-031 — Courier cash reconciliation and shift close
+- **Context:** Finance and Reporting
+- **Requirements:** SEC-032, SEC-064, FR-111, RPT-007, RPT-008, DEL-030, FIN-024, FIN-025, FIN-026, FIN-027, FIN-028, FIN-029
+- **Step:** 8, reporting in 10
+
+**Given** a courier collected cash across several deliveries during one shift in `Tenant Contoh A`,
+**When** the shift is closed and the courier hands over an amount that does not match the recorded total,
+**Then** the shift-closing report compares expected against actual, the courier cash report attributes
+the collection and handover per courier per shift, and the variance is computed, recorded, and requires
+explicit acknowledgement.
+
+**Negative path.** The variance must **not** be auto-rounded, absorbed, written off silently, or omitted
+from the report. The shift must **not** close with an unacknowledged variance. Expected figures must be
+read from the authoritative financial records rather than recomputed independently.
+
+### AC-032 — Reporting integrity and drill-down
+- **Context:** Finance and Reporting
+- **Requirements:** SEC-007, SEC-046, NFR-005, RPT-001, RPT-002, RPT-003, RPT-004, RPT-005, RPT-006, RPT-009, RPT-010, RPT-016, RPT-019
+- **Step:** 10
+
+**Given** revenue, order volume, receivables, payment channel reconciliation, and rework rate reports for
+`Tenant Contoh A`,
+**When** a permitted user opens each report, drills into an aggregate, exports one, and opens a report for
+a period whose underlying data is unavailable,
+**Then** every figure reads from the single authoritative source, any estimated figure is labelled as an
+estimate, each aggregate drills down to its underlying records within permission and within the tenant,
+the export carries the same access rules as those records, and the unavailable period is shown as
+unavailable.
+
+**Negative path.** An unavailable figure must **not** be rendered as zero — absence and zero are
+different facts and conflating them misleads an owner reconciling by hand. No report may recompute money
+independently of the financial records. No drill-down may reach a record the user lacks permission for or
+that belongs to another tenant. An export must **not** be fetchable by an unsigned URL or a guessable
+key.
+
+### AC-033 — Messaging cost transparency
+- **Context:** Subscription and Platform Administration
+- **Requirements:** SEC-045, NFR-042, RPT-020, SUB-019, SUB-020, NOT-008, NOT-020, NOT-030
+- **Step:** 12, messaging in 7
+
+**Given** `Tenant Contoh A` sends transactional and marketing messages through the official provider,
+**When** the tenant opens the messaging cost report and the subscription invoice,
+**Then** provider message volume and cost are shown to the tenant, and provider fees appear **separately**
+from the subscription plan amount.
+
+**Negative path.** Provider costs must **not** be buried inside the plan amount. No interface,
+documentation, pricing page, or marketing copy may claim **"unlimited WhatsApp"** or any equivalent —
+message volume has a real per-message cost, and claiming otherwise is a false claim and a pricing
+guardrail breach. A cost spike from an OTP or notification flood must be visible to the tenant rather
+than silently absorbed.
+
+### AC-034 — Subscription lifecycle at the tenant boundary
+- **Context:** Subscription and Platform Administration
+- **Requirements:** SEC-046, NFR-042, NFR-049, SUB-001, SUB-007, SUB-008, SUB-009, SUB-011, SUB-012, SUB-013, SUB-015, SUB-018, FIN-030, TEN-003, TEN-017, TEN-018, TEN-020, TEN-021
+- **Step:** 12
+
+**Given** `Tenant Contoh A` holds a subscription at the tenant boundary with metered usage,
+**When** it upgrades, later downgrades, and later still lapses into grace and beyond,
+**Then** every subscription amount is integer Rupiah following every financial rule, usage is metered per
+tenant, upgrade and downgrade apply per the defined behaviour, and lapse and grace behave as documented
+while tenant data **remains exportable per policy**.
+
+**Negative path.** No lifetime cloud plan may exist, and no per-nota fee may be applied on a normal plan.
+Subscription and billing must **not** operate per user or per outlet — the tenant is the billing
+boundary. The security baseline, tenant isolation, and backup must **not** be placed behind any tier;
+they are available on every plan including Starter. A lapsed subscription must **not** block export of the
+tenant's own business records. Floating point must **not** appear in any billing calculation.
+
+### AC-035 — Tenant scoping of derived stores, artefacts, and audit
+- **Context:** Identity and Tenancy
+- **Requirements:** SEC-008, SEC-009, SEC-029, SEC-050, TEN-016, TEN-022, TEN-023, TEN-026, TEN-027
+- **Step:** 3, then every Step that adds a derived store
+
+**Given** `Tenant Contoh A` and `Tenant Contoh B` both hold orders, cached reads, queued jobs, search
+index entries, generated export files, uploaded proof artefacts, and audit entries,
+**When** a request in `Tenant Contoh B` is served from cache, a background job runs outside any request
+context, a search is executed, an export file is generated, and an audit entry is written,
+**Then** every cache key, queue message, index entry, export file, and object key carries a tenant
+dimension; the background job carries explicit tenant context; artefacts are tenant-scoped and private;
+and the audit entry carries tenant context and is append-only.
+
+**Negative path.** A cache populated by `Tenant Contoh A` must **never** be readable by
+`Tenant Contoh B` — a tenant-less cache key is a cross-tenant leak waiting to happen. A background job
+must **not** infer its tenant from "the last request". An object key must **not** be sequential or
+otherwise predictable, because that is an enumeration vulnerability. An audit entry must **not** be
+editable or deletable after it is written. Any leak through a derived store is an **automatic NO-GO**
+under DEC-0012, exactly as a leak through a primary read would be.
+
+### AC-036 — Offline queue integrity, ordering, and conflict resolution
+- **Context:** Order and Payment (offline)
+- **Requirements:** SEC-033, NFR-016, NFR-019, NFR-030, NFR-032, OFF-003, OFF-004, OFF-005, OFF-008, OFF-009, OFF-010, OFF-011, OFF-012, OFF-013, OFF-021, OFF-024
+- **Step:** 5
+
+**Given** an Ops device in `Tenant Contoh A` holding a queue containing a created order, a payment that
+depends on it, and a failed non-financial update,
+**When** connectivity returns intermittently, the predecessor operation fails, the server holds a
+different payment value from the device, the user performs a cache wipe and a logout, and a manager
+later purges one queued financial operation deliberately,
+**Then** retries back off exponentially within bounded limits; the dependent payment does not jump ahead
+of its failed predecessor; the payment conflict surfaces both values to a human; the resolution records
+actor, timestamp, chosen value, and reason; the queue survives the cache wipe and the logout; the
+deliberate purge requires an explicit permissioned action and is audited; and pending, failed, and
+attention states are visible on screen throughout.
+
+**Negative path.** A payment conflict must **never** be resolved silently or by the client picking a
+winner — conflicts affecting money escalate to a human, and a non-financial last-write rule is
+permissible only where that rule is written down. A failed operation must **not** be silently dropped.
+A financial operation must **not** be pruned from the queue on a timer or before confirmed server
+acceptance. A kasir must **never** be shown a payment as recorded while it still sits unsent in the
+queue. On divergence the server prevails and the client reconciles to it.
+
+### AC-037 — Notification content safety and deduplication
+- **Context:** Tracking and Notification
+- **Requirements:** SEC-044, SEC-045, SEC-047, NOT-002, NOT-012, NOT-014, NOT-015, NOT-016, NOT-019, NOT-028, TRK-029
+- **Step:** 7
+
+**Given** a customer in `Tenant Contoh A` due to receive an order-ready message containing a tracking
+link,
+**When** the message is composed and sent, the send is retried after a transport error, the scheduler
+restarts mid-batch, and the queue is replayed,
+**Then** the message body is written in Bahasa Indonesia, contains no full address and no OTP value
+alongside the tracking link, and exactly one message reaches the customer — deduplicated on recipient,
+event, order, and intended send window — with the send recorded against tenant, outlet, order,
+recipient, template, category, status, timestamp, and provider reference.
+
+**Negative path.** A message must **never** echo an OTP value alongside a tracking link, because that
+single message would be sufficient for account takeover on its own. Message logs must **not** contain
+token plaintext, credentials, or OTP values. A retry, scheduler restart, or queue replay must **not**
+produce a second identical message; a duplicate reaching a customer is treated as a defect of the same
+class as a duplicate payment — investigate the deduplication key, fix it, and add a regression test.
 
 ---
 
@@ -464,9 +737,58 @@ separated per tenant **and** per user. Any leak is treated as a tenant-isolation
 | AC-020 | Subscription entitlement | Subscription and Platform | 12 |
 | AC-021 | Support impersonation is never silent | Subscription and Platform | 12 |
 | AC-022 | Offline tenant switch leaks nothing | Identity and Tenancy (offline) | 5 |
+| AC-023 | Authentication, session, and device lifecycle | Identity and Tenancy | 3 |
+| AC-024 | Address and phone masking by context | Customer Management | 4 / 7 |
+| AC-025 | Service catalogue and price override control | Catalogue and Pricing | 4 |
+| AC-026 | Outlet master data governing operations | Catalogue and Master Data | 4 / 7 / 8 |
+| AC-027 | Counter order intake | Order and Payment | 5 |
+| AC-028 | Refund, void, and correction by reversal | Order and Payment | 5 |
+| AC-029 | Batch production, item flags, and the ISSUE path | Production Operations | 6 |
+| AC-030 | Pickup request, scheduling, and window adherence | Pickup and Delivery | 8 / 10 |
+| AC-031 | Courier cash reconciliation and shift close | Finance and Reporting | 8 / 10 |
+| AC-032 | Reporting integrity and drill-down | Finance and Reporting | 10 |
+| AC-033 | Messaging cost transparency | Subscription and Platform | 12 / 7 |
+| AC-034 | Subscription lifecycle at the tenant boundary | Subscription and Platform | 12 |
+| AC-035 | Tenant scoping of derived stores, artefacts, and audit | Identity and Tenancy | 3 |
+| AC-036 | Offline queue integrity, ordering, and conflict resolution | Order and Payment (offline) | 5 |
+| AC-037 | Notification content safety and deduplication | Tracking and Notification | 7 |
 
-**Total: 22 scenarios.** Every one carries both a happy path and a negative path. Tenant boundary,
+**Total: 37 scenarios.** Every one carries both a happy path and a negative path. Tenant boundary,
 financial integrity, and offline behaviour are named explicitly wherever they apply.
+
+### 10.1 Requirement coverage
+
+**Product series.** Every **MUST**-priority requirement defined in
+`docs/product/PRODUCT_REQUIREMENTS.md` — all 150 of `FR`, `RPT`, and `SUB` — is cited by at least one
+scenario above.
+
+**Domain series.** Every one of the 220 domain requirements defined in `docs/domain/DOMAIN_INVARIANTS.md`
+— `TEN-001`…`TEN-030`, `FIN-001`…`FIN-040`, `OFF-001`…`OFF-025`, `TRK-001`…`TRK-030`,
+`DEL-001`…`DEL-035`, `UCL-001`…`UCL-030`, `NOT-001`…`NOT-030` — is cited by at least one scenario above.
+
+The domain series carries no `SHOULD` or `COULD` tier. Its severities are `GATE` (103), `CRITICAL` (79),
+and `REQUIRED` (38), and **all three are mandatory** — an invariant is not an aspiration. All 220 are
+therefore treated as MUST-priority and covered, with none left out on priority grounds.
+
+Several closely-related requirements are grouped under one scenario and cited together on its
+**Requirements** line; that is deliberate coverage of a single coherent behaviour, not one scenario per
+identifier. The hard-gate and differentiator areas keep dedicated scenarios rather than being folded
+into grouped ones: tenant isolation (AC-001, AC-003, AC-035), the same phone number producing two
+unrelated profiles (AC-002), integer-Rupiah money and price-snapshot immutability (AC-005, AC-006),
+payment idempotency (AC-007), reversal-only correction (AC-028), offline `client_reference` reuse
+(AC-008, AC-036), tracking token properties (AC-011, AC-012), proof of custody transfer (AC-017),
+courier cash reconciliation (AC-031), aging anchored to the first `READY_FOR_PICKUP` (AC-010) with the
+H+1/H+3/H+7/H+14 ladder (AC-013, AC-019), and quiet hours, deduplication, opt-out, and provider failure
+never changing order state (AC-013, AC-014, AC-015, AC-037).
+
+**Deliberately uncovered.** Product-series requirements at `SHOULD` and `COULD` priority — FR-030,
+FR-032, FR-033, FR-042, FR-045, FR-054, FR-083, FR-118, FR-120, and RPT-017 — are not covered here. They
+are not subject to the must-have-a-criterion rule, and writing criteria for behaviour that may not ship
+would assert more certainty than the roadmap supports. Nothing in the domain series is uncovered, because
+nothing in it is optional.
+
+No identifier is cited that is not defined in `docs/product/PRODUCT_REQUIREMENTS.md` or
+`docs/domain/DOMAIN_INVARIANTS.md`.
 
 ---
 

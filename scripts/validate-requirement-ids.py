@@ -16,34 +16,17 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _common import Reporter, repo_root, run_main  # noqa: E402
 from _step01 import (  # noqa: E402
+    DEFINITION_LINE,
     REQUIREMENT_ID,
     REQUIREMENT_PREFIXES,
+    REQUIREMENT_REGISTERS,
     existing_step01_docs,
     read,
     requirement_ids,
 )
 
-# A definition is a line that introduces the requirement: a heading, a table row
-# beginning with the ID, or a bolded lead-in. A mere mention in prose is a
-# reference, not a definition.
-DEFINITION_LINE = re.compile(
-    r"^\s{0,3}(?:#{1,6}\s*|[-*+]\s+|\|\s*|\d+\.\s+)?"
-    r"\*{0,2}\[?("
-    + "|".join(REQUIREMENT_PREFIXES)
-    + r")-(\d{3,4})\]?\*{0,2}\s*(?:\||[-—:]|\*{0,2}\s*$)"
-)
-
 MIN_TOTAL_REQUIREMENTS = 120
 
-# Documents that REFERENCE requirements rather than DEFINE them. A traceability
-# matrix necessarily lists every ID in its first column; counting those as
-# definitions would report the entire corpus as duplicated.
-REFERENCE_ONLY = {
-    "REQUIREMENT_TRACEABILITY.md",
-    "ACCEPTANCE_CRITERIA.md",
-    "SECURITY_ACCEPTANCE_CRITERIA.md",
-    "STEP_01_DEFINITION_OF_DONE.md",
-}
 
 
 def main() -> int:
@@ -63,12 +46,19 @@ def main() -> int:
         text = read(path)
         all_mentioned |= requirement_ids(text)
 
-        if path.name not in REFERENCE_ONLY:
-            for lineno, line in enumerate(text.splitlines(), start=1):
-                m = DEFINITION_LINE.match(line)
-                if m:
-                    rid = f"{m.group(1)}-{int(m.group(2)):03d}"
-                    definitions[rid].append(f"{rel}:{lineno}")
+        # Duplicate detection is scoped to each series' authoritative register.
+        # A restatement elsewhere (the aggregate catalogue repeating invariants
+        # per aggregate, the traceability matrix listing every ID) is a
+        # cross-reference, not a second definition.
+        for lineno, line in enumerate(text.splitlines(), start=1):
+            m = DEFINITION_LINE.match(line)
+            if not m:
+                continue
+            prefix = m.group(1)
+            if REQUIREMENT_REGISTERS.get(prefix) != path.name:
+                continue
+            rid = f"{prefix}-{int(m.group(2)):03d}"
+            definitions[rid].append(f"{rel}:{lineno}")
 
         # An identifier that is nearly right is worse than one that is absent,
         # because it silently escapes every traceability query.

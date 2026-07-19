@@ -223,10 +223,83 @@ REQUIREMENT_ID = re.compile(
     r"\b(" + "|".join(REQUIREMENT_PREFIXES) + r")-(\d{3,4})\b"
 )
 
+#: The authoritative register for each requirement series — the one document that
+#: DEFINES those identifiers. The same ID legitimately reappears elsewhere as a
+#: cross-reference: the aggregate catalogue restates invariants per aggregate,
+#: and the traceability matrix lists every ID by design. Treating those
+#: restatements as definitions reported the whole corpus as duplicated, so
+#: duplicate detection is scoped to the register.
+REQUIREMENT_REGISTERS: dict[str, str] = {
+    "FR": "PRODUCT_REQUIREMENTS.md",
+    "RPT": "PRODUCT_REQUIREMENTS.md",
+    "SUB": "PRODUCT_REQUIREMENTS.md",
+    "SEC": "SECURITY_ACCEPTANCE_CRITERIA.md",
+    "NFR": "NON_FUNCTIONAL_REQUIREMENTS.md",
+    "TEN": "DOMAIN_INVARIANTS.md",
+    "FIN": "DOMAIN_INVARIANTS.md",
+    "OFF": "DOMAIN_INVARIANTS.md",
+    "TRK": "DOMAIN_INVARIANTS.md",
+    "DEL": "DOMAIN_INVARIANTS.md",
+    "UCL": "DOMAIN_INVARIANTS.md",
+    "NOT": "DOMAIN_INVARIANTS.md",
+}
+
+#: A definition line: a heading, table row, bullet, or numbered item that leads
+#: with the identifier. Backticked, bolded, and bracketed forms all count.
+DEFINITION_LINE = re.compile(
+    r"^\s{0,3}(?:#{1,6}\s*|[-*+]\s+|\|\s*|\d+\.\s+)?"
+    r"[`*_\[]{0,3}("
+    + "|".join(REQUIREMENT_PREFIXES)
+    + r")-(\d{3,4})[`*_\]]{0,3}\s*(?:\||[-—:]|\s*$)"
+)
+
+
+def register_definitions(root: "Path") -> dict[str, str]:
+    """Return {requirement_id: 'file:line'} for definitions in their registers.
+
+    Only the authoritative register for a series is scanned, so a cross-reference
+    in another document is not mistaken for a second definition.
+    """
+    out: dict[str, str] = {}
+    for path in existing_step01_docs(root):
+        rel = path.relative_to(root).as_posix()
+        for lineno, line in enumerate(read(path).splitlines(), start=1):
+            m = DEFINITION_LINE.match(line)
+            if not m:
+                continue
+            prefix = m.group(1)
+            if REQUIREMENT_REGISTERS.get(prefix) != path.name:
+                continue
+            rid = f"{prefix}-{int(m.group(2)):03d}"
+            out.setdefault(rid, f"{rel}:{lineno}")
+    return out
+
+
 THREAT_ID = re.compile(r"\bTHREAT-(\d{3,4})\b")
 ABUSE_ID = re.compile(r"\bABUSE-(\d{3,4})\b")
 
 SEVERITIES = ["CRITICAL", "HIGH", "MEDIUM", "LOW", "INFORMATIONAL"]
+
+#: Matches an explicit severity declaration, e.g. "**Severity:** HIGH".
+SEVERITY_FIELD = re.compile(
+    r"\*{0,2}Severity\*{0,2}\s*:?\*{0,2}\s*:?\s*\*{0,2}\s*"
+    r"(CRITICAL|HIGH|MEDIUM|LOW|INFORMATIONAL)\b",
+    re.IGNORECASE,
+)
+
+
+def declared_severity(section: str) -> "str | None":
+    """Return the severity a threat record explicitly DECLARES, or None.
+
+    Reads the ``Severity:`` field only. Scanning a whole record for the word
+    "HIGH" is wrong and was a real defect: a record may carry
+    ``Likelihood: HIGH`` alongside ``Severity: INFORMATIONAL``, which inflated
+    the CRITICAL/HIGH population and produced a spurious traceability failure.
+    Reading the declared field also means a genuinely HIGH threat cannot hide by
+    omitting the word elsewhere.
+    """
+    m = SEVERITY_FIELD.search(section)
+    return m.group(1).upper() if m else None
 
 
 # --- helpers -----------------------------------------------------------------
