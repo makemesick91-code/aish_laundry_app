@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" width="1440" height="900">
+  <rect x="0" y="0" width="1440" height="900" rx="0" fill="#f8fafc" stroke="#94a3b8" stroke-width="1"/>
+  <rect x="0" y="0" width="240" height="900" rx="0" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"/>
+  <text x="20" y="40" font-family="sans-serif" font-size="14" fill="#1e293b" font-weight="bold" text-anchor="start">Aish Laundry Console</text>
+  <rect x="16" y="64" width="208" height="32" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="28" y="85" font-family="sans-serif" font-size="12" fill="#1e293b" font-weight="normal" text-anchor="start">Portofolio</text>
+  <rect x="16" y="104" width="208" height="32" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="28" y="125" font-family="sans-serif" font-size="12" fill="#1e293b" font-weight="normal" text-anchor="start">Outlet</text>
+  <rect x="16" y="144" width="208" height="32" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="28" y="165" font-family="sans-serif" font-size="12" fill="#1e293b" font-weight="normal" text-anchor="start">Pesanan</text>
+  <rect x="16" y="184" width="208" height="32" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="28" y="205" font-family="sans-serif" font-size="12" fill="#1e293b" font-weight="normal" text-anchor="start">Jemput dan Antar</text>
+  <rect x="16" y="224" width="208" height="32" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="28" y="245" font-family="sans-serif" font-size="12" fill="#1e293b" font-weight="normal" text-anchor="start">Cucian Menumpuk</text>
+  <rect x="16" y="264" width="208" height="32" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="28" y="285" font-family="sans-serif" font-size="12" fill="#1e293b" font-weight="normal" text-anchor="start">Kurir</text>
+  <rect x="16" y="304" width="208" height="32" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="28" y="325" font-family="sans-serif" font-size="12" fill="#1e293b" font-weight="normal" text-anchor="start">Laporan</text>
+  <text x="20" y="860" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Laundry Bersih Sejahtera</text>
+  <text x="20" y="878" font-family="sans-serif" font-size="11" fill="#475569" font-weight="normal" text-anchor="start">Outlet Cempaka</text>
+  <rect x="240" y="0" width="1200" height="76" rx="0" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"/>
+  <text x="264" y="34" font-family="sans-serif" font-size="16" fill="#1e293b" font-weight="bold" text-anchor="start">Dasbor Outlet</text>
+  <text x="264" y="58" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">SCR-CON-003 | Console Web (Flutter Web)</text>
+  <rect x="1180" y="22" width="236" height="20" rx="10" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+  <text x="1298" y="36" font-family="sans-serif" font-size="12" fill="#1e293b" font-weight="bold" text-anchor="middle">MODE OUTLET</text>
+  <rect x="264" y="100" width="264" height="88" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="280" y="128" font-family="sans-serif" font-size="11" fill="#475569" font-weight="normal" text-anchor="start">Pesanan hari ini</text>
+  <text x="280" y="156" font-family="sans-serif" font-size="16" fill="#1e293b" font-weight="bold" text-anchor="start">12</text>
+  <text x="280" y="176" font-family="sans-serif" font-size="10" fill="#475569" font-weight="normal" text-anchor="start">Outlet Cempaka</text>
+  <rect x="544" y="100" width="264" height="88" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="560" y="128" font-family="sans-serif" font-size="11" fill="#475569" font-weight="normal" text-anchor="start">Dalam produksi</text>
+  <text x="560" y="156" font-family="sans-serif" font-size="16" fill="#1e293b" font-weight="bold" text-anchor="start">7</text>
+  <text x="560" y="176" font-family="sans-serif" font-size="10" fill="#475569" font-weight="normal" text-anchor="start">SORTING sampai FINISHING</text>
+  <rect x="824" y="100" width="264" height="88" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="840" y="128" font-family="sans-serif" font-size="11" fill="#475569" font-weight="normal" text-anchor="start">Siap diambil</text>
+  <text x="840" y="156" font-family="sans-serif" font-size="16" fill="#1e293b" font-weight="bold" text-anchor="start">5</text>
+  <text x="840" y="176" font-family="sans-serif" font-size="10" fill="#475569" font-weight="normal" text-anchor="start">READY_FOR_PICKUP</text>
+  <rect x="1104" y="100" width="264" height="88" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="1120" y="128" font-family="sans-serif" font-size="11" fill="#475569" font-weight="normal" text-anchor="start">Belum lunas</text>
+  <text x="1120" y="156" font-family="sans-serif" font-size="16" fill="#1e293b" font-weight="bold" text-anchor="start">Rp79.000</text>
+  <text x="1120" y="176" font-family="sans-serif" font-size="10" fill="#475569" font-weight="normal" text-anchor="start">Dibaca dari catatan keuangan</text>
+  <text x="264" y="210" font-family="sans-serif" font-size="12" fill="#1e293b" font-weight="bold" text-anchor="start">Laundry Bersih Sejahtera / Outlet Cempaka</text>
+  <rect x="264" y="234" width="1152" height="40" rx="4" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"/>
+  <text x="264" y="259" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="bold" text-anchor="start">Nomor pesanan</text>
+  <text x="484" y="259" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="bold" text-anchor="start">Pelanggan</text>
+  <text x="704" y="259" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="bold" text-anchor="start">Berat</text>
+  <text x="844" y="259" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="bold" text-anchor="start">Status</text>
+  <text x="1064" y="259" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="bold" text-anchor="start">Tagihan</text>
+  <text x="1224" y="259" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="bold" text-anchor="start">Diperbarui</text>
+  <rect x="264" y="274" width="1152" height="40" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="264" y="299" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">AL-2026-000123</text>
+  <text x="484" y="299" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Siti Rahmawati</text>
+  <text x="704" y="299" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">1,5 kg</text>
+  <text x="844" y="299" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">WASHING</text>
+  <text x="1064" y="299" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Rp25.000</text>
+  <text x="1224" y="299" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">14:30</text>
+  <rect x="264" y="314" width="1152" height="40" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="264" y="339" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">AL-2026-000123</text>
+  <text x="484" y="339" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Budi Santoso</text>
+  <text x="704" y="339" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">1,5 kg</text>
+  <text x="844" y="339" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">QUALITY_CONTROL</text>
+  <text x="1064" y="339" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Rp25.000</text>
+  <text x="1224" y="339" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">14:30</text>
+  <rect x="264" y="354" width="1152" height="40" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="264" y="379" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">AL-2026-000123</text>
+  <text x="484" y="379" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Siti Rahmawati</text>
+  <text x="704" y="379" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">1,5 kg</text>
+  <text x="844" y="379" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">READY_FOR_PICKUP</text>
+  <text x="1064" y="379" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Rp25.000</text>
+  <text x="1224" y="379" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">14:30</text>
+  <rect x="264" y="394" width="1152" height="40" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="264" y="419" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">AL-2026-000123</text>
+  <text x="484" y="419" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Budi Santoso</text>
+  <text x="704" y="419" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">1,5 kg</text>
+  <text x="844" y="419" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">ISSUE</text>
+  <text x="1064" y="419" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Rp25.000</text>
+  <text x="1224" y="419" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">14:30</text>
+  <text x="264" y="468" font-family="sans-serif" font-size="12" fill="#1e293b" font-weight="bold" text-anchor="start">Semua kueri dibatasi pada tenant dan outlet aktif. Status hanya dari himpunan kanonik.</text>
+  <text x="264" y="488" font-family="sans-serif" font-size="11" fill="#475569" font-weight="normal" text-anchor="start">Semua angka tenant-scoped. Nilai uang adalah Rupiah bulat.</text>
+  <text x="264" y="862" font-family="sans-serif" font-size="12" fill="#1e293b" font-weight="bold" text-anchor="start">LOW-FIDELITY — NOT IMPLEMENTED</text>
+  <text x="264" y="880" font-family="sans-serif" font-size="10" fill="#475569" font-weight="normal" text-anchor="start">Wireframe tata letak saja. Bukan UI final. Data contoh fiktif.</text>
+</svg>

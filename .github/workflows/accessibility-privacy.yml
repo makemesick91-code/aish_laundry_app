@@ -1,0 +1,68 @@
+---
+# Aish Laundry App — Step 2 accessibility, privacy, and traceability gates.
+#
+# Rendered check name (referenced by branch protection, do not rename):
+#   "accessibility-privacy"
+#
+# Distinct job name so branch protection can require this gate separately from
+# the Step 0 and Step 1 gates. Never reuse the ambiguous name "validate".
+#
+# SCOPE NOTE: Step 2 states an accessibility TARGET and designs to it. Nothing
+# has been runtime-tested, because there is no runtime. The mandated wording is
+# "DESIGNED TO MEET WCAG 2.2 AA REQUIREMENTS — NOT YET RUNTIME-TESTED", and the
+# accessibility validator fails on any stronger claim. This repository is
+# PUBLIC, so the privacy gates run on every commit, not only before a release.
+
+name: Accessibility and Privacy
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: accessibility-privacy-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  accessibility-privacy:
+    name: accessibility-privacy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Record the exact SHA under validation
+        run: |
+          set -euo pipefail
+          echo "Validating commit: ${GITHUB_SHA}"
+
+      - name: Validate the accessibility foundation and its claim wording
+        run: python3 scripts/validate-accessibility.py
+
+      - name: Validate privacy and security UX patterns
+        run: python3 scripts/validate-privacy-ux.py
+
+      - name: Validate the design and UX threat review
+        run: python3 scripts/validate-design-threat-review.py
+
+      - name: Validate the UX classification of all 498 requirements
+        run: python3 scripts/validate-ux-requirement-classification.py
+
+      - name: Validate bidirectional design traceability
+        run: python3 scripts/validate-design-traceability.py
+
+      - name: Validate the Step 2 application rules
+        run: python3 scripts/validate-step-02-rules.py
+
+      - name: Enforce public repository authoring safety
+        run: bash scripts/validate-public-repository-safety.sh

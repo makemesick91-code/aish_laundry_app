@@ -1,0 +1,94 @@
+{
+  "$meta": {
+    "layer": "primitive",
+    "file": "breakpoints.json",
+    "step": "Step 2 — Design System and UX Foundation",
+    "status": "NOT IMPLEMENTED",
+    "theme": "none",
+    "description": "Semantic breakpoints and the two hard width guarantees."
+  },
+  "tokens": {
+    "breakpoint.compact.min": {
+      "value": 0,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Lower bound of the compact breakpoint. Handsets. Single column. Bottom navigation on Android. The Public Tracking Portal must remain fully usable at 320px within this range.",
+      "scope": [
+        "global"
+      ]
+    },
+    "breakpoint.compact.max": {
+      "value": 599,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Upper bound of the compact breakpoint.",
+      "scope": [
+        "global"
+      ]
+    },
+    "breakpoint.medium.min": {
+      "value": 600,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Lower bound of the medium breakpoint. Large handsets in landscape and small tablets. Navigation rail replaces bottom navigation where appropriate.",
+      "scope": [
+        "global"
+      ]
+    },
+    "breakpoint.medium.max": {
+      "value": 1023,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Upper bound of the medium breakpoint.",
+      "scope": [
+        "global"
+      ]
+    },
+    "breakpoint.expanded.min": {
+      "value": 1024,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Lower bound of the expanded breakpoint. Tablets and small laptops. Console Web must be fully usable at 1366x768 with no horizontal scrolling on primary workflows.",
+      "scope": [
+        "global"
+      ]
+    },
+    "breakpoint.expanded.max": {
+      "value": 1439,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Upper bound of the expanded breakpoint.",
+      "scope": [
+        "global"
+      ]
+    },
+    "breakpoint.wide.min": {
+      "value": 1440,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Lower bound of the wide breakpoint. Desktop. Content is capped at size.maxWidth.content and centred.",
+      "scope": [
+        "global"
+      ]
+    },
+    "breakpoint.minSupportedWidth": {
+      "value": 320,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Narrowest viewport the product supports. The Public Tracking Portal must be fully usable here, because it is the surface most often opened on an old handset from a WhatsApp message.",
+      "scope": [
+        "tracking-portal",
+        "customer-android"
+      ]
+    },
+    "breakpoint.consoleReferenceWidth": {
+      "value": 1366,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Reference laptop width for Console Web. Primary workflows must not require horizontal scrolling at this width; large data tables use the documented responsive table pattern instead.",
+      "scope": [
+        "console-web"
+      ]
+    }
+  }
+}

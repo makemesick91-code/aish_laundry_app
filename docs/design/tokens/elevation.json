@@ -1,0 +1,84 @@
+{
+  "$meta": {
+    "layer": "primitive",
+    "file": "elevation.json",
+    "step": "Step 2 — Design System and UX Foundation",
+    "status": "NOT IMPLEMENTED",
+    "theme": "light",
+    "description": "Light-theme elevation levels. Elevation is spatial and never semantic."
+  },
+  "tokens": {
+    "elevation.0": {
+      "value": "none",
+      "type": "shadow",
+      "unit": "none",
+      "description": "Elevation level 0. Flat. The default for content on the page surface. Shadow values are tuned for the light theme only; a dark theme would require its own values and is PLANNED, NOT IMPLEMENTED.",
+      "scope": [
+        "global"
+      ],
+      "prohibitedUsage": [
+        "Never used to convey status, selection, validity or error — elevation is spatial, not semantic."
+      ]
+    },
+    "elevation.1": {
+      "value": "0 1px 2px rgba(23, 28, 36, 0.08)",
+      "type": "shadow",
+      "unit": "none",
+      "description": "Elevation level 1. Cards and list containers at rest. Shadow values are tuned for the light theme only; a dark theme would require its own values and is PLANNED, NOT IMPLEMENTED.",
+      "scope": [
+        "global"
+      ],
+      "prohibitedUsage": [
+        "Never used to convey status, selection, validity or error — elevation is spatial, not semantic."
+      ]
+    },
+    "elevation.2": {
+      "value": "0 2px 4px rgba(23, 28, 36, 0.10)",
+      "type": "shadow",
+      "unit": "none",
+      "description": "Elevation level 2. Raised cards, sticky headers. Shadow values are tuned for the light theme only; a dark theme would require its own values and is PLANNED, NOT IMPLEMENTED.",
+      "scope": [
+        "global"
+      ],
+      "prohibitedUsage": [
+        "Never used to convey status, selection, validity or error — elevation is spatial, not semantic."
+      ]
+    },
+    "elevation.3": {
+      "value": "0 4px 8px rgba(23, 28, 36, 0.12)",
+      "type": "shadow",
+      "unit": "none",
+      "description": "Elevation level 3. Bottom sheets, dropdown menus, popovers. Shadow values are tuned for the light theme only; a dark theme would require its own values and is PLANNED, NOT IMPLEMENTED.",
+      "scope": [
+        "global"
+      ],
+      "prohibitedUsage": [
+        "Never used to convey status, selection, validity or error — elevation is spatial, not semantic."
+      ]
+    },
+    "elevation.4": {
+      "value": "0 8px 16px rgba(23, 28, 36, 0.14)",
+      "type": "shadow",
+      "unit": "none",
+      "description": "Elevation level 4. Dialogs and modal surfaces. Shadow values are tuned for the light theme only; a dark theme would require its own values and is PLANNED, NOT IMPLEMENTED.",
+      "scope": [
+        "global"
+      ],
+      "prohibitedUsage": [
+        "Never used to convey status, selection, validity or error — elevation is spatial, not semantic."
+      ]
+    },
+    "elevation.5": {
+      "value": "0 16px 32px rgba(23, 28, 36, 0.16)",
+      "type": "shadow",
+      "unit": "none",
+      "description": "Elevation level 5. Reserved. Not used by any Step 2 component. Shadow values are tuned for the light theme only; a dark theme would require its own values and is PLANNED, NOT IMPLEMENTED.",
+      "scope": [
+        "global"
+      ],
+      "prohibitedUsage": [
+        "Never used to convey status, selection, validity or error — elevation is spatial, not semantic."
+      ]
+    }
+  }
+}

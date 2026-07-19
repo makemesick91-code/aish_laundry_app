@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 720" width="360" height="720">
+  <rect x="0" y="0" width="360" height="720" rx="0" fill="#f8fafc" stroke="#94a3b8" stroke-width="1"/>
+  <rect x="0" y="0" width="360" height="58" rx="0" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"/>
+  <text x="14" y="26" font-family="sans-serif" font-size="16" fill="#1e293b" font-weight="bold" text-anchor="start">Detail Pesanan</text>
+  <text x="14" y="46" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">SCR-CUS-006 | Aish Laundry Customer Android</text>
+  <rect x="14" y="68" width="332" height="72" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="88" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">AL-2026-000123</text>
+  <text x="26" y="105" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Outlet Cempaka | Laundry Bersih Sejahtera</text>
+  <text x="26" y="122" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Masuk 14:30</text>
+  <rect x="226" y="76" width="108" height="20" rx="10" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+  <text x="280" y="90" font-family="sans-serif" font-size="10" fill="#1e293b" font-weight="bold" text-anchor="middle">FINISHING</text>
+  <rect x="14" y="148" width="332" height="72" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="168" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Layanan</text>
+  <text x="26" y="185" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Cuci Setrika Reguler</text>
+  <text x="26" y="202" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Berat tertimbang 1,5 kg</text>
+  <rect x="14" y="228" width="332" height="72" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="248" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Rincian biaya</text>
+  <text x="26" y="265" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Subtotal Rp25.000</text>
+  <text x="26" y="282" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Harga terkunci saat pesanan dibuat</text>
+  <rect x="14" y="308" width="332" height="68" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="328" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Catatan kondisi</text>
+  <text x="26" y="345" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">2 foto kondisi awal tersimpan privat</text>
+  <text x="26" y="362" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Foto tidak pernah tampil di portal publik</text>
+  <rect x="14" y="384" width="332" height="68" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="404" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Pengambilan</text>
+  <text x="26" y="421" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Ambil di outlet atau minta antar</text>
+  <text x="26" y="438" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Alamat: Jl. Melati (detail dibuka saat tiba)</text>
+  <rect x="14" y="460" width="332" height="60" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="480" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Status pembayaran: BELUM LUNAS</text>
+  <text x="26" y="497" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Sisa Rp25.000</text>
+  <rect x="14" y="636" width="332" height="48" rx="6" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"/>
+  <text x="180" y="666" font-family="sans-serif" font-size="14" fill="#1e293b" font-weight="bold" text-anchor="middle">Lihat Linimasa</text>
+  <line x1="14" y1="692" x2="346" y2="692" stroke="#94a3b8" stroke-width="1"/>
+  <text x="14" y="706" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="bold" text-anchor="start">LOW-FIDELITY — NOT IMPLEMENTED</text>
+  <text x="14" y="717" font-family="sans-serif" font-size="9" fill="#475569" font-weight="normal" text-anchor="start">Wireframe tata letak saja. Bukan UI final. Data contoh fiktif.</text>
+  <text x="346" y="706" font-family="sans-serif" font-size="9" fill="#475569" font-weight="normal" text-anchor="end">360x720</text>
+</svg>

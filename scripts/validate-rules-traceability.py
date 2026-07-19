@@ -15,7 +15,7 @@ from _common import Reporter, read_text, repo_root, run_main  # noqa: E402
 
 RULES_DIR = ".claude/rules"
 TRACEABILITY = "docs/GOVERNANCE_TRACEABILITY.md"
-EXPECTED_RULE_COUNT = 25
+EXPECTED_RULE_COUNT = 36
 
 RULE_FILE = re.compile(r"^(\d{2})-(.+)\.md$")
 

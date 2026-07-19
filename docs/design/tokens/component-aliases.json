@@ -1,0 +1,408 @@
+{
+  "$meta": {
+    "layer": "alias",
+    "file": "component-aliases.json",
+    "step": "Step 2 — Design System and UX Foundation",
+    "status": "NOT IMPLEMENTED",
+    "theme": "none",
+    "description": "Component-scoped aliases. This is the only token layer a component specification is permitted to name directly. A colour alias must reference a semantic colour token and never a primitive colour or a literal hex value. A dimensional, motion, elevation or typographic alias references the corresponding primitive directly, because those layers carry no separate semantic tier."
+  },
+  "tokens": {
+    "component.button.primary.background": {
+      "value": "{color.semantic.primary}",
+      "type": "color",
+      "unit": "none",
+      "description": "Fill of the primary button.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.button.primary.label": {
+      "value": "{color.semantic.text.onPrimary}",
+      "type": "color",
+      "unit": "none",
+      "description": "Label of the primary button.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.button.primary.backgroundHover": {
+      "value": "{color.semantic.primary.hover}",
+      "type": "color",
+      "unit": "none",
+      "description": "Hover and pressed fill of the primary button.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.button.secondary.border": {
+      "value": "{color.semantic.border.interactive}",
+      "type": "color",
+      "unit": "none",
+      "description": "Resting boundary of the secondary button.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.button.secondary.label": {
+      "value": "{color.semantic.primary}",
+      "type": "color",
+      "unit": "none",
+      "description": "Label of the secondary button.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.button.destructive.background": {
+      "value": "{color.semantic.danger}",
+      "type": "color",
+      "unit": "none",
+      "description": "Fill of a destructive button. Never the default focus target in a confirmation dialog.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.button.disabled.label": {
+      "value": "{color.semantic.disabled}",
+      "type": "color",
+      "unit": "none",
+      "description": "Label of a disabled button, always accompanied by a reason the control is unavailable.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.button.minHeight": {
+      "value": "{size.control.lg}",
+      "type": "string",
+      "unit": "none",
+      "description": "Minimum button height on touch surfaces, satisfying size.touch.min.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.field.border.rest": {
+      "value": "{color.semantic.border.interactive}",
+      "type": "color",
+      "unit": "none",
+      "description": "Resting border of a text field.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.field.border.focus": {
+      "value": "{color.semantic.focus}",
+      "type": "color",
+      "unit": "none",
+      "description": "Focused border of a text field, drawn with border.width.focus and border.focus.offset.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.field.border.error": {
+      "value": "{color.semantic.danger}",
+      "type": "color",
+      "unit": "none",
+      "description": "Error border of a text field, always accompanied by an error message that explains recovery.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.field.label": {
+      "value": "{color.semantic.text.secondary}",
+      "type": "color",
+      "unit": "none",
+      "description": "Field label colour. A field is never labelled by placeholder text alone.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.field.money.fontFeature": {
+      "value": "{font.feature.tabularNumbers}",
+      "type": "string",
+      "unit": "none",
+      "description": "Money fields render integer Rupiah with tabular figures.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.statusBadge.success.background": {
+      "value": "{color.semantic.success.surface}",
+      "type": "color",
+      "unit": "none",
+      "description": "Background of a success status badge.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.statusBadge.success.label": {
+      "value": "{color.semantic.success}",
+      "type": "color",
+      "unit": "none",
+      "description": "Label of a success status badge, always with icon.semantic.success and Bahasa Indonesia text.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.statusBadge.warning.background": {
+      "value": "{color.semantic.warning.surface}",
+      "type": "color",
+      "unit": "none",
+      "description": "Background of a warning status badge.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.statusBadge.danger.background": {
+      "value": "{color.semantic.danger.surface}",
+      "type": "color",
+      "unit": "none",
+      "description": "Background of a danger status badge.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.statusBadge.offline.label": {
+      "value": "{color.semantic.offline}",
+      "type": "color",
+      "unit": "none",
+      "description": "Label of the OFFLINE badge.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.statusBadge.syncing.label": {
+      "value": "{color.semantic.syncing}",
+      "type": "color",
+      "unit": "none",
+      "description": "Label of the SYNCING badge — the server has not yet acknowledged.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.statusBadge.conflict.label": {
+      "value": "{color.semantic.conflict}",
+      "type": "color",
+      "unit": "none",
+      "description": "Label of the CONFLICT badge — Bahasa Indonesia: Perlu Diperiksa.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.surface.card.background": {
+      "value": "{color.semantic.surface.raised}",
+      "type": "color",
+      "unit": "none",
+      "description": "Card background.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.surface.card.elevation": {
+      "value": "{elevation.1}",
+      "type": "string",
+      "unit": "none",
+      "description": "Card elevation at rest.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.surface.card.radius": {
+      "value": "{radius.md}",
+      "type": "string",
+      "unit": "none",
+      "description": "Card corner radius.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.dialog.scrim": {
+      "value": "{opacity.scrim}",
+      "type": "string",
+      "unit": "none",
+      "description": "Scrim opacity behind a modal dialog.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.dialog.elevation": {
+      "value": "{elevation.4}",
+      "type": "string",
+      "unit": "none",
+      "description": "Dialog elevation.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.table.header.background": {
+      "value": "{color.semantic.surface.sunken}",
+      "type": "color",
+      "unit": "none",
+      "description": "Data-table header background.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.table.row.height": {
+      "value": "{density.standard.rowHeight}",
+      "type": "string",
+      "unit": "none",
+      "description": "Default data-table row height.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.table.numeric.fontFeature": {
+      "value": "{font.feature.tabularNumbers}",
+      "type": "string",
+      "unit": "none",
+      "description": "Numeric table columns render with tabular figures.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.focusRing.color": {
+      "value": "{color.semantic.focus}",
+      "type": "color",
+      "unit": "none",
+      "description": "Focus ring colour. Never removed.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.focusRing.width": {
+      "value": "{border.width.focus}",
+      "type": "string",
+      "unit": "none",
+      "description": "Focus ring width.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.focusRing.offset": {
+      "value": "{border.focus.offset}",
+      "type": "string",
+      "unit": "none",
+      "description": "Focus ring offset.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.tenantContext.background": {
+      "value": "{color.semantic.primary.surface}",
+      "type": "color",
+      "unit": "none",
+      "description": "Background of the persistent tenant and outlet context bar.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.tenantContext.label": {
+      "value": "{color.semantic.primary}",
+      "type": "color",
+      "unit": "none",
+      "description": "Label of the tenant and outlet context bar.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.offlineBanner.background": {
+      "value": "{color.semantic.surface.sunken}",
+      "type": "color",
+      "unit": "none",
+      "description": "Background of the persistent offline banner.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.offlineBanner.label": {
+      "value": "{color.semantic.offline}",
+      "type": "color",
+      "unit": "none",
+      "description": "Label of the persistent offline banner.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.conflictPanel.background": {
+      "value": "{color.semantic.conflict.surface}",
+      "type": "color",
+      "unit": "none",
+      "description": "Background of the conflict resolution panel.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.page.background": {
+      "value": "{color.semantic.surface.page}",
+      "type": "color",
+      "unit": "none",
+      "description": "Canonical page background on every surface in the light theme.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.divider.color": {
+      "value": "{color.semantic.border.subtle}",
+      "type": "color",
+      "unit": "none",
+      "description": "Decorative divider between list rows and content groups. Carries no meaning; never the boundary of an interactive control.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.banner.information.background": {
+      "value": "{color.semantic.information.surface}",
+      "type": "color",
+      "unit": "none",
+      "description": "Background of an informational banner.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.listRow.selected.background": {
+      "value": "{color.semantic.selected.surface}",
+      "type": "color",
+      "unit": "none",
+      "description": "Background fill of a selected list row, always accompanied by a checkmark or an explicit selected label.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.syncIndicator.background": {
+      "value": "{color.semantic.syncing.surface}",
+      "type": "color",
+      "unit": "none",
+      "description": "Background of the sync indicator chip while an operation is in flight and the server has not yet acknowledged it.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.wordmark.accent": {
+      "value": "{color.semantic.accent.strong}",
+      "type": "color",
+      "unit": "none",
+      "description": "The single permitted gold in the placeholder text wordmark. The final logo is NOT APPROVED and is never fabricated.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.link.label": {
+      "value": "{color.semantic.secondary}",
+      "type": "color",
+      "unit": "none",
+      "description": "Inline link colour inside dense content. Links are never distinguished by colour alone — they carry an underline or an explicit affordance.",
+      "scope": [
+        "global"
+      ]
+    },
+    "component.banner.information.label": {
+      "value": "{color.semantic.information}",
+      "type": "color",
+      "unit": "none",
+      "description": "Label of an informational banner, paired with icon.semantic.information and a Bahasa Indonesia text label.",
+      "scope": [
+        "global"
+      ]
+    }
+  }
+}

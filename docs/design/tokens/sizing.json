@@ -1,0 +1,289 @@
+{
+  "$meta": {
+    "layer": "primitive",
+    "file": "sizing.json",
+    "step": "Step 2 — Design System and UX Foundation",
+    "status": "NOT IMPLEMENTED",
+    "theme": "none",
+    "description": "Sizing scale, including the non-negotiable 48x48 minimum touch target."
+  },
+  "tokens": {
+    "size.touch.min": {
+      "value": 48,
+      "type": "dimension",
+      "unit": "dp",
+      "description": "Minimum interactive target on every touch surface, in logical pixels. Applies to buttons, list rows, checkboxes, chips, icon buttons and any tappable region — including targets whose painted area is smaller, which must still expose a 48x48 hit area.",
+      "scope": [
+        "customer-android",
+        "ops-android",
+        "tracking-portal"
+      ],
+      "accessibilityNotes": "Non-negotiable. A target below 48x48 is an accessibility defect, not a density choice.",
+      "prohibitedUsage": [
+        "Never reduced to fit more content on screen.",
+        "Never reduced in compact density."
+      ]
+    },
+    "size.touch.spacing.min": {
+      "value": 8,
+      "type": "dimension",
+      "unit": "dp",
+      "description": "Minimum gap between two adjacent touch targets, so a mis-tap does not trigger the wrong action.",
+      "scope": [
+        "customer-android",
+        "ops-android",
+        "tracking-portal"
+      ]
+    },
+    "size.pointer.min": {
+      "value": 24,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Minimum interactive target on pointer-driven Console Web surfaces, where a 48px target would waste dense table space. Console Web rows still expose a 32px minimum row height.",
+      "scope": [
+        "console-web"
+      ]
+    },
+    "size.icon.sm": {
+      "value": 16,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Icon box size for the sm role. An icon is never the only carrier of meaning.",
+      "scope": [
+        "global"
+      ]
+    },
+    "size.icon.md": {
+      "value": 20,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Icon box size for the md role. An icon is never the only carrier of meaning.",
+      "scope": [
+        "global"
+      ]
+    },
+    "size.icon.lg": {
+      "value": 24,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Icon box size for the lg role. An icon is never the only carrier of meaning.",
+      "scope": [
+        "global"
+      ]
+    },
+    "size.icon.xl": {
+      "value": 32,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Icon box size for the xl role. An icon is never the only carrier of meaning.",
+      "scope": [
+        "global"
+      ]
+    },
+    "size.control.sm": {
+      "value": 32,
+      "type": "dimension",
+      "unit": "dp",
+      "description": "Control height for the sm role. On touch surfaces only control.lg and control.xl may be used for primary interactive controls, because they satisfy size.touch.min.",
+      "scope": [
+        "global"
+      ]
+    },
+    "size.control.md": {
+      "value": 40,
+      "type": "dimension",
+      "unit": "dp",
+      "description": "Control height for the md role. On touch surfaces only control.lg and control.xl may be used for primary interactive controls, because they satisfy size.touch.min.",
+      "scope": [
+        "global"
+      ]
+    },
+    "size.control.lg": {
+      "value": 48,
+      "type": "dimension",
+      "unit": "dp",
+      "description": "Control height for the lg role. On touch surfaces only control.lg and control.xl may be used for primary interactive controls, because they satisfy size.touch.min.",
+      "scope": [
+        "global"
+      ]
+    },
+    "size.control.xl": {
+      "value": 56,
+      "type": "dimension",
+      "unit": "dp",
+      "description": "Control height for the xl role. On touch surfaces only control.lg and control.xl may be used for primary interactive controls, because they satisfy size.touch.min.",
+      "scope": [
+        "global"
+      ]
+    },
+    "size.avatar.md": {
+      "value": 40,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Default avatar diameter.",
+      "scope": [
+        "global"
+      ]
+    },
+    "size.maxWidth.content": {
+      "value": 1280,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Maximum content width on wide Console Web layouts before the container centres.",
+      "scope": [
+        "console-web"
+      ]
+    },
+    "size.maxWidth.reading": {
+      "value": 720,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Maximum width of a long-form reading column.",
+      "scope": [
+        "global"
+      ]
+    },
+    "size.appbar.height": {
+      "value": 56,
+      "type": "dimension",
+      "unit": "dp",
+      "description": "App bar height on the Android surfaces.",
+      "scope": [
+        "customer-android",
+        "ops-android"
+      ]
+    },
+    "size.appbar.height.web": {
+      "value": 64,
+      "type": "dimension",
+      "unit": "px",
+      "description": "App bar height on Console Web, taller to accommodate the tenant and outlet context bar.",
+      "scope": [
+        "console-web"
+      ]
+    },
+    "size.bottomnav.height": {
+      "value": 64,
+      "type": "dimension",
+      "unit": "dp",
+      "description": "Bottom navigation height. Exceeds size.touch.min so each destination clears the touch floor with its label.",
+      "scope": [
+        "customer-android",
+        "ops-android"
+      ]
+    },
+    "size.navrail.width": {
+      "value": 80,
+      "type": "dimension",
+      "unit": "dp",
+      "description": "Navigation rail width at the medium breakpoint and above.",
+      "scope": [
+        "ops-android",
+        "console-web"
+      ]
+    },
+    "size.sidenav.width": {
+      "value": 256,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Expanded side navigation width on Console Web.",
+      "scope": [
+        "console-web"
+      ]
+    },
+    "size.sidenav.width.collapsed": {
+      "value": 72,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Collapsed side navigation width, still wide enough for an icon target and its focus ring.",
+      "scope": [
+        "console-web"
+      ]
+    },
+    "size.bottomsheet.max": {
+      "value": 640,
+      "type": "dimension",
+      "unit": "dp",
+      "description": "Maximum bottom sheet width; beyond this the sheet centres rather than stretching.",
+      "scope": [
+        "customer-android",
+        "ops-android"
+      ]
+    },
+    "size.dialog.width": {
+      "value": 560,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Default dialog width.",
+      "scope": [
+        "console-web",
+        "ops-android"
+      ]
+    },
+    "size.dialog.width.sm": {
+      "value": 400,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Narrow dialog width for a single confirmation.",
+      "scope": [
+        "console-web",
+        "ops-android"
+      ]
+    },
+    "size.row.compact": {
+      "value": 40,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Compact table row height. Pointer-only: it sits below size.touch.min and is never used on a touch surface.",
+      "scope": [
+        "console-web"
+      ],
+      "prohibitedUsage": [
+        "Never used on Customer Android, Ops Android or the Public Tracking Portal, because 40px is below the 48dp touch floor."
+      ],
+      "accessibilityNotes": "Pointer-only. On a touch surface the standard density row height applies instead."
+    },
+    "size.avatar.sm": {
+      "value": 32,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Small avatar diameter, used inside dense lists and tables.",
+      "scope": [
+        "global"
+      ]
+    },
+    "size.avatar.lg": {
+      "value": 56,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Large avatar diameter, used on profile headers.",
+      "scope": [
+        "global"
+      ]
+    },
+    "size.icon.xs": {
+      "value": 12,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Extra-small icon box, used only inside a dense chip or an inline badge. Never a tap target on its own.",
+      "scope": [
+        "global"
+      ],
+      "prohibitedUsage": [
+        "Never used as a standalone interactive target — a 12px icon must sit inside a control that satisfies size.touch.min."
+      ]
+    },
+    "size.control.xs": {
+      "value": 24,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Extra-small control height for pointer-driven Console Web affordances such as an inline table filter chip.",
+      "scope": [
+        "console-web"
+      ],
+      "prohibitedUsage": [
+        "Never used on a touch surface — 24px is far below the 48dp touch floor."
+      ]
+    }
+  }
+}

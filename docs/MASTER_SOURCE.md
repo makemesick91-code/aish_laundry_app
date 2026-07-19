@@ -1,6 +1,6 @@
 # Aish Laundry App — Master Source
 
-**Document version: 1.2.0**
+**Document version: 1.3.0**
 **Baseline date: 19 July 2026**
 
 Owner: Aish Tech Solution
@@ -52,6 +52,7 @@ Repository visibility: **PUBLIC** — an accepted deviation from a canonical des
 | 32 | Changelog |
 | 33 | AI instructions |
 | 34 | Step 1 artefacts — requirements and domain model |
+| 35 | Step 2 artefacts — design system and UX foundation |
 
 ---
 
@@ -992,6 +993,27 @@ Consequences:
 The design system is delivered in **Step 2 — Design System and UX Foundation** as a shared package
 (`packages/design_system`). No screen is built before its foundation exists.
 
+### 18.5 The Step 2 foundation
+
+Step 2 delivers that foundation as **specification only**. `packages/design_system` remains a
+placeholder containing a `README` or a `.gitkeep`; the Flutter workspace is `ABSENT` and no runtime
+consumes any of it. The canonical artefacts are listed in §35.
+
+Four foundation decisions are locked in Step 2, each with a decision record:
+
+- **Design tokens are layered** — primitive, semantic, and component alias. A component names a meaning,
+  never a hex value (DEC-0018).
+- **The light theme is the canonical MVP theme.** Dark mode is `PLANNED` and `NOT IMPLEMENTED`; no
+  document may claim it is available (DEC-0019).
+- **Typography is system-first and no font binary is committed** to this PUBLIC repository. Tabular
+  figures are mandatory wherever money or tabular numerics are stacked in a column (DEC-0020).
+- **The accessibility target is WCAG 2.2 AA-aligned by design and explicitly not runtime-tested**
+  (DEC-0021). The mandated wording is used verbatim wherever the target is stated.
+
+Two further decisions fix how the foundation is expressed: the canonical UX state taxonomy and
+role-adaptive navigation (DEC-0022), and low-fidelity SVG wireframes with no final-logo fabrication
+(DEC-0023).
+
 ---
 
 ## 19. Performance
@@ -1216,8 +1238,8 @@ The roadmap is **locked**. Step numbers are never reused or swapped without a de
 | Step | Title | Status |
 | --- | --- | --- |
 | Step 0 | Master Source and Governance | GO |
-| Step 1 | Product Requirement and Domain Model | IN PROGRESS |
-| Step 2 | Design System and UX Foundation | PLANNED |
+| Step 1 | Product Requirement and Domain Model | GO |
+| Step 2 | Design System and UX Foundation | IN PROGRESS |
 | Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | PLANNED |
 | Step 4 | Laundry Master Data | PLANNED |
 | Step 5 | POS, Order, and Payment Foundation | PLANNED |
@@ -1536,9 +1558,9 @@ must be claims the software can substantiate — the honesty rule (§3.1) applie
 
 ## 31. Decision records
 
-Seventeen decisions are locked. Fifteen were locked at the 1.0.0 baseline; DEC-0016 was added at version
-1.0.1 and DEC-0017 at version 1.2.0. All carry status **ACCEPTED** and date **19 July 2026**. Each has a
-full record in [`decisions/`](decisions/).
+Twenty-three decisions are locked. Fifteen were locked at the 1.0.0 baseline; DEC-0016 was added at
+version 1.0.1, DEC-0017 at version 1.2.0, and DEC-0018 … DEC-0023 at version 1.3.0. All carry status
+**ACCEPTED** and date **19 July 2026**. Each has a full record in [`decisions/`](decisions/).
 
 | ID | Title | Status | Record |
 | --- | --- | --- | --- |
@@ -1559,6 +1581,12 @@ full record in [`decisions/`](decisions/).
 | DEC-0015 | MVP Focuses on Laundry Operations | ACCEPTED | [DEC-0015](decisions/DEC-0015-mvp-focuses-on-laundry-operations.md) |
 | DEC-0016 | Public Repository Visibility Accepted Deviation | ACCEPTED | [DEC-0016](decisions/DEC-0016-public-repository-visibility-accepted-deviation.md) |
 | DEC-0017 | Single-Maintainer Approval Standing Deviation | ACCEPTED | [DEC-0017](decisions/DEC-0017-single-maintainer-approval-standing-deviation.md) |
+| DEC-0018 | Two-Layer Design Token Architecture | ACCEPTED | [DEC-0018](decisions/DEC-0018-two-layer-design-token-architecture.md) |
+| DEC-0019 | Light Theme is the Canonical MVP Theme; Dark Mode Deferred | ACCEPTED | [DEC-0019](decisions/DEC-0019-light-theme-canonical-mvp-dark-mode-deferred.md) |
+| DEC-0020 | System-First Typography; No Font Binary Committed | ACCEPTED | [DEC-0020](decisions/DEC-0020-system-first-typography-no-font-binary.md) |
+| DEC-0021 | WCAG 2.2 AA-Aligned Accessibility Target | ACCEPTED | [DEC-0021](decisions/DEC-0021-wcag-22-aa-aligned-accessibility-target.md) |
+| DEC-0022 | Canonical UX State Taxonomy and Role-Adaptive Navigation | ACCEPTED | [DEC-0022](decisions/DEC-0022-canonical-ux-state-taxonomy-and-role-adaptive-navigation.md) |
+| DEC-0023 | Low-Fidelity SVG Wireframes; No Final-Logo Fabrication | ACCEPTED | [DEC-0023](decisions/DEC-0023-low-fidelity-wireframes-and-no-final-logo-fabrication.md) |
 
 ### 31.1 Decision record rules
 
@@ -1581,6 +1609,23 @@ Mapping from foundation area to rule file, decision record, and validator:
 
 The canonical changelog is [`CHANGELOG.md`](CHANGELOG.md), maintained in Keep a Changelog format with
 semantic versioning.
+
+### 32.0000 Version 1.3.0
+
+**1.3.0 — 19 July 2026 — Step 2 design system and UX foundation.**
+
+Added §35, making the Step 2 artefacts canonical for their subject matter: the design token layers, the
+colour and contrast system, typography, spacing and density, the responsive foundation, platform
+adaptation, the accessibility foundation, content design and the Bahasa Indonesia UX copy glossary, the
+component catalog and state matrix, the information architecture, the screen inventory, the critical
+journeys, the UX state model, and the design and UX threat review. Added §18.5 recording the four locked
+foundation decisions. Added DEC-0018 … DEC-0023. Moved Step 1 to `GO` and Step 2 to `IN PROGRESS` in the
+roadmap status table.
+
+Classified MINOR under §1.2: the change is additive. No product decision was reversed, no pricing figure
+altered, no roadmap number changed, and no architectural lock touched. **Step 2 creates no runtime.**
+Every product feature remains `NOT IMPLEMENTED`, the backend runtime and Flutter workspace remain
+`ABSENT`, application CI remains `NOT APPLICABLE`, and UAT remains `NOT STARTED`.
 
 ### 32.000 Version 1.2.0
 
@@ -1772,4 +1817,126 @@ end-to-end tests in Step 1, because there is no application, and none may be cla
 
 ---
 
-*End of Master Source, version 1.2.0, baseline date 19 July 2026.*
+## 35. Step 2 artefacts — design system and UX foundation
+
+Step 2 turns §18 into a specified, checkable design and UX foundation. The artefacts below are
+**canonical for their subject matter** and subordinate to this document: where any of them disagrees
+with the Master Source, the Master Source wins and the artefact is defective (§1.1).
+
+### 35.1 Status
+
+**Step 2 produces documentation only.** It creates **no runtime**: no Flutter workspace, no Laravel
+application, no schema, no migration, no API, no screen, no theme, no deployment. Every product feature
+remains `NOT IMPLEMENTED`, the backend runtime and Flutter workspace remain `ABSENT`, application CI
+remains `NOT APPLICABLE`, and UAT remains `NOT STARTED`.
+
+**Documentation is not implementation.** A design token is not a theme. A component specification is not
+a component. A wireframe is not a screen. An accessibility requirement is not a passed audit. Claiming
+otherwise is a false claim under §1.3.
+
+### 35.2 Canonical artefacts
+
+| Subject | Canonical artefact |
+| --- | --- |
+| Design system entry point | [`design/DESIGN_SYSTEM.md`](design/DESIGN_SYSTEM.md) |
+| Design principles | [`design/DESIGN_PRINCIPLES.md`](design/DESIGN_PRINCIPLES.md) |
+| Brand foundation | [`design/BRAND_FOUNDATION.md`](design/BRAND_FOUNDATION.md) |
+| Design tokens | [`design/tokens/README.md`](design/tokens/README.md) |
+| Colour and contrast | [`design/COLOR_AND_CONTRAST.md`](design/COLOR_AND_CONTRAST.md) |
+| Typography | [`design/TYPOGRAPHY.md`](design/TYPOGRAPHY.md) |
+| Spacing, sizing, density | [`design/SPACING_SIZING_DENSITY.md`](design/SPACING_SIZING_DENSITY.md) |
+| Responsive foundation | [`design/RESPONSIVE_FOUNDATION.md`](design/RESPONSIVE_FOUNDATION.md) |
+| Platform adaptation | [`design/PLATFORM_ADAPTATION.md`](design/PLATFORM_ADAPTATION.md) |
+| Accessibility foundation | [`design/ACCESSIBILITY.md`](design/ACCESSIBILITY.md) |
+| Content design | [`design/CONTENT_DESIGN.md`](design/CONTENT_DESIGN.md) |
+| UX copy glossary | [`design/UX_COPY_GLOSSARY.md`](design/UX_COPY_GLOSSARY.md) |
+| Component catalog | [`design/COMPONENT_CATALOG.md`](design/COMPONENT_CATALOG.md) |
+| Component state matrix | [`design/COMPONENT_STATE_MATRIX.md`](design/COMPONENT_STATE_MATRIX.md) |
+| Information architecture | [`ux/information-architecture/`](ux/information-architecture/) |
+| Screen inventory | [`ux/SCREEN_INVENTORY.md`](ux/SCREEN_INVENTORY.md) |
+| Critical journeys | [`ux/CRITICAL_JOURNEYS.md`](ux/CRITICAL_JOURNEYS.md) |
+| UX state model | [`ux/UX_STATE_MODEL.md`](ux/UX_STATE_MODEL.md) |
+| Offline and sync UX | [`ux/OFFLINE_AND_SYNC_UX.md`](ux/OFFLINE_AND_SYNC_UX.md) |
+| Security and privacy UX | [`ux/SECURITY_AND_PRIVACY_UX.md`](ux/SECURITY_AND_PRIVACY_UX.md) |
+| Design and UX threat review | [`security/DESIGN_AND_UX_THREAT_REVIEW.md`](security/DESIGN_AND_UX_THREAT_REVIEW.md) |
+| UX traceability | [`quality/STEP_02_TRACEABILITY.md`](quality/STEP_02_TRACEABILITY.md) |
+
+The full sets live under `docs/design/` and `docs/ux/`.
+
+### 35.3 The token layers
+
+Design tokens are layered, and the layering is machine-enforced (DEC-0018):
+
+- **Primitive** — a literal value carrying no meaning. Never named by a component.
+- **Semantic** — a meaning bound to a primitive. `color.semantic.conflict` is the single place the
+  meaning of "local and server disagree" is bound to a colour.
+- **Component alias** — component-scoped, referencing a semantic colour or, for dimension, motion,
+  elevation and typography, the corresponding primitive.
+
+**A component specification never names a primitive colour and never states a literal hex value.**
+
+### 35.4 The accessibility target
+
+The mandated wording, used verbatim and never softened or strengthened:
+
+**DESIGNED TO MEET WCAG 2.2 AA REQUIREMENTS — NOT YET RUNTIME-TESTED**
+
+Concretely: normal text ≥ 4.5:1, large text ≥ 3:1, interactive boundaries and the focus ring ≥ 3:1,
+minimum touch target 48 × 48 logical pixels, the focus indicator never removed, and **status never
+conveyed by colour alone** — every status carries a semantic colour, a semantic icon, and a Bahasa
+Indonesia label. Contrast ratios are recomputed from the token values by the validators, never asserted.
+
+**Runtime accessibility testing is `NOT STARTED` and belongs to Step 13** (DEC-0021).
+
+### 35.5 The canonical UX state taxonomy
+
+Twenty states are canonical (DEC-0022): `Loading`, `Empty`, `Error`, `Offline`, `Pending Sync`,
+`Syncing`, `Synced`, `Failed Sync`, `Conflict`, `Permission Denied`, `Session Expired`,
+`Device Revoked`, `Tenant Unavailable`, `Outlet Inactive`, `Subscription Limited`, `Provider Degraded`,
+`Rate Limited`, `Maintenance`, `Partial Data`, `Stale Data`.
+
+**Every state carries a recovery path.** Adding, removing or renaming one requires a decision record.
+
+The Ops Android surface additionally distinguishes nine sync states so that no failure is silent:
+`Saved Locally`, `Waiting to Sync`, `Syncing`, `Synced`, `Sync Failed`, `Conflict`, `Server Rejected`,
+`Retry Scheduled`, `Manual Attention Required`. **`Syncing` never means the server has accepted**, and
+an order is never presented as paid on client state alone (§16).
+
+### 35.6 Navigation is not authorisation
+
+Navigation is role-adaptive across all fourteen roles (§7). **Hiding a menu item is a usability
+affordance and never an access control.** Server-side authorisation is delivered in Step 3 and is
+authoritative (§15). The external courier never receives tenant-wide navigation (§10).
+
+Tenant and outlet context is visible on every operational screen. A tenant switch is explicit, never
+silent, warns on unsynced critical operations, and leaves no readable cached data behind (§4).
+
+### 35.7 Wireframes and the logo
+
+Wireframes are **low-fidelity SVG**, each labelled `LOW-FIDELITY — NOT IMPLEMENTED`, carrying no script,
+no remote reference, no embedded binary, and no personal data (DEC-0023, §15.8). A wireframe is never a
+final UI and is never described as an implemented screen.
+
+**LOGO STATUS: NOT APPROVED.** The permitted usage is the text wordmark "Aish Laundry App" as an explicit
+placeholder. **No logo is fabricated and no artefact is described as the final or official logo.**
+
+### 35.8 Verification
+
+The canonical Step 2 command is:
+
+```bash
+bash scripts/verify-step-02.sh
+```
+
+It runs every Step 0 and Step 1 gate still in force plus every Step 2 gate, and it fails closed. The
+validators are themselves adversarially tested by `scripts/test-step-02-validators.sh`, which breaks the
+repository in thirty specific ways and requires each break to be caught.
+
+These are **governance validators**, not application tests. There are no unit, widget, integration, or
+end-to-end tests in Step 2, because there is no application, and none may be claimed (§28.1). A passing
+gate proves a document satisfies a rule. It never proves a screen renders or an accessibility criterion
+was met.
+
+---
+
+*End of Master Source, version 1.3.0, baseline date 19 July 2026.*

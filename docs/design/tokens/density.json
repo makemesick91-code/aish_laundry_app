@@ -1,0 +1,97 @@
+{
+  "$meta": {
+    "layer": "primitive",
+    "file": "density.json",
+    "step": "Step 2 — Design System and UX Foundation",
+    "status": "NOT IMPLEMENTED",
+    "theme": "none",
+    "description": "Density scales and the Android density-independent pixel foundation."
+  },
+  "tokens": {
+    "density.compact.rowHeight": {
+      "value": 40,
+      "type": "dimension",
+      "unit": "dp",
+      "description": "Row height in compact density. Dense Console Web tables and long operational lists on pointer devices.",
+      "scope": [
+        "global"
+      ]
+    },
+    "density.compact.padding": {
+      "value": 8,
+      "type": "dimension",
+      "unit": "dp",
+      "description": "Internal padding in compact density.",
+      "scope": [
+        "global"
+      ]
+    },
+    "density.standard.rowHeight": {
+      "value": 48,
+      "type": "dimension",
+      "unit": "dp",
+      "description": "Row height in standard density. The default on every surface, and the only density permitted for primary touch controls.",
+      "scope": [
+        "global"
+      ]
+    },
+    "density.standard.padding": {
+      "value": 12,
+      "type": "dimension",
+      "unit": "dp",
+      "description": "Internal padding in standard density.",
+      "scope": [
+        "global"
+      ]
+    },
+    "density.comfortable.rowHeight": {
+      "value": 56,
+      "type": "dimension",
+      "unit": "dp",
+      "description": "Row height in comfortable density. Courier and outdoor use, and any surface where the user is moving, in a hurry, or wearing gloves.",
+      "scope": [
+        "global"
+      ]
+    },
+    "density.comfortable.padding": {
+      "value": 16,
+      "type": "dimension",
+      "unit": "dp",
+      "description": "Internal padding in comfortable density.",
+      "scope": [
+        "global"
+      ]
+    },
+    "density.compact.touchRestriction": {
+      "value": "pointer-only",
+      "type": "string",
+      "unit": "none",
+      "description": "Compact density is permitted only on pointer-driven Console Web surfaces. It is never applied to a touch target, because its 40dp row height is below size.touch.min.",
+      "scope": [
+        "console-web"
+      ],
+      "prohibitedUsage": [
+        "Never applied on Customer Android, Ops Android or the Public Tracking Portal."
+      ]
+    },
+    "density.default": {
+      "value": "standard",
+      "type": "string",
+      "unit": "none",
+      "description": "The default density on every surface unless the user or the surface explicitly selects another.",
+      "scope": [
+        "global"
+      ]
+    },
+    "density.android.dpiRange": {
+      "value": "mdpi(160) · hdpi(240) · xhdpi(320) · xxhdpi(480) · xxxhdpi(640)",
+      "type": "string",
+      "unit": "none",
+      "description": "Android density buckets the layouts are specified against. All Android dimensions in this token set are expressed in density-independent pixels, so a 48dp target is physically comparable across buckets.",
+      "scope": [
+        "customer-android",
+        "ops-android"
+      ]
+    }
+  }
+}

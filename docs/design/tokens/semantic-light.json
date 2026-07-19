@@ -1,0 +1,988 @@
+{
+  "$meta": {
+    "layer": "semantic",
+    "file": "semantic-light.json",
+    "step": "Step 2 — Design System and UX Foundation",
+    "status": "NOT IMPLEMENTED",
+    "theme": "light",
+    "description": "Semantic colour tokens for the canonical light theme. Every semantic token references a primitive and never restates a hex value. Components reference these tokens and never a primitive. Light theme is the canonical MVP theme; dark mode is PLANNED and NOT IMPLEMENTED — no dark theme token file exists and none may be claimed."
+  },
+  "tokens": {
+    "color.semantic.primary": {
+      "value": "{color.blue.700}",
+      "type": "color",
+      "unit": "none",
+      "description": "Primary actions, active navigation, primary buttons, focused field borders.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "Primary actions, active navigation, primary buttons, focused field borders.",
+      "allowedBackground": [
+        "color.semantic.surface.page",
+        "color.semantic.surface.raised"
+      ],
+      "prohibitedUsage": [
+        "Never a page background.",
+        "Never used for destructive actions."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onSurfacePage": 8.31,
+        "onSurfaceRaised": 7.82,
+        "whiteOnThis": 8.31
+      },
+      "accessibilityNotes": "Resolves to color.blue.700 (#0A4F8F). Measured 8.31:1 on the page surface — meets the 4.5:1 normal-text target."
+    },
+    "color.semantic.primary.hover": {
+      "value": "{color.blue.800}",
+      "type": "color",
+      "unit": "none",
+      "description": "Hover and pressed treatment for primary actions on pointer devices.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "Hover and pressed treatment for primary actions on pointer devices.",
+      "allowedBackground": [
+        "color.semantic.surface.page",
+        "color.semantic.surface.raised"
+      ],
+      "prohibitedUsage": [
+        "Never a resting state."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onSurfacePage": 10.98,
+        "onSurfaceRaised": 10.34,
+        "whiteOnThis": 10.98
+      },
+      "accessibilityNotes": "Resolves to color.blue.800 (#083D70). Measured 10.98:1 on the page surface — meets the 4.5:1 normal-text target."
+    },
+    "color.semantic.primary.surface": {
+      "value": "{color.blue.50}",
+      "type": "color",
+      "unit": "none",
+      "description": "Tinted surface behind primary-flavoured content, selected rows, and active navigation items.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "Tinted surface behind primary-flavoured content, selected rows, and active navigation items.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never a foreground colour."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onSurfacePage": 1.09,
+        "onSurfaceRaised": 1.02,
+        "whiteOnThis": 1.09
+      },
+      "accessibilityNotes": "Resolves to color.blue.50 (#F0F6FC). Background role; foreground tokens meet their own targets against it."
+    },
+    "color.semantic.secondary": {
+      "value": "{color.blue.500}",
+      "type": "color",
+      "unit": "none",
+      "description": "Secondary emphasis, links inside dense content, secondary buttons.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "Secondary emphasis, links inside dense content, secondary buttons.",
+      "allowedBackground": [
+        "color.semantic.surface.page",
+        "color.semantic.surface.raised"
+      ],
+      "prohibitedUsage": [
+        "Never the only differentiator between two adjacent actions."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onSurfacePage": 5.32,
+        "onSurfaceRaised": 5.01,
+        "whiteOnThis": 5.32
+      },
+      "accessibilityNotes": "Resolves to color.blue.500 (#2A6FA9). Measured 5.32:1 on the page surface and 5.01:1 on the raised surface — meets the 4.5:1 normal-text target on both."
+    },
+    "color.semantic.accent": {
+      "value": "{color.gold.400}",
+      "type": "color",
+      "unit": "none",
+      "description": "Restrained brand accent: a thin rule, a small badge fill, a wordmark flourish.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "Restrained brand accent: a thin rule, a small badge fill, a wordmark flourish.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never body text.",
+        "Never the sole indicator of a warning or any status.",
+        "Never a dominant surface.",
+        "Never a meaning-bearing boundary."
+      ],
+      "contrastTarget": "decorative-exempt",
+      "measuredContrast": {
+        "onSurfacePage": 2.6,
+        "onSurfaceRaised": 2.44,
+        "whiteOnThis": 2.6
+      },
+      "accessibilityNotes": "Resolves to color.gold.400 (#C79A2B). Measured 2.6:1. Decorative only; carries no meaning."
+    },
+    "color.semantic.accent.strong": {
+      "value": "{color.gold.600}",
+      "type": "color",
+      "unit": "none",
+      "description": "The only gold permitted to carry text or a meaning-bearing boundary.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "The only gold permitted to carry text or a meaning-bearing boundary.",
+      "allowedBackground": [
+        "color.semantic.surface.page",
+        "color.semantic.surface.raised"
+      ],
+      "prohibitedUsage": [
+        "Never used as a large fill."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onSurfacePage": 5.21,
+        "onSurfaceRaised": 4.91,
+        "whiteOnThis": 5.21
+      },
+      "accessibilityNotes": "Resolves to color.gold.600 (#8A6710). Measured 5.21:1 on the page surface — meets the 4.5:1 normal-text target."
+    },
+    "color.semantic.success": {
+      "value": "{color.green.500}",
+      "type": "color",
+      "unit": "none",
+      "description": "Successful completion: payment recorded, sync acknowledged by the server, QC passed.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "Successful completion: payment recorded, sync acknowledged by the server, QC passed.",
+      "allowedBackground": [
+        "color.semantic.surface.page",
+        "color.semantic.surface.raised"
+      ],
+      "prohibitedUsage": [
+        "Never used to imply a payment the server has not acknowledged."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onSurfacePage": 5.42,
+        "onSurfaceRaised": 5.1,
+        "whiteOnThis": 5.42
+      },
+      "accessibilityNotes": "Resolves to color.green.500 (#0F7A3D). Measured 5.42:1 on the page surface — meets the 4.5:1 normal-text target."
+    },
+    "color.semantic.success.surface": {
+      "value": "{color.green.50}",
+      "type": "color",
+      "unit": "none",
+      "description": "Background of success banners and success status chips.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "Background of success banners and success status chips.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never a foreground colour."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onSurfacePage": 1.12,
+        "onSurfaceRaised": 1.06,
+        "whiteOnThis": 1.12
+      },
+      "accessibilityNotes": "Resolves to color.green.50 (#E8F5EC). Background role; foreground tokens meet their own targets against it."
+    },
+    "color.semantic.warning": {
+      "value": "{color.amber.500}",
+      "type": "color",
+      "unit": "none",
+      "description": "Attention needed but not yet failed: approaching a limit, order ageing, reminder due.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "Attention needed but not yet failed: approaching a limit, order ageing, reminder due.",
+      "allowedBackground": [
+        "color.semantic.surface.page",
+        "color.semantic.surface.raised"
+      ],
+      "prohibitedUsage": [
+        "Never the sole indicator of a warning — an icon and text are always present."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onSurfacePage": 5.43,
+        "onSurfaceRaised": 5.11,
+        "whiteOnThis": 5.43
+      },
+      "accessibilityNotes": "Resolves to color.amber.500 (#9A5B00). Measured 5.43:1 on the page surface — meets the 4.5:1 normal-text target."
+    },
+    "color.semantic.warning.surface": {
+      "value": "{color.amber.50}",
+      "type": "color",
+      "unit": "none",
+      "description": "Background of warning banners and warning status chips.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "Background of warning banners and warning status chips.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never a foreground colour."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onSurfacePage": 1.1,
+        "onSurfaceRaised": 1.03,
+        "whiteOnThis": 1.1
+      },
+      "accessibilityNotes": "Resolves to color.amber.50 (#FDF3E4). Background role; foreground tokens meet their own targets against it."
+    },
+    "color.semantic.danger": {
+      "value": "{color.red.500}",
+      "type": "color",
+      "unit": "none",
+      "description": "Destructive and failed states: void, refund, failed delivery, failed sync, validation error.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "Destructive and failed states: void, refund, failed delivery, failed sync, validation error.",
+      "allowedBackground": [
+        "color.semantic.surface.page",
+        "color.semantic.surface.raised"
+      ],
+      "prohibitedUsage": [
+        "Never used for a merely cautionary state.",
+        "Never the default action colour in a confirmation dialog."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onSurfacePage": 6.54,
+        "onSurfaceRaised": 6.15,
+        "whiteOnThis": 6.54
+      },
+      "accessibilityNotes": "Resolves to color.red.500 (#B3261E). Measured 6.54:1 on the page surface — meets the 4.5:1 normal-text target."
+    },
+    "color.semantic.danger.surface": {
+      "value": "{color.red.50}",
+      "type": "color",
+      "unit": "none",
+      "description": "Background of error banners and danger status chips.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "Background of error banners and danger status chips.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never a foreground colour."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onSurfacePage": 1.15,
+        "onSurfaceRaised": 1.09,
+        "whiteOnThis": 1.15
+      },
+      "accessibilityNotes": "Resolves to color.red.50 (#FCEBEA). Background role; foreground tokens meet their own targets against it."
+    },
+    "color.semantic.information": {
+      "value": "{color.blue.600}",
+      "type": "color",
+      "unit": "none",
+      "description": "Neutral informational messages and help text that must be noticed.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "Neutral informational messages and help text that must be noticed.",
+      "allowedBackground": [
+        "color.semantic.surface.page",
+        "color.semantic.surface.raised"
+      ],
+      "prohibitedUsage": [
+        "Never used to convey success or failure."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onSurfacePage": 6.77,
+        "onSurfaceRaised": 6.38,
+        "whiteOnThis": 6.77
+      },
+      "accessibilityNotes": "Resolves to color.blue.600 (#1F5E96). Measured 6.77:1 on the page surface — meets the 4.5:1 normal-text target."
+    },
+    "color.semantic.information.surface": {
+      "value": "{color.blue.100}",
+      "type": "color",
+      "unit": "none",
+      "description": "Background of informational banners.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "Background of informational banners.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never a foreground colour."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onSurfacePage": 1.24,
+        "onSurfaceRaised": 1.16,
+        "whiteOnThis": 1.24
+      },
+      "accessibilityNotes": "Resolves to color.blue.100 (#DBE9F6). Background role; foreground tokens meet their own targets against it."
+    },
+    "color.semantic.neutral": {
+      "value": "{color.neutral.600}",
+      "type": "color",
+      "unit": "none",
+      "description": "Neutral status and secondary metadata that must remain readable.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "Neutral status and secondary metadata that must remain readable.",
+      "allowedBackground": [
+        "color.semantic.surface.page",
+        "color.semantic.surface.raised"
+      ],
+      "prohibitedUsage": [
+        "Never used for a state that requires action."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onSurfacePage": 6.36,
+        "onSurfaceRaised": 5.98,
+        "whiteOnThis": 6.36
+      },
+      "accessibilityNotes": "Resolves to color.neutral.600 (#566070). Measured 6.36:1 on the page surface — meets the 4.5:1 normal-text target."
+    },
+    "color.semantic.focus": {
+      "value": "{color.blue.700}",
+      "type": "color",
+      "unit": "none",
+      "description": "The focus ring. Rendered as a 2px outline with a 2px offset on every focusable element.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "The focus ring. Rendered as a 2px outline with a 2px offset on every focusable element.",
+      "allowedBackground": [
+        "color.semantic.surface.page",
+        "color.semantic.surface.raised"
+      ],
+      "prohibitedUsage": [
+        "The focus indicator is never removed, never set to none, and never reduced below 3:1 against its adjacent background."
+      ],
+      "contrastTarget": "interactive-boundary-3.0",
+      "measuredContrast": {
+        "onSurfacePage": 8.31,
+        "onSurfaceRaised": 7.82,
+        "whiteOnThis": 8.31
+      },
+      "accessibilityNotes": "Resolves to color.blue.700 (#0A4F8F). Measured 8.31:1 on the page surface — meets the 3:1 interactive-boundary target."
+    },
+    "color.semantic.selected": {
+      "value": "{color.blue.600}",
+      "type": "color",
+      "unit": "none",
+      "description": "Selection state for rows, chips, list items and segmented controls.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "Selection state for rows, chips, list items and segmented controls.",
+      "allowedBackground": [
+        "color.semantic.surface.page",
+        "color.semantic.surface.raised"
+      ],
+      "prohibitedUsage": [
+        "Selection is never conveyed by this colour alone; a checkmark, a filled control, or a text label always accompanies it."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onSurfacePage": 6.77,
+        "onSurfaceRaised": 6.38,
+        "whiteOnThis": 6.77
+      },
+      "accessibilityNotes": "Resolves to color.blue.600 (#1F5E96). Measured 6.77:1 on the page surface — meets the 4.5:1 normal-text target."
+    },
+    "color.semantic.selected.surface": {
+      "value": "{color.blue.100}",
+      "type": "color",
+      "unit": "none",
+      "description": "Background fill of a selected row or chip.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "Background fill of a selected row or chip.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never a foreground colour."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onSurfacePage": 1.24,
+        "onSurfaceRaised": 1.16,
+        "whiteOnThis": 1.24
+      },
+      "accessibilityNotes": "Resolves to color.blue.100 (#DBE9F6). Background role; foreground tokens meet their own targets against it."
+    },
+    "color.semantic.disabled": {
+      "value": "{color.neutral.400}",
+      "type": "color",
+      "unit": "none",
+      "description": "Inactive controls and their labels.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "Inactive controls and their labels.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never used for active content.",
+        "Never the only signal that a control is unavailable — a reason is always available to the user."
+      ],
+      "contrastTarget": "inactive-exempt",
+      "measuredContrast": {
+        "onSurfacePage": 2.55,
+        "onSurfaceRaised": 2.4,
+        "whiteOnThis": 2.55
+      },
+      "accessibilityNotes": "Resolves to color.neutral.400 (#9AA3B0). Measured 2.55:1. WCAG 2.2 SC 1.4.3 exempts inactive components; a disabled control always carries an explanatory label as well."
+    },
+    "color.semantic.offline": {
+      "value": "{color.neutral.700}",
+      "type": "color",
+      "unit": "none",
+      "description": "The device has no usable connection. Distinct from PENDING, SYNCING and FAILED.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "The device has no usable connection. Distinct from PENDING, SYNCING and FAILED.",
+      "allowedBackground": [
+        "color.semantic.surface.page",
+        "color.semantic.surface.raised"
+      ],
+      "prohibitedUsage": [
+        "Never conflated with a sync failure.",
+        "Never hidden to keep the interface tidy."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onSurfacePage": 9.37,
+        "onSurfaceRaised": 8.82,
+        "whiteOnThis": 9.37
+      },
+      "accessibilityNotes": "Resolves to color.neutral.700 (#3E4756). Measured 9.37:1 on the page surface — meets the 4.5:1 normal-text target."
+    },
+    "color.semantic.syncing": {
+      "value": "{color.teal.500}",
+      "type": "color",
+      "unit": "none",
+      "description": "A queued operation is currently being sent to the server. Not yet acknowledged.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "A queued operation is currently being sent to the server. Not yet acknowledged.",
+      "allowedBackground": [
+        "color.semantic.surface.page",
+        "color.semantic.surface.raised"
+      ],
+      "prohibitedUsage": [
+        "Never used to imply the server has accepted the operation."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onSurfacePage": 5.94,
+        "onSurfaceRaised": 5.59,
+        "whiteOnThis": 5.94
+      },
+      "accessibilityNotes": "Resolves to color.teal.500 (#0F6E7B). Measured 5.94:1 on the page surface — meets the 4.5:1 normal-text target."
+    },
+    "color.semantic.syncing.surface": {
+      "value": "{color.teal.50}",
+      "type": "color",
+      "unit": "none",
+      "description": "Background of the sync indicator chip.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "Background of the sync indicator chip.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never a foreground colour."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onSurfacePage": 1.13,
+        "onSurfaceRaised": 1.07,
+        "whiteOnThis": 1.13
+      },
+      "accessibilityNotes": "Resolves to color.teal.50 (#E6F3F5). Background role; foreground tokens meet their own targets against it."
+    },
+    "color.semantic.conflict": {
+      "value": "{color.violet.500}",
+      "type": "color",
+      "unit": "none",
+      "description": "Local and server state disagree and a human must decide. Bahasa Indonesia label: Perlu Diperiksa.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "Local and server state disagree and a human must decide. Bahasa Indonesia label: Perlu Diperiksa.",
+      "allowedBackground": [
+        "color.semantic.surface.page",
+        "color.semantic.surface.raised"
+      ],
+      "prohibitedUsage": [
+        "Never auto-resolved.",
+        "Never silently overwritten by either side."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onSurfacePage": 7.37,
+        "onSurfaceRaised": 6.93,
+        "whiteOnThis": 7.37
+      },
+      "accessibilityNotes": "Resolves to color.violet.500 (#7A3B8F). Measured 7.37:1 on the page surface — meets the 4.5:1 normal-text target."
+    },
+    "color.semantic.conflict.surface": {
+      "value": "{color.violet.50}",
+      "type": "color",
+      "unit": "none",
+      "description": "Background of the conflict panel.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "Background of the conflict panel.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never a foreground colour."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onSurfacePage": 1.17,
+        "onSurfaceRaised": 1.1,
+        "whiteOnThis": 1.17
+      },
+      "accessibilityNotes": "Resolves to color.violet.50 (#F3EBF6). Background role; foreground tokens meet their own targets against it."
+    },
+    "color.semantic.surface.page": {
+      "value": "{color.neutral.0}",
+      "type": "color",
+      "unit": "none",
+      "description": "Canonical page background for the light theme.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "Canonical page background for the light theme.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never a foreground colour."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onSurfacePage": 1.0,
+        "onSurfaceRaised": 1.06,
+        "whiteOnThis": 1.0
+      },
+      "accessibilityNotes": "Resolves to color.neutral.0 (#FFFFFF). Background role; foreground tokens meet their own targets against it."
+    },
+    "color.semantic.surface.raised": {
+      "value": "{color.neutral.50}",
+      "type": "color",
+      "unit": "none",
+      "description": "Cards, sheets and raised containers.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "Cards, sheets and raised containers.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never a foreground colour."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onSurfacePage": 1.06,
+        "onSurfaceRaised": 1.0,
+        "whiteOnThis": 1.06
+      },
+      "accessibilityNotes": "Resolves to color.neutral.50 (#F7F8FA). Background role; foreground tokens meet their own targets against it."
+    },
+    "color.semantic.surface.sunken": {
+      "value": "{color.neutral.100}",
+      "type": "color",
+      "unit": "none",
+      "description": "Sunken wells, table header rows, and inactive tab strips.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "Sunken wells, table header rows, and inactive tab strips.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never a foreground colour."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onSurfacePage": 1.13,
+        "onSurfaceRaised": 1.06,
+        "whiteOnThis": 1.13
+      },
+      "accessibilityNotes": "Resolves to color.neutral.100 (#EFF1F4). Background role; foreground tokens meet their own targets against it."
+    },
+    "color.semantic.text.primary": {
+      "value": "{color.neutral.900}",
+      "type": "color",
+      "unit": "none",
+      "description": "Primary body and heading text.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "Primary body and heading text.",
+      "allowedBackground": [
+        "color.semantic.surface.page",
+        "color.semantic.surface.raised"
+      ],
+      "prohibitedUsage": [
+        "Never rendered below 4.5:1 against its surface."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onSurfacePage": 17.1,
+        "onSurfaceRaised": 16.09,
+        "whiteOnThis": 17.1
+      },
+      "accessibilityNotes": "Resolves to color.neutral.900 (#171C24). Measured 17.1:1 on the page surface — meets the 4.5:1 normal-text target."
+    },
+    "color.semantic.text.secondary": {
+      "value": "{color.neutral.700}",
+      "type": "color",
+      "unit": "none",
+      "description": "Secondary text, metadata, timestamps and helper text.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "Secondary text, metadata, timestamps and helper text.",
+      "allowedBackground": [
+        "color.semantic.surface.page",
+        "color.semantic.surface.raised"
+      ],
+      "prohibitedUsage": [
+        "Never used for the only copy that explains how to recover from an error."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onSurfacePage": 9.37,
+        "onSurfaceRaised": 8.82,
+        "whiteOnThis": 9.37
+      },
+      "accessibilityNotes": "Resolves to color.neutral.700 (#3E4756). Measured 9.37:1 on the page surface — meets the 4.5:1 normal-text target."
+    },
+    "color.semantic.text.onPrimary": {
+      "value": "{color.neutral.0}",
+      "type": "color",
+      "unit": "none",
+      "description": "Text and icons placed on color.semantic.primary.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "Text and icons placed on color.semantic.primary.",
+      "allowedBackground": [
+        "color.semantic.primary",
+        "color.semantic.danger",
+        "color.semantic.success",
+        "color.semantic.warning"
+      ],
+      "prohibitedUsage": [
+        "Never placed on a light surface."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onPrimary": 8.31,
+        "onDanger": 6.54,
+        "onSuccess": 5.42,
+        "onWarning": 5.43
+      },
+      "accessibilityNotes": "Resolves to color.neutral.0 (#FFFFFF). Measured 8.31:1 on color.semantic.primary, 6.54:1 on danger, 5.42:1 on success, 5.43:1 on warning — every filled surface it is permitted on meets the 4.5:1 normal-text target. It is never placed on a light surface."
+    },
+    "color.semantic.border.subtle": {
+      "value": "{color.neutral.300}",
+      "type": "color",
+      "unit": "none",
+      "description": "Decorative dividers and non-meaning-bearing separators.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "Decorative dividers and non-meaning-bearing separators.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never used as the boundary of an interactive control.",
+        "Never the only signal that two regions differ."
+      ],
+      "contrastTarget": "decorative-exempt",
+      "measuredContrast": {
+        "onSurfacePage": 1.65,
+        "onSurfaceRaised": 1.55,
+        "whiteOnThis": 1.65
+      },
+      "accessibilityNotes": "Resolves to color.neutral.300 (#C4CAD3). Measured 1.65:1. Decorative only; carries no meaning."
+    },
+    "color.semantic.border.interactive": {
+      "value": "{color.neutral.500}",
+      "type": "color",
+      "unit": "none",
+      "description": "The resting boundary of every interactive control: inputs, checkboxes, radios, switches, bordered buttons.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "The resting boundary of every interactive control: inputs, checkboxes, radios, switches, bordered buttons.",
+      "allowedBackground": [
+        "color.semantic.surface.page",
+        "color.semantic.surface.raised"
+      ],
+      "prohibitedUsage": [
+        "Never reduced below 3:1 against the adjacent surface."
+      ],
+      "contrastTarget": "interactive-boundary-3.0",
+      "measuredContrast": {
+        "onSurfacePage": 4.17,
+        "onSurfaceRaised": 3.92,
+        "whiteOnThis": 4.17
+      },
+      "accessibilityNotes": "Resolves to color.neutral.500 (#737D8C). Measured 4.17:1 on the page surface — meets the 3:1 interactive-boundary target."
+    },
+    "color.semantic.border": {
+      "value": "{color.neutral.500}",
+      "type": "color",
+      "unit": "none",
+      "description": "The default border of an interactive control. Synonym-free alias of the interactive boundary; components may name either.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "The default border of an interactive control. Synonym-free alias of the interactive boundary; components may name either.",
+      "allowedBackground": [
+        "color.semantic.surface.page",
+        "color.semantic.surface.raised"
+      ],
+      "prohibitedUsage": [
+        "Never reduced below 3:1 against the adjacent surface."
+      ],
+      "contrastTarget": "interactive-boundary-3.0",
+      "measuredContrast": {
+        "onSurfacePage": 4.17,
+        "onSurfaceRaised": 3.92,
+        "whiteOnThis": 4.17
+      },
+      "accessibilityNotes": "Resolves to color.neutral.500 (#737D8C). Measured 4.17:1 on the page surface — meets the 3:1 interactive-boundary target."
+    },
+    "color.semantic.border.strong": {
+      "value": "{color.neutral.700}",
+      "type": "color",
+      "unit": "none",
+      "description": "A heavier boundary for emphasis: a focused table cell, a selected card outline, a high-attention container.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "A heavier boundary for emphasis: a focused table cell, a selected card outline, a high-attention container.",
+      "allowedBackground": [
+        "color.semantic.surface.page",
+        "color.semantic.surface.raised"
+      ],
+      "prohibitedUsage": [
+        "Never used as a decorative divider — that is color.semantic.border.subtle."
+      ],
+      "contrastTarget": "interactive-boundary-3.0",
+      "measuredContrast": {
+        "onSurfacePage": 9.37,
+        "onSurfaceRaised": 8.82,
+        "whiteOnThis": 9.37
+      },
+      "accessibilityNotes": "Resolves to color.neutral.700 (#3E4756). Measured 9.37:1 on the page surface — meets the 3:1 interactive-boundary target."
+    },
+    "color.semantic.primary.pressed": {
+      "value": "{color.blue.900}",
+      "type": "color",
+      "unit": "none",
+      "description": "The pressed state of a primary action, one step darker than the hover treatment.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "The pressed state of a primary action, one step darker than the hover treatment.",
+      "allowedBackground": [
+        "color.semantic.surface.page",
+        "color.semantic.surface.raised"
+      ],
+      "prohibitedUsage": [
+        "Never a resting state."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onSurfacePage": 15.54,
+        "onSurfaceRaised": 14.62,
+        "whiteOnThis": 15.54
+      },
+      "accessibilityNotes": "Resolves to color.blue.900 (#0A2540). Measured 15.54:1 on the page surface — meets the 4.5:1 normal-text target."
+    },
+    "color.semantic.surface": {
+      "value": "{color.neutral.0}",
+      "type": "color",
+      "unit": "none",
+      "description": "The default surface. Alias of the page surface for components that do not distinguish page from container.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "The default surface. Alias of the page surface for components that do not distinguish page from container.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never a foreground colour."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onSurfacePage": 1.0,
+        "onSurfaceRaised": 1.06,
+        "whiteOnThis": 1.0
+      },
+      "accessibilityNotes": "Resolves to color.neutral.0 (#FFFFFF). Background role; foreground tokens meet their own targets against it."
+    },
+    "color.semantic.surface.inverse": {
+      "value": "{color.neutral.900}",
+      "type": "color",
+      "unit": "none",
+      "description": "An inverted surface: tooltips, snackbars, and the dark app bar variant.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "An inverted surface: tooltips, snackbars, and the dark app bar variant.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never a large page background — the light theme is the canonical MVP theme."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onSurfacePage": 17.1,
+        "onSurfaceRaised": 16.09,
+        "whiteOnThis": 17.1
+      },
+      "accessibilityNotes": "Resolves to color.neutral.900 (#171C24). Background role; foreground tokens meet their own targets against it."
+    },
+    "color.semantic.text.inverse": {
+      "value": "{color.neutral.0}",
+      "type": "color",
+      "unit": "none",
+      "description": "Text placed on color.semantic.surface.inverse.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "Text placed on color.semantic.surface.inverse.",
+      "allowedBackground": [
+        "color.semantic.surface.inverse"
+      ],
+      "prohibitedUsage": [
+        "Never placed on a light surface."
+      ],
+      "contrastTarget": "normal-text-4.5",
+      "measuredContrast": {
+        "onSurfaceInverse": 17.1
+      },
+      "accessibilityNotes": "Resolves to color.neutral.0 (#FFFFFF). Measured 17.1:1 on color.semantic.surface.inverse — meets the 4.5:1 normal-text target."
+    },
+    "color.semantic.text.disabled": {
+      "value": "{color.neutral.400}",
+      "type": "color",
+      "unit": "none",
+      "description": "The label of an inactive control.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "The label of an inactive control.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never used for active text.",
+        "Never the only signal that a control is unavailable — a reason is always available."
+      ],
+      "contrastTarget": "inactive-exempt",
+      "measuredContrast": {
+        "onSurfacePage": 2.55,
+        "onSurfaceRaised": 2.4,
+        "whiteOnThis": 2.55
+      },
+      "accessibilityNotes": "Resolves to color.neutral.400 (#9AA3B0). Measured 2.55:1. WCAG 2.2 SC 1.4.3 exempts inactive components; a disabled control always carries an explanatory label."
+    },
+    "color.semantic.neutral.subtle": {
+      "value": "{color.neutral.100}",
+      "type": "color",
+      "unit": "none",
+      "description": "A quiet neutral fill: a metadata chip, an inactive tab, a zebra table row.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "A quiet neutral fill: a metadata chip, an inactive tab, a zebra table row.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never a foreground colour."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onSurfacePage": 1.13,
+        "onSurfaceRaised": 1.06,
+        "whiteOnThis": 1.13
+      },
+      "accessibilityNotes": "Resolves to color.neutral.100 (#EFF1F4). Background role; foreground tokens meet their own targets against it."
+    },
+    "color.semantic.conflict.subtle": {
+      "value": "{color.violet.100}",
+      "type": "color",
+      "unit": "none",
+      "description": "A quieter conflict fill for a row that needs review without shouting across the whole table.",
+      "scope": [
+        "global"
+      ],
+      "intendedUsage": "A quieter conflict fill for a row that needs review without shouting across the whole table.",
+      "allowedBackground": [
+        "not-applicable"
+      ],
+      "prohibitedUsage": [
+        "Never a foreground colour.",
+        "Never used to de-emphasise a conflict into invisibility."
+      ],
+      "contrastTarget": "background-only",
+      "measuredContrast": {
+        "onSurfacePage": 1.53,
+        "onSurfaceRaised": 1.44,
+        "whiteOnThis": 1.53
+      },
+      "accessibilityNotes": "Resolves to color.violet.100 (#E0C9E8). Background role; foreground tokens meet their own targets against it."
+    }
+  }
+}

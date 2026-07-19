@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 720" width="360" height="720">
+  <rect x="0" y="0" width="360" height="720" rx="0" fill="#f8fafc" stroke="#94a3b8" stroke-width="1"/>
+  <rect x="0" y="0" width="360" height="58" rx="0" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"/>
+  <text x="14" y="26" font-family="sans-serif" font-size="16" fill="#1e293b" font-weight="bold" text-anchor="start">Pesanan Aktif</text>
+  <text x="14" y="46" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">SCR-CUS-005 | Aish Laundry Customer Android</text>
+  <rect x="14" y="68" width="332" height="70" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="88" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">AL-2026-000123</text>
+  <text x="26" y="105" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">1,5 kg | Outlet Cempaka</text>
+  <text x="26" y="122" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Diperbarui 14:30</text>
+  <rect x="226" y="76" width="108" height="20" rx="10" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+  <text x="280" y="90" font-family="sans-serif" font-size="10" fill="#1e293b" font-weight="bold" text-anchor="middle">WASHING</text>
+  <rect x="14" y="146" width="332" height="70" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="166" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">AL-2026-000123 (paket 2)</text>
+  <text x="26" y="183" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Siap diambil di konter</text>
+  <text x="26" y="200" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Menunggu pembayaran Rp25.000</text>
+  <rect x="226" y="154" width="108" height="20" rx="10" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+  <text x="280" y="168" font-family="sans-serif" font-size="10" fill="#1e293b" font-weight="bold" text-anchor="middle">READY_FOR_PICKUP</text>
+  <rect x="14" y="224" width="332" height="70" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="244" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">AL-2026-000123 (paket 3)</text>
+  <text x="26" y="261" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Kurir dalam perjalanan</text>
+  <text x="26" y="278" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Jendela waktu 14:30</text>
+  <rect x="226" y="232" width="108" height="20" rx="10" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+  <text x="280" y="246" font-family="sans-serif" font-size="10" fill="#1e293b" font-weight="bold" text-anchor="middle">OUT_FOR_DELIVERY</text>
+  <rect x="14" y="302" width="332" height="70" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="322" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">AL-2026-000123 (paket 4)</text>
+  <text x="26" y="339" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Pemeriksaan mutu berlangsung</text>
+  <text x="26" y="356" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Tidak ada tindakan pelanggan</text>
+  <rect x="226" y="310" width="108" height="20" rx="10" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+  <text x="280" y="324" font-family="sans-serif" font-size="10" fill="#1e293b" font-weight="bold" text-anchor="middle">QUALITY_CONTROL</text>
+  <rect x="14" y="380" width="332" height="70" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="400" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">AL-2026-000123 (paket 5)</text>
+  <text x="26" y="417" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Perlu perhatian outlet</text>
+  <text x="26" y="434" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Alasan tercatat, petugas ditugaskan</text>
+  <rect x="226" y="388" width="108" height="20" rx="10" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+  <text x="280" y="402" font-family="sans-serif" font-size="10" fill="#1e293b" font-weight="bold" text-anchor="middle">ISSUE</text>
+  <rect x="14" y="458" width="332" height="62" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+  <text x="26" y="478" font-family="sans-serif" font-size="13" fill="#1e293b" font-weight="bold" text-anchor="start">Penyaring</text>
+  <text x="26" y="495" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="normal" text-anchor="start">Semua | Sedang diproses | Siap diambil | Diantar</text>
+  <rect x="14" y="636" width="332" height="48" rx="6" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"/>
+  <text x="180" y="666" font-family="sans-serif" font-size="14" fill="#1e293b" font-weight="bold" text-anchor="middle">Lacak Pesanan Terpilih</text>
+  <line x1="14" y1="692" x2="346" y2="692" stroke="#94a3b8" stroke-width="1"/>
+  <text x="14" y="706" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="bold" text-anchor="start">LOW-FIDELITY — NOT IMPLEMENTED</text>
+  <text x="14" y="717" font-family="sans-serif" font-size="9" fill="#475569" font-weight="normal" text-anchor="start">Wireframe tata letak saja. Bukan UI final. Data contoh fiktif.</text>
+  <text x="346" y="706" font-family="sans-serif" font-size="9" fill="#475569" font-weight="normal" text-anchor="end">360x720</text>
+</svg>

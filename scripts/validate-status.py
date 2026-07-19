@@ -25,7 +25,7 @@ STEP0_ALLOWED = ["IN PROGRESS", "TESTED", "WATCH", "GO"]
 
 # The step currently under way. Bump only when a step actually starts, in the same
 # pull request that moves the status in STATUS.md and ROADMAP.md.
-CURRENT_STEP = 1
+CURRENT_STEP = 2
 CURRENT_STEP_ALLOWED = ["IN PROGRESS", "TESTED", "WATCH", "GO"]
 
 # Statuses that must never appear against a step later than CURRENT_STEP.

@@ -1,0 +1,76 @@
+{
+  "$meta": {
+    "layer": "primitive",
+    "file": "border.json",
+    "step": "Step 2 — Design System and UX Foundation",
+    "status": "NOT IMPLEMENTED",
+    "theme": "none",
+    "description": "Border widths and the focus-ring geometry."
+  },
+  "tokens": {
+    "border.width.none": {
+      "value": 0,
+      "type": "border",
+      "unit": "px",
+      "description": "Border width none.",
+      "scope": [
+        "global"
+      ]
+    },
+    "border.width.hairline": {
+      "value": 1,
+      "type": "border",
+      "unit": "px",
+      "description": "Border width hairline.",
+      "scope": [
+        "global"
+      ]
+    },
+    "border.width.thin": {
+      "value": 1.5,
+      "type": "border",
+      "unit": "px",
+      "description": "Border width thin.",
+      "scope": [
+        "global"
+      ]
+    },
+    "border.width.thick": {
+      "value": 2,
+      "type": "border",
+      "unit": "px",
+      "description": "Border width thick.",
+      "scope": [
+        "global"
+      ]
+    },
+    "border.width.focus": {
+      "value": 2,
+      "type": "border",
+      "unit": "px",
+      "description": "Border width focus.",
+      "scope": [
+        "global"
+      ]
+    },
+    "border.focus.offset": {
+      "value": 2,
+      "type": "dimension",
+      "unit": "px",
+      "description": "Offset between a focused element and its focus ring, so the ring stays visible against a filled control.",
+      "scope": [
+        "global"
+      ],
+      "accessibilityNotes": "The focus ring is never removed and never rendered below 3:1 against its adjacent background."
+    },
+    "border.width.heavy": {
+      "value": 3,
+      "type": "border",
+      "unit": "px",
+      "description": "Heavy border for a high-attention container, such as a conflict panel that must not be skimmed past.",
+      "scope": [
+        "global"
+      ]
+    }
+  }
+}
