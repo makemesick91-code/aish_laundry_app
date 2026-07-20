@@ -82,15 +82,36 @@ PLACEHOLDER_FILTER='CHANGEME|CHANGE_ME|change_me|REDACTED|redacted|<[^>]*>|\$\{|
 # written in a `// password: ...` comment is still caught.
 DOC_ANNOTATION='^[[:space:]]*\*[[:space:]]*@(return|param|var|property|method)\b'
 
+# In SOURCE CODE, an unquoted right-hand side is an EXPRESSION, not a literal:
+#     final TextEditingController _password = TextEditingController();
+#     .signIn(identifier: ..., password: _password.text)
+# Neither is a credential; both matched the generic assignment pattern.
+#
+# So for source-code files only, a finding must have a QUOTED value. Config and
+# data files (.env, .yml, .json, .properties, .md, ...) keep the stricter
+# unquoted matching, because that is exactly where a real secret gets pasted.
+#
+# This narrows by FILE TYPE and VALUE SHAPE, never by keyword — a quoted secret
+# in source (`password = "hunter2abc"`) is still caught, and an adversarial case
+# asserts that.
+SOURCE_EXT='\.(dart|php|ts|tsx|js|jsx|mjs|cjs|kt|java|go|rb|py|swift|cs|rs)$'
+QUOTED_VALUE='(password|passwd|secret|api[_-]?key|access[_-]?token|client[_-]?secret)[[:space:]]*[:=][[:space:]]*["'"'"']'
+
 # Strip the "path:line:" prefix and test the remaining content only.
 filter_placeholders() {
-  local line content
+  local line path content
   while IFS= read -r line; do
     [ -n "$line" ] || continue
+    path="${line%%:*}"
     content="${line#*:}"      # drop path
     content="${content#*:}"   # drop line number
     if printf '%s' "$content" | grep -qE "$DOC_ANNOTATION"; then
       continue
+    fi
+    if printf '%s' "$path" | grep -qE "$SOURCE_EXT"; then
+      if ! printf '%s' "$content" | grep -qE "$QUOTED_VALUE"; then
+        continue
+      fi
     fi
     if ! printf '%s' "$content" | grep -qE "$PLACEHOLDER_FILTER"; then
       printf '%s\n' "$line"
@@ -114,6 +135,22 @@ scan_pattern() {
   fi
 }
 
+scan_pattern_i() {
+  local label="$1" pattern="$2"
+  local hits
+  hits="$(xargs -r -a "$SCAN_LIST" -d '\n' \
+    grep -n -I -H -E -i --no-messages -e "$pattern" 2>/dev/null || true)"
+  if [ -n "$hits" ]; then
+    hits="$(printf '%s\n' "$hits" | filter_placeholders || true)"
+  fi
+  if [ -n "$hits" ]; then
+    fail "credential pattern detected: $label"
+    printf '%s\n' "$hits" | head -20 | sed 's/^/      /'
+  else
+    pass "no match for credential pattern: $label"
+  fi
+}
+
 scan_pattern "private key block" "$P_PRIVATE_KEY"
 scan_pattern "PGP/private key armor" "$P_PRIVATE_KEY_PEM"
 scan_pattern "AWS access key id" "$P_AWS_KEY"
@@ -122,7 +159,12 @@ scan_pattern "GitHub token" "$P_GITHUB_TOKEN"
 scan_pattern "GitHub fine-grained PAT" "$P_GITHUB_PAT"
 scan_pattern "Slack token" "$P_SLACK_TOKEN"
 scan_pattern "Slack incoming webhook" "$P_SLACK_HOOK"
-scan_pattern "generic credential assignment" "$P_GENERIC"
+# Case-INSENSITIVE. A pre-existing gap: the pattern is written in lowercase and
+# grep -E is case-sensitive, so `DB_PASSWORD=hunter2...` — the exact shape a real
+# leaked credential takes in a config file — was never matched, while the
+# lowercase form was. Found while adversarially testing the source-file rule
+# above, and fixed rather than left because it widens detection.
+scan_pattern_i "generic credential assignment" "$P_GENERIC"
 
 # ---------------------------------------------------------------------------
 # Forbidden credential FILES.

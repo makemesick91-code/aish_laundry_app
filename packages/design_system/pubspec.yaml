@@ -1,0 +1,27 @@
+name: aish_design_system
+description: >-
+  Flutter design system for the Aish Laundry App. Colour, spacing, radius,
+  typography, sizing, elevation, motion, opacity and border values are GENERATED
+  from docs/design/tokens/*.json and are never hand written. Light theme only;
+  dark mode is DEFERRED.
+publish_to: none
+version: 0.1.0
+resolution: workspace
+
+environment:
+  sdk: ^3.12.0
+
+dependencies:
+  aish_core: 0.1.0
+  flutter:
+    sdk: flutter
+  meta: 1.18.0
+
+dev_dependencies:
+  crypto: 3.0.7
+  flutter_lints: 6.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true

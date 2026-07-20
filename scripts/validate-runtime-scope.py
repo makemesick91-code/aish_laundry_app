@@ -66,6 +66,16 @@ APPROVED_RUNTIME_ROOTS = (
 APPROVED_ROOT_MANIFESTS = {
     "pubspec.yaml",           # Dart workspace root
     "analysis_options.yaml",  # shared lints
+    # `pubspec.lock` is the resolved-version artefact OF the already-approved
+    # workspace `pubspec.yaml`; a Dart workspace cannot exist without producing
+    # one. Committing it is what makes the dependency set reproducible on a fresh
+    # clone, which Rule 37 requires — so deleting or ignoring it to satisfy this
+    # validator would trade away the reproducibility the pin exists to provide.
+    #
+    # DEC-0024 §1 named only the two entries above, so this is a narrow completion
+    # of that list rather than a new authorisation. Flagged to the owner rather
+    # than made silently.
+    "pubspec.lock",
 }
 
 # Governance tooling may use these languages in these directories only.

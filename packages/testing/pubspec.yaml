@@ -1,0 +1,26 @@
+name: aish_testing
+description: >-
+  Test doubles and helpers for the Aish Laundry App Step 3 runtime: FakeClock,
+  FakeAuthService, FakeTenantContext, InMemorySecureStorage, API fixtures and
+  semantics/focus assertion helpers. Every fixture datum is fictional.
+publish_to: none
+version: 0.1.0
+resolution: workspace
+
+environment:
+  sdk: ^3.12.0
+
+dependencies:
+  aish_auth: 0.1.0
+  aish_core: 0.1.0
+  aish_domain: 0.1.0
+  aish_local_storage: 0.1.0
+  aish_networking: 0.1.0
+  flutter:
+    sdk: flutter
+  flutter_test:
+    sdk: flutter
+  meta: 1.18.0
+
+dev_dependencies:
+  flutter_lints: 6.0.0

@@ -44,12 +44,35 @@ def main() -> int:
         rep.fail(err)
 
     # -- no font binary anywhere in the repository -------------------------
+    #
+    # Only files git would actually carry are considered. This check asserts that
+    # no font binary is COMMITTED, and a git-ignored file cannot be — the Flutter
+    # toolchain writes MaterialIcons-Regular.otf into every package's local
+    # build/unit_test_assets/, which is regenerated output, never published.
+    # Reporting those as "font binary committed" was a literally false claim.
+    #
+    # Fails CLOSED: if git cannot be consulted, every file is considered.
+    import subprocess
+    ignored: set[str] = set()
+    try:
+        proc = subprocess.run(
+            ["git", "-C", str(root), "ls-files", "--others", "--ignored",
+             "--exclude-standard", "-z"],
+            capture_output=True, timeout=60, check=True,
+        )
+        ignored = {p for p in proc.stdout.decode("utf-8", "replace").split("\0") if p}
+    except (OSError, subprocess.SubprocessError):
+        ignored = set()
+
     binaries = []
     for path in root.rglob("*"):
         if ".git/" in path.as_posix() or not path.is_file():
             continue
+        rel = path.relative_to(root).as_posix()
+        if rel in ignored:
+            continue
         if path.suffix.lower() in FONT_BINARY_SUFFIXES:
-            binaries.append(path.relative_to(root).as_posix())
+            binaries.append(rel)
     for b in binaries:
         rep.info(f"font binary committed: {b}")
     rep.check(

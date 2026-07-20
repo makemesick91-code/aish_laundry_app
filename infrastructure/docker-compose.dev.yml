@@ -40,7 +40,7 @@ services:
     restart: "no"
     environment:
       POSTGRES_USER: aish_dev
-      POSTGRES_PASSWORD: aish_dev_password_not_secret
+      POSTGRES_PASSWORD: CHANGEME_local_dev_only
       POSTGRES_DB: aish_laundry_dev
       # Deterministic collation so index and ordering behaviour is reproducible.
       POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
