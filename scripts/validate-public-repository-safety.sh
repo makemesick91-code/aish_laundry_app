@@ -96,7 +96,10 @@ check "no database connection string with credentials" \
   'X{4,}|<[^>]+>|user:pass|USER:PASS|example|contoh|placeholder|redact'
 
 # --- committed .env / dump / backup files -----------------------------------
-ENV_FILES="$(printf '%s\n' "${FILES[@]}" | grep -E '(^|/)\.env(\..+)?$' || true)"
+# `.env.example` is a committed template of placeholders, whitelisted by
+# .gitignore (`!.env.example`). Every real `.env` remains forbidden, and the
+# template's contents are still credential-scanned by validate-secrets.sh.
+ENV_FILES="$(printf '%s\n' "${FILES[@]}" | grep -E '(^|/)\.env(\..+)?$' | grep -v -E '(^|/)\.env\.example$' || true)"
 if [ -n "$ENV_FILES" ]; then
   bad "no .env file is committed"
   printf '%s\n' "$ENV_FILES" | head -5 | while IFS= read -r f; do info "$f"; done

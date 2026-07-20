@@ -114,8 +114,14 @@ scan_pattern "generic credential assignment" "$P_GENERIC"
 # ---------------------------------------------------------------------------
 # Forbidden credential FILES.
 # ---------------------------------------------------------------------------
+# `.env.example` is a committed TEMPLATE containing only placeholders, and
+# .gitignore whitelists it explicitly (`!.env.example`) while ignoring every real
+# `.env`. The exemption is FILENAME-ONLY: the file's CONTENT is still scanned by
+# every credential pattern above, so a real secret placed inside it is still
+# caught. Exempting the content as well would turn the template into a
+# credential free-fire zone on a PUBLIC repository.
 FORBIDDEN_FILES="$(grep -E '(^|/)(\.env($|\.)|id_rsa($|\.)|id_dsa($|\.)|id_ecdsa($|\.)|id_ed25519($|\.)|.*\.pem$|.*\.p12$|.*\.pfx$|.*\.keystore$|.*\.jks$|credentials\.json$|service-account.*\.json$)' \
-  "$SCAN_LIST" || true)"
+  "$SCAN_LIST" | grep -v -E '(^|/)\.env\.example$' || true)"
 if [ -n "$FORBIDDEN_FILES" ]; then
   fail "credential file(s) present in the repository"
   printf '%s\n' "$FORBIDDEN_FILES" | sed 's/^/      /'

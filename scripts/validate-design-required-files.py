@@ -146,23 +146,37 @@ def main() -> int:
         rep.check(A11Y_CAVEAT in a11y,
                   f"ACCESSIBILITY.md carries the exact caveat '{A11Y_CAVEAT}'")
 
-    # -- the runtime folders still say what they are -----------------------
+    # -- the runtime folders -----------------------------------------------
+    #
+    # Through Steps 0-2 these folders had to contain nothing but a README or a
+    # .gitkeep, because those steps created no runtime. DEC-0024 authorises Step 3
+    # to place runtime inside them, so asserting emptiness here would make Step 3
+    # impossible while proving nothing that is still true.
+    #
+    # The guarantee is NOT abandoned — it is relocated to where it remains true:
+    #
+    #   Step 0-2 emptiness -> proven against the immutable GO tags by the
+    #                         `classify` job (scripts/validate-no-runtime.py)
+    #   Step 3+ placement  -> proven on current main by
+    #                         scripts/validate-runtime-scope.py, which is an
+    #                         allowlist and rejects runtime outside approved roots
+    #
+    # This validator therefore checks that the folders still EXIST and remain
+    # documented, and delegates placement policy to the scope guard rather than
+    # duplicating a rule that has since been superseded.
     for folder in ("apps", "backend", "packages", "infrastructure"):
         d = root / folder
+        rep.check(d.is_dir(), f"{folder}/ exists")
         if not d.is_dir():
             continue
-        offenders = [
-            p.relative_to(root).as_posix()
-            for p in d.rglob("*")
-            if p.is_file() and p.name not in {"README.md", ".gitkeep"}
-        ]
-        rep.check(
-            not offenders,
-            f"{folder}/ contains only README or .gitkeep "
-            f"({len(offenders)} other files)",
+        documented = (d / "README.md").is_file() or any(
+            (d / child / "README.md").is_file() for child in
+            [c.name for c in d.iterdir() if c.is_dir()]
         )
-        for o in offenders[:5]:
-            rep.info(o)
+        rep.check(
+            documented,
+            f"{folder}/ carries a README describing its contents",
+        )
 
     return rep.finish()
 

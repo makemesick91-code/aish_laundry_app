@@ -37,7 +37,7 @@ GATES=(
   "status:$PY $SCRIPT_DIR/validate-status.py"
   "pricing:$PY $SCRIPT_DIR/validate-pricing.py"
   "rules-traceability:$PY $SCRIPT_DIR/validate-rules-traceability.py"
-  "no-runtime:$PY $SCRIPT_DIR/validate-no-runtime.py"
+  "runtime-scope:$PY $SCRIPT_DIR/validate-runtime-scope.py"
   "markdown-links:$PY $SCRIPT_DIR/validate-markdown-links.py"
   "secrets:bash $SCRIPT_DIR/validate-secrets.sh"
   "destructive-guard:bash $SCRIPT_DIR/test-destructive-guard.sh"
