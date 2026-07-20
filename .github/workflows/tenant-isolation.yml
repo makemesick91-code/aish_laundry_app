@@ -1,0 +1,191 @@
+---
+# Aish Laundry App — Step 3 tenant isolation hard gate.
+#
+# Published required-check context (DO NOT RENAME): "tenant-isolation"
+#
+# Tenant isolation is the product's central safety property (Rule 02, DEC-0012).
+# It gets its OWN context so it can never be masked by a slow Android build or a
+# failing lint, and so a red here is unmistakable.
+#
+# AUTHORITATIVE ENGINE: PostgreSQL. Rule 43 forbids substituting SQLite for
+# isolation evidence — different engines enforce constraints differently, so a
+# green SQLite run proves nothing about PostgreSQL. This workflow asserts at
+# runtime that the connection really is pgsql and fails if it is not.
+#
+# Any reproduced cross-tenant exposure is an automatic NO-GO.
+
+name: Tenant Isolation
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tenant-isolation-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tenant-isolation:
+    name: tenant-isolation
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+
+    services:
+      postgres:
+        # Digest-pinned. Matches the pinned local authoritative engine (18.4) so
+        # CI evidence and local evidence are produced against the same version.
+        image: "postgres:18.4@sha256:3a82e1f56c8f0f5616a11103ac3d47e632c3938698946a7ad26da0df1334744a"
+        env:
+          # CI-only, fictional, and reachable from nothing outside this job.
+          POSTGRES_USER: aish_ci
+          POSTGRES_PASSWORD: CHANGEME_ci_only_not_secret
+          POSTGRES_DB: aish_laundry_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U aish_ci -d aish_laundry_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+      redis:
+        image: "redis:8.2@sha256:d30960f73a599496d8b2802c97758bab6b1cd421fd06337f837779c47a57e1f3"
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    env:
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: "5432"
+      DB_DATABASE: aish_laundry_ci
+      DB_USERNAME: aish_ci
+      DB_PASSWORD: CHANGEME_ci_only_not_secret
+      REDIS_HOST: 127.0.0.1
+      REDIS_PORT: "6379"
+
+    steps:
+      - name: Checkout the exact candidate commit
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Record the exact SHA under verification
+        run: |
+          echo "candidate SHA: $(git rev-parse HEAD)"
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240  # 2.37.2
+        with:
+          php-version: "8.5"
+          extensions: mbstring, pdo_pgsql, redis, bcmath
+          coverage: none
+
+      - name: Install backend dependencies from the lockfile
+        run: |
+          set -euo pipefail
+          cd backend
+          composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Prepare the CI environment
+        run: |
+          set -euo pipefail
+          cd backend
+          cp .env.example .env
+          php artisan key:generate
+
+      # Fail CLOSED: a service that has not actually accepted a connection is a
+      # service that cannot have produced evidence.
+      - name: Assert PostgreSQL and Redis are genuinely reachable
+        run: |
+          set -euo pipefail
+          echo "== PostgreSQL =="
+          php -r '
+            $p = new PDO("pgsql:host=127.0.0.1;port=5432;dbname=aish_laundry_ci", "aish_ci", getenv("DB_PASSWORD"));
+            $v = $p->query("SHOW server_version")->fetchColumn();
+            echo "  server_version = $v\n";
+            if (strpos($v, "18.") !== 0) { fwrite(STDERR, "not PostgreSQL 18.x\n"); exit(1); }
+            if ((int) $p->query("SELECT 1+1")->fetchColumn() !== 2) { fwrite(STDERR, "round-trip failed\n"); exit(1); }
+            echo "  query round-trip ok\n";
+          '
+          echo "== Redis =="
+          php -r '
+            $r = new Redis();
+            if (!$r->connect("127.0.0.1", 6379)) { fwrite(STDERR, "redis connect failed\n"); exit(1); }
+            if ($r->ping() === false) { fwrite(STDERR, "redis PING failed\n"); exit(1); }
+            echo "  PING ok, version = " . $r->info()["redis_version"] . "\n";
+          '
+
+      - name: Assert the authoritative engine is PostgreSQL, never SQLite
+        run: |
+          set -euo pipefail
+          cd backend
+          driver="$(php artisan tinker --execute='echo config("database.default");' 2>/dev/null || echo "${DB_CONNECTION}")"
+          echo "  configured driver: ${DB_CONNECTION}"
+          [ "${DB_CONNECTION}" = "pgsql" ] || { echo "isolation evidence requires pgsql"; exit 1; }
+          if grep -qiE "DB_CONNECTION\s*=\s*sqlite" .env; then
+            echo "SQLite substitution detected — evidence would be void (Rule 43)"; exit 1
+          fi
+          echo "  SQLite substitution: none"
+
+      - name: Migration fresh, seed, rollback, re-apply
+        run: |
+          set -euo pipefail
+          cd backend
+          echo "== fresh + seed =="   && php artisan migrate:fresh --seed
+          echo "== rollback =="       && php artisan migrate:rollback
+          echo "== re-apply =="       && php artisan migrate
+          php artisan migrate:status | tail -5
+
+      - name: Assert no Step 4+ business table exists
+        run: |
+          set -euo pipefail
+          cd backend
+          php -r '
+            $p = new PDO("pgsql:host=127.0.0.1;port=5432;dbname=aish_laundry_ci", "aish_ci", getenv("DB_PASSWORD"));
+            $t = $p->query("select tablename from pg_tables where schemaname=\047public\047")->fetchAll(PDO::FETCH_COLUMN);
+            $forbidden = ["customers","services","service_catalog","price_lists","orders","order_items",
+                          "payments","receipts","production_jobs","tracking_tokens","deliveries","pickups",
+                          "reminders","receivables","loyalty","subscriptions"];
+            $hit = array_intersect($forbidden, $t);
+            echo "  tables: " . count($t) . "\n";
+            echo "  forbidden Step 4+ tables: " . count($hit) . "\n";
+            if ($hit) { fwrite(STDERR, "  " . implode(", ", $hit) . "\n"); exit(1); }
+          '
+
+      - name: Structural isolation and tenant-isolation matrix
+        run: |
+          set -euo pipefail
+          cd backend
+          php artisan migrate:fresh --seed
+          php artisan test --testsuite=Feature \
+            --filter='StructuralIsolation|TenantIsolation'
+
+      - name: Redis tenant partitioning
+        run: |
+          set -euo pipefail
+          cd backend
+          php artisan test --filter='RedisTenantPartitioning'
+
+      - name: Cross-tenant exposure is an automatic NO-GO
+        if: failure()
+        run: |
+          echo "=================================================================="
+          echo "TENANT ISOLATION GATE FAILED"
+          echo "=================================================================="
+          echo "Any reproduced cross-tenant exposure is an automatic NO-GO"
+          echo "(Rule 02 hard rule 12, Rule 48, DEC-0012)."
+          echo "Do NOT relax a test to make this green. Stop feature work on the"
+          echo "affected surface, preserve evidence at this exact SHA, and notify"
+          echo "the repository owner."

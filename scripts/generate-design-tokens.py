@@ -461,12 +461,21 @@ def _format_dart(files: dict[str, str]) -> dict[str, str]:
     import tempfile
 
     if shutil.which("dart") is None:
+        # FAIL CLOSED. Emitting unformatted output here made the generator
+        # NON-DETERMINISTIC on a hidden input: with dart present it produced the
+        # committed, formatted bytes; without dart it produced different bytes and
+        # `--check` then reported "DRIFT DETECTED" against a tree that had not
+        # drifted at all. A drift check that cries wolf gets ignored, and an
+        # ignored drift check is worse than none — so refuse to answer rather
+        # than answer differently depending on the environment.
         print(
-            "generate-design-tokens: WARNING: dart not on PATH; output is "
-            "UNFORMATTED and may fail the format gate.",
+            "generate-design-tokens: FATAL: dart is not on PATH.\n"
+            "  Generated output is dart-formatted, so without the SDK this script\n"
+            "  would emit different bytes and report false drift. Refusing to run.\n"
+            "  Fix: export PATH=\"$HOME/flutter/bin:$PATH\"",
             file=sys.stderr,
         )
-        return files
+        sys.exit(2)
 
     with tempfile.TemporaryDirectory() as tmp:
         tmp_path = Path(tmp)

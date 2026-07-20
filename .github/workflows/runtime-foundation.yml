@@ -1,0 +1,306 @@
+---
+# Aish Laundry App — Step 3 runtime foundation.
+#
+# Published required-check context (DO NOT RENAME): "runtime-foundation"
+#
+# This workflow BUILDS things. It is the context that proves the Flutter
+# workspace and the Laravel backend actually compile and boot from a clean
+# checkout of the exact candidate SHA — not that files exist.
+#
+# Deliberately NOT here: tenant isolation and authentication/RBAC. Those own
+# their own contexts so a failure in one does not mask the other, and so a
+# security gate is never skipped because an unrelated build was slow.
+#
+# No production secret, no deployment, no signing material. Both Android builds
+# are DEBUG; this workflow cannot produce a release artefact.
+
+name: Runtime Foundation
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: runtime-foundation-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: "3.44.6"
+  DART_VERSION: "3.12.2"
+  FLUTTER_SHA256: "a6320fd72e9a2690c08e2a6a70874a30cb120dee7c78f49d2c628bd7c9e20525"
+  PHP_VERSION: "8.5"
+
+jobs:
+  runtime-foundation:
+    name: runtime-foundation
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout the exact candidate commit
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Record the exact SHA under verification
+        run: |
+          set -euo pipefail
+          echo "candidate SHA : $(git rev-parse HEAD)"
+          echo "PR head SHA   : ${{ github.event.pull_request.head.sha }}"
+          echo "ref           : ${{ github.ref }}"
+
+      # --- governance gates -------------------------------------------------
+      - name: Validate Master Source checksum
+        run: |
+          set -euo pipefail
+          cd docs && sha256sum -c MASTER_SOURCE.sha256
+
+      - name: Validate canonical Step 3 status
+        run: python3 scripts/validate-status.py
+
+      - name: Classify runtime scope
+        run: python3 scripts/validate-runtime-scope.py
+
+      - name: Public repository safety
+        run: bash scripts/validate-public-repository-safety.sh
+
+      - name: Secret and credential scan
+        run: bash scripts/validate-secrets.sh
+
+      # --- Flutter toolchain, installed from the pinned vendor archive -------
+      # A third-party setup action is deliberately avoided here: the archive is
+      # checksum-verified against the value recorded in docs/runtime/TOOLCHAIN.md,
+      # so a substituted download cannot be installed silently.
+      - name: Install pinned Flutter SDK
+        run: |
+          set -euo pipefail
+          archive="flutter_linux_${FLUTTER_VERSION}-stable.tar.xz"
+          url="https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/${archive}"
+          python3 - "$url" "$archive" <<'PY'
+          import sys, urllib.request
+          urllib.request.urlretrieve(sys.argv[1], sys.argv[2])
+          PY
+          actual="$(sha256sum "${archive}" | awk '{print $1}')"
+          if [ "${actual}" != "${FLUTTER_SHA256}" ]; then
+            echo "Flutter archive checksum MISMATCH"
+            echo "  expected ${FLUTTER_SHA256}"
+            echo "  actual   ${actual}"
+            exit 1
+          fi
+          echo "archive checksum verified against the pinned value"
+          tar -xJf "${archive}" -C "${HOME}"
+          echo "${HOME}/flutter/bin" >> "${GITHUB_PATH}"
+
+      - name: Verify Flutter and Dart versions match the pins
+        run: |
+          set -euo pipefail
+          flutter --disable-analytics >/dev/null 2>&1 || true
+          dart --disable-analytics    >/dev/null 2>&1 || true
+          flutter --version
+          got_flutter="$(flutter --version | head -1 | awk '{print $2}')"
+          got_dart="$(dart --version 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
+          [ "${got_flutter}" = "${FLUTTER_VERSION}" ] || { echo "Flutter ${got_flutter} != pinned ${FLUTTER_VERSION}"; exit 1; }
+          [ "${got_dart}" = "${DART_VERSION}" ]       || { echo "Dart ${got_dart} != pinned ${DART_VERSION}"; exit 1; }
+          echo "toolchain matches the pins"
+
+      - name: Set up JDK 21 for Android builds
+        uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95  # v5.6.0
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Install Android SDK platform 36
+        run: |
+          set -euo pipefail
+          yes | sdkmanager --licenses >/dev/null 2>&1 || true
+          sdkmanager "platforms;android-36" "build-tools;36.0.0" >/dev/null
+          echo "installed:"
+          ls "${ANDROID_SDK_ROOT}/platforms" | grep -E "android-36" || { echo "platform 36 missing"; exit 1; }
+
+      - name: Resolve Dart workspace dependencies
+        run: flutter pub get
+
+      # --- Flutter static gates --------------------------------------------
+      - name: Dart format
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Flutter analyze
+        run: flutter analyze
+
+      - name: Design token drift and package boundaries
+        run: |
+          set -euo pipefail
+          python3 scripts/generate-design-tokens.py --check
+          echo "--- pure-Dart packages must not import Flutter ---"
+          if grep -rl "package:flutter/" packages/core/lib packages/domain/lib 2>/dev/null; then
+            echo "packages/core or packages/domain imports Flutter — boundary violated"
+            exit 1
+          fi
+          echo "core and domain are pure Dart"
+
+      - name: Flutter tests
+        run: |
+          set -euo pipefail
+          failed=0
+          for d in packages/* apps/*; do
+            [ -d "$d/test" ] || continue
+            echo "== ${d}"
+            ( cd "$d" && flutter test ) || failed=$((failed + 1))
+          done
+          [ "${failed}" -eq 0 ] || { echo "${failed} Flutter suite(s) failed"; exit 1; }
+
+      # --- real builds ------------------------------------------------------
+      - name: Build Customer Android (debug)
+        run: |
+          set -euo pipefail
+          cd apps/customer_android
+          flutter build apk --debug
+
+      - name: Build Ops Android (debug)
+        run: |
+          set -euo pipefail
+          cd apps/ops_android
+          flutter build apk --debug
+
+      - name: Build Admin Web (release)
+        run: |
+          set -euo pipefail
+          cd apps/admin_web
+          flutter build web --release
+
+      - name: Verify artefacts, identifiers, and platform scope
+        run: |
+          set -euo pipefail
+          fail=0
+
+          echo "== application identifiers =="
+          for pair in "customer_android:id.aishtech.laundry.customer" "ops_android:id.aishtech.laundry.ops"; do
+            app="${pair%%:*}"; want="${pair##*:}"
+            got="$(grep -oP 'applicationId = "\K[^"]+' "apps/${app}/android/app/build.gradle.kts")"
+            printf '  %-18s %s\n' "${app}" "${got}"
+            [ "${got}" = "${want}" ] || { echo "    expected ${want}"; fail=1; }
+          done
+
+          echo "== no example namespace anywhere =="
+          if grep -rq "com\.example" apps/ packages/ 2>/dev/null; then
+            echo "  com.example found"; fail=1
+          else
+            echo "  none"
+          fi
+
+          echo "== only approved platform directories =="
+          for d in ios macos windows linux; do
+            if [ -d "apps/customer_android/${d}" ] || [ -d "apps/ops_android/${d}" ] || [ -d "apps/admin_web/${d}" ]; then
+              echo "  unexpected platform directory: ${d}"; fail=1
+            fi
+          done
+          [ -d apps/admin_web/android ] && { echo "  admin_web must not have android/"; fail=1; } || true
+          echo "  platform scope correct"
+
+          echo "== artefacts =="
+          for app in customer_android ops_android; do
+            apk="apps/${app}/build/app/outputs/flutter-apk/app-debug.apk"
+            [ -f "${apk}" ] || { echo "  MISSING ${apk}"; fail=1; continue; }
+            printf '  %-18s %s bytes  sha256=%s\n' "${app}" \
+              "$(stat -c%s "${apk}")" "$(sha256sum "${apk}" | awk '{print $1}')"
+          done
+          web="apps/admin_web/build/web"
+          [ -d "${web}" ] || { echo "  MISSING ${web}"; fail=1; }
+          echo "  admin_web            $(du -sb "${web}" | awk '{print $1}') bytes"
+
+          echo "== these are DEBUG artefacts; no release keystore may exist =="
+          if find . -name "*.jks" -o -name "*.keystore" -o -name "key.properties" | grep -q .; then
+            echo "  signing material present"; fail=1
+          else
+            echo "  no signing material"
+          fi
+
+          exit "${fail}"
+
+      - name: Scan the Web build for credentials and token storage
+        run: |
+          set -euo pipefail
+          web="apps/admin_web/build/web"
+          fail=0
+
+          for pattern in localStorage sessionStorage; do
+            n="$(grep -rl "${pattern}" "${web}" 2>/dev/null | wc -l)"
+            printf '  %-16s files: %s\n' "${pattern}" "${n}"
+            [ "${n}" -eq 0 ] || { echo "    bearer-token browser storage is forbidden"; fail=1; }
+          done
+
+          python3 - "${web}" <<'PY'
+          import pathlib, re, sys
+          root = pathlib.Path(sys.argv[1])
+          bad = 0
+          pat = re.compile(r'(password|secret|api[_-]?key|access[_-]?token)["\']?\s*[:=]\s*["\'][A-Za-z0-9/+_.-]{8,}["\']', re.I)
+          for f in root.rglob("*"):
+              if not f.is_file() or f.suffix not in {".js", ".json", ".html"}:
+                  continue
+              for m in pat.finditer(f.read_text(encoding="utf-8", errors="replace")):
+                  print(f"  credential-shaped assignment in {f}: {m.group(0)[:40]}…")
+                  bad += 1
+          print(f"  credential-shaped assignments: {bad}")
+          sys.exit(1 if bad else 0)
+          PY
+          exit "${fail}"
+
+      # --- backend boot -----------------------------------------------------
+      - name: Set up PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240  # 2.37.2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: mbstring, pdo_pgsql, redis, bcmath
+          coverage: none
+
+      - name: Install backend dependencies from the lockfile
+        run: |
+          set -euo pipefail
+          cd backend
+          composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Laravel boots and reports its version
+        run: |
+          set -euo pipefail
+          cd backend
+          cp .env.example .env
+          php artisan key:generate
+          php artisan --version
+          php artisan about --only=environment
+
+      - name: Sanitised build manifest
+        if: always()
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          {
+            echo "candidate_sha=$(git rev-parse HEAD)"
+            echo "flutter=${FLUTTER_VERSION}"
+            echo "dart=${DART_VERSION}"
+            for app in customer_android ops_android; do
+              apk="apps/${app}/build/app/outputs/flutter-apk/app-debug.apk"
+              [ -f "${apk}" ] || continue
+              echo "${app}_bytes=$(stat -c%s "${apk}")"
+              echo "${app}_sha256=$(sha256sum "${apk}" | awk '{print $1}')"
+            done
+            [ -d apps/admin_web/build/web ] && echo "admin_web_bytes=$(du -sb apps/admin_web/build/web | awk '{print $1}')"
+          } > ci-evidence/build-manifest.txt
+          cat ci-evidence/build-manifest.txt
+
+      # Only the manifest is uploaded. APKs are ~150 MB each and are build
+      # output, not evidence; and an artefact upload is a distribution channel.
+      - name: Upload sanitised manifest
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: runtime-foundation-manifest
+          path: ci-evidence/build-manifest.txt
+          retention-days: 14
