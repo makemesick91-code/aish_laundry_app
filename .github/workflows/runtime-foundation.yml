@@ -120,10 +120,30 @@ jobs:
       - name: Install Android SDK platform 36
         run: |
           set -euo pipefail
-          yes | sdkmanager --licenses >/dev/null 2>&1 || true
-          sdkmanager "platforms;android-36" "build-tools;36.0.0" >/dev/null
-          echo "installed:"
-          ls "${ANDROID_SDK_ROOT}/platforms" | grep -E "android-36" || { echo "platform 36 missing"; exit 1; }
+
+          # `sdkmanager` is NOT on PATH on the runner even though the SDK is
+          # installed — it lives under cmdline-tools. Resolving it explicitly, and
+          # failing loudly when it cannot be found, avoids the exit-127 that a
+          # bare `sdkmanager` produced.
+          root="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-}}"
+          [ -n "${root}" ] || { echo "neither ANDROID_SDK_ROOT nor ANDROID_HOME is set"; exit 1; }
+          echo "  SDK root: ${root}"
+
+          sdkm="$(find "${root}/cmdline-tools" -name sdkmanager -type f 2>/dev/null | head -1)"
+          if [ -z "${sdkm}" ]; then
+            sdkm="$(command -v sdkmanager || true)"
+          fi
+          [ -n "${sdkm}" ] || { echo "sdkmanager not found under ${root}"; exit 1; }
+          echo "  sdkmanager: ${sdkm}"
+
+          yes | "${sdkm}" --licenses >/dev/null 2>&1 || true
+          "${sdkm}" "platforms;android-36" "build-tools;36.0.0" >/dev/null
+
+          echo "  installed platforms:"
+          ls "${root}/platforms"
+          [ -d "${root}/platforms/android-36" ] || { echo "platform 36 missing after install"; exit 1; }
+          [ -d "${root}/build-tools/36.0.0" ]   || { echo "build-tools 36.0.0 missing after install"; exit 1; }
+          echo "  android-36 and build-tools 36.0.0 present"
 
       - name: Resolve Dart workspace dependencies
         run: flutter pub get
