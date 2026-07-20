@@ -209,11 +209,20 @@ jobs:
             [ "${got}" = "${want}" ] || { echo "    expected ${want}"; fail=1; }
           done
 
-          echo "== no example namespace anywhere =="
-          if grep -rq "com\.example" apps/ packages/ 2>/dev/null; then
-            echo "  com.example found"; fail=1
+          echo "== no example namespace in SOURCE =="
+          # Scoped to source. Build output legitimately contains a dependency's
+          # own example namespace, and flagging that is a false positive — the
+          # kind that creates pressure to weaken a real check. What matters is
+          # that OUR identifiers are not example ones, and the applicationId
+          # assertion above already proves that directly.
+          if grep -rq "com\.example" apps/ packages/ \
+               --exclude-dir=build --exclude-dir=.dart_tool --exclude-dir=.gradle 2>/dev/null; then
+            echo "  com.example found in source:"
+            grep -rl "com\.example" apps/ packages/ \
+               --exclude-dir=build --exclude-dir=.dart_tool --exclude-dir=.gradle 2>/dev/null | head -5
+            fail=1
           else
-            echo "  none"
+            echo "  none in source"
           fi
 
           echo "== only approved platform directories =="

@@ -237,8 +237,22 @@ final class AuthenticationAdversarialMatrixTest extends TestCase
         $user = $this->makeUser();
         $plain = $this->issueResetToken($user);
 
+        // The alteration must be GUARANTEED to differ from the issued token.
+        //
+        // This previously read `substr($plain, 0, -1).'X'`, which produces the
+        // ORIGINAL token whenever it already ends in 'X'. Str::random draws from
+        // 62 alphanumerics, so in ~1.64% of runs (measured: 1641/100000) the
+        // "altered" candidate was in fact valid, the reset correctly succeeded,
+        // and this test failed expecting 422 — a FALSE SECURITY FAILURE from a
+        // test defect, not a vulnerability. It is very likely the uncharacterised
+        // intermittency flagged earlier at roughly this rate.
+        $lastChar = substr($plain, -1);
+        $replacement = $lastChar === 'X' ? 'Y' : 'X';
+        $altered = substr($plain, 0, -1).$replacement;
+        self::assertNotSame($plain, $altered, 'the altered token must differ from the issued token');
+
         foreach ([
-            'altered' => substr($plain, 0, -1).'X',
+            'altered' => $altered,
             'forged' => Str::random(64),
             'empty-ish' => 'x',
         ] as $label => $candidate) {
