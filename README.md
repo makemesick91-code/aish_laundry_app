@@ -125,6 +125,14 @@ Supporting canonical documents:
 - [`docs/TOOLING_POLICY.md`](docs/TOOLING_POLICY.md)
 - [`docs/CHANGELOG.md`](docs/CHANGELOG.md)
 
+Reusable AI-assisted execution prompts:
+
+- [`docs/governance/claude-code/README.md`](docs/governance/claude-code/README.md) — Claude Code
+  sprint execution modes. `START MODE` for a sprint or step not yet begun, `RESUME MODE` for one
+  already running, and `CLOSURE MODE` for one approaching completion. These are **reusable
+  governance prompts only**: they carry no sprint detail, which is supplied separately in a sprint
+  brief. The verified state of this repository always outranks any assumption a prompt carries.
+
 ---
 
 ## 5. How to verify Step 0
