@@ -143,7 +143,17 @@ def check_runtime_matches_reality(root, rep) -> None:
 
 FORBIDDEN_IMPLEMENTED = re.compile(r"\bIMPLEMENTED\b")
 # "NOT IMPLEMENTED" / "BELUM IMPLEMENTED" are the safe forms.
-NEGATED_IMPLEMENTED = re.compile(r"\b(?:NOT|NON|BELUM|TIDAK|NEVER|NO)[ _-]+IMPLEMENTED\b")
+#
+# "FOUNDATION IMPLEMENTED" is also permitted, and only in that exact bounded
+# form. The rule exists to stop the document claiming that PRODUCT FEATURES
+# exist; a client shell whose debug build has actually been executed and whose
+# artefact SHA-256 is recorded is a different and much narrower claim. It stays
+# narrow deliberately: a bare "IMPLEMENTED", or any other qualifier, still fails,
+# so this cannot be stretched into "POS IMPLEMENTED".
+NEGATED_IMPLEMENTED = re.compile(
+    r"\b(?:NOT|NON|BELUM|TIDAK|NEVER|NO)[ _-]+IMPLEMENTED\b"
+    r"|\bFOUNDATION IMPLEMENTED\b"
+)
 
 STEP_LINE = re.compile(
     r"^\s{0,3}(?:#{1,6}\s*|[-*+]\s+|\|\s*|\d+\.\s+)?\*{0,2}Step\s+(\d{1,2})\b",

@@ -178,10 +178,10 @@ what is not.
 | Backend runtime | PRESENT — STEP 3 FOUNDATION ONLY |
 | PostgreSQL runtime foundation | PRESENT |
 | Redis runtime foundation | PRESENT |
-| Flutter workspace | PRESENT — STEP 3 FOUNDATION ONLY |
-| Customer Android | PLATFORM SCAFFOLDING ABSENT — BUILD NOT VERIFIED |
-| Ops Android | PLATFORM SCAFFOLDING ABSENT — BUILD NOT VERIFIED |
-| Admin Web | PLATFORM SCAFFOLDING ABSENT — BUILD NOT VERIFIED |
+| Flutter workspace | PRESENT |
+| Customer Android | FOUNDATION IMPLEMENTED AND DEBUG BUILD VERIFIED |
+| Ops Android | FOUNDATION IMPLEMENTED AND DEBUG BUILD VERIFIED |
+| Admin Web | FOUNDATION IMPLEMENTED AND BUILD VERIFIED |
 | Deployment | ABSENT |
 | Application CI | NOT APPLICABLE |
 | UAT | NOT STARTED |
@@ -256,9 +256,9 @@ records what has actually been executed, not what exists.
 | Path | Runtime | Verified |
 | --- | --- | --- |
 | `backend` | PRESENT | Laravel 13.20.0 boots; migrate fresh/rollback/re-apply on PostgreSQL 18.4; 202 tests, 1292 assertions |
-| `apps/customer_android` | PRESENT — Dart only | analyse clean, widget tests pass; **platform scaffolding ABSENT, build NOT VERIFIED** |
-| `apps/ops_android` | PRESENT — Dart only | analyse clean, widget tests pass; **platform scaffolding ABSENT, build NOT VERIFIED** |
-| `apps/admin_web` | PRESENT — Dart only | analyse clean, widget tests pass; **platform scaffolding ABSENT, build NOT VERIFIED** |
+| `apps/customer_android` | PRESENT | analyse clean, 20 widget tests; **debug APK built, exit 0** |
+| `apps/ops_android` | PRESENT | analyse clean, 28 widget tests; **debug APK built, exit 0** |
+| `apps/admin_web` | PRESENT | analyse clean, 20 widget tests; **release web build, exit 0** |
 | `packages/design_system` | PRESENT | deterministic token generation, drift test |
 | `packages/core` | PRESENT | pure Dart, unit tests |
 | `packages/domain` | PRESENT | pure Dart, unit tests |
@@ -270,7 +270,8 @@ records what has actually been executed, not what exists.
 | `packages/testing` | PRESENT | fakes and helpers |
 | `infrastructure` | PRESENT — development only | PostgreSQL 18.4 and Redis 8.2.7 connectivity proven; **no deployment artefact** |
 
-No Android or Web artefact has been compiled. No deployment exists.
+All three artefacts have been compiled and their evidence recorded in
+`evidence/step-03/`. **No deployment exists**, and no artefact is committed.
 
 ---
 
