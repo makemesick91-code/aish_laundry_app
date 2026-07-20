@@ -183,7 +183,7 @@ what is not.
 | Ops Android | FOUNDATION IMPLEMENTED AND DEBUG BUILD VERIFIED |
 | Admin Web | FOUNDATION IMPLEMENTED AND BUILD VERIFIED |
 | Deployment | ABSENT |
-| Application CI | NOT APPLICABLE |
+| Application CI | ACTIVE — THREE STEP 3 RUNTIME CONTEXTS VERIFIED |
 | UAT | NOT STARTED |
 
 **Runtime existing is not runtime working.** The backend boots, migrates against
@@ -284,7 +284,7 @@ All three artefacts have been compiled and their evidence recorded in
 | Tenant isolation test suite | NOT APPLICABLE |
 | Financial integrity test suite | NOT APPLICABLE |
 | End-to-end tests | NOT APPLICABLE |
-| Application CI | NOT APPLICABLE |
+| Application CI | ACTIVE — THREE STEP 3 RUNTIME CONTEXTS VERIFIED |
 | UAT | NOT STARTED |
 
 There is no application code, therefore there is nothing to build or test. Application CI becomes

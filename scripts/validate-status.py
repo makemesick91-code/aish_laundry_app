@@ -44,12 +44,52 @@ FORWARD_LEAK_STATUSES = ["IN PROGRESS", "TESTED", "WATCH", "GO", "NO-GO"]
 REQUIRED_DECLARATIONS: list[tuple[str, str]] = [
     ("deployment is ABSENT", r"deploy\w*[^\n]{0,60}?\bABSENT\b"),
     ("UAT is NOT STARTED", r"uat[^\n]{0,60}?\bNOT[ _-]?STARTED\b"),
-    (
-        "application CI is NOT APPLICABLE",
-        r"(?:application|aplikasi)[^\n]{0,40}ci[^\n]{0,60}?\bNOT[ _-]?APPLICABLE\b"
-        r"|ci[^\n]{0,40}(?:application|aplikasi)[^\n]{0,60}?\bNOT[ _-]?APPLICABLE\b",
-    ),
 ]
+
+# The three Step 3 runtime CI contexts. Application CI may be declared ACTIVE
+# only when every one of these workflows genuinely exists — see
+# check_application_ci_claim().
+RUNTIME_CI_WORKFLOWS = [
+    ".github/workflows/runtime-foundation.yml",
+    ".github/workflows/tenant-isolation.yml",
+    ".github/workflows/authentication-rbac.yml",
+]
+
+
+def check_application_ci_claim(root, text, rep) -> None:
+    """Application CI is NOT APPLICABLE until real runtime workflows exist.
+
+    Previously this was an unconditional REQUIRED_DECLARATION, which is the same
+    trap that made the validator enforce 'backend runtime is ABSENT' after the
+    backend existed: the document was required to state something that had stopped
+    being true.
+
+    Now the claim is checked against reality in BOTH directions. ACTIVE without the
+    workflows is a false claim; NOT APPLICABLE while all three exist is stale.
+    """
+    low = text.lower()
+    claims_active = re.search(r"application ci[^\n]{0,80}?\bactive\b", low) is not None
+    claims_na = re.search(
+        r"(?:application|aplikasi)[^\n]{0,40}ci[^\n]{0,60}?\bnot[ _-]?applicable\b", low
+    ) is not None
+
+    present = [w for w in RUNTIME_CI_WORKFLOWS if (root / w).is_file()]
+    all_present = len(present) == len(RUNTIME_CI_WORKFLOWS)
+
+    if claims_active:
+        rep.check(
+            all_present,
+            "Application CI is declared ACTIVE and all three runtime workflows exist "
+            f"({len(present)}/{len(RUNTIME_CI_WORKFLOWS)} present)",
+        )
+    elif claims_na:
+        rep.check(
+            not all_present,
+            "Application CI is declared NOT APPLICABLE and the runtime workflows are absent "
+            f"({len(present)}/{len(RUNTIME_CI_WORKFLOWS)} present)",
+        )
+    else:
+        rep.fail("STATUS.md makes no Application CI declaration")
 
 # Declarations that held only while no runtime was authorised (Steps 0-2).
 PRE_RUNTIME_DECLARATIONS: list[tuple[str, str]] = [
@@ -280,6 +320,8 @@ def main() -> int:
             )
     else:
         rep.ok("runtime-absence declarations not applicable from Step 3 (DEC-0024)")
+
+    check_application_ci_claim(root, text, rep)
 
     rep.check("NOT STARTED" in upper, "uses status vocabulary NOT STARTED")
 
