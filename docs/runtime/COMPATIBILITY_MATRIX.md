@@ -32,6 +32,9 @@ Rule 01 governs this table. A `DECLARED` row must never be reported as though it
 | Laravel 13.20.0 | PostgreSQL 18.4 | Laravel's `pgsql` driver; requires `pdo_pgsql` | `NOT VERIFIED` |
 | Laravel 13.20.0 | Redis 8.2 | Laravel Redis via `phpredis` or `predis` | `NOT VERIFIED` |
 | PHP 8.5.4 | `pdo_pgsql`, `redis` extensions | required for the above | `NOT VERIFIED` |
+| Development PostgreSQL container | pinned 18.4 | container reports `server_version = 18.4 (Debian 18.4-1.pgdg13+1)`, accepts a connection, completes a query round-trip | `EXECUTED` |
+| Development Redis container | pinned 8.2 | container answers `PING`/`PONG`, reports `redis_version = 8.2.7`, completes a write/read/delete cycle | `EXECUTED` |
+| Development services | stop/start cycle | services return to healthy reproducibly | `EXECUTED` |
 
 Rows marked `NOT VERIFIED` are **Phase B gates**. They move to `EXECUTED` only when the backend
 actually connects, migrates, and passes integration tests against containerised PostgreSQL 18.4 and
@@ -44,8 +47,8 @@ Redis 8.2 — not before, and the status is not advanced to make this table read
 | Flutter 3.44.6 | Dart 3.12.2 | Dart SDK is bundled with the Flutter release | `EXECUTED` — `flutter --version` reports Dart 3.12.2 |
 | Flutter 3.44.6 | Ubuntu 26.04 LTS host | SDK runs and self-reports | `EXECUTED` — `flutter doctor` section `[✓]` |
 | Flutter 3.44.6 | Chrome 149.0.7827.114 | Web target device available | `EXECUTED` — `flutter doctor` section `[✓]` |
-| Flutter 3.44.6 | **Android SDK 36** | **BLOCKED** — host has Android SDK **35.0.0**; Flutter 3.44.6 requires **36** plus BuildTools 28.0.3 | `EXECUTED` — `flutter doctor` reports `[!]` |
-| Flutter 3.44.6 | JDK 21.0.10 | Android Gradle toolchain requires a supported JDK | `NOT VERIFIED` |
+| Flutter 3.44.6 | **Android SDK 36 + build-tools 36.0.0** | **RESOLVED** — installed additively; `flutter doctor` now reports `[✓] Android toolchain … (Android SDK version 36.0.0)`, `Platform android-36, build-tools 36.0.0`, all licenses accepted | `EXECUTED` |
+| Flutter 3.44.6 | JDK 21.0.10 | `flutter doctor` reports the Android toolchain resolving JDK 21.0.10 | `EXECUTED` |
 | Flutter 3.44.6 | Flutter Web (`admin_web`) | Web is a first-class stable target in 3.44.x | `NOT VERIFIED` |
 | Dart 3.12.2 | Dart workspaces (monorepo) | Dart workspaces require Dart ≥ 3.6 | `DECLARED` |
 
