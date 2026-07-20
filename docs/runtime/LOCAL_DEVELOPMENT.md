@@ -74,9 +74,56 @@ It cannot reach a production database, because it has no way to address one.
 
 ## 4. Environment files
 
-Copy [`.env.example`](../../.env.example) to `.env`. **`.env` is never committed.** This repository is
-`PUBLIC`; a committed credential is compromised at push time and rotation — not deletion — is the
-first remediation (Rule 03, Rule 23).
+A working local checkout needs **two** ignored environment files, not one:
+
+```bash
+bash scripts/bootstrap-env-files.sh
+```
+
+That is the canonical command. It creates each destination only when it is absent, never overwrites
+an existing file, validates both templates before copying, and prints file *status* only — never file
+content and never `DB_PASSWORD`. Running it twice is safe.
+
+The equivalent manual sequence is:
+
+```bash
+cp .env.example .env
+cp backend/.env.example backend/.env
+```
+
+| File | Created from | Read by |
+|---|---|---|
+| `.env` | [`.env.example`](../../.env.example) | local infrastructure and bootstrap tooling |
+| `backend/.env` | [`backend/.env.example`](../../backend/.env.example) | **Laravel** |
+
+**Copying only the root file is not enough.** Laravel reads `backend/.env`. Before
+[DEC-0027](../decisions/DEC-0027-local-development-environment-bootstrap-and-template-contract.md)
+this document instructed only the root copy, so a fresh clone followed exactly as written produced no
+`backend/.env` at all and the backend could not authenticate to PostgreSQL. The defect stayed
+invisible on the maintainer's host because an ignored `backend/.env` already existed there — **local
+success built on a pre-existing ignored file is not fresh-clone evidence.**
+
+### Which port, and where
+
+| Context | Host | Port |
+|---|---|---|
+| Backend running on the host (the documented path) | `127.0.0.1` | **`55433`** |
+| PostgreSQL's own listener inside the container | — | `5432` |
+
+`infrastructure/docker-compose.dev.yml` publishes `127.0.0.1:55433:5432`. The internal `5432` is not
+interchangeable with the published `55433`: replacing it inside the compose file would break the
+container, and GitHub Actions service containers legitimately use `5432` on their own network.
+
+`scripts/validate-dev-environment-contract.py` enforces that `.env.example` and `backend/.env.example`
+carry identical `DB_*` values and that this bootstrap path exists. Template drift is a CI failure, not
+a discovery made later during a fresh clone.
+
+**Neither `.env` nor `backend/.env` is ever committed**; both are git-ignored, and an existing local
+file is always preserved so your own overrides survive. The committed templates carry **fictional,
+local-development-only** values that grant access to nothing beyond a throwaway local service.
+Production and staging credentials are managed separately and are out of scope for this repository.
+This repository is `PUBLIC`; a committed credential is compromised at push time and rotation — not
+deletion — is the first remediation (Rule 03, Rule 23).
 
 ## 5. What is verified, and what is not
 
@@ -89,12 +136,19 @@ first remediation (Rule 03, Rule 23).
 - the stop/start cycle is reproducible;
 - every refusal path of the reset guard actually refuses.
 
-**Not verified, and therefore not claimed:**
+**Backend runtime is `PRESENT — STEP 3 FOUNDATION ONLY`** and the Flutter workspace is `PRESENT`. The
+earlier text here — "no application has connected to either service — the backend runtime is still
+`ABSENT`" — became false once the runtime was introduced under DEC-0024 and is corrected by DEC-0027.
 
-- no application has connected to either service — the backend runtime is still `ABSENT`;
-- no migration has been run;
-- no test suite has executed against these services;
-- no Flutter or Laravel build has been produced.
+**Not claimed by this document:**
+
+- migration, test, and build results are **not asserted here**. Every executed result lives in the
+  Step 3 evidence pack under [`../../evidence/step-03/`](../../evidence/step-03/), bound to the exact
+  40-character commit SHA it was produced at (Rule 01, DEC-0013). A result quoted without its SHA is
+  not evidence, so this page quotes none;
+- **Step 4+ laundry business functionality remains `NOT IMPLEMENTED`** — no POS, order, payment,
+  production, tracking, delivery, reminder, or reporting capability exists;
+- deployment remains `ABSENT`. Nothing here deploys anything.
 
 Connectivity is not correctness. These services exist so that later Step 3 phases can run
 tenant-isolation tests against the **authoritative** engine; SQLite is never an acceptable substitute

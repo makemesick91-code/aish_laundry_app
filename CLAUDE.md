@@ -34,13 +34,25 @@ date **19 July 2026**).
 | Step 0 — Master Source and Governance | **GO** (owner-conferred 19 July 2026, with a recorded deviation) |
 | Step 1 — Product Requirement and Domain Model | **GO** (owner-conferred 19 July 2026, with a recorded deviation) |
 | Step 2 — Design System and UX Foundation | **GO** (owner-conferred 20 July 2026, with four recorded deviations) |
-| Step 3–14 | **PLANNED** |
-| All product features | **NOT IMPLEMENTED** |
-| Backend runtime | **ABSENT** |
-| Flutter workspace | **ABSENT** |
+| Step 3 — Runtime, Authentication, Multi-Tenancy, and RBAC | **IN PROGRESS** |
+| Step 4–14 | **PLANNED** |
+| All product business features | **NOT IMPLEMENTED** |
+| Backend runtime | **PRESENT — STEP 3 FOUNDATION ONLY** |
+| PostgreSQL runtime foundation | **PRESENT** |
+| Redis runtime foundation | **PRESENT** |
+| Flutter workspace | **PRESENT** |
 | Deployment | **ABSENT** |
-| Application CI | **NOT APPLICABLE** |
+| Application CI | **ACTIVE** |
 | UAT | **NOT STARTED** |
+
+This table previously read Step 3–14 `PLANNED`, backend runtime `ABSENT`, Flutter workspace `ABSENT`,
+and Application CI `NOT APPLICABLE`. Those statements became false when DEC-0024 authorised Step 3
+runtime and runtime was actually committed; they are corrected here under DEC-0027. **The correction
+does not advance Step 3.** Runtime existing is not runtime working, and `classify` passing is not a
+test result (Rule 36, hard rule 6). Step 3 remains `IN PROGRESS` and its `GO` is the owner's to
+confer. **Step 4+ laundry business functionality — POS, orders, payments, production, tracking,
+delivery, reminders, finance, subscription — remains `NOT IMPLEMENTED`** regardless of how much
+foundation runtime exists (Rule 42).
 
 Repository visibility is **PUBLIC** by deliberate owner decision (AMENDMENT-0001), locked as an
 **accepted deviation** from a canonical desired **PRIVATE** by DEC-0016. Never describe this repository

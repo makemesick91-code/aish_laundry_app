@@ -15,23 +15,35 @@ Canonical status: [`../../docs/STATUS.md`](../../docs/STATUS.md). Master Source 
 | Step 0 — Master Source and Governance | **GO WITH ACCEPTED DEVIATION** |
 | Step 1 — Product Requirement and Domain Model | **GO WITH ACCEPTED DEVIATION** |
 | Step 2 — Design System and UX Foundation | **GO WITH ACCEPTED DEVIATION** |
-| Step 3 — Runtime, Authentication, Multi-Tenancy, and RBAC | **IN PROGRESS — PHASE A COMPLETE** |
+| Step 3 — Runtime, Authentication, Multi-Tenancy, and RBAC | **IN PROGRESS** |
 | Steps 4–14 | **PLANNED** |
-| Android toolchain | **PREPARED — BUILDS NOT YET VERIFIED** |
 | PostgreSQL runtime foundation | **PRESENT** |
 | Redis runtime foundation | **PRESENT** |
-| Backend runtime | **ABSENT** |
-| Flutter workspace | **ABSENT** |
-| Application CI | **NOT APPLICABLE UNTIL REAL RUNTIME WORKFLOWS EXIST** |
+| Backend runtime | **PRESENT — STEP 3 FOUNDATION ONLY** |
+| Flutter workspace | **PRESENT** |
+| Application CI | **ACTIVE** |
 | Deployment | **ABSENT** |
 | UAT | **NOT STARTED** |
-| All product features | **NOT IMPLEMENTED** |
+| All product business features | **NOT IMPLEMENTED** |
+
+**This table was stale and is corrected under DEC-0027.** It previously declared backend runtime
+`ABSENT`, Flutter workspace `ABSENT`, Application CI `NOT APPLICABLE UNTIL REAL RUNTIME WORKFLOWS
+EXIST`, and Android toolchain `PREPARED — BUILDS NOT YET VERIFIED`. Each had stopped being true:
+`backend/composer.json`, the root `pubspec.yaml`, and the three Step 3 runtime workflows all exist. A
+status file that asserts an absence which the filesystem contradicts is not a conservative status
+file — it is a false claim under Rule 01, and `scripts/validate-status.py` now cross-checks these
+claims against the filesystem in both directions so the same drift cannot recur silently.
+
+**The correction does not advance Step 3.** `IN PROGRESS` is unchanged. Runtime presence is never
+proof of runtime correctness (Rule 36, hard rule 6), and no authentication, tenancy, RBAC, or
+accessibility claim is upgraded by this edit.
 
 **`GO` is conferred by the repository owner and is never self-declared by an agent** (Rule 01). While
 Step 3's pull request is open, the maximum permissible status for Step 3 is `IN PROGRESS`, `TESTED`, or
-`WATCH` — never `GO`. "Phase A complete" describes the runtime-scope-guard transition and approved-root
-scaffolding milestone; it is not a claim that authentication, tenancy, RBAC, or any application feature
-has been built or tested.
+`WATCH` — never `GO`. `IN PROGRESS` carries no milestone qualifier: the runtime-scope-guard transition
+and the approved-root scaffolding are done, but naming a "phase complete" inside a status invites it to
+be read as partial completion of the Step. It is not. Nothing in this snapshot claims that
+authentication, tenancy, RBAC, or any application feature has been built or tested.
 
 ## The permitted accessibility wording for Step 3
 
@@ -109,9 +121,10 @@ decision record (Master Source §24).
 2. Statuses move forward on **exact-SHA evidence** only (Rule 01).
 3. Use the approved status vocabulary only: `PLANNED`, `IN PROGRESS`, `TESTED`, `WATCH`,
    `NOT IMPLEMENTED`, `ABSENT`, `NOT APPLICABLE`, `NOT STARTED`, `NO-GO`, `GO`. No synonyms, no
-   softening adjectives. Compound qualifiers used above (`GO WITH ACCEPTED DEVIATION`, `IN PROGRESS —
-   PHASE A COMPLETE`, `PREPARED — BUILDS NOT YET VERIFIED`, `NOT APPLICABLE UNTIL REAL RUNTIME WORKFLOWS
-   EXIST`) qualify an approved base status; they never replace it or invent a new base status.
+   softening adjectives. Compound qualifiers used above (`GO WITH ACCEPTED DEVIATION`, `PRESENT — STEP 3
+   FOUNDATION ONLY`) qualify an approved base status; they never replace it or invent a new base status.
+   A qualifier that narrows a claim is acceptable; one that implies progress the evidence does not
+   support is not, which is why `IN PROGRESS — PHASE A COMPLETE` was withdrawn under DEC-0027.
 4. If another document contradicts this snapshot, the other document is wrong — unless the Master
    Source itself has moved, in which case this file is updated to match it.
 

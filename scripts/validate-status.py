@@ -181,6 +181,84 @@ def check_runtime_matches_reality(root, rep) -> None:
         "no production deployment artefact contradicts the ABSENT deployment claim",
     )
 
+# ---------------------------------------------------------------------------
+# Cross-document consistency (DEC-0027).
+#
+# STATUS.md was already cross-checked against the filesystem. CLAUDE.md and
+# Rule 49 were not, and both drifted: each still declared the backend runtime
+# and the Flutter workspace ABSENT, and Application CI NOT APPLICABLE, long
+# after backend/composer.json, pubspec.yaml, and all three runtime workflows
+# existed. STATUS.md was correct and the two enforcement layers contradicted it,
+# which is precisely the direction Rule 00 says must fail.
+#
+# These checks are deliberately NEGATIVE — they look for a claim that reality
+# contradicts. A check that merely searched for a desired success phrase would
+# pass on a document that says the right words and means nothing, and would have
+# to be updated every time the wording changed. Asserting an absence that the
+# filesystem refutes is the actual defect, so that is what is detected.
+# ---------------------------------------------------------------------------
+CANONICAL_STATUS_DOCS = [
+    "CLAUDE.md",
+    ".claude/rules/49-current-step-03-status.md",
+]
+
+# claim label -> (regex over the document, predicate over the repo)
+ABSENCE_CLAIMS: list[tuple[str, str, str]] = [
+    (
+        "backend runtime ABSENT",
+        r"\|\s*backend runtime\s*\|[^|\n]*\babsent\b",
+        "backend/composer.json",
+    ),
+    (
+        "Flutter workspace ABSENT",
+        r"\|\s*flutter workspace\s*\|[^|\n]*\babsent\b",
+        "pubspec.yaml",
+    ),
+]
+
+
+def check_cross_document_consistency(root, rep) -> None:
+    """No canonical status document may assert an absence the tree refutes."""
+    rep.info("--- cross-document canonical status (DEC-0027) ---")
+
+    for rel in CANONICAL_STATUS_DOCS:
+        path = root / rel
+        if not rep.check(path.is_file(), f"canonical status document exists: {rel}"):
+            continue
+        low = read_text(path).lower()
+
+        for label, pattern, artefact in ABSENCE_CLAIMS:
+            claims_absent = re.search(pattern, low) is not None
+            artefact_exists = (root / artefact).is_file()
+            rep.check(
+                not (claims_absent and artefact_exists),
+                f"{rel} does not declare {label} while {artefact} exists",
+            )
+
+        # Application CI: NOT APPLICABLE is only honest while a runtime workflow
+        # is genuinely missing.
+        claims_ci_na = re.search(
+            r"\|\s*application ci\s*\|[^|\n]*\bnot[ _-]?applicable\b", low
+        ) is not None
+        all_workflows = all((root / w).is_file() for w in RUNTIME_CI_WORKFLOWS)
+        rep.check(
+            not (claims_ci_na and all_workflows),
+            f"{rel} does not declare Application CI NOT APPLICABLE while all "
+            f"{len(RUNTIME_CI_WORKFLOWS)} runtime workflows exist",
+        )
+
+        # A later step must not be declared started in an enforcement layer
+        # either. STATUS.md is checked for this above; the derived documents are
+        # checked here so a forward leak cannot hide in one of them.
+        leaked = re.search(
+            r"\|\s*steps?\s*4\b[^|\n]*\|[^|\n]*\b(in progress|tested|watch|go)\b", low
+        )
+        rep.check(
+            leaked is None,
+            f"{rel} does not declare Step 4 started",
+        )
+
+
 FORBIDDEN_IMPLEMENTED = re.compile(r"\bIMPLEMENTED\b")
 # "NOT IMPLEMENTED" / "BELUM IMPLEMENTED" are the safe forms.
 #
@@ -372,6 +450,7 @@ def main() -> int:
 
     # --- claims cross-checked against the filesystem ----------------------
     check_runtime_matches_reality(root, rep)
+    check_cross_document_consistency(root, rep)
 
     return rep.finish()
 

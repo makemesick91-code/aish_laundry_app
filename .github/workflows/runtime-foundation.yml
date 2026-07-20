@@ -66,6 +66,20 @@ jobs:
       - name: Validate canonical Step 3 status
         run: python3 scripts/validate-status.py
 
+      # DEC-0027. The template contract AND the executable bootstrap path, plus
+      # the adversarial harness that proves the validator actually turns red.
+      # Reported inside this existing context deliberately: a sixteenth required
+      # status context is not created for it.
+      - name: Validate the development environment contract
+        run: |
+          set -euo pipefail
+          python3 scripts/validate-dev-environment-contract.py
+
+      - name: Adversarial environment and bootstrap contract suite
+        run: |
+          set -euo pipefail
+          bash scripts/test-dev-environment-contract.sh
+
       - name: Classify runtime scope
         run: python3 scripts/validate-runtime-scope.py
 
@@ -279,11 +293,18 @@ jobs:
           cd backend
           composer install --no-interaction --prefer-dist --no-progress
 
-      - name: Laravel boots and reports its version
+      # This deliberately runs the DOCUMENTED bootstrap rather than an inline
+      # `cp`. An inline copy proves only that CI can construct an environment its
+      # own way; it proves nothing about the path a developer is told to follow.
+      # The fresh-clone defect DEC-0027 records was invisible for exactly that
+      # reason — every environment that mattered was built by hand.
+      - name: Laravel boots from the documented bootstrap path
         run: |
           set -euo pipefail
+          bash scripts/bootstrap-env-files.sh
+          test -f .env         || { echo "bootstrap did not create .env"; exit 1; }
+          test -f backend/.env || { echo "bootstrap did not create backend/.env"; exit 1; }
           cd backend
-          cp .env.example .env
           php artisan key:generate
           php artisan --version
           php artisan about --only=environment

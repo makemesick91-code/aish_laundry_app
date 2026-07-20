@@ -20,6 +20,12 @@
 
 set -euo pipefail
 
+# Resolve the repository root from this script's own location and work from
+# there, so the script behaves identically however it was invoked. It previously
+# relied on the caller's working directory being the repository root.
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "${REPO_ROOT}"
+
 # ----------------------------------------------------------------------------
 # Pinned toolchain (must agree with docs/runtime/TOOLCHAIN.md)
 # ----------------------------------------------------------------------------
@@ -173,7 +179,23 @@ else
 fi
 
 # ----------------------------------------------------------------------------
-hdr "5. Toolchain lock verification"
+hdr "5. Local environment files (DEC-0027)"
+
+# Delegated to scripts/bootstrap-env-files.sh so the behaviour can be exercised
+# in isolation by the adversarial harness without running the whole toolchain
+# bootstrap. Both .env and backend/.env are created ONLY when absent; an existing
+# file is always preserved.
+#
+# This step is why a fresh clone can now reach the database at all: Laravel reads
+# backend/.env, and the documented path previously created only the root .env.
+if bash "${REPO_ROOT:-.}/scripts/bootstrap-env-files.sh"; then
+  ok "local environment files present (created where absent, never overwritten)"
+else
+  note_fail "environment bootstrap FAILED — run: bash scripts/bootstrap-env-files.sh"
+fi
+
+# ----------------------------------------------------------------------------
+hdr "6. Toolchain lock verification"
 
 if python3 scripts/validate-toolchain-locks.py >/dev/null 2>&1; then
   ok "toolchain locks consistent across all documented surfaces"

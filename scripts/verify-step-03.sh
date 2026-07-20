@@ -89,6 +89,8 @@ gate "runtime-scope harness"             bash scripts/test-step-03-validators.sh
 gate "runtime CI validator"              python3 scripts/validate-runtime-ci.py
 gate "runtime CI adversarial suite"      bash scripts/test-runtime-ci-validator.sh
 gate "toolchain locks"                   python3 scripts/validate-toolchain-locks.py
+gate "dev environment contract"          python3 scripts/validate-dev-environment-contract.py
+gate "dev environment adversarial suite" bash scripts/test-dev-environment-contract.sh
 
 hdr "4. Backend (authoritative PostgreSQL)"
 if ! (cd backend && php artisan --version >/dev/null 2>&1); then
@@ -154,6 +156,23 @@ gate "no build artefact is committable"  bash -c '! git ls-files --others --excl
 gate "working tree clean"                bash -c '[ "$(git status --porcelain | wc -l)" -eq 0 ]'
 
 # ---------------------------------------------------------------------------
+echo
+# Stable, greppable summary for the DEC-0027 environment contract. Derived from
+# the gate results above, never printed unconditionally: a summary that says PASS
+# whatever happened is exactly the placeholder success this verifier refuses.
+env_state="PASS"; boot_state="PASS"
+for f in ${FAILED_GATES[@]+"${FAILED_GATES[@]}"}; do
+  case "${f}" in
+    "dev environment contract")          env_state="FAIL"; boot_state="FAIL" ;;
+    "dev environment adversarial suite") env_state="FAIL"; boot_state="FAIL" ;;
+  esac
+done
+echo "DEV ENVIRONMENT CONTRACT:"
+echo "${env_state}"
+echo
+echo "BOOTSTRAP ENVIRONMENT PATH:"
+echo "${boot_state}"
+
 echo
 echo "========================================================================"
 printf 'STEP 3 VERIFICATION: %d passed, %d failed, %d skipped\n' "${PASS}" "${FAIL}" "${SKIP}"

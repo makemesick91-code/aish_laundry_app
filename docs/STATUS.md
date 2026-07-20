@@ -279,17 +279,38 @@ All three artefacts have been compiled and their evidence recorded in
 
 | Item | Status |
 | --- | --- |
-| Unit tests | NOT APPLICABLE |
-| Integration tests | NOT APPLICABLE |
-| Tenant isolation test suite | NOT APPLICABLE |
+| Unit tests | PRESENT — STEP 3 SCOPE ONLY |
+| Integration tests | PRESENT — STEP 3 SCOPE ONLY |
+| Tenant isolation test suite | PRESENT — STEP 3 SCOPE ONLY |
 | Financial integrity test suite | NOT APPLICABLE |
 | End-to-end tests | NOT APPLICABLE |
 | Application CI | ACTIVE — THREE STEP 3 RUNTIME CONTEXTS VERIFIED |
 | UAT | NOT STARTED |
 
-There is no application code, therefore there is nothing to build or test. Application CI becomes
-applicable at Step 3. Governance validation is performed by `scripts/verify-step-01.sh`, which runs the
-Step 0 gates still in force plus the Step 1 gates (32 gates in total).
+**Step 3 application foundations and runtime CI are present and tested. Step 4+ laundry business
+functionality remains `NOT IMPLEMENTED`.**
+
+This paragraph previously read "There is no application code, therefore there is nothing to build or
+test. Application CI becomes applicable at Step 3." That was stale Step 1 prose left standing beside a
+table declaring Application CI `ACTIVE` — a document contradicting itself on the same screen. It is
+corrected under [DEC-0027](decisions/DEC-0027-local-development-environment-bootstrap-and-template-contract.md).
+
+**Three rows in this table were also stale and are corrected.** Unit, integration, and tenant-isolation
+suites were each declared `NOT APPLICABLE` while `backend/tests/` already held executable suites and
+the `tenant-isolation` and `authentication-rbac` CI contexts were running against them. `PRESENT —
+STEP 3 SCOPE ONLY` is the accurate status: the suites exist and cover authentication, tenancy, RBAC,
+session management, audit redaction, and tenant cache-key scoping — and nothing beyond that.
+
+**`PRESENT` is not `TESTED`.** A suite existing is not a suite passing. Every execution result is bound
+to the exact 40-character commit SHA it ran against, in CI and in the Step 3 evidence pack; a result
+quoted without its SHA is not evidence (Rule 01, DEC-0013).
+
+The two remaining `NOT APPLICABLE` rows are genuinely inapplicable: there is no financial-integrity
+suite because there is no money path, and no end-to-end suite because there is no end-to-end product.
+Both arrive with the Steps that build what they would test.
+
+Governance validation is performed by `scripts/verify-step-03.sh`, which runs the Step 0, Step 1, and
+Step 2 gates still in force plus the Step 3 gates.
 
 **A written acceptance criterion is not a passed test.** Step 1 defined acceptance criteria; it executed
 none of them, because there is nothing to execute them against.
