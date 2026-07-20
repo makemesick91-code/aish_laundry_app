@@ -253,6 +253,20 @@ Each file below is binding. Read the relevant one before working in its area.
 | [`.claude/rules/33-design-traceability.md`](.claude/rules/33-design-traceability.md) | Requirement → journey → screen → component → token, in both directions |
 | [`.claude/rules/34-component-and-screen-governance.md`](.claude/rules/34-component-and-screen-governance.md) | Component state and accessibility contracts; screen requirement references |
 | [`.claude/rules/35-current-step-02-status.md`](.claude/rules/35-current-step-02-status.md) | Step 2 status and the documentation-is-not-implementation boundary |
+| [`.claude/rules/36-runtime-architecture.md`](.claude/rules/36-runtime-architecture.md) | DEC-0024 runtime scope, approved runtime roots, Step 4+ forbidden, `classify` check |
+| [`.claude/rules/37-toolchain-and-dependencies.md`](.claude/rules/37-toolchain-and-dependencies.md) | Pinned toolchain versions, dependency manifest discipline, fictional dev seeds |
+| [`.claude/rules/38-authentication-and-session-security.md`](.claude/rules/38-authentication-and-session-security.md) | Password hashing, token storage, CSRF, CORS, rate limiting, no user enumeration |
+| [`.claude/rules/39-multi-tenancy-runtime.md`](.claude/rules/39-multi-tenancy-runtime.md) | Runtime tenant scoping, membership checks, brand/outlet tenant boundary |
+| [`.claude/rules/40-rbac-and-authorization.md`](.claude/rules/40-rbac-and-authorization.md) | Server-side role and permission enforcement, immediate revocation effect |
+| [`.claude/rules/41-flutter-runtime-foundation.md`](.claude/rules/41-flutter-runtime-foundation.md) | Runtime token/component fidelity to Step 2, bounded accessibility claims |
+| [`.claude/rules/42-backend-api-foundation.md`](.claude/rules/42-backend-api-foundation.md) | Step 3 backend scope; POS/orders/payments/tracking/delivery remain NOT IMPLEMENTED |
+| [`.claude/rules/43-database-and-migrations.md`](.claude/rules/43-database-and-migrations.md) | PostgreSQL as authoritative evidence engine, migration fresh/rollback/re-apply testing |
+| [`.claude/rules/44-redis-cache-and-queue.md`](.claude/rules/44-redis-cache-and-queue.md) | Tenant-partitioned cache keys, locks, queue tenant context |
+| [`.claude/rules/45-secret-and-public-repository-safety.md`](.claude/rules/45-secret-and-public-repository-safety.md) | Runtime seeds and fixtures, secrets, public-repository constraints at runtime |
+| [`.claude/rules/46-runtime-observability.md`](.claude/rules/46-runtime-observability.md) | Tenant/actor-aware audit and logs, never logging tokens/OTPs/credentials |
+| [`.claude/rules/47-runtime-testing-and-adversarial-gates.md`](.claude/rules/47-runtime-testing-and-adversarial-gates.md) | Exact-SHA CI, fresh-clone verification, adversarial validator testing |
+| [`.claude/rules/48-tenant-isolation-hard-gate.md`](.claude/rules/48-tenant-isolation-hard-gate.md) | Runtime tenant-isolation hard gate and required negative-test coverage |
+| [`.claude/rules/49-current-step-03-status.md`](.claude/rules/49-current-step-03-status.md) | Step 3 status snapshot, adversarial scope-guard evidence, Step 4 boundary |
 
 ## 16. Violation handling
 

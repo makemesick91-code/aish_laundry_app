@@ -31,17 +31,28 @@ WORK="$(mktemp -d)"
 cleanup() { rm -rf "${WORK}"; }
 trap cleanup EXIT
 
-# Fingerprint the working tree so we can prove we did not disturb it.
+# The set of files git would actually carry: tracked, plus untracked-but-not-ignored
+# (the latter can still be swept in by `git add -A`, so they belong in scope).
+#
+# Git-IGNORED files are deliberately excluded. A developer's local backend/.env is
+# required to run the application and can never be committed, so copying it into
+# every sandbox made the guard fail closed on a file that will not exist in a fresh
+# clone or in CI — turning all five legitimate-case tests red for a reason that had
+# nothing to do with what they were testing.
+repo_payload() {
+  { git ls-files -z; git ls-files -z --others --exclude-standard; } 2>/dev/null | sort -z -u
+}
+
+# Fingerprint that payload so we can prove we did not disturb the working tree.
 fingerprint() {
-  find . -path ./.git -prune -o -path ./graphify-out -prune -o -type f -print0 2>/dev/null \
-    | sort -z | xargs -0 sha256sum 2>/dev/null | sha256sum | awk '{print $1}'
+  repo_payload | xargs -0 sha256sum 2>/dev/null | sha256sum | awk '{print $1}'
 }
 BEFORE="$(fingerprint)"
 
-# Pristine copy used as the base for every mutation.
+# Pristine copy used as the base for every mutation — fresh-clone equivalent.
 BASE="${WORK}/base"
 mkdir -p "${BASE}"
-tar -cf - --exclude=./.git --exclude=./graphify-out . 2>/dev/null | (cd "${BASE}" && tar -xf -)
+repo_payload | tar -cf - --null -T - 2>/dev/null | (cd "${BASE}" && tar -xf -)
 
 # Apply the authorised Step 3 runtime baseline inside the current directory, so
 # that feature-leakage mutations are tested against a realistic tree rather than

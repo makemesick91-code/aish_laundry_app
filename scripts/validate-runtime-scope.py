@@ -412,8 +412,37 @@ def check_governance_transition(root: Path, rep: Reporter) -> list[str]:
     return findings
 
 
+def git_ignored_paths(root: Path) -> set[str]:
+    """Repo-relative paths that git actually ignores.
+
+    A git-ignored file CANNOT be committed, so it cannot become a disclosure on a
+    PUBLIC repository — which is the risk this guard exists to prevent. A developer's
+    local `backend/.env` is required to run the application and is ignored by
+    .gitignore; flagging it would force the developer to choose between a working
+    environment and a green gate, and the usual resolution to that pressure is to
+    weaken the pattern, which is far worse.
+
+    This deliberately does NOT exempt untracked-but-unignored files: those can still
+    be swept in by `git add -A`, so they remain in scope.
+
+    Fails CLOSED: if git cannot be consulted, nothing is treated as ignored and the
+    full tree is scanned.
+    """
+    import subprocess
+    try:
+        proc = subprocess.run(
+            ["git", "-C", str(root), "ls-files", "--others", "--ignored",
+             "--exclude-standard", "-z"],
+            capture_output=True, timeout=60, check=True,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return set()
+    return {p for p in proc.stdout.decode("utf-8", "replace").split("\0") if p}
+
+
 def collect_files(root: Path, rep: Reporter) -> list[tuple[str, Path]]:
     out: list[tuple[str, Path]] = []
+    ignored = git_ignored_paths(root)
     for dirpath, dirnames, filenames in os.walk(root, followlinks=False):
         dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS]
         here = Path(dirpath)
@@ -431,7 +460,10 @@ def collect_files(root: Path, rep: Reporter) -> list[tuple[str, Path]]:
                 if not target.startswith(str(root) + os.sep) and target != str(root):
                     rep.fail(f"symlink escapes repository: {p.relative_to(root)} -> {target}")
                 continue
-            out.append((p.relative_to(root).as_posix(), p))
+            rel = p.relative_to(root).as_posix()
+            if rel in ignored:
+                continue
+            out.append((rel, p))
     return out
 
 
