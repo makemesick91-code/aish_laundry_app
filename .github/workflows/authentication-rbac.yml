@@ -103,21 +103,10 @@ jobs:
           php artisan key:generate
           php artisan migrate:fresh --seed
 
-      - name: Assert no shared default development password was seeded
+      - name: Assert schema scope and that no shared default password was seeded
         run: |
           set -euo pipefail
-          cd backend
-          php -r '
-            $p = new PDO("pgsql:host=127.0.0.1;port=5432;dbname=aish_laundry_ci", "aish_ci", getenv("DB_PASSWORD"));
-            $rows = $p->query("select password from users")->fetchAll(PDO::FETCH_COLUMN);
-            $n = count($rows); $u = count(array_unique($rows));
-            echo "  seeded users: $n, distinct password hashes: $u\n";
-            if ($n > 1 && $u < $n) { fwrite(STDERR, "  a shared default password was seeded\n"); exit(1); }
-            foreach ($rows as $h) {
-              if (strlen($h) < 40) { fwrite(STDERR, "  a password column is not a hash\n"); exit(1); }
-            }
-            echo "  every seeded credential is distinct and hashed\n";
-          '
+          php scripts/ci/assert-schema-scope.php --check-seeded-passwords
 
       - name: Authentication suite
         run: |

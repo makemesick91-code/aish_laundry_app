@@ -107,31 +107,18 @@ jobs:
 
       # Fail CLOSED: a service that has not actually accepted a connection is a
       # service that cannot have produced evidence.
+      # Extracted to a script: inline `php -r` inside a YAML block scalar trips
+      # shellcheck SC2016 (PHP's $var reads as an unexpanded shell variable) and
+      # could only be tested by pushing.
       - name: Assert PostgreSQL and Redis are genuinely reachable
         run: |
           set -euo pipefail
-          echo "== PostgreSQL =="
-          php -r '
-            $p = new PDO("pgsql:host=127.0.0.1;port=5432;dbname=aish_laundry_ci", "aish_ci", getenv("DB_PASSWORD"));
-            $v = $p->query("SHOW server_version")->fetchColumn();
-            echo "  server_version = $v\n";
-            if (strpos($v, "18.") !== 0) { fwrite(STDERR, "not PostgreSQL 18.x\n"); exit(1); }
-            if ((int) $p->query("SELECT 1+1")->fetchColumn() !== 2) { fwrite(STDERR, "round-trip failed\n"); exit(1); }
-            echo "  query round-trip ok\n";
-          '
-          echo "== Redis =="
-          php -r '
-            $r = new Redis();
-            if (!$r->connect("127.0.0.1", 6379)) { fwrite(STDERR, "redis connect failed\n"); exit(1); }
-            if ($r->ping() === false) { fwrite(STDERR, "redis PING failed\n"); exit(1); }
-            echo "  PING ok, version = " . $r->info()["redis_version"] . "\n";
-          '
+          php scripts/ci/assert-services-reachable.php
 
       - name: Assert the authoritative engine is PostgreSQL, never SQLite
         run: |
           set -euo pipefail
           cd backend
-          driver="$(php artisan tinker --execute='echo config("database.default");' 2>/dev/null || echo "${DB_CONNECTION}")"
           echo "  configured driver: ${DB_CONNECTION}"
           [ "${DB_CONNECTION}" = "pgsql" ] || { echo "isolation evidence requires pgsql"; exit 1; }
           if grep -qiE "DB_CONNECTION\s*=\s*sqlite" .env; then
@@ -151,18 +138,7 @@ jobs:
       - name: Assert no Step 4+ business table exists
         run: |
           set -euo pipefail
-          cd backend
-          php -r '
-            $p = new PDO("pgsql:host=127.0.0.1;port=5432;dbname=aish_laundry_ci", "aish_ci", getenv("DB_PASSWORD"));
-            $t = $p->query("select tablename from pg_tables where schemaname=\047public\047")->fetchAll(PDO::FETCH_COLUMN);
-            $forbidden = ["customers","services","service_catalog","price_lists","orders","order_items",
-                          "payments","receipts","production_jobs","tracking_tokens","deliveries","pickups",
-                          "reminders","receivables","loyalty","subscriptions"];
-            $hit = array_intersect($forbidden, $t);
-            echo "  tables: " . count($t) . "\n";
-            echo "  forbidden Step 4+ tables: " . count($hit) . "\n";
-            if ($hit) { fwrite(STDERR, "  " . implode(", ", $hit) . "\n"); exit(1); }
-          '
+          php scripts/ci/assert-schema-scope.php
 
       - name: Structural isolation and tenant-isolation matrix
         run: |

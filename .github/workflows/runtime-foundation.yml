@@ -231,7 +231,9 @@ jobs:
               echo "  unexpected platform directory: ${d}"; fail=1
             fi
           done
-          [ -d apps/admin_web/android ] && { echo "  admin_web must not have android/"; fail=1; } || true
+          if [ -d apps/admin_web/android ]; then
+            echo "  admin_web must not have an android/ directory"; fail=1
+          fi
           echo "  platform scope correct"
 
           echo "== artefacts =="

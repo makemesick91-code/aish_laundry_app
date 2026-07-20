@@ -62,7 +62,8 @@ REQUIRED_CONTEXTS: dict[str, tuple[str, list[tuple[str, str]]]] = {
             ("migrate rollback", r"migrate:rollback"),
             ("isolation matrix", r"StructuralIsolation\|TenantIsolation"),
             ("redis partitioning", r"RedisTenantPartitioning"),
-            ("forbidden table check", r"forbidden Step 4\+ tables|\$forbidden"),
+            ("forbidden table check", r"assert-schema-scope\.php"),
+            ("service reachability check", r"assert-services-reachable\.php"),
             ("sqlite refusal", r"SQLite substitution"),
         ],
     ),
@@ -210,6 +211,42 @@ def main() -> int:
               f"every action is pinned to a full commit SHA ({len(unpinned)} unpinned)")
     for u in unpinned[:8]:
         rep.info(u)
+
+    # --- the extracted CI scripts must still carry their substance ---------
+    #
+    # Moving a check into a script keeps the workflow lintable, but it also moves
+    # the thing that can be gutted. A workflow that dutifully calls an emptied
+    # script is exactly the static-echo success this validator exists to prevent,
+    # so the scripts themselves are asserted here.
+    schema_scope = root / "scripts/ci/assert-schema-scope.php"
+    if not schema_scope.is_file():
+        rep.fail("scripts/ci/assert-schema-scope.php is missing")
+    else:
+        body = schema_scope.read_text(encoding="utf-8")
+        required_tables = ["orders", "payments", "tracking_tokens", "deliveries", "subscriptions"]
+        absent = [t for t in required_tables if f"'{t}'" not in body]
+        rep.check(not absent,
+                  f"assert-schema-scope.php still lists the forbidden tables (absent: {absent})")
+        rep.check("--check-seeded-passwords" in body,
+                  "assert-schema-scope.php supports the seeded-password assertion")
+
+    reachable = root / "scripts/ci/assert-services-reachable.php"
+    if not reachable.is_file():
+        rep.fail("scripts/ci/assert-services-reachable.php is missing")
+    else:
+        body = reachable.read_text(encoding="utf-8")
+        rep.check("18." in body and "server_version" in body,
+                  "assert-services-reachable.php pins the authoritative PostgreSQL major")
+        rep.check("ping()" in body,
+                  "assert-services-reachable.php actually pings Redis")
+
+    web_scan = root / "scripts/scan-web-build.py"
+    if not web_scan.is_file():
+        rep.fail("scripts/scan-web-build.py is missing")
+    else:
+        body = web_scan.read_text(encoding="utf-8")
+        rep.check("localStorage" in body and "sessionStorage" in body,
+                  "scan-web-build.py still forbids browser token storage")
 
     # --- tenant-isolation must never substitute SQLite --------------------
     ti = texts.get("tenant-isolation.yml", "")
