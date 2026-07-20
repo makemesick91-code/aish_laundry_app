@@ -13,7 +13,7 @@ Primary language: Bahasa Indonesia. Currency: Rupiah. Timezone: Asia/Jakarta.
 
 ## 1. Canonical source
 
-The single canonical source of truth is **`docs/MASTER_SOURCE.md`** (version **1.3.0**, baseline
+The single canonical source of truth is **`docs/MASTER_SOURCE.md`** (version **1.4.0**, baseline
 date **19 July 2026**).
 
 - This file (`CLAUDE.md`) and everything under `.claude/rules/` are **derived enforcement layers**.
@@ -34,13 +34,25 @@ date **19 July 2026**).
 | Step 0 — Master Source and Governance | **GO** (owner-conferred 19 July 2026, with a recorded deviation) |
 | Step 1 — Product Requirement and Domain Model | **GO** (owner-conferred 19 July 2026, with a recorded deviation) |
 | Step 2 — Design System and UX Foundation | **GO** (owner-conferred 20 July 2026, with four recorded deviations) |
-| Step 3–14 | **PLANNED** |
-| All product features | **NOT IMPLEMENTED** |
-| Backend runtime | **ABSENT** |
-| Flutter workspace | **ABSENT** |
+| Step 3 — Runtime, Authentication, Multi-Tenancy, and RBAC | **IN PROGRESS** |
+| Step 4–14 | **PLANNED** |
+| All product business features | **NOT IMPLEMENTED** |
+| Backend runtime | **PRESENT — STEP 3 FOUNDATION ONLY** |
+| PostgreSQL runtime foundation | **PRESENT** |
+| Redis runtime foundation | **PRESENT** |
+| Flutter workspace | **PRESENT** |
 | Deployment | **ABSENT** |
-| Application CI | **NOT APPLICABLE** |
+| Application CI | **ACTIVE** |
 | UAT | **NOT STARTED** |
+
+This table previously read Step 3–14 `PLANNED`, backend runtime `ABSENT`, Flutter workspace `ABSENT`,
+and Application CI `NOT APPLICABLE`. Those statements became false when DEC-0024 authorised Step 3
+runtime and runtime was actually committed; they are corrected here under DEC-0027. **The correction
+does not advance Step 3.** Runtime existing is not runtime working, and `classify` passing is not a
+test result (Rule 36, hard rule 6). Step 3 remains `IN PROGRESS` and its `GO` is the owner's to
+confer. **Step 4+ laundry business functionality — POS, orders, payments, production, tracking,
+delivery, reminders, finance, subscription — remains `NOT IMPLEMENTED`** regardless of how much
+foundation runtime exists (Rule 42).
 
 Repository visibility is **PUBLIC** by deliberate owner decision (AMENDMENT-0001), locked as an
 **accepted deviation** from a canonical desired **PRIVATE** by DEC-0016. Never describe this repository
@@ -253,6 +265,20 @@ Each file below is binding. Read the relevant one before working in its area.
 | [`.claude/rules/33-design-traceability.md`](.claude/rules/33-design-traceability.md) | Requirement → journey → screen → component → token, in both directions |
 | [`.claude/rules/34-component-and-screen-governance.md`](.claude/rules/34-component-and-screen-governance.md) | Component state and accessibility contracts; screen requirement references |
 | [`.claude/rules/35-current-step-02-status.md`](.claude/rules/35-current-step-02-status.md) | Step 2 status and the documentation-is-not-implementation boundary |
+| [`.claude/rules/36-runtime-architecture.md`](.claude/rules/36-runtime-architecture.md) | DEC-0024 runtime scope, approved runtime roots, Step 4+ forbidden, `classify` check |
+| [`.claude/rules/37-toolchain-and-dependencies.md`](.claude/rules/37-toolchain-and-dependencies.md) | Pinned toolchain versions, dependency manifest discipline, fictional dev seeds |
+| [`.claude/rules/38-authentication-and-session-security.md`](.claude/rules/38-authentication-and-session-security.md) | Password hashing, token storage, CSRF, CORS, rate limiting, no user enumeration |
+| [`.claude/rules/39-multi-tenancy-runtime.md`](.claude/rules/39-multi-tenancy-runtime.md) | Runtime tenant scoping, membership checks, brand/outlet tenant boundary |
+| [`.claude/rules/40-rbac-and-authorization.md`](.claude/rules/40-rbac-and-authorization.md) | Server-side role and permission enforcement, immediate revocation effect |
+| [`.claude/rules/41-flutter-runtime-foundation.md`](.claude/rules/41-flutter-runtime-foundation.md) | Runtime token/component fidelity to Step 2, bounded accessibility claims |
+| [`.claude/rules/42-backend-api-foundation.md`](.claude/rules/42-backend-api-foundation.md) | Step 3 backend scope; POS/orders/payments/tracking/delivery remain NOT IMPLEMENTED |
+| [`.claude/rules/43-database-and-migrations.md`](.claude/rules/43-database-and-migrations.md) | PostgreSQL as authoritative evidence engine, migration fresh/rollback/re-apply testing |
+| [`.claude/rules/44-redis-cache-and-queue.md`](.claude/rules/44-redis-cache-and-queue.md) | Tenant-partitioned cache keys, locks, queue tenant context |
+| [`.claude/rules/45-secret-and-public-repository-safety.md`](.claude/rules/45-secret-and-public-repository-safety.md) | Runtime seeds and fixtures, secrets, public-repository constraints at runtime |
+| [`.claude/rules/46-runtime-observability.md`](.claude/rules/46-runtime-observability.md) | Tenant/actor-aware audit and logs, never logging tokens/OTPs/credentials |
+| [`.claude/rules/47-runtime-testing-and-adversarial-gates.md`](.claude/rules/47-runtime-testing-and-adversarial-gates.md) | Exact-SHA CI, fresh-clone verification, adversarial validator testing |
+| [`.claude/rules/48-tenant-isolation-hard-gate.md`](.claude/rules/48-tenant-isolation-hard-gate.md) | Runtime tenant-isolation hard gate and required negative-test coverage |
+| [`.claude/rules/49-current-step-03-status.md`](.claude/rules/49-current-step-03-status.md) | Step 3 status snapshot, adversarial scope-guard evidence, Step 4 boundary |
 
 ## 16. Violation handling
 

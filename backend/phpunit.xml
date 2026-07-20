@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         colors="true">
+    <testsuites>
+        <testsuite name="Unit">
+            <directory>tests/Unit</directory>
+        </testsuite>
+        <testsuite name="Feature">
+            <directory>tests/Feature</directory>
+        </testsuite>
+    </testsuites>
+    <source>
+        <include>
+            <directory>app</directory>
+        </include>
+    </source>
+    <php>
+        <env name="APP_ENV" value="testing"/>
+        <env name="APP_MAINTENANCE_DRIVER" value="file"/>
+        <env name="BCRYPT_ROUNDS" value="4"/>
+        <env name="MAIL_MAILER" value="array"/>
+        <env name="PULSE_ENABLED" value="false"/>
+        <env name="TELESCOPE_ENABLED" value="false"/>
+
+        <!--
+            Cache, session and queue use the in-memory array driver during tests.
+
+            This is isolation, not a shortcut. Rate-limit counters live in the
+            cache; against a shared Redis they would persist BETWEEN tests and
+            between a test run and a developer's running application, so one
+            test exercising the login throttle would lock out every test after
+            it. The array driver is rebuilt per test-case boot, which makes each
+            test start from a known state and keeps the suite from writing to
+            the development Redis at all.
+
+            Redis itself remains the authoritative cache/queue/lock backend for
+            the running application (Rule 06); nothing here changes that.
+        -->
+        <env name="CACHE_STORE" value="array"/>
+        <env name="SESSION_DRIVER" value="array"/>
+        <env name="QUEUE_CONNECTION" value="sync"/>
+
+        <!--
+            PostgreSQL is the authoritative database for every integration and
+            tenant-isolation test. SQLite is NOT an acceptable substitute and
+            must never be used as evidence of tenant isolation: it does not
+            enforce the composite foreign keys that make a cross-tenant
+            relation structurally impossible.
+
+            Tests therefore run against the real PostgreSQL configured in .env.
+        -->
+    </php>
+</phpunit>

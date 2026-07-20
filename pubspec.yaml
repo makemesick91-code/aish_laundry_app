@@ -1,0 +1,31 @@
+# Aish Laundry App — Dart workspace root.
+#
+# Step 3 runtime foundation. This file declares a DART WORKSPACE (Dart >= 3.6),
+# which is the only workspace mechanism used in this repository. No Melos, no
+# alternative workspace manager, no package.json.
+#
+# The root package publishes nothing and contains no source. It exists solely to
+# hold the workspace member list and the single shared dependency resolution.
+name: aish_laundry_workspace
+description: >-
+  Dart workspace root for the Aish Laundry App Step 3 runtime foundation.
+  Contains no application source of its own.
+publish_to: none
+version: 0.1.0
+
+environment:
+  sdk: ^3.12.0
+
+workspace:
+  - packages/core
+  - packages/domain
+  - packages/auth
+  - packages/networking
+  - packages/local_storage
+  - packages/offline_sync
+  - packages/observability
+  - packages/design_system
+  - packages/testing
+  - apps/customer_android
+  - apps/ops_android
+  - apps/admin_web

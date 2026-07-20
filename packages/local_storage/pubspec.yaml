@@ -1,0 +1,23 @@
+name: aish_local_storage
+description: >-
+  Credential storage abstraction for the Aish Laundry App. Platform secure
+  storage is the only persistent implementation; there is deliberately no
+  plaintext token path. Namespaces are separated per user and per tenant.
+publish_to: none
+version: 0.1.0
+resolution: workspace
+
+environment:
+  sdk: ^3.12.0
+
+dependencies:
+  aish_core: 0.1.0
+  flutter:
+    sdk: flutter
+  flutter_secure_storage: 10.3.1
+  meta: 1.18.0
+
+dev_dependencies:
+  flutter_lints: 6.0.0
+  flutter_test:
+    sdk: flutter

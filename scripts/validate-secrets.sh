@@ -72,13 +72,47 @@ P_PRIVATE_KEY_PEM="PRIVATE KEY BLOCK"
 # Only unambiguous placeholder markers are kept.
 PLACEHOLDER_FILTER='CHANGEME|CHANGE_ME|change_me|REDACTED|redacted|<[^>]*>|\$\{|\$\(|env\(|xxxx|XXXX|placeholder|PLACEHOLDER|your[_-]|YOUR[_-]|dummy|DUMMY|\*\*\*|NOT_SET|secrets\.'
 
+# PHPDoc/JSDoc TYPE ANNOTATIONS are declarations of shape, not assignments of
+# value. A line such as
+#     * @return array{token: string, access_token: AccessToken}
+# matches the generic "access_token: <8+ chars>" pattern, but the right-hand side
+# is a PHP type name. This exemption is deliberately STRUCTURAL and narrow: the
+# line must be a comment continuation (`*`) carrying an @return/@param/@var/
+# @property annotation. It does NOT exempt ordinary comments, so a real secret
+# written in a `// password: ...` comment is still caught.
+DOC_ANNOTATION='^[[:space:]]*\*[[:space:]]*@(return|param|var|property|method)\b'
+
+# In SOURCE CODE, an unquoted right-hand side is an EXPRESSION, not a literal:
+#     final TextEditingController _password = TextEditingController();
+#     .signIn(identifier: ..., password: _password.text)
+# Neither is a credential; both matched the generic assignment pattern.
+#
+# So for source-code files only, a finding must have a QUOTED value. Config and
+# data files (.env, .yml, .json, .properties, .md, ...) keep the stricter
+# unquoted matching, because that is exactly where a real secret gets pasted.
+#
+# This narrows by FILE TYPE and VALUE SHAPE, never by keyword — a quoted secret
+# in source (`password = "hunter2abc"`) is still caught, and an adversarial case
+# asserts that.
+SOURCE_EXT='\.(dart|php|ts|tsx|js|jsx|mjs|cjs|kt|java|go|rb|py|swift|cs|rs)$'
+QUOTED_VALUE='(password|passwd|secret|api[_-]?key|access[_-]?token|client[_-]?secret)[[:space:]]*[:=][[:space:]]*["'"'"']'
+
 # Strip the "path:line:" prefix and test the remaining content only.
 filter_placeholders() {
-  local line content
+  local line path content
   while IFS= read -r line; do
     [ -n "$line" ] || continue
+    path="${line%%:*}"
     content="${line#*:}"      # drop path
     content="${content#*:}"   # drop line number
+    if printf '%s' "$content" | grep -qE "$DOC_ANNOTATION"; then
+      continue
+    fi
+    if printf '%s' "$path" | grep -qE "$SOURCE_EXT"; then
+      if ! printf '%s' "$content" | grep -qE "$QUOTED_VALUE"; then
+        continue
+      fi
+    fi
     if ! printf '%s' "$content" | grep -qE "$PLACEHOLDER_FILTER"; then
       printf '%s\n' "$line"
     fi
@@ -101,6 +135,22 @@ scan_pattern() {
   fi
 }
 
+scan_pattern_i() {
+  local label="$1" pattern="$2"
+  local hits
+  hits="$(xargs -r -a "$SCAN_LIST" -d '\n' \
+    grep -n -I -H -E -i --no-messages -e "$pattern" 2>/dev/null || true)"
+  if [ -n "$hits" ]; then
+    hits="$(printf '%s\n' "$hits" | filter_placeholders || true)"
+  fi
+  if [ -n "$hits" ]; then
+    fail "credential pattern detected: $label"
+    printf '%s\n' "$hits" | head -20 | sed 's/^/      /'
+  else
+    pass "no match for credential pattern: $label"
+  fi
+}
+
 scan_pattern "private key block" "$P_PRIVATE_KEY"
 scan_pattern "PGP/private key armor" "$P_PRIVATE_KEY_PEM"
 scan_pattern "AWS access key id" "$P_AWS_KEY"
@@ -109,13 +159,24 @@ scan_pattern "GitHub token" "$P_GITHUB_TOKEN"
 scan_pattern "GitHub fine-grained PAT" "$P_GITHUB_PAT"
 scan_pattern "Slack token" "$P_SLACK_TOKEN"
 scan_pattern "Slack incoming webhook" "$P_SLACK_HOOK"
-scan_pattern "generic credential assignment" "$P_GENERIC"
+# Case-INSENSITIVE. A pre-existing gap: the pattern is written in lowercase and
+# grep -E is case-sensitive, so `DB_PASSWORD=hunter2...` — the exact shape a real
+# leaked credential takes in a config file — was never matched, while the
+# lowercase form was. Found while adversarially testing the source-file rule
+# above, and fixed rather than left because it widens detection.
+scan_pattern_i "generic credential assignment" "$P_GENERIC"
 
 # ---------------------------------------------------------------------------
 # Forbidden credential FILES.
 # ---------------------------------------------------------------------------
+# `.env.example` is a committed TEMPLATE containing only placeholders, and
+# .gitignore whitelists it explicitly (`!.env.example`) while ignoring every real
+# `.env`. The exemption is FILENAME-ONLY: the file's CONTENT is still scanned by
+# every credential pattern above, so a real secret placed inside it is still
+# caught. Exempting the content as well would turn the template into a
+# credential free-fire zone on a PUBLIC repository.
 FORBIDDEN_FILES="$(grep -E '(^|/)(\.env($|\.)|id_rsa($|\.)|id_dsa($|\.)|id_ecdsa($|\.)|id_ed25519($|\.)|.*\.pem$|.*\.p12$|.*\.pfx$|.*\.keystore$|.*\.jks$|credentials\.json$|service-account.*\.json$)' \
-  "$SCAN_LIST" || true)"
+  "$SCAN_LIST" | grep -v -E '(^|/)\.env\.example$' || true)"
 if [ -n "$FORBIDDEN_FILES" ]; then
   fail "credential file(s) present in the repository"
   printf '%s\n' "$FORBIDDEN_FILES" | sed 's/^/      /'

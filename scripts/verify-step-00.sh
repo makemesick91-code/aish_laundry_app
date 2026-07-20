@@ -29,7 +29,11 @@ GATES=(
   "status:$PY $SCRIPT_DIR/validate-status.py"
   "pricing:$PY $SCRIPT_DIR/validate-pricing.py"
   "rules-traceability:$PY $SCRIPT_DIR/validate-rules-traceability.py"
-  "no-runtime:$PY $SCRIPT_DIR/validate-no-runtime.py"
+  # DEC-0024: run against CURRENT main this suite checks runtime SCOPE, not
+  # absence. Absence for this step remains proven against its immutable GO tag
+  # by the `classify` job, which executes validate-no-runtime.py on the tagged
+  # tree itself. validate-no-runtime.py is retained unchanged for that purpose.
+  "runtime-scope:$PY $SCRIPT_DIR/validate-runtime-scope.py"
   "markdown-links:$PY $SCRIPT_DIR/validate-markdown-links.py"
   "secrets:bash $SCRIPT_DIR/validate-secrets.sh"
   "destructive-guard:bash $SCRIPT_DIR/test-destructive-guard.sh"

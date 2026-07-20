@@ -14,7 +14,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _common import Reporter, read_text, repo_root, run_main  # noqa: E402
 
 FIRST_DEC = 1
-LAST_DEC = 23
+# DEC-0024 (Step 3 runtime introduction and runtime scope guard transition) added
+# at Master Source 1.4.0. Raising this bound WIDENS coverage — every record up to
+# LAST_DEC must exist and be well-formed — so it can never be used to skip a record.
+LAST_DEC = 27
 
 # label -> list of accepted heading keywords (lowercase, substring match)
 REQUIRED_HEADINGS: list[tuple[str, list[str]]] = [

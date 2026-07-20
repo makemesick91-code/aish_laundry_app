@@ -63,8 +63,11 @@ jobs:
       - name: Run governance validators
         run: bash scripts/validate-governance.sh
 
-      - name: Assert no application runtime exists
-        run: python3 scripts/validate-no-runtime.py
+      # DEC-0024: current main is governed by the runtime SCOPE guard, not the
+      # absence guard. Step 0-2 absence remains proven against their immutable
+      # tags by the `classify` job in runtime-detection.yml.
+      - name: Assert runtime stays within the authorised Step 3 scope
+        run: python3 scripts/validate-runtime-scope.py
 
       - name: Test destructive-operations guard hook
         run: bash scripts/test-destructive-guard.sh

@@ -1,0 +1,96 @@
+---
+# Aish Laundry App — LOCAL DEVELOPMENT ONLY.
+#
+# This file provisions PostgreSQL and Redis on a developer workstation so that
+# Step 3 integration and tenant-isolation tests run against the AUTHORITATIVE
+# database engine rather than a substitute. SQLite is never an acceptable stand-in
+# for tenant-isolation evidence.
+#
+# THIS IS NOT A DEPLOYMENT ARTIFACT.
+#   - it binds to 127.0.0.1 only, never 0.0.0.0;
+#   - it uses obviously-fake development credentials, committed deliberately;
+#   - it contains no production or staging host, and no real secret;
+#   - a production or staging compose file is an explicit failure class in
+#     scripts/validate-runtime-scope.py.
+#
+# Credentials below are DEVELOPMENT PLACEHOLDERS on a PUBLIC repository. They grant
+# access to nothing: the services listen on loopback only and hold fake seed data.
+# Never reuse these values anywhere real.
+
+name: aish-laundry-dev
+
+services:
+  postgres:
+    # Pinned — must agree with docs/runtime/TOOLCHAIN.md and is enforced by
+    # scripts/validate-toolchain-locks.py.
+    #
+    # REGISTRY NOTE: pulled through mirror.gcr.io, Google's official pull-through
+    # cache for Docker Hub official images, because registry-1.docker.io is not
+    # reachable from this development network (verified: IPv4 and IPv6 both time
+    # out, while auth.docker.io resolves). The mirror serves the SAME official
+    # image; the digest below is the integrity anchor, so a compromised or
+    # substituted mirror cannot silently deliver different content.
+    #
+    # The VERSION IS NOT DOWNGRADED to whatever happened to be cached locally.
+    # postgres:17-alpine and redis:7-alpine were present on this host; using them
+    # would have made the pin a fiction and any "PostgreSQL 18.4 authoritative"
+    # claim false.
+    image: mirror.gcr.io/library/postgres:18.4@sha256:3a82e1f56c8f0f5616a11103ac3d47e632c3938698946a7ad26da0df1334744a
+    container_name: aish_laundry_dev_postgres
+    restart: "no"
+    environment:
+      POSTGRES_USER: aish_dev
+      POSTGRES_PASSWORD: CHANGEME_local_dev_only
+      POSTGRES_DB: aish_laundry_dev
+      # Deterministic collation so index and ordering behaviour is reproducible.
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    ports:
+      # Loopback only. Exposing 0.0.0.0 would publish the database to the local
+      # network, which is a real risk on a shared or cafe network.
+      #
+      # Port 55433, not 55432: an unrelated pre-existing container (`aish-postgres`)
+      # already holds 55432 on this host. This project does not stop, reconfigure,
+      # or take ports from containers it does not own.
+      - "127.0.0.1:55433:5432"
+    volumes:
+      # PostgreSQL 18+ expects a SINGLE mount at /var/lib/postgresql, which then
+      # places the cluster in a subdirectory. Mounting the older
+      # /var/lib/postgresql/data path makes the 18.x image refuse to initialise
+      # ("unused mount/volume"), which is exactly what happened here first.
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aish_dev -d aish_laundry_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    tmpfs:
+      - /tmp
+
+  redis:
+    # Same registry note as postgres above. Digest-pinned.
+    # NOTE: a Redis 7.4.9 instance already runs on this host at 127.0.0.1:63790.
+    # It is deliberately NOT used: it is not the pinned 8.2, it is not isolated
+    # from other work on this machine, and its data lifecycle is not controlled by
+    # this repository.
+    image: mirror.gcr.io/library/redis:8.2@sha256:d30960f73a599496d8b2802c97758bab6b1cd421fd06337f837779c47a57e1f3
+    container_name: aish_laundry_dev_redis
+    restart: "no"
+    command:
+      - redis-server
+      - --save
+      - ""
+      - --appendonly
+      - "no"
+    ports:
+      - "127.0.0.1:56379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 5s
+
+volumes:
+  postgres_data:
+    name: aish_laundry_dev_postgres_data

@@ -66,5 +66,7 @@ jobs:
       - name: Validate Mermaid block structure
         run: python3 scripts/validate-mermaid-blocks.py
 
-      - name: Confirm no runtime was introduced
-        run: python3 scripts/validate-no-runtime.py
+      # DEC-0024: runtime is authorised in Step 3 within approved roots. This
+      # gate now confirms SCOPE rather than absence.
+      - name: Confirm runtime stays within the authorised Step 3 scope
+        run: python3 scripts/validate-runtime-scope.py

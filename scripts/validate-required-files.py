@@ -59,8 +59,11 @@ GITHUB_FILES = [
     ".github/ISSUE_TEMPLATE/config.yml",
 ]
 
-EXPECTED_RULE_COUNT = 36
-EXPECTED_DECISION_COUNT = 23
+EXPECTED_RULE_COUNT = 50  # rules 00-49; 36-49 added at Master Source 1.4.0 (DEC-0024, Step 3 runtime)
+# DEC-0024 (Step 3 runtime introduction and runtime scope guard transition) added at
+# Master Source 1.4.0. Raising this count WIDENS coverage — every record up to the
+# count must exist — so it can never be used to skip a record.
+EXPECTED_DECISION_COUNT = 27
 
 
 def main() -> int:

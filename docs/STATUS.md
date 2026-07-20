@@ -2,7 +2,7 @@
 
 **This file is machine-validated. The status words below are exact and must not be paraphrased.**
 
-Baseline date: 19 July 2026 · Master Source version: 1.3.0
+Baseline date: 19 July 2026 · Master Source version: 1.4.0
 Status vocabulary: [`governance/STATUS_MODEL.md`](governance/STATUS_MODEL.md)
 Canonical source: [`MASTER_SOURCE.md`](MASTER_SOURCE.md)
 
@@ -15,7 +15,7 @@ Canonical source: [`MASTER_SOURCE.md`](MASTER_SOURCE.md)
 | Step 0 | Master Source and Governance | GO WITH ACCEPTED DEVIATION |
 | Step 1 | Product Requirement and Domain Model | GO WITH ACCEPTED DEVIATION |
 | Step 2 | Design System and UX Foundation | GO WITH ACCEPTED DEVIATION |
-| Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | PLANNED |
+| Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | IN PROGRESS |
 | Step 4 | Laundry Master Data | PLANNED |
 | Step 5 | POS, Order, and Payment Foundation | PLANNED |
 | Step 6 | Production Operations | PLANNED |
@@ -163,7 +163,10 @@ plus the Step 2 design open questions in
 [`ux/UX_OPEN_QUESTIONS.md`](ux/UX_OPEN_QUESTIONS.md). None was closed by
 inventing a product decision.
 
-**Step 3 has not begun.**
+**Step 3 is IN PROGRESS.** Runtime exists and is authorised by
+[DEC-0024](decisions/DEC-0024-step-3-runtime-introduction-and-runtime-scope-guard-transition.md).
+Runtime existing is not runtime working: see §2 for exactly what is verified and
+what is not.
 
 ---
 
@@ -171,12 +174,50 @@ inventing a product decision.
 
 | Item | Status |
 | --- | --- |
-| All product features | NOT IMPLEMENTED |
-| Backend runtime | ABSENT |
-| Flutter workspace | ABSENT |
+| All product business features | NOT IMPLEMENTED |
+| Backend runtime | PRESENT — STEP 3 FOUNDATION ONLY |
+| PostgreSQL runtime foundation | PRESENT |
+| Redis runtime foundation | PRESENT |
+| Flutter workspace | PRESENT |
+| Customer Android | FOUNDATION IMPLEMENTED AND DEBUG BUILD VERIFIED |
+| Ops Android | FOUNDATION IMPLEMENTED AND DEBUG BUILD VERIFIED |
+| Admin Web | FOUNDATION IMPLEMENTED AND BUILD VERIFIED |
 | Deployment | ABSENT |
-| Application CI | NOT APPLICABLE |
+| Application CI | ACTIVE — THREE STEP 3 RUNTIME CONTEXTS VERIFIED |
 | UAT | NOT STARTED |
+
+**Runtime existing is not runtime working.** The backend boots, migrates against
+authoritative PostgreSQL 18.4, and passes 202 tests; the Dart workspace analyses
+clean and passes 187 tests. No Android or Web artefact has been built, so no build
+result is claimed.
+
+<!-- CANONICAL_STEP_STATE_BEGIN -->
+<!--
+Machine-readable canonical step state. This block is the DETERMINISTIC source for
+tooling; the tables above are the human-readable form. scripts/validate-status.py
+fails if the two disagree, so neither can drift silently.
+
+Exactly one block. Duplicate blocks, duplicate keys, missing markers, or an
+unknown status value are all failures, and a parse error fails CLOSED.
+Transitions remain governed by the ordinary canonical process — editing this
+block does not by itself advance a step.
+-->
+STEP_00_STATUS=GO
+STEP_01_STATUS=GO
+STEP_02_STATUS=GO
+STEP_03_STATUS=IN_PROGRESS
+STEP_04_STATUS=PLANNED
+STEP_05_STATUS=PLANNED
+STEP_06_STATUS=PLANNED
+STEP_07_STATUS=PLANNED
+STEP_08_STATUS=PLANNED
+STEP_09_STATUS=PLANNED
+STEP_10_STATUS=PLANNED
+STEP_11_STATUS=PLANNED
+STEP_12_STATUS=PLANNED
+STEP_13_STATUS=PLANNED
+STEP_14_STATUS=PLANNED
+<!-- CANONICAL_STEP_STATE_END -->
 
 ---
 
@@ -206,27 +247,31 @@ Every product feature is **NOT IMPLEMENTED**.
 
 ---
 
-## 4. Runtime placeholder status
+## 4. Runtime status by path
 
-| Path | Status | Runtime |
+Step 3 introduced runtime into the approved roots (DEC-0024). These paths are no
+longer placeholders. **Runtime present is not runtime working** — the third column
+records what has actually been executed, not what exists.
+
+| Path | Runtime | Verified |
 | --- | --- | --- |
-| `apps/customer_android` | NOT IMPLEMENTED | ABSENT |
-| `apps/ops_android` | NOT IMPLEMENTED | ABSENT |
-| `apps/admin_web` | NOT IMPLEMENTED | ABSENT |
-| `backend` | NOT IMPLEMENTED | ABSENT |
-| `infrastructure` | NOT IMPLEMENTED | ABSENT |
-| `packages/design_system` | NOT IMPLEMENTED | ABSENT |
-| `packages/core` | NOT IMPLEMENTED | ABSENT |
-| `packages/domain` | NOT IMPLEMENTED | ABSENT |
-| `packages/auth` | NOT IMPLEMENTED | ABSENT |
-| `packages/networking` | NOT IMPLEMENTED | ABSENT |
-| `packages/local_storage` | NOT IMPLEMENTED | ABSENT |
-| `packages/offline_sync` | NOT IMPLEMENTED | ABSENT |
-| `packages/observability` | NOT IMPLEMENTED | ABSENT |
-| `packages/testing` | NOT IMPLEMENTED | ABSENT |
+| `backend` | PRESENT | Laravel 13.20.0 boots; migrate fresh/rollback/re-apply on PostgreSQL 18.4; 202 tests, 1292 assertions |
+| `apps/customer_android` | PRESENT | analyse clean, 20 widget tests; **debug APK built, exit 0** |
+| `apps/ops_android` | PRESENT | analyse clean, 28 widget tests; **debug APK built, exit 0** |
+| `apps/admin_web` | PRESENT | analyse clean, 20 widget tests; **release web build, exit 0** |
+| `packages/design_system` | PRESENT | deterministic token generation, drift test |
+| `packages/core` | PRESENT | pure Dart, unit tests |
+| `packages/domain` | PRESENT | pure Dart, unit tests |
+| `packages/auth` | PRESENT | auth-state tests |
+| `packages/networking` | PRESENT | error-mapping tests |
+| `packages/local_storage` | PRESENT | secure-storage abstraction tests |
+| `packages/offline_sync` | PRESENT — interfaces only | no business queue exists |
+| `packages/observability` | PRESENT | redaction tests |
+| `packages/testing` | PRESENT | fakes and helpers |
+| `infrastructure` | PRESENT — development only | PostgreSQL 18.4 and Redis 8.2.7 connectivity proven; **no deployment artefact** |
 
-These directories contain a `README.md` only. **An empty folder is never evidence of an implemented
-feature.**
+All three artefacts have been compiled and their evidence recorded in
+`evidence/step-03/`. **No deployment exists**, and no artefact is committed.
 
 ---
 
@@ -234,17 +279,38 @@ feature.**
 
 | Item | Status |
 | --- | --- |
-| Unit tests | NOT APPLICABLE |
-| Integration tests | NOT APPLICABLE |
-| Tenant isolation test suite | NOT APPLICABLE |
+| Unit tests | PRESENT — STEP 3 SCOPE ONLY |
+| Integration tests | PRESENT — STEP 3 SCOPE ONLY |
+| Tenant isolation test suite | PRESENT — STEP 3 SCOPE ONLY |
 | Financial integrity test suite | NOT APPLICABLE |
 | End-to-end tests | NOT APPLICABLE |
-| Application CI | NOT APPLICABLE |
+| Application CI | ACTIVE — THREE STEP 3 RUNTIME CONTEXTS VERIFIED |
 | UAT | NOT STARTED |
 
-There is no application code, therefore there is nothing to build or test. Application CI becomes
-applicable at Step 3. Governance validation is performed by `scripts/verify-step-01.sh`, which runs the
-Step 0 gates still in force plus the Step 1 gates (32 gates in total).
+**Step 3 application foundations and runtime CI are present and tested. Step 4+ laundry business
+functionality remains `NOT IMPLEMENTED`.**
+
+This paragraph previously read "There is no application code, therefore there is nothing to build or
+test. Application CI becomes applicable at Step 3." That was stale Step 1 prose left standing beside a
+table declaring Application CI `ACTIVE` — a document contradicting itself on the same screen. It is
+corrected under [DEC-0027](decisions/DEC-0027-local-development-environment-bootstrap-and-template-contract.md).
+
+**Three rows in this table were also stale and are corrected.** Unit, integration, and tenant-isolation
+suites were each declared `NOT APPLICABLE` while `backend/tests/` already held executable suites and
+the `tenant-isolation` and `authentication-rbac` CI contexts were running against them. `PRESENT —
+STEP 3 SCOPE ONLY` is the accurate status: the suites exist and cover authentication, tenancy, RBAC,
+session management, audit redaction, and tenant cache-key scoping — and nothing beyond that.
+
+**`PRESENT` is not `TESTED`.** A suite existing is not a suite passing. Every execution result is bound
+to the exact 40-character commit SHA it ran against, in CI and in the Step 3 evidence pack; a result
+quoted without its SHA is not evidence (Rule 01, DEC-0013).
+
+The two remaining `NOT APPLICABLE` rows are genuinely inapplicable: there is no financial-integrity
+suite because there is no money path, and no end-to-end suite because there is no end-to-end product.
+Both arrive with the Steps that build what they would test.
+
+Governance validation is performed by `scripts/verify-step-03.sh`, which runs the Step 0, Step 1, and
+Step 2 gates still in force plus the Step 3 gates.
 
 **A written acceptance criterion is not a passed test.** Step 1 defined acceptance criteria; it executed
 none of them, because there is nothing to execute them against.

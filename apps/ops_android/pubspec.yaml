@@ -1,0 +1,35 @@
+name: aish_ops_android
+description: >-
+  Aish Laundry Ops Android — Step 3 runtime shell. Staff login, session
+  restoration, explicit tenant and outlet selection, role-aware placeholder
+  navigation and honest offline indication. No counter, production or courier
+  feature exists in Step 3.
+publish_to: none
+version: 0.1.0+1
+resolution: workspace
+
+environment:
+  sdk: ^3.12.0
+
+dependencies:
+  aish_auth: 0.1.0
+  aish_core: 0.1.0
+  aish_design_system: 0.1.0
+  aish_domain: 0.1.0
+  aish_local_storage: 0.1.0
+  aish_networking: 0.1.0
+  aish_observability: 0.1.0
+  aish_offline_sync: 0.1.0
+  flutter:
+    sdk: flutter
+  flutter_riverpod: 3.3.2
+  go_router: 17.3.0
+
+dev_dependencies:
+  aish_testing: 0.1.0
+  flutter_lints: 6.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
