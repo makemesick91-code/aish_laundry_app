@@ -62,7 +62,11 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', App\Models\User::class),
+            // The canonical User model lives in the Identity module, not in the
+            // default App\Models namespace: identity is a bounded context and
+            // its aggregate root belongs inside it (Rule 17, hard rule 9 —
+            // backend module boundaries mirror the bounded contexts).
+            'model' => env('AUTH_MODEL', App\Modules\Identity\Models\User::class),
         ],
 
         // 'users' => [

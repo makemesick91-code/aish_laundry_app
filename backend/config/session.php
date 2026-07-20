@@ -167,9 +167,19 @@ return [
     | to the server if the browser has a HTTPS connection. This will keep
     | the cookie from being sent to you when it can't be done securely.
     |
+    | THE DEFAULT IS DERIVED, NOT BLANK. Laravel's stock value is a bare
+    | env() lookup, which yields null — and a null Secure flag means the
+    | session cookie is transmitted over plain HTTP. Relying on somebody
+    | remembering to set SESSION_SECURE_COOKIE=true in production makes the
+    | security of every session depend on a deployment checklist.
+    |
+    | This defaults to ON outside local development and can still be turned
+    | off explicitly by environment where a non-TLS environment genuinely
+    | needs it. Failing secure-by-default is the point.
+    |
     */
 
-    'secure' => env('SESSION_SECURE_COOKIE'),
+    'secure' => env('SESSION_SECURE_COOKIE', env('APP_ENV') !== 'local' && env('APP_ENV') !== 'testing'),
 
     /*
     |--------------------------------------------------------------------------

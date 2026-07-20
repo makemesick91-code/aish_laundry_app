@@ -72,6 +72,16 @@ P_PRIVATE_KEY_PEM="PRIVATE KEY BLOCK"
 # Only unambiguous placeholder markers are kept.
 PLACEHOLDER_FILTER='CHANGEME|CHANGE_ME|change_me|REDACTED|redacted|<[^>]*>|\$\{|\$\(|env\(|xxxx|XXXX|placeholder|PLACEHOLDER|your[_-]|YOUR[_-]|dummy|DUMMY|\*\*\*|NOT_SET|secrets\.'
 
+# PHPDoc/JSDoc TYPE ANNOTATIONS are declarations of shape, not assignments of
+# value. A line such as
+#     * @return array{token: string, access_token: AccessToken}
+# matches the generic "access_token: <8+ chars>" pattern, but the right-hand side
+# is a PHP type name. This exemption is deliberately STRUCTURAL and narrow: the
+# line must be a comment continuation (`*`) carrying an @return/@param/@var/
+# @property annotation. It does NOT exempt ordinary comments, so a real secret
+# written in a `// password: ...` comment is still caught.
+DOC_ANNOTATION='^[[:space:]]*\*[[:space:]]*@(return|param|var|property|method)\b'
+
 # Strip the "path:line:" prefix and test the remaining content only.
 filter_placeholders() {
   local line content
@@ -79,6 +89,9 @@ filter_placeholders() {
     [ -n "$line" ] || continue
     content="${line#*:}"      # drop path
     content="${content#*:}"   # drop line number
+    if printf '%s' "$content" | grep -qE "$DOC_ANNOTATION"; then
+      continue
+    fi
     if ! printf '%s' "$content" | grep -qE "$PLACEHOLDER_FILTER"; then
       printf '%s\n' "$line"
     fi

@@ -63,7 +63,7 @@ EXPECTED_RULE_COUNT = 50  # rules 00-49; 36-49 added at Master Source 1.4.0 (DEC
 # DEC-0024 (Step 3 runtime introduction and runtime scope guard transition) added at
 # Master Source 1.4.0. Raising this count WIDENS coverage — every record up to the
 # count must exist — so it can never be used to skip a record.
-EXPECTED_DECISION_COUNT = 24
+EXPECTED_DECISION_COUNT = 25
 
 
 def main() -> int:

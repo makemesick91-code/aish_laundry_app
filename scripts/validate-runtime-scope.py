@@ -209,6 +209,14 @@ def is_recognisably_fictional_phone(value: str) -> bool:
         return True
     if body.count("0") >= len(body) - 1:
         return True
+    # A run of four or more consecutive zeros. This is the same convention
+    # scripts/validate-public-repository-safety.sh and scripts/validate-secrets.sh
+    # already treat as an obvious placeholder, and aligning the three validators on
+    # one notion of "recognisably fabricated" prevents a fixture that satisfies one
+    # scanner from tripping another — which is how pressure to weaken a scanner
+    # builds in the first place.
+    if "0000" in body:
+        return True
     ascending = all(int(b) - int(a) == 1 for a, b in zip(body, body[1:]))
     if ascending:
         return True

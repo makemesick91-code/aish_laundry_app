@@ -1,5 +1,7 @@
 <?php
 
+use App\Modules\SharedKernel\Logging\ConfigureLogRedaction;
+
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
@@ -59,6 +61,7 @@ return [
         ],
 
         'single' => [
+            'tap' => [ConfigureLogRedaction::class],
             'driver' => 'single',
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
@@ -66,6 +69,7 @@ return [
         ],
 
         'daily' => [
+            'tap' => [ConfigureLogRedaction::class],
             'driver' => 'daily',
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
@@ -74,6 +78,7 @@ return [
         ],
 
         'slack' => [
+            'tap' => [ConfigureLogRedaction::class],
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),
             'username' => env('LOG_SLACK_USERNAME', 'Laravel Log'),
@@ -83,6 +88,7 @@ return [
         ],
 
         'papertrail' => [
+            'tap' => [ConfigureLogRedaction::class],
             'driver' => 'monolog',
             'level' => env('LOG_LEVEL', 'debug'),
             'handler' => env('LOG_PAPERTRAIL_HANDLER', SyslogUdpHandler::class),
@@ -95,6 +101,7 @@ return [
         ],
 
         'stderr' => [
+            'tap' => [ConfigureLogRedaction::class],
             'driver' => 'monolog',
             'level' => env('LOG_LEVEL', 'debug'),
             'handler' => StreamHandler::class,
@@ -106,6 +113,7 @@ return [
         ],
 
         'syslog' => [
+            'tap' => [ConfigureLogRedaction::class],
             'driver' => 'syslog',
             'level' => env('LOG_LEVEL', 'debug'),
             'facility' => env('LOG_SYSLOG_FACILITY', LOG_USER),
@@ -113,6 +121,7 @@ return [
         ],
 
         'errorlog' => [
+            'tap' => [ConfigureLogRedaction::class],
             'driver' => 'errorlog',
             'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
