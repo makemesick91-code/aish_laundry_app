@@ -254,33 +254,14 @@ jobs:
 
           exit "${fail}"
 
+      # Extracted to scripts/scan-web-build.py. As an indented heredoc inside
+      # this block scalar it died with a shell parse error and produced NO output,
+      # which read as a finding when it was a syntax fault — the worst failure
+      # mode for a security scan. As a file it runs identically here and locally.
       - name: Scan the Web build for credentials and token storage
         run: |
           set -euo pipefail
-          web="apps/admin_web/build/web"
-          fail=0
-
-          for pattern in localStorage sessionStorage; do
-            n="$(grep -rl "${pattern}" "${web}" 2>/dev/null | wc -l)"
-            printf '  %-16s files: %s\n' "${pattern}" "${n}"
-            [ "${n}" -eq 0 ] || { echo "    bearer-token browser storage is forbidden"; fail=1; }
-          done
-
-          python3 - "${web}" <<'PY'
-          import pathlib, re, sys
-          root = pathlib.Path(sys.argv[1])
-          bad = 0
-          pat = re.compile(r'(password|secret|api[_-]?key|access[_-]?token)["\']?\s*[:=]\s*["\'][A-Za-z0-9/+_.-]{8,}["\']', re.I)
-          for f in root.rglob("*"):
-              if not f.is_file() or f.suffix not in {".js", ".json", ".html"}:
-                  continue
-              for m in pat.finditer(f.read_text(encoding="utf-8", errors="replace")):
-                  print(f"  credential-shaped assignment in {f}: {m.group(0)[:40]}…")
-                  bad += 1
-          print(f"  credential-shaped assignments: {bad}")
-          sys.exit(1 if bad else 0)
-          PY
-          exit "${fail}"
+          python3 scripts/scan-web-build.py apps/admin_web/build/web
 
       # --- backend boot -----------------------------------------------------
       - name: Set up PHP
