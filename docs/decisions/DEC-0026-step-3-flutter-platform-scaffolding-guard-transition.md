@@ -138,12 +138,58 @@ occurred **for the intended reason**, that the guard remained enabled, and that 
 restored byte-identically. A denial caused by an unrelated fixture is treated as an invalid result,
 not a pass.
 
-Recorded honestly: an earlier attempt to apply this amendment inside the agent session left the guard
-temporarily broken — the dispatch referencing `_step3_flutter_scaffold_authorized` was written before
-the function itself, and the second edit was refused by the harness. The guard failed **closed**,
-blocking every command, and was reverted to a byte-identical committed state with its self-test
-passing 171/171. No unsafe command ran. The ordering error is why the amendment is now delivered as a
-single atomic owner-run script with automatic rollback.
+### Superseded verification runs — recorded, not erased
+
+**Run 1 — in-session edit, ABORTED.** The dispatch referencing
+`_step3_flutter_scaffold_authorized` was written before the function itself, and the second edit was
+refused by the harness. The guard failed **closed**, blocking every command, and was reverted to a
+byte-identical committed state with its self-test passing 171/171. No unsafe command ran. This is why
+the amendment is delivered as a single atomic owner-run script with automatic rollback.
+
+**Run 2 — owner applied, FAILED VERIFICATION, rolled back. 5/29 met, 24 failed.**
+All three approved controls were refused with
+`docs/STATUS.md does not report Step 3 as IN PROGRESS`, and command-specific cases D1–D20 were denied
+by that same earlier check before reaching the condition they were written to test. The harness
+correctly classified those as **invalid results rather than security passes**.
+
+The root cause was **not** the guard. `docs/STATUS.md` genuinely declared
+`| Step 3 | … | PLANNED |`, stated *"Step 3 has not begun"*, and listed the backend runtime and
+Flutter workspace as `ABSENT` — while runtime had in fact been committed across several prior
+commits. The guard read the canonical status correctly and refused correctly; **the canonical status
+was false.**
+
+That drift had been invisible because `scripts/validate-status.py` carried `CURRENT_STEP = 2` and
+*required* the strings "backend runtime is ABSENT" and "Flutter workspace is ABSENT". The validator
+was enforcing the untruth rather than catching it. Corrected by: raising `CURRENT_STEP` to 3; making
+the runtime-absence declarations apply only while `CURRENT_STEP < 3`; and adding
+`check_runtime_matches_reality()`, which compares each claim against an artefact on disk so a status
+file cannot assert `ABSENT` while `backend/composer.json` or the workspace `pubspec.yaml` exists.
+
+Neither superseded run may be cited as evidence that this control works.
+
+**Run 3 — corrected, 38/38 met, 0 failed**, executed against a **disposable patched copy** of the
+guard so the canonical hook was never modified during verification. Three approved controls
+authorised; twenty-one command-specific denials and eleven canonical-state denials each asserted the
+intended reason; execution outside the canonical repository denied; guard self-test 171/171; the
+undefined-function regression explicitly tested; working tree byte-identical before and after.
+
+Two defects were found and fixed by that run itself: a target of `.` was denied as "outside the
+repository" when the repository root is in fact *inside* it and simply unapproved — a correct denial
+for an inaccurate reason, which the harness reports as invalid; and the execution-context case
+concatenated a repository prefix onto an already-absolute path, producing exit 127 rather than a
+denial.
+
+### Deterministic parsing
+
+Two loose reads were replaced with deterministic ones:
+
+- **Step status** is parsed from the `CANONICAL_STEP_STATE` block in `docs/STATUS.md`, never from
+  prose or a markdown table. Exactly one block; duplicate blocks, duplicate keys, a missing key, an
+  unknown status value, or absent markers all fail closed. `validate-status.py` additionally fails if
+  the machine-readable block and the human-readable table disagree, so neither can drift alone.
+- **Decision acceptance** requires exactly one formal `**Status:**` field reading exactly `ACCEPTED`.
+  A filename proves nothing, duplicate status fields fail, and prose mentioning "accepted" elsewhere
+  does not satisfy it.
 
 ## Requirement references
 

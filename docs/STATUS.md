@@ -15,7 +15,7 @@ Canonical source: [`MASTER_SOURCE.md`](MASTER_SOURCE.md)
 | Step 0 | Master Source and Governance | GO WITH ACCEPTED DEVIATION |
 | Step 1 | Product Requirement and Domain Model | GO WITH ACCEPTED DEVIATION |
 | Step 2 | Design System and UX Foundation | GO WITH ACCEPTED DEVIATION |
-| Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | PLANNED |
+| Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | IN PROGRESS |
 | Step 4 | Laundry Master Data | PLANNED |
 | Step 5 | POS, Order, and Payment Foundation | PLANNED |
 | Step 6 | Production Operations | PLANNED |
@@ -163,7 +163,10 @@ plus the Step 2 design open questions in
 [`ux/UX_OPEN_QUESTIONS.md`](ux/UX_OPEN_QUESTIONS.md). None was closed by
 inventing a product decision.
 
-**Step 3 has not begun.**
+**Step 3 is IN PROGRESS.** Runtime exists and is authorised by
+[DEC-0024](decisions/DEC-0024-step-3-runtime-introduction-and-runtime-scope-guard-transition.md).
+Runtime existing is not runtime working: see §2 for exactly what is verified and
+what is not.
 
 ---
 
@@ -171,12 +174,50 @@ inventing a product decision.
 
 | Item | Status |
 | --- | --- |
-| All product features | NOT IMPLEMENTED |
-| Backend runtime | ABSENT |
-| Flutter workspace | ABSENT |
+| All product business features | NOT IMPLEMENTED |
+| Backend runtime | PRESENT — STEP 3 FOUNDATION ONLY |
+| PostgreSQL runtime foundation | PRESENT |
+| Redis runtime foundation | PRESENT |
+| Flutter workspace | PRESENT — STEP 3 FOUNDATION ONLY |
+| Customer Android | PLATFORM SCAFFOLDING ABSENT — BUILD NOT VERIFIED |
+| Ops Android | PLATFORM SCAFFOLDING ABSENT — BUILD NOT VERIFIED |
+| Admin Web | PLATFORM SCAFFOLDING ABSENT — BUILD NOT VERIFIED |
 | Deployment | ABSENT |
 | Application CI | NOT APPLICABLE |
 | UAT | NOT STARTED |
+
+**Runtime existing is not runtime working.** The backend boots, migrates against
+authoritative PostgreSQL 18.4, and passes 202 tests; the Dart workspace analyses
+clean and passes 187 tests. No Android or Web artefact has been built, so no build
+result is claimed.
+
+<!-- CANONICAL_STEP_STATE_BEGIN -->
+<!--
+Machine-readable canonical step state. This block is the DETERMINISTIC source for
+tooling; the tables above are the human-readable form. scripts/validate-status.py
+fails if the two disagree, so neither can drift silently.
+
+Exactly one block. Duplicate blocks, duplicate keys, missing markers, or an
+unknown status value are all failures, and a parse error fails CLOSED.
+Transitions remain governed by the ordinary canonical process — editing this
+block does not by itself advance a step.
+-->
+STEP_00_STATUS=GO
+STEP_01_STATUS=GO
+STEP_02_STATUS=GO
+STEP_03_STATUS=IN_PROGRESS
+STEP_04_STATUS=PLANNED
+STEP_05_STATUS=PLANNED
+STEP_06_STATUS=PLANNED
+STEP_07_STATUS=PLANNED
+STEP_08_STATUS=PLANNED
+STEP_09_STATUS=PLANNED
+STEP_10_STATUS=PLANNED
+STEP_11_STATUS=PLANNED
+STEP_12_STATUS=PLANNED
+STEP_13_STATUS=PLANNED
+STEP_14_STATUS=PLANNED
+<!-- CANONICAL_STEP_STATE_END -->
 
 ---
 
@@ -206,27 +247,30 @@ Every product feature is **NOT IMPLEMENTED**.
 
 ---
 
-## 4. Runtime placeholder status
+## 4. Runtime status by path
 
-| Path | Status | Runtime |
+Step 3 introduced runtime into the approved roots (DEC-0024). These paths are no
+longer placeholders. **Runtime present is not runtime working** — the third column
+records what has actually been executed, not what exists.
+
+| Path | Runtime | Verified |
 | --- | --- | --- |
-| `apps/customer_android` | NOT IMPLEMENTED | ABSENT |
-| `apps/ops_android` | NOT IMPLEMENTED | ABSENT |
-| `apps/admin_web` | NOT IMPLEMENTED | ABSENT |
-| `backend` | NOT IMPLEMENTED | ABSENT |
-| `infrastructure` | NOT IMPLEMENTED | ABSENT |
-| `packages/design_system` | NOT IMPLEMENTED | ABSENT |
-| `packages/core` | NOT IMPLEMENTED | ABSENT |
-| `packages/domain` | NOT IMPLEMENTED | ABSENT |
-| `packages/auth` | NOT IMPLEMENTED | ABSENT |
-| `packages/networking` | NOT IMPLEMENTED | ABSENT |
-| `packages/local_storage` | NOT IMPLEMENTED | ABSENT |
-| `packages/offline_sync` | NOT IMPLEMENTED | ABSENT |
-| `packages/observability` | NOT IMPLEMENTED | ABSENT |
-| `packages/testing` | NOT IMPLEMENTED | ABSENT |
+| `backend` | PRESENT | Laravel 13.20.0 boots; migrate fresh/rollback/re-apply on PostgreSQL 18.4; 202 tests, 1292 assertions |
+| `apps/customer_android` | PRESENT — Dart only | analyse clean, widget tests pass; **platform scaffolding ABSENT, build NOT VERIFIED** |
+| `apps/ops_android` | PRESENT — Dart only | analyse clean, widget tests pass; **platform scaffolding ABSENT, build NOT VERIFIED** |
+| `apps/admin_web` | PRESENT — Dart only | analyse clean, widget tests pass; **platform scaffolding ABSENT, build NOT VERIFIED** |
+| `packages/design_system` | PRESENT | deterministic token generation, drift test |
+| `packages/core` | PRESENT | pure Dart, unit tests |
+| `packages/domain` | PRESENT | pure Dart, unit tests |
+| `packages/auth` | PRESENT | auth-state tests |
+| `packages/networking` | PRESENT | error-mapping tests |
+| `packages/local_storage` | PRESENT | secure-storage abstraction tests |
+| `packages/offline_sync` | PRESENT — interfaces only | no business queue exists |
+| `packages/observability` | PRESENT | redaction tests |
+| `packages/testing` | PRESENT | fakes and helpers |
+| `infrastructure` | PRESENT — development only | PostgreSQL 18.4 and Redis 8.2.7 connectivity proven; **no deployment artefact** |
 
-These directories contain a `README.md` only. **An empty folder is never evidence of an implemented
-feature.**
+No Android or Web artefact has been compiled. No deployment exists.
 
 ---
 

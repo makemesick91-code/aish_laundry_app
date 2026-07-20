@@ -25,16 +25,23 @@ STEP0_ALLOWED = ["IN PROGRESS", "TESTED", "WATCH", "GO"]
 
 # The step currently under way. Bump only when a step actually starts, in the same
 # pull request that moves the status in STATUS.md and ROADMAP.md.
-CURRENT_STEP = 2
+#
+# Raised to 3 when DEC-0024 authorised Step 3 runtime. This was raised LATE: runtime
+# had already been committed while this constant still read 2 and STATUS.md still
+# declared "Step 3 has not begun", "Backend runtime ABSENT", and "Flutter workspace
+# ABSENT" — all false. The drift was invisible because REQUIRED_DECLARATIONS below
+# actively REQUIRED those false strings, so the validator enforced the untruth
+# instead of catching it. The declarations are now phase-aware for exactly that
+# reason, and check_runtime_matches_reality() cross-checks the claim against the
+# filesystem so the same class of drift cannot recur silently.
+CURRENT_STEP = 3
 CURRENT_STEP_ALLOWED = ["IN PROGRESS", "TESTED", "WATCH", "GO"]
 
 # Statuses that must never appear against a step later than CURRENT_STEP.
 FORWARD_LEAK_STATUSES = ["IN PROGRESS", "TESTED", "WATCH", "GO", "NO-GO"]
 
-# label -> (regex that must match somewhere in the document)
+# Declarations that hold in EVERY step. These never soften.
 REQUIRED_DECLARATIONS: list[tuple[str, str]] = [
-    ("backend runtime is ABSENT", r"backend[^\n]{0,60}?\bABSENT\b"),
-    ("Flutter workspace is ABSENT", r"flutter[^\n]{0,60}?\bABSENT\b"),
     ("deployment is ABSENT", r"deploy\w*[^\n]{0,60}?\bABSENT\b"),
     ("UAT is NOT STARTED", r"uat[^\n]{0,60}?\bNOT[ _-]?STARTED\b"),
     (
@@ -43,6 +50,96 @@ REQUIRED_DECLARATIONS: list[tuple[str, str]] = [
         r"|ci[^\n]{0,40}(?:application|aplikasi)[^\n]{0,60}?\bNOT[ _-]?APPLICABLE\b",
     ),
 ]
+
+# Declarations that held only while no runtime was authorised (Steps 0-2).
+PRE_RUNTIME_DECLARATIONS: list[tuple[str, str]] = [
+    ("backend runtime is ABSENT", r"backend[^\n]{0,60}?\bABSENT\b"),
+    ("Flutter workspace is ABSENT", r"flutter[^\n]{0,60}?\bABSENT\b"),
+]
+
+# ---------------------------------------------------------------------------
+# Machine-readable canonical step state.
+# ---------------------------------------------------------------------------
+STATE_BEGIN = "<!-- CANONICAL_STEP_STATE_BEGIN -->"
+STATE_END = "<!-- CANONICAL_STEP_STATE_END -->"
+STATE_LINE = re.compile(r"^STEP_(\d{2})_STATUS=([A-Z_]+)$")
+VALID_MACHINE_STATUSES = {
+    "PLANNED", "IN_PROGRESS", "TESTED", "WATCH", "GO", "NO_GO",
+    "NOT_IMPLEMENTED", "ABSENT", "NOT_APPLICABLE", "NOT_STARTED",
+}
+# machine form -> human form as written in the step table
+MACHINE_TO_HUMAN = {
+    "PLANNED": "PLANNED",
+    "IN_PROGRESS": "IN PROGRESS",
+    "TESTED": "TESTED",
+    "WATCH": "WATCH",
+    "GO": "GO",
+    "NO_GO": "NO-GO",
+}
+
+
+def parse_canonical_state(text: str) -> tuple[dict[int, str], list[str]]:
+    """Parse the machine-readable block. FAILS CLOSED: any structural problem
+    returns an error list, and the caller must treat that as a failure rather
+    than as 'no constraints found'."""
+    errors: list[str] = []
+    begins = text.count(STATE_BEGIN)
+    ends = text.count(STATE_END)
+    if begins == 0 or ends == 0:
+        return {}, [f"canonical state block missing ({STATE_BEGIN} x{begins}, {STATE_END} x{ends})"]
+    if begins != 1 or ends != 1:
+        return {}, [f"exactly one canonical state block required (found {begins} begin, {ends} end)"]
+
+    body = text.split(STATE_BEGIN, 1)[1].split(STATE_END, 1)[0]
+    state: dict[int, str] = {}
+    for raw in body.splitlines():
+        line = raw.strip()
+        if not line or line.startswith("<!--") or line.startswith("-->"):
+            continue
+        m = STATE_LINE.match(line)
+        if not m:
+            # An unparseable line inside the block is a structural error, never
+            # something to skip: skipping is how a malformed key silently drops
+            # a constraint.
+            if line.upper().startswith("STEP"):
+                errors.append(f"unparseable canonical state line: {line!r}")
+            continue
+        n, status = int(m.group(1)), m.group(2)
+        if n in state:
+            errors.append(f"duplicate canonical state key STEP_{n:02d}_STATUS")
+        if status not in VALID_MACHINE_STATUSES:
+            errors.append(f"unknown status {status!r} for STEP_{n:02d}_STATUS")
+        state[n] = status
+    return state, errors
+
+
+def check_runtime_matches_reality(root, rep) -> None:
+    """Cross-check runtime claims against the filesystem.
+
+    A status file that merely asserts is a status file that can lie. These checks
+    compare the claim to an artefact that actually exists, which is what would
+    have caught the 'Backend runtime ABSENT' drift immediately."""
+    backend_present = (root / "backend" / "composer.json").is_file()
+    flutter_present = (root / "pubspec.yaml").is_file()
+    text = read_text(root / STATUS)
+    low = text.lower()
+
+    claims_backend_absent = re.search(r"backend[^\n]{0,60}?\babsent\b", low) is not None
+    claims_flutter_absent = re.search(r"flutter workspace[^\n]{0,60}?\babsent\b", low) is not None
+
+    rep.check(
+        not (backend_present and claims_backend_absent),
+        "STATUS.md does not claim the backend is ABSENT while backend/composer.json exists",
+    )
+    rep.check(
+        not (flutter_present and claims_flutter_absent),
+        "STATUS.md does not claim the Flutter workspace is ABSENT while pubspec.yaml exists",
+    )
+    # Deployment must stay absent, and that claim must also be true.
+    rep.check(
+        not (root / "infrastructure" / "docker-compose.prod.yml").exists(),
+        "no production deployment artefact contradicts the ABSENT deployment claim",
+    )
 
 FORBIDDEN_IMPLEMENTED = re.compile(r"\bIMPLEMENTED\b")
 # "NOT IMPLEMENTED" / "BELUM IMPLEMENTED" are the safe forms.
@@ -164,7 +261,65 @@ def main() -> int:
             f"declares {label}",
         )
 
+    # Runtime-absence declarations apply only while no runtime is authorised.
+    if CURRENT_STEP < 3:
+        for label, pattern in PRE_RUNTIME_DECLARATIONS:
+            rep.check(
+                re.search(pattern, text, re.IGNORECASE) is not None,
+                f"declares {label}",
+            )
+    else:
+        rep.ok("runtime-absence declarations not applicable from Step 3 (DEC-0024)")
+
     rep.check("NOT STARTED" in upper, "uses status vocabulary NOT STARTED")
+
+    # --- machine-readable canonical state ---------------------------------
+    state, state_errors = parse_canonical_state(text)
+    if state_errors:
+        for e in state_errors:
+            rep.fail(f"canonical state: {e}")
+    else:
+        rep.ok("canonical state block parses (exactly one, no duplicate keys)")
+
+        missing = [n for n in range(0, 15) if n not in state]
+        rep.check(not missing,
+                  f"canonical state declares every step 00-14 (missing: {missing})")
+
+        rep.check(state.get(3) == "IN_PROGRESS",
+                  f"STEP_03_STATUS is IN_PROGRESS (found {state.get(3)!r})")
+
+        later_bad = {n: s for n, s in state.items() if n >= 4 and s != "PLANNED"}
+        rep.check(not later_bad,
+                  f"every step 04-14 is PLANNED (violations: {later_bad})")
+
+        # --- machine vs human agreement -----------------------------------
+        # Neither form may drift from the other. This is the check that would
+        # have caught the stale Step 3 row immediately.
+        disagreements = []
+        for n, machine in sorted(state.items()):
+            human_expected = MACHINE_TO_HUMAN.get(machine)
+            if human_expected is None:
+                continue
+            row = re.search(
+                rf"^\|\s*Step {n}\s*\|[^|]*\|\s*([^|]+?)\s*\|",
+                text, re.MULTILINE,
+            )
+            if row is None:
+                continue
+            declared = row.group(1).strip().upper()
+            if human_expected not in declared:
+                disagreements.append(
+                    f"Step {n}: machine={machine} human={declared!r}"
+                )
+        rep.check(
+            not disagreements,
+            f"machine-readable and human-readable status agree ({len(disagreements)} disagreement(s))",
+        )
+        for d in disagreements[:5]:
+            rep.info(d)
+
+    # --- claims cross-checked against the filesystem ----------------------
+    check_runtime_matches_reality(root, rep)
 
     return rep.finish()
 

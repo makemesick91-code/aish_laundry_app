@@ -195,22 +195,61 @@ _step3_flutter_scaffold_authorized() {
         || { _dec0026_deny "Master Source checksum does not validate"; return 1; }
 
     # --- authorising decisions exist AND are ACCEPTED ----------------------
+    #
+    # DETERMINISTIC: the record must carry EXACTLY ONE formal status field, and it
+    # must read ACCEPTED. A filename proves nothing — a file can be created — and
+    # prose mentioning the word "accepted" elsewhere in the document must not
+    # satisfy this. Duplicate status fields are a failure, not a
+    # take-the-first-one.
+    local n_status status_val
     for dec in DEC-0024 DEC-0026; do
         f="$(ls "$repo"/docs/decisions/${dec}-*.md 2>/dev/null | head -1)"
         [ -n "$f" ] || { _dec0026_deny "$dec is absent"; return 1; }
-        grep -qiE '^\*\*Status:\*\*[[:space:]]*ACCEPTED' "$f" \
-            || { _dec0026_deny "$dec is not ACCEPTED"; return 1; }
+        n_status="$(grep -cE '^\*\*Status:\*\*' "$f" 2>/dev/null || echo 0)"
+        [ "$n_status" = "1" ] \
+            || { _dec0026_deny "$dec has $n_status formal status fields, expected exactly 1"; return 1; }
+        status_val="$(grep -m1 -E '^\*\*Status:\*\*' "$f" | sed -E 's/^\*\*Status:\*\*[[:space:]]*//; s/[[:space:]]*$//')"
+        [ "$status_val" = "ACCEPTED" ] \
+            || { _dec0026_deny "$dec status is '$status_val', expected ACCEPTED"; return 1; }
     done
 
-    # --- canonical step status ---------------------------------------------
-    step_line="$(grep -m1 -E '^\|[[:space:]]*Step 3[[:space:]]*\|' \
-        "$repo/docs/STATUS.md" 2>/dev/null || true)"
-    printf '%s' "$step_line" | grep -q "IN PROGRESS" \
-        || { _dec0026_deny "docs/STATUS.md does not report Step 3 as IN PROGRESS"; return 1; }
-    if grep -qE '^\|[[:space:]]*Step ([4-9]|1[0-4])[[:space:]]*\|.*(IN PROGRESS|TESTED|\bGO\b)' \
-        "$repo/docs/STATUS.md" 2>/dev/null; then
-        _dec0026_deny "a Step 4+ entry is already advanced; scaffolding refused"; return 1
-    fi
+    # --- canonical step status (MACHINE-READABLE, fail closed) --------------
+    #
+    # Parsed from the CANONICAL_STEP_STATE block, never from prose or a markdown
+    # table. An earlier revision grepped the human-readable table; that read was
+    # correct but the table itself was stale, and a loose prose match is in any
+    # case not something a security control should depend on.
+    local status_file="$repo/docs/STATUS.md" n_begin n_end block
+    [ -f "$status_file" ] || { _dec0026_deny "docs/STATUS.md is unreadable"; return 1; }
+    n_begin="$(grep -c '^<!-- CANONICAL_STEP_STATE_BEGIN -->$' "$status_file" 2>/dev/null || echo 0)"
+    n_end="$(grep -c '^<!-- CANONICAL_STEP_STATE_END -->$' "$status_file" 2>/dev/null || echo 0)"
+    [ "$n_begin" = "1" ] && [ "$n_end" = "1" ] \
+        || { _dec0026_deny "canonical state block must appear exactly once (begin=$n_begin end=$n_end)"; return 1; }
+
+    block="$(sed -n '/^<!-- CANONICAL_STEP_STATE_BEGIN -->$/,/^<!-- CANONICAL_STEP_STATE_END -->$/p' "$status_file" \
+             | grep -E '^STEP_[0-9]{2}_STATUS=')"
+    [ -n "$block" ] || { _dec0026_deny "canonical state block contains no STEP_nn_STATUS entries"; return 1; }
+
+    # duplicate keys fail closed
+    local dup
+    dup="$(printf '%s\n' "$block" | cut -d= -f1 | sort | uniq -d)"
+    [ -z "$dup" ] || { _dec0026_deny "duplicate canonical state key(s): $(printf '%s' "$dup" | tr '\n' ' ')"; return 1; }
+
+    # Step 3 must be exactly IN_PROGRESS
+    local s3
+    s3="$(printf '%s\n' "$block" | grep -m1 '^STEP_03_STATUS=' | cut -d= -f2)"
+    [ "$s3" = "IN_PROGRESS" ] \
+        || { _dec0026_deny "STEP_03_STATUS is '${s3:-absent}', expected IN_PROGRESS"; return 1; }
+
+    # Steps 4..14 must be exactly PLANNED, and all must be present
+    local i key val
+    for i in 04 05 06 07 08 09 10 11 12 13 14; do
+        key="STEP_${i}_STATUS"
+        val="$(printf '%s\n' "$block" | grep -m1 "^${key}=" | cut -d= -f2)"
+        [ -n "$val" ] || { _dec0026_deny "$key is missing from the canonical state block"; return 1; }
+        [ "$val" = "PLANNED" ] \
+            || { _dec0026_deny "$key is '$val', expected PLANNED"; return 1; }
+    done
 
     # --- Step 0-2 immutable tags unmoved ------------------------------------
     for t in \
@@ -248,11 +287,14 @@ _step3_flutter_scaffold_authorized() {
     esac
     resolved="$(readlink -f "$repo/${target#./}" 2>/dev/null || true)"
     [ -n "$resolved" ] || resolved="$repo/${target#./}"
+    # The repository root itself is INSIDE the repository — it is simply not an
+    # approved target. Treating it as "outside" produced a correct denial for an
+    # inaccurate reason, which the adversarial suite reports as an invalid result.
     case "$resolved" in
-        "$repo"/*) : ;;
+        "$repo")   rel="." ;;
+        "$repo"/*) rel="${resolved#"$repo"/}" ;;
         *) _dec0026_deny "target resolves outside the repository"; return 1 ;;
     esac
-    rel="${resolved#"$repo"/}"
     case "$rel" in
         "$_DEC0026_CUSTOMER") want_platform="android" ;;
         "$_DEC0026_OPS")      want_platform="android" ;;
@@ -305,20 +347,64 @@ PYEOF
 
 ok "amendment written"
 
-# --- verify, and roll back if the guard regressed ----------------------------
-if bash "${GUARD}" --self-test >/dev/null 2>&1; then
-  ok "guard self-test passes after patching"
-else
+# --- verify, and roll back on ANY regression ---------------------------------
+#
+# Every gate below restores the backup on failure. A patch that leaves the guard
+# in an unverified state is worse than no patch: the previous attempt at this
+# amendment left the guard calling an undefined function, and although it failed
+# closed, it blocked every command in the repository.
+rollback_and_die() {
   cp "${BACKUP}" "${GUARD}"
-  die "guard self-test FAILED after patching — original restored, nothing changed"
+  die "$1 — original guard restored, nothing changed"
+}
+
+# 1. the guard's own 171-case self-test must still pass
+SELF_OUT="$(bash "${GUARD}" --self-test 2>&1 || true)"
+if printf '%s' "${SELF_OUT}" | grep -q "SELF-TEST PASS"; then
+  ok "guard self-test: $(printf '%s' "${SELF_OUT}" | grep -oE '[0-9]+/[0-9]+ cases' | head -1)"
+else
+  rollback_and_die "guard self-test FAILED after patching"
 fi
 
-if bash "${GUARD}" "dart create foo" >/dev/null 2>&1; then
-  cp "${BACKUP}" "${GUARD}"
-  die "'dart create' is no longer blocked — original restored"
+# 2. the undefined-function regression must not recur
+if grep -q "_step3_flutter_scaffold_authorized" "${GUARD}" \
+   && ! grep -q "^_step3_flutter_scaffold_authorized()" "${GUARD}"; then
+  rollback_and_die "dispatch references _step3_flutter_scaffold_authorized but the function is not defined"
+fi
+ok "authorisation function is defined before its dispatch site"
+
+# 3. dart create must still be blocked
+if bash "${GUARD}" "dart create apps/customer_android" >/dev/null 2>&1; then
+  rollback_and_die "'dart create' is no longer blocked"
 fi
 ok "'dart create' remains blocked"
 
+# 4. an arbitrary flutter create must still be blocked
+if bash "${GUARD}" "flutter create --platforms=android apps/fourth_app" >/dev/null 2>&1; then
+  rollback_and_die "an unapproved flutter create target was authorised"
+fi
+ok "unapproved flutter create target remains blocked"
+
+# 5. THE FULL ADVERSARIAL SUITE must pass, or the patch is rolled back.
+#    Reporting "applied" without running it would be reporting a code pattern,
+#    not a verified control.
+SUITE="scripts/test-dec-0026-guard.sh"
+if [ ! -f "${SUITE}" ]; then
+  rollback_and_die "${SUITE} is missing; refusing to leave an unverified guard in place"
+fi
 echo
-echo "  DEC-0026 guard amendment applied."
-echo "  Next: bash scripts/test-dec-0026-guard.sh    (27-case adversarial suite)"
+echo "  running ${SUITE} ..."
+SUITE_OUT="$(bash "${SUITE}" 2>&1 || true)"
+SUITE_LINE="$(printf '%s' "${SUITE_OUT}" | grep -E '^RESULT: ' | tail -1)"
+if printf '%s' "${SUITE_OUT}" | grep -qE '^RESULT: .* 0 failed$'; then
+  ok "adversarial suite: ${SUITE_LINE:-passed}"
+else
+  echo
+  printf '%s\n' "${SUITE_OUT}" | tail -25
+  echo
+  rollback_and_die "adversarial suite FAILED (${SUITE_LINE:-no result line})"
+fi
+
+echo
+echo "  DEC-0026 guard amendment applied AND verified."
+echo "  ${SUITE_LINE}"
