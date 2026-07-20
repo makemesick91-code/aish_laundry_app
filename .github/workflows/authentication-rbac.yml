@@ -106,7 +106,7 @@ jobs:
       - name: Assert schema scope and that no shared default password was seeded
         run: |
           set -euo pipefail
-          php scripts/ci/assert-schema-scope.php --check-seeded-passwords
+          php backend/scripts/ci/assert-schema-scope.php --check-seeded-passwords
 
       - name: Authentication suite
         run: |

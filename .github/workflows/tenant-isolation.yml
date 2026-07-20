@@ -113,7 +113,7 @@ jobs:
       - name: Assert PostgreSQL and Redis are genuinely reachable
         run: |
           set -euo pipefail
-          php scripts/ci/assert-services-reachable.php
+          php backend/scripts/ci/assert-services-reachable.php
 
       - name: Assert the authoritative engine is PostgreSQL, never SQLite
         run: |
@@ -138,7 +138,7 @@ jobs:
       - name: Assert no Step 4+ business table exists
         run: |
           set -euo pipefail
-          php scripts/ci/assert-schema-scope.php
+          php backend/scripts/ci/assert-schema-scope.php
 
       - name: Structural isolation and tenant-isolation matrix
         run: |

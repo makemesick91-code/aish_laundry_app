@@ -218,9 +218,9 @@ def main() -> int:
     # the thing that can be gutted. A workflow that dutifully calls an emptied
     # script is exactly the static-echo success this validator exists to prevent,
     # so the scripts themselves are asserted here.
-    schema_scope = root / "scripts/ci/assert-schema-scope.php"
+    schema_scope = root / "backend/scripts/ci/assert-schema-scope.php"
     if not schema_scope.is_file():
-        rep.fail("scripts/ci/assert-schema-scope.php is missing")
+        rep.fail("backend/scripts/ci/assert-schema-scope.php is missing")
     else:
         body = schema_scope.read_text(encoding="utf-8")
         required_tables = ["orders", "payments", "tracking_tokens", "deliveries", "subscriptions"]
@@ -230,9 +230,9 @@ def main() -> int:
         rep.check("--check-seeded-passwords" in body,
                   "assert-schema-scope.php supports the seeded-password assertion")
 
-    reachable = root / "scripts/ci/assert-services-reachable.php"
+    reachable = root / "backend/scripts/ci/assert-services-reachable.php"
     if not reachable.is_file():
-        rep.fail("scripts/ci/assert-services-reachable.php is missing")
+        rep.fail("backend/scripts/ci/assert-services-reachable.php is missing")
     else:
         body = reachable.read_text(encoding="utf-8")
         rep.check("18." in body and "server_version" in body,
