@@ -179,6 +179,42 @@ for an inaccurate reason, which the harness reports as invalid; and the executio
 concatenated a repository prefix onto an already-absolute path, producing exit 127 rather than a
 denial.
 
+### Run 4 — owner-applied and independently re-verified: ACTIVE
+
+The repository owner applied the amendment from the canonical baseline
+`55b4059f6a8174de3d62cfc57b279840130a0b0f` with:
+
+```
+bash scripts/owner/apply-dec-0026-guard-amendment.sh
+```
+
+The owner's reported results were **not accepted on report**. Every one was reproduced
+independently before this decision was marked active:
+
+| Check | Independent result |
+|---|---|
+| Applied guard vs. the patch the script generates | **byte-identical** (reproduced on a clean copy of `HEAD` and diffed) |
+| Scope of change | one file, `.claude/hooks/guard-destructive-operations.sh`, `+215 / -6` |
+| `.claude/settings.json` | **unmodified** — no agent hook permission was granted |
+| Other hooks | none exist; none modified |
+| `bash -n` | syntax OK |
+| Guard self-test | **171/171 PASS** |
+| DEC-0026 adversarial suite | **38/38 met, 0 failed**, working tree byte-identical |
+| Direct allow/deny matrix (3 allows, 17 denials, run outside the suite) | **0 mismatches**, every denial for its intended reason |
+| Step 0–2 tags | annotated and unmoved at `8494bc85`, `4eadbc73`, `47c07d36` |
+| Governance / status / secrets / PII / links | 7/7 · 28/28 · 10/10 · 14/14 · PASS |
+| Step 0/1/2 regressions | PASS · PASS · PASS |
+| Step 3 runtime-scope harness | 36/36, byte-identical |
+| classify | `STEP_3_RUNTIME_FOUNDATION_WITHIN_SCOPE` |
+
+Confirmed blocked, each for the correct recorded reason: `dart create`; an unrestricted
+`flutter create` with no `--platforms`; a fourth application; every wrong app/platform pairing;
+multi-platform requests; the repository root; a package root; `..` traversal; absolute paths;
+`--overwrite` and `--force`; `--deploy` and `--keystore`; `com.example`; and `my_app`.
+
+The gate is **ACTIVE** from this commit. It remains owner-controlled: the agent cannot edit the hook,
+and no general permission to edit hooks was granted.
+
 ### Deterministic parsing
 
 Two loose reads were replaced with deterministic ones:
