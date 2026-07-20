@@ -48,6 +48,37 @@ if ! grep -q "_step3_flutter_scaffold_authorized" "${GUARD}"; then
   exit 78
 fi
 
+# --- environment precondition ------------------------------------------------
+# The DEC-0026 authorisation is PINNED to the canonical repository path and
+# origin by owner decision. Outside that path the guard denies EVERY command on
+# "not the canonical repository path", before any condition under test is
+# reached — so no case in this suite can be attributed, including the allowed
+# controls.
+#
+# Running anyway produced 34 failures from a fresh clone that were not defects in
+# anything: the guard behaved exactly as designed, and the suite simply could not
+# observe it. Reporting those as failures is as misleading as reporting them as
+# passes; both invite someone to "fix" a guard that is working.
+#
+# So the precondition is detected and the suite exits 78 — SKIP, never PASS. The
+# guard is NOT widened to accommodate the harness: the pin is the control, and
+# weakening a control to make a test runnable is precisely backwards.
+precondition_out="$(printf '%s' "${APPROVED_CMD}" | "${GUARD}" 2>&1)" || true
+if printf '%s' "${precondition_out}" \
+     | grep -qE "not the canonical repository path|not inside a git repository|origin is not"; then
+  echo "SKIP: the DEC-0026 guard is pinned to the canonical repository path and origin,"
+  echo "      and this checkout is neither. Every case would deny for that reason"
+  echo "      rather than the reason under test, so NOTHING here would be attributable."
+  echo
+  echo "      This suite is verifiable only at the canonical clone. That is a"
+  echo "      property of the guard's owner-approved pin, not a defect in it, and"
+  echo "      the pin is deliberately NOT relaxed to make this suite runnable."
+  echo
+  echo "      repository: $(pwd)"
+  echo "      guard says: $(printf '%s' "${precondition_out}" | head -1)"
+  exit 78
+fi
+
 BEFORE="$(fingerprint)"
 
 # --- restoration safety net --------------------------------------------------

@@ -35,10 +35,20 @@ y()  { printf '\033[33m%s\033[0m' "$*"; }
 hdr(){ printf '\n\033[1m== %s ==\033[0m\n' "$*"; }
 
 # gate <label> <command...>
+# Exit 78 (EX_CONFIG) is the repository-wide convention for "this gate's
+# PRECONDITION is not met in this environment", as distinct from "this gate
+# failed". It is reported as SKIP and NEVER as PASS: a gate that could not run
+# has verified nothing, and the summary says so by name.
+GATE_SKIP_RC=78
+
 gate() {
   local label="$1"; shift
-  if "$@" >/dev/null 2>&1; then
+  local rc=0
+  "$@" >/dev/null 2>&1 || rc=$?
+  if [ "${rc}" -eq 0 ]; then
     printf '  %s  %s\n' "$(g 'PASS')" "${label}"; PASS=$((PASS + 1))
+  elif [ "${rc}" -eq "${GATE_SKIP_RC}" ]; then
+    skip "${label}" "precondition not met in this environment (exit ${GATE_SKIP_RC})"
   else
     printf '  %s  %s\n' "$(r 'FAIL')" "${label}"; FAIL=$((FAIL + 1)); FAILED_GATES+=("${label}")
   fi
@@ -80,6 +90,7 @@ gate "Step 2 regression"                 bash scripts/verify-step-02.sh
 gate "runtime scope classification"      python3 scripts/validate-runtime-scope.py
 gate "public repository safety"          bash scripts/validate-public-repository-safety.sh
 gate "secret and credential scan"        bash scripts/validate-secrets.sh
+gate "first-party relationship analysis" python3 scripts/analyze-step-03-relationships.py
 
 hdr "3. Guards and adversarial harnesses"
 gate "destructive guard syntax"          bash -n .claude/hooks/guard-destructive-operations.sh
