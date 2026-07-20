@@ -107,16 +107,29 @@ success built on a pre-existing ignored file is not fresh-clone evidence.**
 
 | Context | Host | Port |
 |---|---|---|
-| Backend running on the host (the documented path) | `127.0.0.1` | **`55433`** |
+| Backend reaching **PostgreSQL** on the host (the documented path) | `127.0.0.1` | **`55433`** |
 | PostgreSQL's own listener inside the container | — | `5432` |
+| Backend reaching **Redis** on the host (the documented path) | `127.0.0.1` | **`56379`** |
+| Redis's own listener inside the container | — | `6379` |
 
-`infrastructure/docker-compose.dev.yml` publishes `127.0.0.1:55433:5432`. The internal `5432` is not
-interchangeable with the published `55433`: replacing it inside the compose file would break the
-container, and GitHub Actions service containers legitimately use `5432` on their own network.
+`infrastructure/docker-compose.dev.yml` publishes `127.0.0.1:55433:5432` and `127.0.0.1:56379:6379`.
+The internal ports are not interchangeable with the published ones: replacing them inside the compose
+file would break the containers, and GitHub Actions service containers legitimately use `5432` and
+`6379` on their own network.
 
 `scripts/validate-dev-environment-contract.py` enforces that `.env.example` and `backend/.env.example`
-carry identical `DB_*` values and that this bootstrap path exists. Template drift is a CI failure, not
-a discovery made later during a fresh clone.
+carry identical `DB_*` **and `REDIS_*`** values, that each published host port is the one the compose
+file actually exposes, and that this bootstrap path exists. Template drift is a CI failure, not a
+discovery made later during a fresh clone.
+
+**The Redis half of that contract was added after a fresh clone found it missing.**
+`backend/.env.example` carried `REDIS_PORT=6379` — the container-*internal* port — so a fresh clone
+following this document exactly could not reach Redis and `/api/v1/readiness` failed closed with
+`503`. The validator governed `DB_*` only, so nothing rejected the drift. Neither path that could have
+exposed it did: the maintainer's host had a hand-corrected ignored `backend/.env`, and CI sets
+`REDIS_PORT` at job level, so **no environment that passed had ever read the committed template
+value.** This is the same defect class as DEC-0027, in a second field — a parity contract enforced on
+one service and not the other is not a contract.
 
 **Neither `.env` nor `backend/.env` is ever committed**; both are git-ignored, and an existing local
 file is always preserved so your own overrides survive. The committed templates carry **fictional,

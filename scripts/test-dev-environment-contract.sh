@@ -235,6 +235,25 @@ expect_red 18 ENV_PASSWORD_NO_MARKER "password without a fictional marker" \
   "sed -i \"s|^DB_PASSWORD=.*|DB_PASSWORD=${UNMARKED_PW}|\" .env.example backend/.env.example"
 expect_red 19 ENV_VALUE_QUOTED "quoted value where canon requires bare" \
   'sed -i "s|^DB_DATABASE=.*|DB_DATABASE=\\\"aish_laundry_dev\\\"|" .env.example backend/.env.example'
+# -- Redis, governed exactly as PostgreSQL is ------------------------------
+# Case 30 is the regression for the defect the fresh-clone campaign found:
+# backend/.env.example carried REDIS_PORT=6379, the container-INTERNAL port,
+# while the compose file publishes 56379. Laravel reads the backend template,
+# so a fresh clone could not reach Redis and /api/v1/readiness returned 503.
+# The validator governed DB_* only, and neither the maintainer's host (which had
+# a hand-corrected ignored backend/.env) nor CI (which sets REDIS_PORT at job
+# level) ever read the template value. These cases close that blind spot.
+expect_red 30 ENV_PORT_UNEXPECTED "backend Redis host-side port set to 6379" \
+  "$(setkey REDIS_PORT 6379 backend/.env.example)"
+expect_red 31 ENV_MISMATCH "backend/root Redis port mismatch" \
+  "$(setkey REDIS_PORT 56380 backend/.env.example)"
+expect_red 32 ENV_MISMATCH "backend/root Redis host mismatch" \
+  "$(setkey REDIS_HOST 10.0.0.5 backend/.env.example)"
+expect_red 33 ENV_KEY_PRESENT "missing REDIS_PORT" \
+  'sed -i "/^REDIS_PORT=/d" backend/.env.example'
+expect_red 34 ENV_HOST_NOT_LOOPBACK "Redis host is not loopback in both templates" \
+  'sed -i "s|^REDIS_HOST=.*|REDIS_HOST=192.168.1.50|" .env.example backend/.env.example'
+
 expect_red 20 ENV_FILE_PRESENT "missing root example" \
   'rm -f .env.example'
 expect_red 21 ENV_FILE_PRESENT "missing backend example" \

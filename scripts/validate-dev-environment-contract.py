@@ -44,6 +44,23 @@ BACKEND_ENV = "backend/.env.example"
 
 DB_KEYS = ["DB_HOST", "DB_PORT", "DB_DATABASE", "DB_USERNAME", "DB_PASSWORD"]
 
+# Redis keys shared by BOTH templates. REDIS_CLIENT is deliberately absent: it is
+# Laravel-specific and lives only in the backend template, so requiring parity on
+# it would fail a correct repository.
+#
+# These are governed for the same reason DB_* are. Until DEC-0028 the validator
+# checked DB_* only, and `backend/.env.example` carried REDIS_PORT=6379 — the
+# container-INTERNAL port — while the compose file publishes 56379. A fresh clone
+# following the documented bootstrap therefore could not reach Redis, and
+# /api/v1/readiness failed closed with 503. Every path that could have caught it
+# was blind: the maintainer's host had a hand-corrected ignored `backend/.env`,
+# and CI sets REDIS_PORT at job level, so neither ever read this template value.
+# A parity contract enforced on one service and not the other is not a contract.
+REDIS_KEYS = ["REDIS_HOST", "REDIS_PORT", "REDIS_PASSWORD"]
+
+# Every key this validator governs structurally.
+GOVERNED_KEYS = DB_KEYS + REDIS_KEYS
+
 # ---------------------------------------------------------------------------
 # The canonical contract. These are the values a fresh clone must receive.
 #
@@ -53,11 +70,17 @@ DB_KEYS = ["DB_HOST", "DB_PORT", "DB_DATABASE", "DB_USERNAME", "DB_PASSWORD"]
 # host port would break the compose file, and GitHub Actions service containers
 # legitimately use 5432 in their own network.
 # ---------------------------------------------------------------------------
+#
+# REDIS_PORT is likewise the PUBLISHED HOST port ("127.0.0.1:56379:6379"). The
+# container-internal listener remains 6379 and is NOT governed here.
+# ---------------------------------------------------------------------------
 CANONICAL = {
     "DB_HOST": "127.0.0.1",
     "DB_PORT": "55433",
     "DB_DATABASE": "aish_laundry_dev",
     "DB_USERNAME": "aish_dev",
+    "REDIS_HOST": "127.0.0.1",
+    "REDIS_PORT": "56379",
 }
 
 # Loopback forms accepted for DB_HOST. Deliberately small: a host outside this
@@ -131,7 +154,7 @@ def parse_env(path: Path) -> tuple[dict[str, str], list[str], list[str]]:
                 errors.append(f"line {lineno}: unparseable assignment")
             continue
         key, value = m.group(1), m.group(2)
-        if key not in DB_KEYS:
+        if key not in GOVERNED_KEYS:
             continue
         if key in values:
             duplicates.append(key)
@@ -198,14 +221,14 @@ def check_templates(root: Path, rep: Reporter) -> None:
         if not errors:
             rep.ok(f"[ENV_PARSE_OK] {label} parses cleanly")
 
-        for key in DB_KEYS:
+        for key in GOVERNED_KEYS:
             rep.check(key in values, f"[ENV_KEY_PRESENT] {label}: {key} declared")
 
         if duplicates:
             for key in sorted(set(duplicates)):
                 rep.fail(f"[ENV_KEY_DUPLICATE] {label}: {key} declared more than once")
         else:
-            rep.ok(f"[ENV_KEY_UNIQUE] {label}: no duplicate DB_* key")
+            rep.ok(f"[ENV_KEY_UNIQUE] {label}: no duplicate governed key")
 
         for key, value in sorted(values.items()):
             if value.strip() == "":
@@ -228,11 +251,11 @@ def check_templates(root: Path, rep: Reporter) -> None:
     backend_vals = parsed[BACKEND_ENV]
 
     # --- the two templates must agree, key by key ---------------------------
-    for key in DB_KEYS:
+    for key in GOVERNED_KEYS:
         rv, bv = root_vals.get(key), backend_vals.get(key)
         if rv is None or bv is None:
             continue  # already reported as missing
-        if key == "DB_PASSWORD":
+        if "PASSWORD" in key:
             # Compared, never printed.
             rep.check(
                 rv == bv,
@@ -288,6 +311,52 @@ def check_templates(root: Path, rep: Reporter) -> None:
                         f"[ENV_PORT_UNEXPECTED] {label}: DB_PORT is the published host "
                         f"port {CANONICAL['DB_PORT']} (found {raw}); the container-internal "
                         "listener stays 5432 and is not governed here",
+                    )
+
+        # --- Redis, governed exactly as PostgreSQL is above -----------------
+        redis_host = values.get("REDIS_HOST")
+        if redis_host is not None:
+            rep.check(
+                redis_host.strip() in LOOPBACK_HOSTS,
+                f"[ENV_HOST_NOT_LOOPBACK] {label}: REDIS_HOST is a loopback host "
+                f"(found {redis_host!r})",
+            )
+            for pattern in PRODUCTION_HOST_PATTERNS:
+                if pattern.search(redis_host):
+                    rep.fail(
+                        f"[ENV_PRODUCTION_HOST] {label}: REDIS_HOST {redis_host!r} "
+                        "looks like a routable or managed endpoint"
+                    )
+                    break
+            marker = contains_production_marker(redis_host)
+            if marker:
+                rep.fail(
+                    f"[ENV_PRODUCTION_HOST] {label}: REDIS_HOST carries the "
+                    f"deployed-environment marker {marker!r}"
+                )
+
+        redis_port = values.get("REDIS_PORT")
+        if redis_port is not None:
+            raw = redis_port.strip()
+            if not re.fullmatch(r"[0-9]+", raw):
+                rep.fail(
+                    f"[ENV_PORT_MALFORMED] {label}: REDIS_PORT {redis_port!r} is not "
+                    "a bare positive integer"
+                )
+            else:
+                n = int(raw)
+                if not (1 <= n <= 65535):
+                    rep.fail(
+                        f"[ENV_PORT_OUT_OF_RANGE] {label}: REDIS_PORT {n} is outside "
+                        "1-65535"
+                    )
+                else:
+                    rep.check(
+                        raw == CANONICAL["REDIS_PORT"],
+                        f"[ENV_PORT_UNEXPECTED] {label}: REDIS_PORT is the published "
+                        f"host port {CANONICAL['REDIS_PORT']} (found {raw}); the "
+                        "container-internal listener stays 6379 and is not governed "
+                        "here",
                     )
 
         for key, code in (
