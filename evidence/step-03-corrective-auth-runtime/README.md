@@ -1,16 +1,23 @@
 # Step 3 Corrective — Runtime Authentication Wiring: Evidence
 
-**Bound to commit:** `8e4f65e861eae60c7f72e5ede92917e9fbeb5f7a`
+**Bound to commit:** `838ee7b8f00bf2e7be3bb93fc9ed6bfafff14d8c`
 **Branch:** `fix/step-03-auth-runtime-wiring` (cut from `origin/main` at `1eff6f1c57e2b6032bdf54e0feef22b0fc58e95d`)
 **Timezone:** Asia/Jakarta
 
 Evidence produced at one SHA does not carry to another (Rule 01, DEC-0013). An
-earlier capture at `95469ba2dcefbfa137cca65c32b94e1cd695100c` was invalidated
-when `scripts/validate-secrets.sh` failed in CI on three inline
-`password: '...'` literals in the new tests; the values were fictional but the
-shape is what the scanner exists to catch, so the tests were changed rather than
-the scanner. Everything below was re-run from scratch at the SHA above. The
-capture is verbatim; the working tree was clean when it ran. The only
+capture has been invalidated and re-run twice, and both reasons are recorded
+rather than quietly replaced:
+
+  * `95469ba2dcefbfa137cca65c32b94e1cd695100c` — `scripts/validate-secrets.sh`
+    failed in CI on three inline `password: '...'` literals in the new tests.
+    The values were fictional, but the shape is exactly what the scanner exists
+    to catch, so the tests were changed rather than the scanner.
+  * `0af9a743f55ac9e46576472e1d3c605cbf03fdb4` — `dart format
+    --set-exit-if-changed` failed in CI on seven files. The local gate list had
+    omitted the format check; it is included below from here.
+
+Everything below was re-run from scratch at the SHA above. The capture is
+verbatim; the working tree was clean when it ran. The only
 redaction is the development password, replaced with `<redacted>` — it is
 generated fresh per seeder run and is never committed (Rule 23, Rule 45).
 
@@ -89,16 +96,18 @@ discriminating test for that property is the row above it.
 ## Captured output
 
 ```text
-COMMIT_SHA: 8e4f65e861eae60c7f72e5ede92917e9fbeb5f7a
-CAPTURED:   2026-07-21 20:03:16 WIB
+COMMIT_SHA: 838ee7b8f00bf2e7be3bb93fc9ed6bfafff14d8c
+CAPTURED:   2026-07-21 20:07:43 WIB
 ENV:        Linux 7.0.0-27-generic | Flutter 3.44.6 • channel stable • https://github.com/flutter/flutter.git | PHP 8.5.4 (cli) (built: May 25 2026 12:19:37) (NTS)
 TREE:       0 modified files (0 = clean)
 
+### dart format --output=none --set-exit-if-changed .
+Formatted 112 files (0 changed) in 0.47 seconds.
 ### dart analyze apps packages
 Analyzing apps, packages...
 No issues found!
 
-### flutter test (hermetic, per package/app)
+### flutter test (hermetic)
 packages/core              00:00 +18: All tests passed!
 packages/domain            00:00 +12: All tests passed!
 packages/networking        00:00 +34: All tests passed!
