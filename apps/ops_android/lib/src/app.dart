@@ -1,6 +1,7 @@
 import 'package:aish_auth/aish_auth.dart';
 import 'package:aish_core/aish_core.dart';
 import 'package:aish_design_system/aish_design_system.dart';
+import 'package:aish_local_storage/aish_local_storage.dart';
 import 'package:aish_networking/aish_networking.dart';
 import 'package:aish_offline_sync/aish_offline_sync.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +24,7 @@ final Provider<AuthRuntime> authRuntimeProvider = Provider<AuthRuntime>((ref) {
   final runtime = AuthRuntime.create(
     environment: ref.watch(environmentProvider),
     transport: CredentialTransport.bearerToken,
+    store: PlatformSecureCredentialStore(),
     deviceName: 'Aish Laundry Ops',
     platform: 'android',
   );

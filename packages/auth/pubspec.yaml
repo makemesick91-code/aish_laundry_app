@@ -13,7 +13,6 @@ environment:
 dependencies:
   aish_core: 0.1.0
   aish_domain: 0.1.0
-  aish_local_storage: 0.1.0
   aish_networking: 0.1.0
   meta: 1.18.0
 

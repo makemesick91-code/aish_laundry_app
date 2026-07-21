@@ -1,5 +1,4 @@
 import 'package:aish_core/aish_core.dart';
-import 'package:aish_local_storage/aish_local_storage.dart';
 import 'package:aish_networking/aish_networking.dart';
 
 import 'backend_auth_service.dart';
@@ -37,13 +36,20 @@ final class AuthRuntime {
   /// and relies on an `HttpOnly` cookie the browser manages, because a token in
   /// a browser is readable by any script on the page (Rule 38, hard rule 2).
   ///
-  /// [store] defaults to platform secure storage. A test supplies
-  /// `InMemoryCredentialStore` instead; there is deliberately no plaintext
-  /// option anywhere for either to reach for.
+  /// [store] is REQUIRED and has no default, deliberately.
+  ///
+  /// A default of `PlatformSecureCredentialStore()` would make this package
+  /// reference `flutter_secure_storage`, and a plugin anywhere in a build's
+  /// dependency graph is REGISTERED into that build — it is not removed by
+  /// simply not calling it. On web that plugin is `localStorage`, which
+  /// Rule 38 hard rule 2 forbids for credential material. Forcing each surface
+  /// to name its own store is what keeps browser storage out of Console Web,
+  /// and `scripts/scan-web-build.py` checks the built artefact rather than
+  /// trusting this comment.
   factory AuthRuntime.create({
     required Environment environment,
     required CredentialTransport transport,
-    SecureCredentialStore? store,
+    required SecureCredentialStore store,
     String? deviceName,
     String? platform,
   }) {
@@ -66,7 +72,7 @@ final class AuthRuntime {
       service: BackendAuthService(
         client: client,
         credentials: credentials,
-        store: store ?? PlatformSecureCredentialStore(),
+        store: store,
         transport: transport,
         deviceName: deviceName,
         platform: platform,

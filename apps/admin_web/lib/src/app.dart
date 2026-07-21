@@ -25,6 +25,7 @@ final Provider<AuthRuntime> authRuntimeProvider = Provider<AuthRuntime>((ref) {
   final runtime = AuthRuntime.create(
     environment: ref.watch(environmentProvider),
     transport: CredentialTransport.sessionCookie,
+    store: EphemeralCredentialStore(),
     deviceName: 'Aish Laundry Console',
     platform: 'web',
   );
