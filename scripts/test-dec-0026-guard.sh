@@ -49,32 +49,60 @@ if ! grep -q "_step3_flutter_scaffold_authorized" "${GUARD}"; then
 fi
 
 # --- environment precondition ------------------------------------------------
-# The DEC-0026 authorisation is PINNED to the canonical repository path and
-# origin by owner decision. Outside that path the guard denies EVERY command on
-# "not the canonical repository path", before any condition under test is
-# reached — so no case in this suite can be attributed, including the allowed
-# controls.
+# The DEC-0026 authorisation is PINNED, by owner decision, to:
+#   1. the canonical repository PATH and ORIGIN, and
+#   2. a Step 3 FEATURE BRANCH — the guard refuses to scaffold on `main`
+#      (guard line: "a Step 3 branch, never main").
 #
-# Running anyway produced 34 failures from a fresh clone that were not defects in
-# anything: the guard behaved exactly as designed, and the suite simply could not
-# observe it. Reporting those as failures is as misleading as reporting them as
-# passes; both invite someone to "fix" a guard that is working.
+# When ANY of those preconditions is unmet, the guard denies EVERY command on
+# that precondition — "not the canonical repository path", "origin is not …", or
+# "refusing to scaffold on main" — before any scaffold-authorization case under
+# test is reached. No case can then be attributed, including the allowed
+# controls, so the suite has verified nothing.
+#
+# Two environments hit this legitimately:
+#   - a fresh clone (path/origin pin) — first seen in the DEC-0027 campaign;
+#   - the CANONICAL repo checked out on `main` AFTER the Step 3 feature branch
+#     merged (branch pin). The 38/38 scaffold-authorization result is bound to
+#     the feature-branch SHA it was proven at; on `main` the same suite cannot
+#     run, because scaffolding on `main` is categorically refused — which is the
+#     stronger, correct behaviour, not a regression.
+#
+# Running anyway produced 34 "failures" that were not defects in anything: the
+# guard behaved exactly as designed and the suite simply could not observe it.
+# Reporting those as failures is as misleading as reporting them as passes; both
+# invite someone to "fix" a guard that is working.
 #
 # So the precondition is detected and the suite exits 78 — SKIP, never PASS. The
-# guard is NOT widened to accommodate the harness: the pin is the control, and
-# weakening a control to make a test runnable is precisely backwards.
+# guard is NOT weakened to accommodate the harness: the pins ARE the control, and
+# relaxing a control to make a test runnable is precisely backwards. On a Step 3
+# feature branch at the canonical path/origin, none of these deny, so the full
+# suite still runs and must still reach 38/38.
+# The deny reasons below are the guard's PRECONDITIONS — they fire before any
+# scaffold-authorization case is reached, so any one of them makes the whole
+# suite unattributable. They are matched exactly, not by a loose pattern, so a
+# genuine scaffold-authorization denial (the thing under test) is never mistaken
+# for a precondition and silently skipped:
+#   path/origin pin  — a fresh clone;
+#   "refusing to scaffold on main"          — the canonical repo on `main`;
+#   "is not a Step 3 feature branch"        — the canonical repo on any other
+#                                             branch (the suite runs its cases
+#                                             ONLY on feature/step-03-*).
 precondition_out="$(printf '%s' "${APPROVED_CMD}" | "${GUARD}" 2>&1)" || true
 if printf '%s' "${precondition_out}" \
-     | grep -qE "not the canonical repository path|not inside a git repository|origin is not"; then
-  echo "SKIP: the DEC-0026 guard is pinned to the canonical repository path and origin,"
-  echo "      and this checkout is neither. Every case would deny for that reason"
-  echo "      rather than the reason under test, so NOTHING here would be attributable."
+     | grep -qE "not the canonical repository path|not inside a git repository|origin is not|refusing to scaffold on main|is not a Step 3 feature branch"; then
+  echo "SKIP: the DEC-0026 guard's owner-approved pin is not satisfied by this"
+  echo "      environment (canonical path AND origin AND a Step 3 feature branch,"
+  echo "      never 'main'). Every case would deny for that precondition rather"
+  echo "      than the reason under test, so NOTHING here would be attributable."
   echo
-  echo "      This suite is verifiable only at the canonical clone. That is a"
-  echo "      property of the guard's owner-approved pin, not a defect in it, and"
-  echo "      the pin is deliberately NOT relaxed to make this suite runnable."
+  echo "      The 38/38 scaffold-authorization result is bound to the feature-branch"
+  echo "      SHA it was proven at. On 'main', or in a fresh clone, this suite is"
+  echo "      correctly un-runnable — a property of the guard's pins, not a defect,"
+  echo "      and the pins are deliberately NOT relaxed to make the suite runnable."
   echo
   echo "      repository: $(pwd)"
+  echo "      branch:     $(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo '?')"
   echo "      guard says: $(printf '%s' "${precondition_out}" | head -1)"
   exit 78
 fi
