@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\HealthController;
 use App\Modules\Authorization\Http\Controllers\PermissionController;
+use App\Modules\CustomerManagement\Http\Controllers\CustomerConsentController;
+use App\Modules\CustomerManagement\Http\Controllers\CustomerController;
 use App\Modules\Identity\Http\Controllers\AuthController;
 use App\Modules\Identity\Http\Controllers\PasswordResetController;
 use App\Modules\Identity\Http\Controllers\SessionController;
@@ -17,11 +19,19 @@ use Illuminate\Support\Facades\Route;
 | Mounted under /api/v1 by bootstrap/app.php (Rule 06 — the API is versioned and
 | every client surface consumes the same versioned HTTP API).
 |
-| Step 3 registers operational, authentication, tenancy and RBAC routes ONLY.
-| There is deliberately no route here for a customer, a service, a price list,
-| an order, a payment, a receipt, production, tracking, a pickup, a delivery, a
-| reminder, a receivable, or a subscription: every one of those belongs to Step 4
-| or later, and adding it early is scope leakage (CLAUDE.md §3 — roadmap lock).
+| Step 3 registered operational, authentication, tenancy and RBAC routes. Step 4
+| adds LAUNDRY MASTER DATA under DEC-0028 and DEC-0030: customers, their
+| addresses and consent, the service catalogue, price lists, outlet master data,
+| and staff assignment.
+|
+| There is still deliberately no route here for an order, a payment, a receipt,
+| production, tracking, a pickup, a delivery, a reminder, a receivable, or a
+| subscription: every one of those belongs to Step 5 or later, and adding it
+| early is scope leakage (CLAUDE.md §3 — roadmap lock).
+|
+| Note what is ABSENT from the Step 4 block below and is absent on purpose: no
+| bulk-mutation route and no export route (threats T-19, T-20). Their absence is
+| asserted by test rather than assumed.
 |
 | THREE ACCESS TIERS, applied by middleware rather than remembered per handler:
 |
@@ -91,4 +101,22 @@ Route::middleware(['auth.api', 'tenant.context'])->group(function (): void {
 
     Route::get('authorization/permissions', [PermissionController::class, 'index'])
         ->name('api.v1.authorization.permissions');
+
+    // -----------------------------------------------------------------------
+    // STEP 4 — LAUNDRY MASTER DATA (FR-021 … FR-047)
+    // -----------------------------------------------------------------------
+
+    // Customers (FR-021 … FR-030). No destroy route: a customer referenced by a
+    // future order must stay resolvable, so archival replaces deletion (T-18).
+    Route::get('customers', [CustomerController::class, 'index'])->name('api.v1.customers.index');
+    Route::post('customers', [CustomerController::class, 'store'])->name('api.v1.customers.store');
+    Route::get('customers/{customer}', [CustomerController::class, 'show'])->name('api.v1.customers.show');
+    Route::patch('customers/{customer}', [CustomerController::class, 'update'])->name('api.v1.customers.update');
+    Route::post('customers/{customer}/archive', [CustomerController::class, 'archive'])->name('api.v1.customers.archive');
+
+    // Consent (FR-027, FR-028). Read and APPEND only — no update, no delete.
+    Route::get('customers/{customer}/consents', [CustomerConsentController::class, 'index'])
+        ->name('api.v1.customers.consents.index');
+    Route::post('customers/{customer}/consents', [CustomerConsentController::class, 'store'])
+        ->name('api.v1.customers.consents.store');
 });

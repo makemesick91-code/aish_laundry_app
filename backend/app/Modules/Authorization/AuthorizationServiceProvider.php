@@ -6,10 +6,12 @@ namespace App\Modules\Authorization;
 
 use App\Modules\Audit\Models\AuditEntry;
 use App\Modules\Authorization\Policies\AuditEntryPolicy;
+use App\Modules\Authorization\Policies\CustomerPolicy;
 use App\Modules\Authorization\Policies\DeviceSessionPolicy;
 use App\Modules\Authorization\Policies\LaundryBrandPolicy;
 use App\Modules\Authorization\Policies\MembershipPolicy;
 use App\Modules\Authorization\Policies\OutletPolicy;
+use App\Modules\CustomerManagement\Models\Customer;
 use App\Modules\Identity\Models\User;
 use App\Modules\Organization\Models\LaundryBrand;
 use App\Modules\Organization\Models\Outlet;
@@ -22,11 +24,14 @@ use Illuminate\Support\ServiceProvider;
 /**
  * Wires the Step 3 authorization surface.
  *
- * SCOPE DISCIPLINE: policies exist here for STEP 3 RESOURCES ONLY — tenant
- * context, membership, laundry brand, outlet, device session, role assignment,
- * permission inspection, and audit read. There is no policy for a customer, an
- * order, a payment, a delivery, or a report, because none of those exists.
- * Adding one early would be scope leakage (CLAUDE.md §3, roadmap lock).
+ * SCOPE DISCIPLINE: policies exist here for STEP 3 and STEP 4 resources only —
+ * tenant context, membership, laundry brand, outlet, device session, role
+ * assignment, permission inspection, audit read, and the Step 4 master data
+ * authorised by DEC-0028 and DEC-0030.
+ *
+ * There is still no policy for an order, a payment, a receipt, production,
+ * tracking, a delivery, a reminder, or a subscription, because none of those
+ * exists. Adding one early would be scope leakage (CLAUDE.md §3, roadmap lock).
  */
 final class AuthorizationServiceProvider extends ServiceProvider
 {
@@ -44,6 +49,9 @@ final class AuthorizationServiceProvider extends ServiceProvider
         Gate::policy(Outlet::class, OutletPolicy::class);
         Gate::policy(DeviceSession::class, DeviceSessionPolicy::class);
         Gate::policy(AuditEntry::class, AuditEntryPolicy::class);
+
+        // Step 4 master data (DEC-0028).
+        Gate::policy(Customer::class, CustomerPolicy::class);
 
         $this->defineContextGates();
     }
