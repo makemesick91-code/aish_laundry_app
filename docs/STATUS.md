@@ -185,10 +185,17 @@ signing, no device execution, no performance or accessibility audit, no UAT, and
 no deployment. Runtime existing and passing its gates is not runtime deployed:
 see §2 for exactly what is verified and what is not.
 
-**Step 3 GO does not start Step 4 and does not authorise deployment.** Step 4
-remains `PLANNED / NOT STARTED`; deployment remains `ABSENT`. Any Step 4 work
-begins only through a separately authorised canonical Step 4 process, and the
+**Step 3 GO did not start Step 4 and does not authorise deployment.** Step 4
+began only through the separately authorised canonical process Step 3 required,
+recorded as
+[DEC-0028](decisions/DEC-0028-step-04-scope-resolution-and-canonical-authorization.md)
+on 21 July 2026. Step 4 is `IN PROGRESS`; deployment remains `ABSENT`, and the
 Step 3 tag never moves.
+
+This paragraph previously read "Step 4 remains `PLANNED / NOT STARTED`". That
+was true when written and stopped being true at DEC-0028. It contradicted the
+roadmap table in §1 of this same file, and a status file that contradicts itself
+is a false claim rather than a conservative one (Rule 01, DEC-0029).
 
 ---
 
@@ -207,6 +214,36 @@ Step 3 tag never moves.
 | Deployment | ABSENT |
 | Application CI | ACTIVE — THREE STEP 3 RUNTIME CONTEXTS VERIFIED |
 | UAT | NOT STARTED |
+| End-to-end client↔backend session | **ABSENT — NO CONCRETE `AuthService` EXISTS** |
+
+### The three Flutter apps cannot authenticate against a running backend
+
+Recorded here on 21 July 2026 because it was not previously disclosed anywhere,
+and it bounds what every client-side claim in this file may mean.
+
+`AuthService` is an interface in `packages/auth`. The only implementation of it
+in the entire workspace is `FakeAuthService` in `packages/testing`, and no
+`main.dart` overrides `authServiceProvider` — each app entrypoint overrides
+`environmentProvider` and nothing else. Every authenticated screen reads
+`authServiceProvider`, so a real launch throws `UnimplementedError` on the
+startup frame.
+
+**What this does and does not invalidate.** The apps genuinely build (debug APK
+and release web, exit 0) and their widget suites genuinely pass, exercising a
+real `ApiClient` over a scripted HTTP transport. Those results stand. What has
+never happened is a client reaching a live backend: no sign-in, no session
+restoration, no tenant selection, and no master-data request has executed
+end-to-end against the running API.
+
+No Step 4 claim in this repository asserts an end-to-end verified counter flow,
+and none may. Client-side Step 4 evidence is widget- and contract-level only,
+and says so wherever it appears.
+
+**This is a Step 3 foundation gap, not a Step 4 defect**, and it is left as one
+deliberately: implementing HTTP authentication is Step 3 runtime scope, Step 3
+is `GO`-tagged and immutable, and retro-filling it inside Step 4 would be an
+unauthorised scope decision (Rule 12). It requires the repository owner's
+direction.
 
 **Runtime existing is not runtime working.** The backend boots, migrates against
 authoritative PostgreSQL 18.4, and passes 202 tests; the Dart workspace analyses
@@ -297,10 +334,10 @@ records what has actually been executed, not what exists.
 
 | Path | Runtime | Verified |
 | --- | --- | --- |
-| `backend` | PRESENT | Laravel 13.20.0 boots; migrate fresh/rollback/re-apply on PostgreSQL 18.4; 202 tests, 1292 assertions |
+| `backend` | PRESENT | Laravel 13.20.0 boots; migrate fresh/rollback/re-apply on PostgreSQL 18.4; 385 tests, 3562 assertions |
 | `apps/customer_android` | PRESENT | analyse clean, 20 widget tests; **debug APK built, exit 0** |
-| `apps/ops_android` | PRESENT | analyse clean, 28 widget tests; **debug APK built, exit 0** |
-| `apps/admin_web` | PRESENT | analyse clean, 20 widget tests; **release web build, exit 0** |
+| `apps/ops_android` | PRESENT | analyse clean, 78 widget tests; **debug APK built, exit 0** (Step 3 build; the Step 4 master-data surface is test-verified, not re-built) |
+| `apps/admin_web` | PRESENT | analyse clean, 34 widget tests; **release web build, exit 0** |
 | `packages/design_system` | PRESENT | deterministic token generation, drift test |
 | `packages/core` | PRESENT | pure Dart, unit tests |
 | `packages/domain` | PRESENT | pure Dart, unit tests |
