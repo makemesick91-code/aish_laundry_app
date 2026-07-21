@@ -45,6 +45,32 @@ class _ScriptedAdapter implements HttpClientAdapter {
   void close({bool force = false}) {}
 }
 
+/// Records every request it serves, so concurrent traffic can be inspected.
+class _RecordingAdapter implements HttpClientAdapter {
+  final List<RequestOptions> requests = <RequestOptions>[];
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<List<int>>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    requests.add(options);
+    // Delay so two in-flight requests overlap rather than serialising.
+    await Future<void>.delayed(Duration.zero);
+    return ResponseBody.fromString(
+      '{"data":{},"meta":{}}',
+      200,
+      headers: <String, List<String>>{
+        Headers.contentTypeHeader: <String>[Headers.jsonContentType],
+      },
+    );
+  }
+
+  @override
+  void close({bool force = false}) {}
+}
+
 ApiClient clientWith(
   // ignore: library_private_types_in_public_api
   _ScriptedAdapter adapter, {
@@ -127,16 +153,89 @@ void main() {
     });
 
     test(
-      'removes the Authorization header after a request completes',
+      'sends the bearer token on the request and never on shared options',
       () async {
         final adapter = _ScriptedAdapter(200, '{"data":{},"meta":{}}');
         final client = clientWith(adapter, token: () async => 'token_fiktif');
         await client.get('auth/me');
-        // The header must not linger on the shared Dio instance, where a later
-        // request to a different host could pick it up.
+
+        // POSITIVE control first. Without this assertion the negative one below
+        // would also pass for a client that sent no credential at all, which is
+        // how a "no token leaked" test quietly becomes a "no token sent" test.
+        expect(
+          adapter.lastRequest!.headers['Authorization'],
+          'Bearer token_fiktif',
+        );
+
+        // The credential must never land on the shared Dio instance, where a
+        // later request to a different host could pick it up.
         expect(client.dioForTest.options.headers['Authorization'], isNull);
       },
     );
+
+    test(
+      'concurrent requests never carry each other\'s credential',
+      () async {
+        // A forward-looking property guard, NOT a reproduction of a known bug.
+        // The previous shared-options shape was checked against this scenario
+        // and passed it, so this test is not evidence that the old code leaked
+        // credentials across requests — the discriminating test is "never on
+        // shared options" above, which does fail if the credential is put back
+        // into shared state. This one locks in the end-to-end property so a
+        // future change that batches or caches headers cannot quietly break it.
+        final adapter = _RecordingAdapter();
+        var issued = 0;
+        final client = ApiClient(
+          environment: env(),
+          transport: CredentialTransport.bearerToken,
+          // A distinct token per call, so a cross-contamination is visible
+          // rather than hidden behind one repeated value.
+          bearerToken: () async {
+            issued += 1;
+            // Captured BEFORE yielding. Reading the counter after the await
+            // would make both callers observe the final value and the test
+            // would report contamination that the client never caused.
+            final mine = issued;
+            // Yield, so the two requests genuinely interleave rather than
+            // running to completion one after the other.
+            await Future<void>.delayed(Duration.zero);
+            return 'token_fiktif_$mine';
+          },
+          dio: Dio()..httpClientAdapter = adapter,
+        );
+
+        await Future.wait<void>(<Future<void>>[
+          client.get('auth/me'),
+          client.get('sessions'),
+        ]);
+
+        final sent = adapter.requests
+            .map((request) => request.headers['Authorization'])
+            .toList()
+          ..sort();
+        expect(sent, <String>['Bearer token_fiktif_1', 'Bearer token_fiktif_2']);
+      },
+    );
+
+    test('a request context contributes only its populated headers', () async {
+      final adapter = _ScriptedAdapter(200, '{"data":{},"meta":{}}');
+      final client = ApiClient(
+        environment: env(),
+        transport: CredentialTransport.bearerToken,
+        requestContext: () => const RequestContext(
+          tenantId: 'tn_fiktif_0001',
+          deviceIdentifier: 'dev_fiktif_0001',
+        ),
+        dio: Dio()..httpClientAdapter = adapter,
+      );
+      await client.get('context/outlets');
+
+      expect(adapter.lastRequest!.headers['X-Tenant-Id'], 'tn_fiktif_0001');
+      expect(adapter.lastRequest!.headers['X-Device-Id'], 'dev_fiktif_0001');
+      // An unselected outlet contributes NO header. An empty `X-Outlet-Id`
+      // would read to the server as a supplied-but-blank selection.
+      expect(adapter.lastRequest!.headers.containsKey('X-Outlet-Id'), isFalse);
+    });
 
     test('a cookie-transport client attaches no bearer token at all', () async {
       final adapter = _ScriptedAdapter(200, '{"data":{},"meta":{}}');

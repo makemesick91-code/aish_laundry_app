@@ -111,7 +111,67 @@ abstract final class ApiErrorMapper {
       );
     }
 
-    final (kind, consequence) = switch (code) {
+    final (kind, consequence) = _classify(code);
+
+    return (
+      Failure(
+        kind: kind,
+        // The server message is developer-facing context, never user copy.
+        message: serverMessage ?? code.wireValue,
+        code: code.wireValue,
+        correlationId: requestId,
+        details: details,
+      ),
+      consequence,
+    );
+  }
+
+  /// Recover the consequence of a [Failure] that has already been mapped.
+  ///
+  /// This exists so a caller holding only a `Result.err` — which is every caller
+  /// of [ApiClient], because its methods return `Result<ApiSuccess>` — can still
+  /// learn what the failure MEANS for the session without a second network call
+  /// and without a second copy of the mapping table.
+  ///
+  /// It routes through exactly the same [_classify] switch as [fromEnvelope], so
+  /// the two can never disagree. Adding a code to one adds it to both.
+  ///
+  /// FAIL-SAFE, identically to [fromEnvelope]. A failure carrying no recognised
+  /// code resolves to a TRANSIENT consequence, never a session-ending one — the
+  /// HTTP status and the [FailureKind] are deliberately NOT consulted to guess a
+  /// security meaning. A `FailureKind.authentication` with an unknown code means
+  /// "this build does not understand what the server said", and logging a user
+  /// out on that basis would let an unrecognised string terminate sessions.
+  static ClientErrorConsequence consequenceOf(Failure failure) {
+    final code = ApiErrorCode.parse(failure.code);
+    if (code != null) {
+      final (_, consequence) = _classify(code);
+      return consequence;
+    }
+
+    // No recognised code: this is a transport-level or unclassifiable failure.
+    // Mirror the mapping [transport] already applies for the same kinds.
+    return switch (failure.kind) {
+      FailureKind.network ||
+      FailureKind.timeout => ClientErrorConsequence.networkUnavailable,
+      FailureKind.serviceUnavailable =>
+        ClientErrorConsequence.serviceUnavailable,
+      FailureKind.authentication ||
+      FailureKind.authorization ||
+      FailureKind.validation ||
+      FailureKind.rateLimited ||
+      FailureKind.storage ||
+      FailureKind.configuration ||
+      FailureKind.unexpected => ClientErrorConsequence.recoverableUnknown,
+    };
+  }
+
+  /// The single mapping from a recognised wire code to what it means.
+  ///
+  /// Kept private and shared rather than inlined, because two copies of this
+  /// table would drift the first time a code is added to one of them.
+  static (FailureKind, ClientErrorConsequence) _classify(ApiErrorCode code) =>
+      switch (code) {
       ApiErrorCode.unauthenticated => (
         FailureKind.authentication,
         ClientErrorConsequence.requiresAuthentication,
@@ -177,19 +237,6 @@ abstract final class ApiErrorMapper {
         ClientErrorConsequence.recoverableUnknown,
       ),
     };
-
-    return (
-      Failure(
-        kind: kind,
-        // The server message is developer-facing context, never user copy.
-        message: serverMessage ?? code.wireValue,
-        code: code.wireValue,
-        correlationId: requestId,
-        details: details,
-      ),
-      consequence,
-    );
-  }
 
   /// Map a transport-level problem that never reached an envelope.
   static (Failure, ClientErrorConsequence) transport({
