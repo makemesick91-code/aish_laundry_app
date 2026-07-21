@@ -3,7 +3,6 @@ import 'package:aish_core/aish_core.dart';
 import 'package:aish_customer_android/src/app.dart';
 import 'package:aish_customer_android/src/routing/customer_routes.dart';
 import 'package:aish_design_system/aish_design_system.dart';
-import 'package:aish_local_storage/aish_local_storage.dart';
 import 'package:aish_testing/aish_testing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

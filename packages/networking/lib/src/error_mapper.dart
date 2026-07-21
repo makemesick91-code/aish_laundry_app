@@ -120,84 +120,7 @@ abstract final class ApiErrorMapper {
       );
     }
 
-    final (kind, consequence) = switch (code) {
-      ApiErrorCode.unauthenticated => (
-        FailureKind.authentication,
-        ClientErrorConsequence.requiresAuthentication,
-      ),
-      ApiErrorCode.sessionExpired => (
-        FailureKind.authentication,
-        ClientErrorConsequence.sessionExpired,
-      ),
-      ApiErrorCode.sessionRevoked => (
-        FailureKind.authentication,
-        ClientErrorConsequence.sessionRevoked,
-      ),
-      ApiErrorCode.deviceRevoked => (
-        FailureKind.authentication,
-        ClientErrorConsequence.deviceRevoked,
-      ),
-      ApiErrorCode.membershipSuspended => (
-        FailureKind.authorization,
-        ClientErrorConsequence.membershipSuspended,
-      ),
-      ApiErrorCode.membershipRevoked => (
-        FailureKind.authorization,
-        ClientErrorConsequence.membershipRevoked,
-      ),
-      // Tenant and outlet denial share a consequence on purpose. A client that
-      // rendered them differently would tell the user which of the two exists,
-      // and denial must be indistinguishable from absence across a tenant
-      // boundary (Rule 32 hard rule 2).
-      ApiErrorCode.tenantAccessDenied || ApiErrorCode.outletAccessDenied => (
-        FailureKind.authorization,
-        ClientErrorConsequence.contextAccessDenied,
-      ),
-      ApiErrorCode.forbidden => (
-        FailureKind.authorization,
-        ClientErrorConsequence.accessDenied,
-      ),
-      // NOT_FOUND is deliberately mapped to the same consequence as FORBIDDEN.
-      // Across a tenant boundary the server answers "not found" for a record
-      // that exists in another tenant; a client that rendered a distinct
-      // "missing" state would leak the distinction the server just hid.
-      ApiErrorCode.notFound => (
-        FailureKind.authorization,
-        ClientErrorConsequence.accessDenied,
-      ),
-      ApiErrorCode.validationFailed => (
-        FailureKind.validation,
-        ClientErrorConsequence.validationFailed,
-      ),
-      // A STALE WRITE, AND DELIBERATELY NOT RETRYABLE (threat T-12).
-      //
-      // Mapped to FailureKind.validation because that kind is
-      // non-retryable — see `Failure.isRetryable`. Leaving it to fall through
-      // to `unexpected` would mark it RETRYABLE, and a surface offering "coba
-      // lagi" here would resend the same payload and silently overwrite the
-      // edit that caused the conflict. The recovery is to reload and re-apply,
-      // never to retry (Rule 07 hard rule 5's principle).
-      ApiErrorCode.conflict => (
-        FailureKind.validation,
-        ClientErrorConsequence.staleWrite,
-      ),
-      ApiErrorCode.rateLimited => (
-        FailureKind.rateLimited,
-        ClientErrorConsequence.rateLimited,
-      ),
-      ApiErrorCode.csrfFailed => (
-        FailureKind.authentication,
-        ClientErrorConsequence.csrfFailed,
-      ),
-      ApiErrorCode.serviceUnavailable => (
-        FailureKind.serviceUnavailable,
-        ClientErrorConsequence.serviceUnavailable,
-      ),
-      ApiErrorCode.methodNotAllowed || ApiErrorCode.internalError => (
-        FailureKind.unexpected,
-        ClientErrorConsequence.recoverableUnknown,
-      ),
-    };
+    final (kind, consequence) = _classify(code);
 
     return (
       Failure(
@@ -211,6 +134,130 @@ abstract final class ApiErrorMapper {
       consequence,
     );
   }
+
+  /// Recover the consequence of a [Failure] that has already been mapped.
+  ///
+  /// This exists so a caller holding only a `Result.err` — which is every caller
+  /// of [ApiClient], because its methods return `Result<ApiSuccess>` — can still
+  /// learn what the failure MEANS for the session without a second network call
+  /// and without a second copy of the mapping table.
+  ///
+  /// It routes through exactly the same [_classify] switch as [fromEnvelope], so
+  /// the two can never disagree. Adding a code to one adds it to both.
+  ///
+  /// FAIL-SAFE, identically to [fromEnvelope]. A failure carrying no recognised
+  /// code resolves to a TRANSIENT consequence, never a session-ending one — the
+  /// HTTP status and the [FailureKind] are deliberately NOT consulted to guess a
+  /// security meaning. A `FailureKind.authentication` with an unknown code means
+  /// "this build does not understand what the server said", and logging a user
+  /// out on that basis would let an unrecognised string terminate sessions.
+  static ClientErrorConsequence consequenceOf(Failure failure) {
+    final code = ApiErrorCode.parse(failure.code);
+    if (code != null) {
+      final (_, consequence) = _classify(code);
+      return consequence;
+    }
+
+    // No recognised code: this is a transport-level or unclassifiable failure.
+    // Mirror the mapping [transport] already applies for the same kinds.
+    return switch (failure.kind) {
+      FailureKind.network ||
+      FailureKind.timeout => ClientErrorConsequence.networkUnavailable,
+      FailureKind.serviceUnavailable =>
+        ClientErrorConsequence.serviceUnavailable,
+      FailureKind.authentication ||
+      FailureKind.authorization ||
+      FailureKind.validation ||
+      FailureKind.rateLimited ||
+      FailureKind.storage ||
+      FailureKind.configuration ||
+      FailureKind.unexpected => ClientErrorConsequence.recoverableUnknown,
+    };
+  }
+
+  /// The single mapping from a recognised wire code to what it means.
+  ///
+  /// Kept private and shared rather than inlined, because two copies of this
+  /// table would drift the first time a code is added to one of them.
+  static (FailureKind, ClientErrorConsequence) _classify(
+    ApiErrorCode code,
+  ) => switch (code) {
+    ApiErrorCode.unauthenticated => (
+      FailureKind.authentication,
+      ClientErrorConsequence.requiresAuthentication,
+    ),
+    ApiErrorCode.sessionExpired => (
+      FailureKind.authentication,
+      ClientErrorConsequence.sessionExpired,
+    ),
+    ApiErrorCode.sessionRevoked => (
+      FailureKind.authentication,
+      ClientErrorConsequence.sessionRevoked,
+    ),
+    ApiErrorCode.deviceRevoked => (
+      FailureKind.authentication,
+      ClientErrorConsequence.deviceRevoked,
+    ),
+    ApiErrorCode.membershipSuspended => (
+      FailureKind.authorization,
+      ClientErrorConsequence.membershipSuspended,
+    ),
+    ApiErrorCode.membershipRevoked => (
+      FailureKind.authorization,
+      ClientErrorConsequence.membershipRevoked,
+    ),
+    // Tenant and outlet denial share a consequence on purpose. A client that
+    // rendered them differently would tell the user which of the two exists,
+    // and denial must be indistinguishable from absence across a tenant
+    // boundary (Rule 32 hard rule 2).
+    ApiErrorCode.tenantAccessDenied || ApiErrorCode.outletAccessDenied => (
+      FailureKind.authorization,
+      ClientErrorConsequence.contextAccessDenied,
+    ),
+    ApiErrorCode.forbidden => (
+      FailureKind.authorization,
+      ClientErrorConsequence.accessDenied,
+    ),
+    // NOT_FOUND is deliberately mapped to the same consequence as FORBIDDEN.
+    // Across a tenant boundary the server answers "not found" for a record
+    // that exists in another tenant; a client that rendered a distinct
+    // "missing" state would leak the distinction the server just hid.
+    ApiErrorCode.notFound => (
+      FailureKind.authorization,
+      ClientErrorConsequence.accessDenied,
+    ),
+    ApiErrorCode.validationFailed => (
+      FailureKind.validation,
+      ClientErrorConsequence.validationFailed,
+    ),
+    // A STALE WRITE, AND DELIBERATELY NOT RETRYABLE (threat T-12).
+    //
+    // Mapped to FailureKind.validation because that kind is non-retryable — see
+    // `Failure.isRetryable`. Falling through to `unexpected` would mark it
+    // RETRYABLE, and a surface offering "coba lagi" would resend the same
+    // payload and silently overwrite the edit that caused the conflict. The
+    // recovery is to reload and re-apply, never to retry.
+    ApiErrorCode.conflict => (
+      FailureKind.validation,
+      ClientErrorConsequence.staleWrite,
+    ),
+    ApiErrorCode.rateLimited => (
+      FailureKind.rateLimited,
+      ClientErrorConsequence.rateLimited,
+    ),
+    ApiErrorCode.csrfFailed => (
+      FailureKind.authentication,
+      ClientErrorConsequence.csrfFailed,
+    ),
+    ApiErrorCode.serviceUnavailable => (
+      FailureKind.serviceUnavailable,
+      ClientErrorConsequence.serviceUnavailable,
+    ),
+    ApiErrorCode.methodNotAllowed || ApiErrorCode.internalError => (
+      FailureKind.unexpected,
+      ClientErrorConsequence.recoverableUnknown,
+    ),
+  };
 
   /// Map a transport-level problem that never reached an envelope.
   static (Failure, ClientErrorConsequence) transport({

@@ -1,4 +1,4 @@
-import 'package:aish_local_storage/aish_local_storage.dart';
+import 'package:aish_core/aish_core.dart';
 
 /// The in-memory credential store, re-exported under the name tests use.
 ///

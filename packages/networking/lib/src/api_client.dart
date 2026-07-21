@@ -4,6 +4,7 @@ import 'package:meta/meta.dart';
 
 import 'api_response.dart';
 import 'error_mapper.dart';
+import 'request_context.dart';
 
 /// How this client proves who it is.
 enum CredentialTransport {
@@ -23,6 +24,13 @@ enum CredentialTransport {
 /// long-lived field where a `toString()` or a crash dump could reach it.
 typedef BearerTokenProvider = Future<String?> Function();
 
+/// Supplies the tenant, outlet and device identifiers to attach to a request.
+///
+/// A function rather than a stored value because the selected context changes
+/// while the client lives, and a client holding a stale tenant identifier would
+/// keep addressing the tenant the user just switched away from.
+typedef RequestContextProvider = RequestContext Function();
+
 /// The single HTTP entry point to `/api/v1`.
 ///
 /// Three properties are load-bearing:
@@ -39,11 +47,14 @@ final class ApiClient {
     required Environment environment,
     required this.transport,
     BearerTokenProvider? bearerToken,
+    RequestContextProvider? requestContext,
     Dio? dio,
-    // The parameter is deliberately named `bearerToken`, not `_bearerToken`:
-    // an initializing formal would force every caller to pass a private name.
+    // The parameters are deliberately named without underscores: an
+    // initializing formal would force every caller to pass a private name.
     // ignore: prefer_initializing_formals
   }) : _bearerToken = bearerToken,
+       // ignore: prefer_initializing_formals
+       _requestContext = requestContext,
        _dio = dio ?? Dio() {
     _dio.options = _dio.options.copyWith(
       baseUrl: _ensureTrailingSlash(environment.apiBaseUri.toString()),
@@ -71,6 +82,7 @@ final class ApiClient {
   final Dio _dio;
   final CredentialTransport transport;
   final BearerTokenProvider? _bearerToken;
+  final RequestContextProvider? _requestContext;
 
   static String _ensureTrailingSlash(String value) =>
       value.endsWith('/') ? value : '$value/';
@@ -80,10 +92,11 @@ final class ApiClient {
     Map<String, Object?>? query,
     CorrelationId? correlationId,
   }) => _send(
-    () => _dio.get<Object?>(
+    correlationId,
+    (headers) => _dio.get<Object?>(
       path,
       queryParameters: query,
-      options: Options(headers: _headers(correlationId)),
+      options: Options(headers: headers),
     ),
   );
 
@@ -93,11 +106,13 @@ final class ApiClient {
     CorrelationId? correlationId,
     String? expectedVersion,
   }) => _send(
-    () => _dio.post<Object?>(
+    correlationId,
+    (headers) => _dio.post<Object?>(
       path,
       data: body,
-      options: Options(headers: _headers(correlationId, expectedVersion)),
+      options: Options(headers: headers),
     ),
+    expectedVersion: expectedVersion,
   );
 
   /// Partial update of an existing record.
@@ -116,11 +131,13 @@ final class ApiClient {
     CorrelationId? correlationId,
     String? expectedVersion,
   }) => _send(
-    () => _dio.patch<Object?>(
+    correlationId,
+    (headers) => _dio.patch<Object?>(
       path,
       data: body,
-      options: Options(headers: _headers(correlationId, expectedVersion)),
+      options: Options(headers: headers),
     ),
+    expectedVersion: expectedVersion,
   );
 
   /// Wholesale replacement — used where a collection is only meaningful as a
@@ -131,10 +148,11 @@ final class ApiClient {
     CorrelationId? correlationId,
     String? expectedVersion,
   }) => _send(
-    () => _dio.put<Object?>(
+    correlationId,
+    (headers) => _dio.put<Object?>(
       path,
       data: body,
-      options: Options(headers: _headers(correlationId, expectedVersion)),
+      options: Options(headers: headers),
     ),
   );
 
@@ -142,10 +160,8 @@ final class ApiClient {
     String path, {
     CorrelationId? correlationId,
   }) => _send(
-    () => _dio.delete<Object?>(
-      path,
-      options: Options(headers: _headers(correlationId)),
-    ),
+    correlationId,
+    (headers) => _dio.delete<Object?>(path, options: Options(headers: headers)),
   );
 
   /// The optimistic-concurrency precondition header.
@@ -155,22 +171,56 @@ final class ApiClient {
   /// returns it, and never parses or generates one.
   static const String versionHeaderName = 'If-Unmodified-Since-Version';
 
-  Map<String, Object?> _headers(
-    CorrelationId? correlationId, [
+  /// Build the per-request headers, including any credential.
+  ///
+  /// The credential is placed on THIS REQUEST's options and nowhere else.
+  ///
+  /// An earlier shape wrote `Authorization` onto the shared `Dio.options` and
+  /// removed it again once the response returned, so the credential lived in
+  /// mutable state shared by every in-flight request and correctness depended
+  /// on that attach/detach pair always being balanced. No exploitable
+  /// interleaving was demonstrated against that shape, and none is claimed
+  /// here — the change is structural: with per-request headers there is no
+  /// shared credential state to get out of balance, so the property holds by
+  /// construction rather than by discipline. It is also what lets a token
+  /// surface and a cookie surface share one client safely.
+  Future<Map<String, Object?>> _requestHeaders(
+    CorrelationId? correlationId,
     String? expectedVersion,
-  ]) => <String, Object?>{
-    CorrelationId.headerName: (correlationId ?? CorrelationId.generate()).value,
-    if (expectedVersion != null && expectedVersion.isNotEmpty)
-      versionHeaderName: expectedVersion,
-  };
+  ) async {
+    final headers = <String, Object?>{
+      CorrelationId.headerName:
+          (correlationId ?? CorrelationId.generate()).value,
+      // Untrusted hints, re-verified server-side on every request (Rule 39).
+      ...?_requestContext?.call().toHeaders(),
+      // Optimistic concurrency. Absent unless the caller read a version and is
+      // editing the record it saw.
+      if (expectedVersion != null && expectedVersion.isNotEmpty)
+        versionHeaderName: expectedVersion,
+    };
+
+    // A cookie surface never attaches a bearer token: its credential is the
+    // HttpOnly cookie the browser sends, and a token in a browser is a token
+    // an injected script can read (Rule 38, hard rule 2).
+    if (transport == CredentialTransport.bearerToken && _bearerToken != null) {
+      final token = await _bearerToken();
+      if (token != null && token.isNotEmpty) {
+        headers['Authorization'] = 'Bearer $token';
+      }
+    }
+
+    return headers;
+  }
 
   Future<Result<ApiSuccess>> _send(
-    Future<Response<Object?>> Function() request,
-  ) async {
+    CorrelationId? correlationId,
+    Future<Response<Object?>> Function(Map<String, Object?> headers) request, {
+    String? expectedVersion,
+  }) async {
     try {
-      final token = await _attachToken();
-      final response = await request();
-      _detachToken(token);
+      final response = await request(
+        await _requestHeaders(correlationId, expectedVersion),
+      );
       return _decode(response);
     } on DioException catch (error) {
       // The message is built from the exception TYPE, never from the request
@@ -199,23 +249,6 @@ final class ApiClient {
           message: 'Unexpected transport error.',
         ),
       );
-    }
-  }
-
-  Future<String?> _attachToken() async {
-    if (transport != CredentialTransport.bearerToken || _bearerToken == null) {
-      return null;
-    }
-    final token = await _bearerToken();
-    if (token != null && token.isNotEmpty) {
-      _dio.options.headers['Authorization'] = 'Bearer $token';
-    }
-    return token;
-  }
-
-  void _detachToken(String? token) {
-    if (token != null) {
-      _dio.options.headers.remove('Authorization');
     }
   }
 
