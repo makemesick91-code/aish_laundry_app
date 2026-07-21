@@ -69,8 +69,7 @@ Environment liveEnvironment() => Environment.validate(
 }
 
 void main() {
-  final configured =
-      baseUrl != null && identifier != null && password != null;
+  final configured = baseUrl != null && identifier != null && password != null;
 
   group(
     'against a running backend',
@@ -100,7 +99,10 @@ void main() {
         );
 
         expect(state.isAuthenticated, isFalse);
-        expect(live.store.keys.where((k) => k.contains('session_token')), isEmpty);
+        expect(
+          live.store.keys.where((k) => k.contains('session_token')),
+          isEmpty,
+        );
       });
 
       test(
@@ -149,21 +151,25 @@ void main() {
         expect(state.isAuthenticated, isTrue);
       });
 
-      test('selecting the caller\'s own tenant succeeds', () async {
-        final live = liveRuntime();
-        await live.runtime.service.signIn(
-          identifier: identifier!,
-          password: password!,
-        );
+      test(
+        'selecting the caller\'s own tenant succeeds',
+        () async {
+          final live = liveRuntime();
+          await live.runtime.service.signIn(
+            identifier: identifier!,
+            password: password!,
+          );
 
-        final state = await live.runtime.service.selectTenant(ownTenantId!);
+          final state = await live.runtime.service.selectTenant(ownTenantId!);
 
-        expect(state.isAuthenticated, isTrue);
-        expect(state.session!.hasTenantContext, isTrue);
-        expect(state.session!.activeTenant!.id, ownTenantId);
-        // Permissions arrive with the context, never before it.
-        expect(state.session!.permissions, isNotNull);
-      }, skip: ownTenantId == null ? 'AISH_E2E_TENANT_ID not set' : null);
+          expect(state.isAuthenticated, isTrue);
+          expect(state.session!.hasTenantContext, isTrue);
+          expect(state.session!.activeTenant!.id, ownTenantId);
+          // Permissions arrive with the context, never before it.
+          expect(state.session!.permissions, isNotNull);
+        },
+        skip: ownTenantId == null ? 'AISH_E2E_TENANT_ID not set' : null,
+      );
 
       test(
         'selecting ANOTHER tenant is refused by the real server',
@@ -203,36 +209,39 @@ void main() {
         expect(result.isErr, isTrue);
       });
 
-      test('sign-out revokes the token server-side, not just locally', () async {
-        final live = liveRuntime();
-        await live.runtime.service.signIn(
-          identifier: identifier!,
-          password: password!,
-        );
-        final userId = live.runtime.service.current.session!.user.id;
-        final token = await live.runtime.credentials.token();
+      test(
+        'sign-out revokes the token server-side, not just locally',
+        () async {
+          final live = liveRuntime();
+          await live.runtime.service.signIn(
+            identifier: identifier!,
+            password: password!,
+          );
+          final userId = live.runtime.service.current.session!.user.id;
+          final token = await live.runtime.credentials.token();
 
-        await live.runtime.service.signOut();
+          await live.runtime.service.signOut();
 
-        // Replay the revoked token from a fresh runtime. If sign-out had only
-        // forgotten it locally, this would restore a working session — the
-        // difference between signing out and merely hiding.
-        final replay = liveRuntime();
-        await replay.store.write(
-          namespace: const StorageNamespace.device(),
-          key: CredentialKeys.activeUserId,
-          value: userId,
-        );
-        await replay.store.write(
-          namespace: StorageNamespace.user(userId),
-          key: CredentialKeys.sessionToken,
-          value: token!,
-        );
+          // Replay the revoked token from a fresh runtime. If sign-out had only
+          // forgotten it locally, this would restore a working session — the
+          // difference between signing out and merely hiding.
+          final replay = liveRuntime();
+          await replay.store.write(
+            namespace: const StorageNamespace.device(),
+            key: CredentialKeys.activeUserId,
+            value: userId,
+          );
+          await replay.store.write(
+            namespace: StorageNamespace.user(userId),
+            key: CredentialKeys.sessionToken,
+            value: token!,
+          );
 
-        final state = await replay.runtime.service.restoreSession();
+          final state = await replay.runtime.service.restoreSession();
 
-        expect(state.isAuthenticated, isFalse);
-      });
+          expect(state.isAuthenticated, isFalse);
+        },
+      );
     },
     skip: configured
         ? null

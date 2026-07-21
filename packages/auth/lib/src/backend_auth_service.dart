@@ -607,10 +607,8 @@ final class BackendAuthService implements AuthService {
   /// A timeout resolves to the same value a read failure does: nothing stored.
   /// That fails CLOSED — it can only ever produce "no session", never a session
   /// that was not verified.
-  Future<T> _bounded<T>(Future<T> operation, T onTimeout) => operation.timeout(
-    _storageTimeout,
-    onTimeout: () => onTimeout,
-  );
+  Future<T> _bounded<T>(Future<T> operation, T onTimeout) =>
+      operation.timeout(_storageTimeout, onTimeout: () => onTimeout);
 
   Future<String?> _read(StorageNamespace namespace, String key) async {
     final result = await _bounded(
@@ -796,11 +794,7 @@ final class BackendAuthService implements AuthService {
       // EffectivePermissions is built around.
       return const <Permission>{};
     }
-    return raw
-        .map(_asString)
-        .whereType<String>()
-        .map(Permission.new)
-        .toSet();
+    return raw.map(_asString).whereType<String>().map(Permission.new).toSet();
   }
 
   static List<Outlet> _parseOutlets(Object? raw, {required String tenantId}) {

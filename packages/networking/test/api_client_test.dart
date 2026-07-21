@@ -173,49 +173,47 @@ void main() {
       },
     );
 
-    test(
-      'concurrent requests never carry each other\'s credential',
-      () async {
-        // A forward-looking property guard, NOT a reproduction of a known bug.
-        // The previous shared-options shape was checked against this scenario
-        // and passed it, so this test is not evidence that the old code leaked
-        // credentials across requests — the discriminating test is "never on
-        // shared options" above, which does fail if the credential is put back
-        // into shared state. This one locks in the end-to-end property so a
-        // future change that batches or caches headers cannot quietly break it.
-        final adapter = _RecordingAdapter();
-        var issued = 0;
-        final client = ApiClient(
-          environment: env(),
-          transport: CredentialTransport.bearerToken,
-          // A distinct token per call, so a cross-contamination is visible
-          // rather than hidden behind one repeated value.
-          bearerToken: () async {
-            issued += 1;
-            // Captured BEFORE yielding. Reading the counter after the await
-            // would make both callers observe the final value and the test
-            // would report contamination that the client never caused.
-            final mine = issued;
-            // Yield, so the two requests genuinely interleave rather than
-            // running to completion one after the other.
-            await Future<void>.delayed(Duration.zero);
-            return 'token_fiktif_$mine';
-          },
-          dio: Dio()..httpClientAdapter = adapter,
-        );
+    test('concurrent requests never carry each other\'s credential', () async {
+      // A forward-looking property guard, NOT a reproduction of a known bug.
+      // The previous shared-options shape was checked against this scenario
+      // and passed it, so this test is not evidence that the old code leaked
+      // credentials across requests — the discriminating test is "never on
+      // shared options" above, which does fail if the credential is put back
+      // into shared state. This one locks in the end-to-end property so a
+      // future change that batches or caches headers cannot quietly break it.
+      final adapter = _RecordingAdapter();
+      var issued = 0;
+      final client = ApiClient(
+        environment: env(),
+        transport: CredentialTransport.bearerToken,
+        // A distinct token per call, so a cross-contamination is visible
+        // rather than hidden behind one repeated value.
+        bearerToken: () async {
+          issued += 1;
+          // Captured BEFORE yielding. Reading the counter after the await
+          // would make both callers observe the final value and the test
+          // would report contamination that the client never caused.
+          final mine = issued;
+          // Yield, so the two requests genuinely interleave rather than
+          // running to completion one after the other.
+          await Future<void>.delayed(Duration.zero);
+          return 'token_fiktif_$mine';
+        },
+        dio: Dio()..httpClientAdapter = adapter,
+      );
 
-        await Future.wait<void>(<Future<void>>[
-          client.get('auth/me'),
-          client.get('sessions'),
-        ]);
+      await Future.wait<void>(<Future<void>>[
+        client.get('auth/me'),
+        client.get('sessions'),
+      ]);
 
-        final sent = adapter.requests
-            .map((request) => request.headers['Authorization'])
-            .toList()
-          ..sort();
-        expect(sent, <String>['Bearer token_fiktif_1', 'Bearer token_fiktif_2']);
-      },
-    );
+      final sent =
+          adapter.requests
+              .map((request) => request.headers['Authorization'])
+              .toList()
+            ..sort();
+      expect(sent, <String>['Bearer token_fiktif_1', 'Bearer token_fiktif_2']);
+    });
 
     test('a request context contributes only its populated headers', () async {
       final adapter = _ScriptedAdapter(200, '{"data":{},"meta":{}}');

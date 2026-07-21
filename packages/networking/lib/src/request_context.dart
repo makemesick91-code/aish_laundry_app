@@ -57,9 +57,7 @@ final class RequestContext {
     tenantId: clearTenant ? null : (tenantId ?? this.tenantId),
     // Clearing the tenant necessarily clears the outlet: an outlet from the
     // previous tenant must never survive a switch (Rule 28, hard rule 3).
-    outletId: (clearTenant || clearOutlet)
-        ? null
-        : (outletId ?? this.outletId),
+    outletId: (clearTenant || clearOutlet) ? null : (outletId ?? this.outletId),
     deviceIdentifier: deviceIdentifier ?? this.deviceIdentifier,
   );
 
@@ -75,6 +73,5 @@ final class RequestContext {
   int get hashCode => Object.hash(tenantId, outletId, deviceIdentifier);
 
   @override
-  String toString() =>
-      'RequestContext(tenant: $tenantId, outlet: $outletId)';
+  String toString() => 'RequestContext(tenant: $tenantId, outlet: $outletId)';
 }

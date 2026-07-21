@@ -170,73 +170,74 @@ abstract final class ApiErrorMapper {
   ///
   /// Kept private and shared rather than inlined, because two copies of this
   /// table would drift the first time a code is added to one of them.
-  static (FailureKind, ClientErrorConsequence) _classify(ApiErrorCode code) =>
-      switch (code) {
-      ApiErrorCode.unauthenticated => (
-        FailureKind.authentication,
-        ClientErrorConsequence.requiresAuthentication,
-      ),
-      ApiErrorCode.sessionExpired => (
-        FailureKind.authentication,
-        ClientErrorConsequence.sessionExpired,
-      ),
-      ApiErrorCode.sessionRevoked => (
-        FailureKind.authentication,
-        ClientErrorConsequence.sessionRevoked,
-      ),
-      ApiErrorCode.deviceRevoked => (
-        FailureKind.authentication,
-        ClientErrorConsequence.deviceRevoked,
-      ),
-      ApiErrorCode.membershipSuspended => (
-        FailureKind.authorization,
-        ClientErrorConsequence.membershipSuspended,
-      ),
-      ApiErrorCode.membershipRevoked => (
-        FailureKind.authorization,
-        ClientErrorConsequence.membershipRevoked,
-      ),
-      // Tenant and outlet denial share a consequence on purpose. A client that
-      // rendered them differently would tell the user which of the two exists,
-      // and denial must be indistinguishable from absence across a tenant
-      // boundary (Rule 32 hard rule 2).
-      ApiErrorCode.tenantAccessDenied || ApiErrorCode.outletAccessDenied => (
-        FailureKind.authorization,
-        ClientErrorConsequence.contextAccessDenied,
-      ),
-      ApiErrorCode.forbidden => (
-        FailureKind.authorization,
-        ClientErrorConsequence.accessDenied,
-      ),
-      // NOT_FOUND is deliberately mapped to the same consequence as FORBIDDEN.
-      // Across a tenant boundary the server answers "not found" for a record
-      // that exists in another tenant; a client that rendered a distinct
-      // "missing" state would leak the distinction the server just hid.
-      ApiErrorCode.notFound => (
-        FailureKind.authorization,
-        ClientErrorConsequence.accessDenied,
-      ),
-      ApiErrorCode.validationFailed => (
-        FailureKind.validation,
-        ClientErrorConsequence.validationFailed,
-      ),
-      ApiErrorCode.rateLimited => (
-        FailureKind.rateLimited,
-        ClientErrorConsequence.rateLimited,
-      ),
-      ApiErrorCode.csrfFailed => (
-        FailureKind.authentication,
-        ClientErrorConsequence.csrfFailed,
-      ),
-      ApiErrorCode.serviceUnavailable => (
-        FailureKind.serviceUnavailable,
-        ClientErrorConsequence.serviceUnavailable,
-      ),
-      ApiErrorCode.methodNotAllowed || ApiErrorCode.internalError => (
-        FailureKind.unexpected,
-        ClientErrorConsequence.recoverableUnknown,
-      ),
-    };
+  static (FailureKind, ClientErrorConsequence) _classify(
+    ApiErrorCode code,
+  ) => switch (code) {
+    ApiErrorCode.unauthenticated => (
+      FailureKind.authentication,
+      ClientErrorConsequence.requiresAuthentication,
+    ),
+    ApiErrorCode.sessionExpired => (
+      FailureKind.authentication,
+      ClientErrorConsequence.sessionExpired,
+    ),
+    ApiErrorCode.sessionRevoked => (
+      FailureKind.authentication,
+      ClientErrorConsequence.sessionRevoked,
+    ),
+    ApiErrorCode.deviceRevoked => (
+      FailureKind.authentication,
+      ClientErrorConsequence.deviceRevoked,
+    ),
+    ApiErrorCode.membershipSuspended => (
+      FailureKind.authorization,
+      ClientErrorConsequence.membershipSuspended,
+    ),
+    ApiErrorCode.membershipRevoked => (
+      FailureKind.authorization,
+      ClientErrorConsequence.membershipRevoked,
+    ),
+    // Tenant and outlet denial share a consequence on purpose. A client that
+    // rendered them differently would tell the user which of the two exists,
+    // and denial must be indistinguishable from absence across a tenant
+    // boundary (Rule 32 hard rule 2).
+    ApiErrorCode.tenantAccessDenied || ApiErrorCode.outletAccessDenied => (
+      FailureKind.authorization,
+      ClientErrorConsequence.contextAccessDenied,
+    ),
+    ApiErrorCode.forbidden => (
+      FailureKind.authorization,
+      ClientErrorConsequence.accessDenied,
+    ),
+    // NOT_FOUND is deliberately mapped to the same consequence as FORBIDDEN.
+    // Across a tenant boundary the server answers "not found" for a record
+    // that exists in another tenant; a client that rendered a distinct
+    // "missing" state would leak the distinction the server just hid.
+    ApiErrorCode.notFound => (
+      FailureKind.authorization,
+      ClientErrorConsequence.accessDenied,
+    ),
+    ApiErrorCode.validationFailed => (
+      FailureKind.validation,
+      ClientErrorConsequence.validationFailed,
+    ),
+    ApiErrorCode.rateLimited => (
+      FailureKind.rateLimited,
+      ClientErrorConsequence.rateLimited,
+    ),
+    ApiErrorCode.csrfFailed => (
+      FailureKind.authentication,
+      ClientErrorConsequence.csrfFailed,
+    ),
+    ApiErrorCode.serviceUnavailable => (
+      FailureKind.serviceUnavailable,
+      ClientErrorConsequence.serviceUnavailable,
+    ),
+    ApiErrorCode.methodNotAllowed || ApiErrorCode.internalError => (
+      FailureKind.unexpected,
+      ClientErrorConsequence.recoverableUnknown,
+    ),
+  };
 
   /// Map a transport-level problem that never reached an envelope.
   static (Failure, ClientErrorConsequence) transport({

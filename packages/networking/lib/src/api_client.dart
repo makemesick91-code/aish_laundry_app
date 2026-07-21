@@ -118,8 +118,7 @@ final class ApiClient {
     CorrelationId? correlationId,
   }) => _send(
     correlationId,
-    (headers) =>
-        _dio.delete<Object?>(path, options: Options(headers: headers)),
+    (headers) => _dio.delete<Object?>(path, options: Options(headers: headers)),
   );
 
   /// Build the per-request headers, including any credential.

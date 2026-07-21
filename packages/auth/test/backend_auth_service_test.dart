@@ -62,7 +62,9 @@ class ScriptedBackend implements HttpClientAdapter {
         headers: _json,
       );
     }
-    final (status, body) = queued.length == 1 ? queued.first : queued.removeAt(0);
+    final (status, body) = queued.length == 1
+        ? queued.first
+        : queued.removeAt(0);
     return ResponseBody.fromString(
       jsonEncode(body ?? <String, Object?>{}),
       status,
@@ -402,22 +404,19 @@ void main() {
       },
     );
 
-    test(
-      'an unrecognised error code never terminates the session',
-      () async {
-        final h = Harness();
-        addTearDown(h.dispose);
-        await h.seedStoredSession();
-        // A code this build does not know. Guessing it into a session-ending
-        // meaning would let the server log every user out by adding a string.
-        h.backend.on(ApiEndpoints.me, 418, err('KODE_BARU_YANG_TIDAK_DIKENAL'));
+    test('an unrecognised error code never terminates the session', () async {
+      final h = Harness();
+      addTearDown(h.dispose);
+      await h.seedStoredSession();
+      // A code this build does not know. Guessing it into a session-ending
+      // meaning would let the server log every user out by adding a string.
+      h.backend.on(ApiEndpoints.me, 418, err('KODE_BARU_YANG_TIDAK_DIKENAL'));
 
-        final state = await h.service.restoreSession();
+      final state = await h.service.restoreSession();
 
-        expect(state, const AuthState.unauthenticated());
-        expect(h.storedToken, isNotNull);
-      },
-    );
+      expect(state, const AuthState.unauthenticated());
+      expect(h.storedToken, isNotNull);
+    });
 
     test('a previously chosen tenant is resumed and re-verified', () async {
       final h = Harness();
@@ -592,7 +591,11 @@ void main() {
     test('a denied tenant is indistinguishable from a missing one', () async {
       final h = await signedIn();
       addTearDown(h.dispose);
-      h.backend.on(ApiEndpoints.contextTenant, 403, err('TENANT_ACCESS_DENIED'));
+      h.backend.on(
+        ApiEndpoints.contextTenant,
+        403,
+        err('TENANT_ACCESS_DENIED'),
+      );
 
       final state = await h.service.selectTenant('tnt_fiktif_milik_orang_lain');
 
