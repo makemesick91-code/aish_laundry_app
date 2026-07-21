@@ -43,6 +43,7 @@ final class BackendAuthService implements AuthService {
     String? deviceName,
     String? platform,
     Random? random,
+    Duration storageTimeout = const Duration(seconds: 5),
     // Each assignment below is flagged by `prefer_initializing_formals`. An
     // initializing formal would name these parameters `_client`, `_store` and
     // so on, and a caller in another library cannot pass a private name — so
@@ -59,6 +60,8 @@ final class BackendAuthService implements AuthService {
        _deviceName = deviceName,
        // ignore: prefer_initializing_formals
        _platform = platform,
+       // ignore: prefer_initializing_formals
+       _storageTimeout = storageTimeout,
        // Random.secure() by default: the device identifier must not be
        // predictable from another installation's.
        _random = random ?? Random.secure();
@@ -69,6 +72,7 @@ final class BackendAuthService implements AuthService {
   final CredentialTransport _transport;
   final String? _deviceName;
   final String? _platform;
+  final Duration _storageTimeout;
   final Random _random;
 
   final StreamController<AuthState> _controller =
@@ -118,15 +122,45 @@ final class BackendAuthService implements AuthService {
       transientFallback: transientFallback,
     );
 
-    // A finished session leaves nothing behind on the device. Note this fires
-    // on `isTerminatedSession` AND on a plain unauthenticated result, because
-    // `requiresAuthentication` means the credential we hold is no longer one.
-    if (state.isTerminatedSession || state is Unauthenticated) {
+    if (_endsSession(consequence)) {
       await _forgetCredentials();
     }
 
     return _emit(state);
   }
+
+  /// Whether a consequence means the stored CREDENTIAL is finished.
+  ///
+  /// Decided from the consequence rather than from the resulting state, and the
+  /// difference is not cosmetic. During restoration `transientFallback` is
+  /// `unauthenticated`, so keying on the state would treat a phone with no
+  /// signal at launch as a dead session and delete a perfectly good token — the
+  /// user would be handed a password prompt because their train went into a
+  /// tunnel.
+  ///
+  /// The two membership consequences are excluded deliberately. They are
+  /// TENANT-level facts: being suspended in one laundry business says nothing
+  /// about the account, and a user whose membership was revoked still needs a
+  /// live session to reach the tenant switcher and work somewhere else.
+  /// `AuthState.isTerminatedSession` groups them with the session-ending states
+  /// because the ROUTING is the same; the credential handling is not.
+  static bool _endsSession(ClientErrorConsequence consequence) =>
+      switch (consequence) {
+        ClientErrorConsequence.requiresAuthentication ||
+        ClientErrorConsequence.sessionExpired ||
+        ClientErrorConsequence.sessionRevoked ||
+        ClientErrorConsequence.deviceRevoked ||
+        ClientErrorConsequence.csrfFailed => true,
+        ClientErrorConsequence.membershipSuspended ||
+        ClientErrorConsequence.membershipRevoked ||
+        ClientErrorConsequence.contextAccessDenied ||
+        ClientErrorConsequence.accessDenied ||
+        ClientErrorConsequence.validationFailed ||
+        ClientErrorConsequence.rateLimited ||
+        ClientErrorConsequence.serviceUnavailable ||
+        ClientErrorConsequence.networkUnavailable ||
+        ClientErrorConsequence.recoverableUnknown => false,
+      };
 
   // ---------------------------------------------------------------------------
   // Session restoration
@@ -513,7 +547,7 @@ final class BackendAuthService implements AuthService {
   Future<void> _forgetCredentials() async {
     _credentials.clear();
     _outlets = const <Outlet>[];
-    await _store.clearOnLogout();
+    await _bounded(_store.clearOnLogout(), const Result<void>.ok(null));
     // clearOnLogout removes the device identifier too, so put it back: it
     // identifies the installation, and a device that renames itself on every
     // sign-out cannot be revoked.
@@ -562,8 +596,32 @@ final class BackendAuthService implements AuthService {
   // crash a surface and must never be mistaken for an authorization answer.
   // ---------------------------------------------------------------------------
 
+  /// Bound a storage call so it always produces an answer.
+  ///
+  /// Rule 29, hard rule 13: a surface that spins forever instead of resolving
+  /// to a decided state has no state model. Startup restoration awaits secure
+  /// storage before it can route anywhere, so a keystore that never answers —
+  /// a wedged platform channel, a device under memory pressure — leaves the
+  /// user staring at "Memeriksa sesi Anda…" with no way forward and no error.
+  ///
+  /// A timeout resolves to the same value a read failure does: nothing stored.
+  /// That fails CLOSED — it can only ever produce "no session", never a session
+  /// that was not verified.
+  Future<T> _bounded<T>(Future<T> operation, T onTimeout) => operation.timeout(
+    _storageTimeout,
+    onTimeout: () => onTimeout,
+  );
+
   Future<String?> _read(StorageNamespace namespace, String key) async {
-    final result = await _store.read(namespace: namespace, key: key);
+    final result = await _bounded(
+      _store.read(namespace: namespace, key: key),
+      const Result<String?>.err(
+        Failure(
+          kind: FailureKind.storage,
+          message: 'Secure storage did not answer in time.',
+        ),
+      ),
+    );
     return result.isErr ? null : result.valueOrNull;
   }
 
@@ -574,10 +632,14 @@ final class BackendAuthService implements AuthService {
     String key,
     String value,
   ) async {
-    final result = await _store.write(
-      namespace: namespace,
-      key: key,
-      value: value,
+    final result = await _bounded(
+      _store.write(namespace: namespace, key: key, value: value),
+      const Result<void>.err(
+        Failure(
+          kind: FailureKind.storage,
+          message: 'Secure storage did not answer in time.',
+        ),
+      ),
     );
     return result.isOk;
   }
@@ -585,8 +647,12 @@ final class BackendAuthService implements AuthService {
   Future<bool> _writeDevice(String key, String value) =>
       _write(_device, key, value);
 
-  Future<void> _delete(StorageNamespace namespace, String key) =>
-      _store.delete(namespace: namespace, key: key);
+  Future<void> _delete(StorageNamespace namespace, String key) async {
+    await _bounded(
+      _store.delete(namespace: namespace, key: key),
+      const Result<void>.ok(null),
+    );
+  }
 
   // ---------------------------------------------------------------------------
   // Parsing — defensive throughout. A malformed body yields null or an empty
