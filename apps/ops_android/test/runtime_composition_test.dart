@@ -4,6 +4,7 @@ import 'package:aish_networking/aish_networking.dart';
 import 'package:aish_ops_android/src/app.dart';
 import 'package:aish_ops_android/src/master_data/master_data_providers.dart';
 import 'package:aish_testing/aish_testing.dart';
+import 'package:aish_ops_android/src/routing/ops_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -104,6 +105,39 @@ void main() {
         ),
         isTrue,
       );
+    });
+
+    test('EVERY provider a production screen depends on resolves', () {
+      // The structural guard (scripts/validate-production-composition.py) proves
+      // no throwing provider is left unwired. This proves the graph actually
+      // CONSTRUCTS: a provider can be wired and still fail because something it
+      // depends on is missing, and that failure would otherwise surface when a
+      // user navigates rather than when validation runs.
+      //
+      // Only environmentProvider is overridden, because that is the only thing
+      // main overrides. Everything else must stand up on its own.
+      final container = productionContainer();
+
+      final resolved = <String, Object?>{
+        'environmentProvider': container.read(environmentProvider),
+        'authRuntimeProvider': container.read(authRuntimeProvider),
+        'apiClientProvider': container.read(apiClientProvider),
+        'authServiceProvider': container.read(authServiceProvider),
+        'startupGateProvider': container.read(startupGateProvider),
+        'masterDataRepositoryProvider': container.read(
+          masterDataRepositoryProvider,
+        ),
+        'syncHealthProvider': container.read(syncHealthProvider),
+        'opsRouterProvider': container.read(opsRouterProvider),
+      };
+
+      for (final entry in resolved.entries) {
+        expect(
+          entry.value,
+          isNotNull,
+          reason: '${entry.key} did not resolve in the production graph',
+        );
+      }
     });
 
     test('starts with no credential and no tenant context', () {

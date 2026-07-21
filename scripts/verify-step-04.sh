@@ -111,6 +111,13 @@ hdr "3. Step 4 scope — master data, not the workflow"
 gate "DEC-0030 label audit"           python3 scripts/validate-dec-0030-labels.py
 gate "Step 4 validator adversarial harness" bash scripts/test-step-04-validators.sh
 
+# Twice a provider shipped that threw in production and was overridden only in a
+# test, so the widget suite stayed green while no real build could open the
+# screen (DEC-0032, and again for the master-data repository). These two gates
+# make that class fail at validation time instead of user-navigation time.
+gate "production composition is wired" python3 scripts/validate-production-composition.py
+gate "production composition guard adversarial" bash scripts/test-production-composition-guard.sh
+
 # The absence of an order/payment/document route is asserted, not assumed.
 gate "no Step 5 route registered"     bash -c '! grep -qE "Route::(get|post|patch|put|delete)\(\s*.(orders|payments|invoices|receipts|checkout|pickups|deliveries)" backend/routes/api.php'
 gate "no Step 5 endpoint constant"    bash -c '! grep -qiE "String (order|payment|invoice|receipt|checkout|pickup|delivery)" packages/networking/lib/src/api_endpoints.dart'

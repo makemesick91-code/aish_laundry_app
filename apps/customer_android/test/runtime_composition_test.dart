@@ -3,6 +3,7 @@ import 'package:aish_core/aish_core.dart';
 import 'package:aish_networking/aish_networking.dart';
 import 'package:aish_customer_android/src/app.dart';
 import 'package:aish_testing/aish_testing.dart';
+import 'package:aish_customer_android/src/routing/customer_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -72,6 +73,39 @@ void main() {
         container.read(apiClientProvider).transport,
         CredentialTransport.bearerToken,
       );
+    });
+
+    test('EVERY provider a production screen depends on resolves', () {
+      // The structural guard (scripts/validate-production-composition.py) proves
+      // no throwing provider is left unwired. This proves the graph actually
+      // CONSTRUCTS: a provider can be wired and still fail because something it
+      // depends on is missing, and that failure would otherwise surface when a
+      // user navigates rather than when validation runs.
+      //
+      // Only environmentProvider is overridden, because that is the only thing
+      // main overrides. Everything else must stand up on its own.
+      final container = productionContainer();
+
+      final resolved = <String, Object?>{
+        'environmentProvider': container.read(environmentProvider),
+        'authRuntimeProvider': container.read(authRuntimeProvider),
+        'apiClientProvider': container.read(apiClientProvider),
+        'authServiceProvider': container.read(authServiceProvider),
+        'startupGateProvider': container.read(startupGateProvider),
+        // No masterDataRepositoryProvider here on purpose: Step 4 master
+        // data is an Ops and Console surface. The customer app must NOT gain
+        // one, and its absence is asserted rather than assumed.
+        'authStateProvider': container.read(authStateProvider),
+        'customerRouterProvider': container.read(customerRouterProvider),
+      };
+
+      for (final entry in resolved.entries) {
+        expect(
+          entry.value,
+          isNotNull,
+          reason: '${entry.key} did not resolve in the production graph',
+        );
+      }
     });
 
     test('starts with no credential and no tenant context', () {
