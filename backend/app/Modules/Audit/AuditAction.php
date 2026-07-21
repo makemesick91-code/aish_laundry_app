@@ -47,6 +47,18 @@ final class AuditAction
 
     public const DEVICE_SESSION_REVOKED = 'device_session.revoked';
 
+    // --- Step 4: staff assigned to outlet master data (DEC-0031 A) --------
+    //
+    // Distinct from the MEMBERSHIP_ROLE_* actions above, because they answer
+    // different questions. A role assignment changes what somebody MAY DO; an
+    // outlet assignment changes WHERE they work and confers no capability at
+    // all. Folding them into one action would make "who gained access in March"
+    // unanswerable from the trail.
+
+    public const STAFF_OUTLET_ASSIGNED = 'staff.outlet.assigned';
+
+    public const STAFF_OUTLET_REVOKED = 'staff.outlet.revoked';
+
     /**
      * Reason codes for a failed login.
      *
@@ -85,6 +97,8 @@ final class AuditAction
             self::MEMBERSHIP_ROLE_ASSIGNED,
             self::MEMBERSHIP_ROLE_REMOVED,
             self::DEVICE_SESSION_REVOKED,
+            self::STAFF_OUTLET_ASSIGNED,
+            self::STAFF_OUTLET_REVOKED,
         ];
     }
 }

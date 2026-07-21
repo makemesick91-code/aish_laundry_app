@@ -8,6 +8,7 @@ use App\Modules\Identity\Http\Controllers\AuthController;
 use App\Modules\Identity\Http\Controllers\PasswordResetController;
 use App\Modules\Identity\Http\Controllers\SessionController;
 use App\Modules\Organization\Http\Controllers\OutletMasterDataController;
+use App\Modules\Organization\Http\Controllers\StaffAssignmentController;
 use App\Modules\Tenancy\Http\Controllers\ContextController;
 use App\Modules\Tenancy\Http\Controllers\MembershipController;
 use Illuminate\Support\Facades\Route;
@@ -170,4 +171,33 @@ Route::middleware(['auth.api', 'tenant.context'])->group(function (): void {
         ->name('api.v1.proof-policy.show');
     Route::patch('proof-policy', [OutletMasterDataController::class, 'updateProofPolicy'])
         ->name('api.v1.proof-policy.update');
+
+    // -----------------------------------------------------------------------
+    // Staff assignment within the tenant (ROADMAP Step 4 scope, FR-018).
+    //
+    // TWO DIFFERENT ACTS, TWO DIFFERENT PERMISSIONS, kept apart on purpose:
+    // assigning an OUTLET says where somebody works and confers nothing;
+    // assigning a ROLE confers capability and passes the escalation guard.
+    // One endpoint doing both would make the roster screen a privilege path.
+    //
+    // Step 4 introduces NO new role or permission model (DEC-0031 A2).
+    // -----------------------------------------------------------------------
+    Route::get('staff', [StaffAssignmentController::class, 'index'])
+        ->name('api.v1.staff.index');
+    Route::get('staff/{membership}', [StaffAssignmentController::class, 'show'])
+        ->name('api.v1.staff.show');
+
+    Route::post('staff/{membership}/outlets', [StaffAssignmentController::class, 'assignOutlet'])
+        ->name('api.v1.staff.outlets.assign');
+
+    // Revocation is a POST, not a DELETE: it RECORDS a revocation (who, when)
+    // rather than removing the row, so the roster history a later audit needs
+    // survives (DEC-0025 §6's discipline applied to assignment).
+    Route::post('staff/{membership}/outlets/{assignment}/revoke', [StaffAssignmentController::class, 'revokeOutlet'])
+        ->name('api.v1.staff.outlets.revoke');
+
+    Route::post('staff/{membership}/roles', [StaffAssignmentController::class, 'assignRole'])
+        ->name('api.v1.staff.roles.assign');
+    Route::delete('staff/{membership}/roles/{role}', [StaffAssignmentController::class, 'removeRole'])
+        ->name('api.v1.staff.roles.remove');
 });

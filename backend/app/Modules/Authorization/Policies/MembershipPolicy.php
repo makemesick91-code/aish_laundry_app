@@ -70,4 +70,27 @@ final class MembershipPolicy
     {
         return $this->allowsWithin(PermissionRegistry::MEMBERSHIP_ROLE_REMOVE, $membership->tenant_id);
     }
+
+    /**
+     * Assign this membership to an outlet, or revoke that assignment
+     * (Step 4 staff assignment, DEC-0031 A).
+     *
+     * A SEPARATE PERMISSION FROM `assignRole`, because the two acts differ in
+     * consequence. Rostering somebody to a counter confers no capability at all;
+     * granting a role confers exactly capability. Collapsing them would mean the
+     * person who maintains the duty roster could also hand out authority — and
+     * would let the escalation guard on role assignment be walked around by
+     * calling the innocent-looking endpoint instead (threat T-14).
+     *
+     * Self-assignment is permitted here, unlike suspension and revocation: an
+     * owner rostering themselves onto their own outlet grants themselves nothing
+     * they did not already have.
+     */
+    public function assignStaff(User $user, Membership $membership): bool
+    {
+        return $this->allowsWithin(
+            PermissionRegistry::STAFF_ASSIGNMENT_MANAGE,
+            $membership->tenant_id
+        );
+    }
 }
