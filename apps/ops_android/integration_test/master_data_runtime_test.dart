@@ -275,6 +275,108 @@ void main() {
       );
       debugPrint('OPS-FLOW: session-intact=ok');
     });
+
+    testWidgets('a package and an add-on persist and are read back', (_) async {
+      // The first run reported `packages=0 addons=0`. A successful read of an
+      // EMPTY collection proves the endpoint answers and the caller is
+      // authorised; it proves nothing about persistence, tenant ownership or
+      // the projection the client parses. Same defect class as the catalogue
+      // entry in evidence/step-04/invalid-first-run-verifications.md.
+      //
+      // The Ops client is READ-ONLY for packages and add-ons — MasterDataRepository
+      // exposes packages() and addons() and no create — so the records are
+      // seeded through the SAME authenticated production ApiClient and then read
+      // back through the repository the screens actually use. Nothing scripted
+      // is involved on either leg.
+      final container = await authenticatedContainer();
+      final client = container.read(apiClientProvider);
+      final repository = container.read(masterDataRepositoryProvider);
+
+      final packageCode = 'PKG-UJI-$_runSuffix';
+      final addonCode = 'ADD-UJI-$_runSuffix';
+
+      final createdPackage = await client.post(
+        ApiEndpoints.servicePackages,
+        body: <String, Object?>{
+          'code': packageCode,
+          'name': 'Paket Uji Fiktif $_runSuffix',
+          'is_active': true,
+        },
+      );
+      requireFixture(
+        createdPackage.isOk,
+        'a persisted service package, without which the read below proves only '
+        'that the endpoint answers',
+      );
+
+      final createdAddon = await client.post(
+        ApiEndpoints.serviceAddons,
+        body: <String, Object?>{
+          'code': addonCode,
+          'name': 'Tambahan Uji Fiktif $_runSuffix',
+          'is_active': true,
+        },
+      );
+      requireFixture(
+        createdAddon.isOk,
+        'a persisted service add-on, for the same reason',
+      );
+
+      // READ BACK through the repository the production screens use.
+      final packages = await repository.packages();
+      expect(packages.isOk, isTrue, reason: 'package read refused');
+      requireFixture(
+        packages.valueOrNull!.isNotEmpty,
+        'a non-empty package collection after creating one',
+      );
+      expect(
+        packages.valueOrNull!.any((CatalogPackage p) => p.code == packageCode),
+        isTrue,
+        reason: 'the created package did not come back from the server',
+      );
+
+      final addons = await repository.addons();
+      expect(addons.isOk, isTrue, reason: 'add-on read refused');
+      requireFixture(
+        addons.valueOrNull!.isNotEmpty,
+        'a non-empty add-on collection after creating one',
+      );
+      expect(
+        addons.valueOrNull!.any((CatalogAddon a) => a.code == addonCode),
+        isTrue,
+        reason: 'the created add-on did not come back from the server',
+      );
+
+      debugPrint(
+        'OPS-FLOW: package-roundtrip=ok packages=${packages.valueOrNull!.length} '
+        'addon-roundtrip=ok addons=${addons.valueOrNull!.length}',
+      );
+
+      // Tenant ownership: the FOREIGN tenant must not see either record.
+      final foreign = await authenticatedContainer(
+        identifier: kForeignIdentifier,
+        password: kForeignPassword,
+        tenantId: kForeignTenantId,
+      );
+      final foreignRepo = foreign.read(masterDataRepositoryProvider);
+      final foreignPackages = await foreignRepo.packages();
+      final foreignAddons = await foreignRepo.addons();
+      expect(foreignPackages.isOk, isTrue);
+      expect(foreignAddons.isOk, isTrue);
+      expect(
+        foreignPackages.valueOrNull!.any(
+          (CatalogPackage p) => p.code == packageCode,
+        ),
+        isFalse,
+        reason: 'CROSS-TENANT PACKAGE LEAK',
+      );
+      expect(
+        foreignAddons.valueOrNull!.any((CatalogAddon a) => a.code == addonCode),
+        isFalse,
+        reason: 'CROSS-TENANT ADD-ON LEAK',
+      );
+      debugPrint('OPS-FLOW: package-addon-tenant-isolation=ok');
+    });
   });
 
   group('PHASE C — two-client version conflict, real backend', () {
