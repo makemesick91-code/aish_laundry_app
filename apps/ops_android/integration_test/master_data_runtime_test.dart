@@ -131,6 +131,27 @@ Future<ProviderContainer> authenticatedContainer({
   return container;
 }
 
+/// Assert a fixture precondition, failing the SUITE rather than skipping.
+///
+/// Three results from the first run of this file were reported as green when
+/// they had proven nothing: an empty catalogue, a cross-tenant assertion that
+/// skipped because no foreign customer existed, and an escalation attempt made
+/// by an actor who was legitimately allowed to perform it.
+///
+/// The lesson is that a mandatory adversarial scenario must never degrade to a
+/// SKIP or to a vacuous pass. If its precondition cannot be constructed, that is
+/// a failure of the verification, and it is reported as one.
+void requireFixture(bool condition, String what) {
+  expect(
+    condition,
+    isTrue,
+    reason:
+        'MANDATORY FIXTURE COULD NOT BE CONSTRUCTED: $what. This scenario is '
+        'not optional; it fails rather than skipping, because a skipped '
+        'adversarial assertion reads as a pass.',
+  );
+}
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
@@ -208,6 +229,12 @@ void main() {
 
       final services = await repository.services();
       expect(services.isOk, isTrue, reason: 'catalogue refused');
+      // Fail-closed: an EMPTY catalogue must never again read as success.
+      requireFixture(
+        services.valueOrNull!.isNotEmpty,
+        'the service catalogue is empty, so a read proves only that the '
+        'endpoint answers',
+      );
       expect(
         services.valueOrNull!.any(
           (CatalogService s) => s.code == 'UJI-FIKTIF-$_runSuffix',
@@ -376,10 +403,10 @@ void main() {
             name: 'UJI FIKTIF Seberang $_runSuffix',
             phone: '081100001$_runSuffix',
           );
-      expect(
+      requireFixture(
         foreignCreated.isOk,
-        isTrue,
-        reason: 'could not create a foreign-tenant customer to target',
+        'a customer in the FOREIGN tenant, without which the cross-tenant '
+        'isolation assertion cannot execute at all',
       );
       final foreignCustomerId = foreignCreated.valueOrNull!.summary.id;
 
@@ -439,7 +466,28 @@ void main() {
 
       final staff = await repository.staff();
       expect(staff.isOk, isTrue, reason: 'roster refused for outlet manager');
-      expect(staff.valueOrNull, isNotEmpty);
+      requireFixture(
+        staff.valueOrNull!.isNotEmpty,
+        'a staff roster for the low-privilege actor to target',
+      );
+
+      // Fail-closed on the ACTOR, not just the outcome. The first run of this
+      // scenario passed while proving nothing, because the actor was a tenant
+      // owner who may legitimately grant tenantOwner. If the seeded roles ever
+      // change so that this identity becomes an owner or admin again, this
+      // assertion fails instead of the test quietly going vacuous.
+      final session = container.read(authServiceProvider).current.session!;
+      final actorRoles = session.activeMembership!.roles
+          .map((Role r) => r.slug)
+          .toList();
+      requireFixture(
+        !actorRoles.contains(Role.tenantOwner) &&
+            !actorRoles.contains(Role.tenantAdmin),
+        'a LOW-PRIVILEGE actor. This identity holds $actorRoles, which may '
+        'legitimately grant tenantOwner, so the attempt would not be an '
+        'escalation',
+      );
+      debugPrint('AUTHZ: escalation-actor-roles=$actorRoles');
 
       // Ask the server to grant the highest tenant authority.
       final escalate = await repository.assignRole(
