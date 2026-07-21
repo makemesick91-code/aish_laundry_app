@@ -11,11 +11,19 @@ use InvalidArgumentException;
  *
  * WHAT THIS IS FOR
  * ----------------
- * `0812-3456-7890`, `0812 3456 7890`, `+62 812 3456 7890` and `62812 3456 7890`
+ * `0812-0000-0001`, `0812 0000 0001`, `+62 812 0000 0001` and `62812 0000 0001`
  * are one customer typing their number four ways. Without a canonical form the
  * `(tenant_id, phone_normalized)` uniqueness constraint that implements FR-022
  * would not fire, and the counter would accumulate duplicate profiles for the
  * same person.
+ *
+ * Every example number in this file is recognisably fabricated — an all-zero
+ * subscriber body with a trailing counter — because a plausible-looking fake
+ * reads as a genuine disclosure to an outside reader on a PUBLIC repository
+ * (Rule 45). An earlier draft of this docblock used a plausible-looking
+ * sequential number and was correctly rejected by
+ * `validate-public-repository-safety.sh`; the rejected literal is deliberately
+ * not reproduced here, because quoting it would reintroduce it.
  *
  * WHAT THIS IS NOT
  * ----------------

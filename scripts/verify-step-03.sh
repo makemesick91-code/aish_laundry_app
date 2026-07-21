@@ -114,7 +114,7 @@ else
     gate "migrate:fresh --seed"          bash -c 'cd backend && php artisan migrate:fresh --seed'
     gate "migrate:rollback"              bash -c 'cd backend && php artisan migrate:rollback'
     gate "migrate re-apply"              bash -c 'cd backend && php artisan migrate'
-    gate "schema scope (no Step 4+ table)" bash -c 'cd backend && set -a && . ./.env && set +a && php scripts/ci/assert-schema-scope.php'
+    gate "schema scope (no Step 5+ table)" bash -c 'cd backend && set -a && . ./.env && set +a && php scripts/ci/assert-schema-scope.php'
     gate "backend suite (all)"           bash -c 'cd backend && php artisan migrate:fresh --seed >/dev/null && php artisan test'
   else
     skip "database-backed gates" "development PostgreSQL/Redis not running (scripts/start-dev-services.sh)"
