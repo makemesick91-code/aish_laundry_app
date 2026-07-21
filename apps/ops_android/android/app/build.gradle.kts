@@ -23,6 +23,10 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        // Lets `adb shell am instrument` drive the Dart integration_test suites
+        // against an ALREADY-INSTALLED package, which is the only way to observe
+        // behaviour across a real application restart (see MainActivityTest).
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -42,4 +46,14 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // Pinned to the EXACT versions the integration_test plugin resolves
+    // strictly (runner 1.3.0, rules 1.2.0, junit 4.12). Gradle's consistent
+    // resolution rejects anything else outright rather than downgrading
+    // silently, so these are not free to bump on their own.
+    androidTestImplementation("androidx.test:runner:1.3.0")
+    androidTestImplementation("androidx.test:rules:1.2.0")
+    androidTestImplementation("junit:junit:4.12")
 }

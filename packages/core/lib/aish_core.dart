@@ -9,6 +9,8 @@ library;
 export 'src/app_version.dart';
 export 'src/clock.dart';
 export 'src/correlation_id.dart';
+export 'src/credential_store.dart';
 export 'src/environment.dart';
 export 'src/failure.dart';
 export 'src/result.dart';
+export 'src/storage_namespace.dart';

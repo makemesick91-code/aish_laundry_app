@@ -17,5 +17,8 @@ dependencies:
   meta: 1.18.0
 
 dev_dependencies:
+  dio: 5.10.0
   flutter_lints: 6.0.0
+  flutter_test:
+    sdk: flutter
   test: 1.31.0

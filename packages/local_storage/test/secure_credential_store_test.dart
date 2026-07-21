@@ -1,4 +1,4 @@
-import 'package:aish_local_storage/aish_local_storage.dart';
+import 'package:aish_core/aish_core.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
