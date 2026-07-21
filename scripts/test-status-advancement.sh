@@ -25,6 +25,7 @@ ROADMAP="docs/ROADMAP.md"
 RULE49=".claude/rules/49-current-step-03-status.md"
 RULE15=".claude/rules/15-current-product-status.md"
 CLAUDEMD="CLAUDE.md"
+MASTER="docs/MASTER_SOURCE.md"
 
 STATUS_VALIDATOR="python3 scripts/validate-status.py"
 ROADMAP_VALIDATOR="python3 scripts/validate-roadmap.py"
@@ -55,7 +56,13 @@ expect_red() {
   local id="$1" validator="$2" needle="$3" desc="$4" setup="$5"
   TOTAL=$((TOTAL + 1))
   local f
-  for f in "$STATUS" "$ROADMAP" "$RULE49" "$RULE15" "$CLAUDEMD"; do backup "$f"; done
+  # EVERY file any fixture may mutate must be listed here. This harness mutates the
+  # REAL tree and restores from these backups; a file omitted here is simply left
+  # mutated. That is not theoretical — the DEC-0029 fixtures below mutate
+  # MASTER_SOURCE.md, and on their first run it was missing from this list and the
+  # Master Source was left corrupted with a fabricated "Step 5 | GO" row. The
+  # end-of-run tree fingerprint caught it, which is why that check exists.
+  for f in "$STATUS" "$ROADMAP" "$RULE49" "$RULE15" "$CLAUDEMD" "$MASTER"; do backup "$f"; done
   if ! eval "${setup}" >/dev/null 2>&1; then
     printf '  %s  M%-2s %s — SETUP ERROR (mutation did not apply)\n' "$(red FAIL)" "$id" "$desc"
     FAIL=$((FAIL + 1)); restore_all; return
@@ -94,10 +101,16 @@ expect_red 1  "$STATUS_VALIDATOR" "STEP_03_STATUS is GO" "Step 3 machine reverte
   "sed -i 's/^STEP_03_STATUS=GO$/STEP_03_STATUS=PLANNED/' $STATUS"
 expect_red 2  "$STATUS_VALIDATOR" "STEP_03_STATUS is GO" "Step 3 machine reverted to IN_PROGRESS" \
   "sed -i 's/^STEP_03_STATUS=GO$/STEP_03_STATUS=IN_PROGRESS/' $STATUS"
-expect_red 3  "$STATUS_VALIDATOR" "PLANNED" "Step 4 machine marked IN_PROGRESS (forward leak)" \
-  "sed -i 's/^STEP_04_STATUS=PLANNED$/STEP_04_STATUS=IN_PROGRESS/' $STATUS"
-expect_red 4  "$STATUS_VALIDATOR" "PLANNED" "Step 4 machine marked GO (forward leak)" \
-  "sed -i 's/^STEP_04_STATUS=PLANNED$/STEP_04_STATUS=GO/' $STATUS"
+# The forward-leak boundary follows _common.CANONICAL_CURRENT_STEP. It was pinned to
+# Step 4 while Step 3 was current; when DEC-0028 authorised Step 4 these fixtures
+# started asserting that a LEGITIMATE status was a leak. Moving them to Step 5 keeps
+# the same strength — one step past the current one — rather than weakening the gate.
+expect_red 3  "$STATUS_VALIDATOR" "PLANNED" "Step 5 machine marked IN_PROGRESS (forward leak)" \
+  "sed -i 's/^STEP_05_STATUS=PLANNED$/STEP_05_STATUS=IN_PROGRESS/' $STATUS"
+expect_red 4  "$STATUS_VALIDATOR" "PLANNED" "Step 5 machine marked GO (forward leak)" \
+  "sed -i 's/^STEP_05_STATUS=PLANNED$/STEP_05_STATUS=GO/' $STATUS"
+expect_red 20 "$STATUS_VALIDATOR" "STEP_04_STATUS is one of" "Step 4 machine reverted to PLANNED after DEC-0028" \
+  "sed -i 's/^STEP_04_STATUS=IN_PROGRESS$/STEP_04_STATUS=PLANNED/' $STATUS"
 
 echo
 echo "-- GO-tag closure block --"
@@ -126,8 +139,30 @@ expect_red 14 "$STATUS_VALIDATOR" "Application CI NOT APPLICABLE" "Rule 49 re-in
   "printf '\n| Application CI | NOT APPLICABLE |\n' >> $RULE49"
 expect_red 15 "$STATUS_VALIDATOR" "backend runtime ABSENT" "Rule 15 re-introduces a backend-ABSENT claim" \
   "printf '\n| Backend runtime | ABSENT |\n' >> $RULE15"
-expect_red 16 "$STATUS_VALIDATOR" "Step 4 started" "CLAUDE.md declares Step 4 IN PROGRESS" \
-  "printf '\n| Step 4 | Laundry Master Data | IN PROGRESS |\n' >> $CLAUDEMD"
+expect_red 16 "$STATUS_VALIDATOR" "Step 5 started" "CLAUDE.md declares Step 5 IN PROGRESS" \
+  "printf '\n| Step 5 | POS, Order, and Payment Foundation | IN PROGRESS |\n' >> $CLAUDEMD"
+
+echo
+echo "-- DEC-0029: cross-source roadmap agreement --"
+# Defect A reproduced: the Master Source §24 table understating a GO step while
+# STATUS.md and the immutable GO tag both say GO. Nothing detected this before.
+expect_red 21 "$ROADMAP_VALIDATOR" "MASTER_SOURCE" "MASTER_SOURCE §24 reverts Step 3 to PLANNED" \
+  "sed -i 's/^| Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | GO WITH ACCEPTED DEVIATION |/| Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | PLANNED |/' $MASTER; grep -q '^| Step 3 |.*| PLANNED |' $MASTER"
+expect_red 22 "$ROADMAP_VALIDATOR" "MASTER_SOURCE" "MASTER_SOURCE §24 reverts Step 2 to IN PROGRESS (the original defect)" \
+  "sed -i 's/^| Step 2 | Design System and UX Foundation | GO WITH ACCEPTED DEVIATION |/| Step 2 | Design System and UX Foundation | IN PROGRESS |/' $MASTER; grep -q '^| Step 2 |.*| IN PROGRESS |' $MASTER"
+expect_red 23 "$ROADMAP_VALIDATOR" "MASTER_SOURCE" "MASTER_SOURCE §24 claims Step 5 GO (fabricated forward GO)" \
+  "sed -i 's/^| Step 5 | POS, Order, and Payment Foundation | PLANNED |/| Step 5 | POS, Order, and Payment Foundation | GO |/' $MASTER; grep -q '^| Step 5 |.*| GO |' $MASTER"
+
+echo
+echo "-- DEC-0029: infrastructure self-consistency --"
+# Defect B reproduced: the same subject declared PRESENT and ABSENT with neither
+# row naming an environment. Each statement is well-formed; only the pair is wrong.
+expect_red 24 "$STATUS_VALIDATOR" "collision" "Redis declared PRESENT and ABSENT unqualified" \
+  "printf '\n| Redis | ABSENT |\n| Redis | PRESENT |\n' >> $STATUS"
+expect_red 25 "$STATUS_VALIDATOR" "collision" "database declared PRESENT and ABSENT unqualified" \
+  "printf '\n| Database | ABSENT |\n| Database | PRESENT |\n' >> $STATUS"
+expect_red 26 "$STATUS_VALIDATOR" "docker-compose.dev.yml defines it" "local development Redis declared ABSENT while compose defines it" \
+  "printf '\n| Local development Redis | ABSENT |\n' >> $STATUS"
 
 echo
 echo "-- accepted-deviation visibility + deployment --"

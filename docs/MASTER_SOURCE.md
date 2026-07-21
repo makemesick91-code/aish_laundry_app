@@ -1,6 +1,6 @@
 # Aish Laundry App — Master Source
 
-**Document version: 1.4.0**
+**Document version: 1.4.1**
 **Baseline date: 19 July 2026**
 
 Owner: Aish Tech Solution
@@ -1239,9 +1239,9 @@ The roadmap is **locked**. Step numbers are never reused or swapped without a de
 | --- | --- | --- |
 | Step 0 | Master Source and Governance | GO |
 | Step 1 | Product Requirement and Domain Model | GO |
-| Step 2 | Design System and UX Foundation | IN PROGRESS |
-| Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | PLANNED |
-| Step 4 | Laundry Master Data | PLANNED |
+| Step 2 | Design System and UX Foundation | GO WITH ACCEPTED DEVIATION |
+| Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | GO WITH ACCEPTED DEVIATION |
+| Step 4 | Laundry Master Data | IN PROGRESS |
 | Step 5 | POS, Order, and Payment Foundation | PLANNED |
 | Step 6 | Production Operations | PLANNED |
 | Step 7 | Customer Tracking and WhatsApp | PLANNED |
@@ -1613,6 +1613,37 @@ Mapping from foundation area to rule file, decision record, and validator:
 The canonical changelog is [`CHANGELOG.md`](CHANGELOG.md), maintained in Keep a Changelog format with
 semantic versioning.
 
+### 32.00000 Version 1.4.1
+
+**1.4.1 — 21 July 2026 — canonical status drift remediation and Step 4 start.**
+
+Added DEC-0028 (Step 4 scope resolution and canonical authorization) and DEC-0029 (canonical status
+drift remediation and cross-document validation). Classified **PATCH** under §1.2: no product decision,
+pricing figure, roadmap number, hierarchy level, reminder stage, or architectural lock changes. Two
+statements of fact are corrected to match evidence that already existed, and one step status advances
+through the ordinary canonical process.
+
+**Two stale-truth corrections.** §24 declared Step 2 `IN PROGRESS` and Step 3 `PLANNED` while
+`ROADMAP.md`, `STATUS.md`, and two immutable annotated `GO` tags all recorded both steps as
+`GO WITH ACCEPTED DEVIATION`. §24 also contradicted §32's own 1.4.0 entry, which describes Step 3
+runtime as delivered. Both rows are corrected. Separately, `STATUS.md` §6 declared the database and
+Redis `ABSENT` while §2 of the same document declared both `PRESENT` and `verify-step-03.sh` reported
+them reachable with migrations applied; §6 now states the environment each row describes rather than a
+bare word that contradicts §2. **Understatement is corrected with the same seriousness as
+overstatement** — a canonical document that disagrees with an immutable tag is wrong in either
+direction (Rule 01).
+
+**Two validator gaps closed.** No validator had ever parsed this document's own §24 roadmap table —
+`validate-roadmap.py` read only `ROADMAP.md` — and `validate-status.py` had no check that two tables
+inside `STATUS.md` agree. Both gaps are now covered by fail-closed, adversarially tested checks
+(DEC-0029).
+
+**Step 4 begins.** §24 moves Step 4 from `PLANNED` to `IN PROGRESS` under the separate canonical
+authorization DEC-0028 records, as Rule 49 requires. `IN PROGRESS` is the only status this confers:
+Step 4 delivers no feature by starting, and `GO` remains owner-conferred against exact-SHA evidence.
+Steps 5–14 remain `PLANNED`, all Step 5+ business features remain `NOT IMPLEMENTED`, and deployment
+remains `ABSENT`.
+
 ### 32.0000 Version 1.4.0
 
 **1.4.0 — 20 July 2026 — Step 3 runtime introduction and runtime scope guard transition.**
@@ -1975,4 +2006,4 @@ was met.
 
 ---
 
-*End of Master Source, version 1.4.0, baseline date 19 July 2026.*
+*End of Master Source, version 1.4.1, baseline date 19 July 2026.*

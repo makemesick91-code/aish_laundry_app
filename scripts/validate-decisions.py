@@ -18,8 +18,10 @@ FIRST_DEC = 1
 # at Master Source 1.4.0. Raising this bound WIDENS coverage — every record up to
 # LAST_DEC must exist and be well-formed — so it can never be used to skip a record.
 #
-# Raised 27 -> 28 for DEC-0028 (Step 4 scope resolution and canonical authorization).
-LAST_DEC = 28
+# Raised 27 -> 28 for DEC-0028 (Step 4 scope resolution and canonical authorization),
+# then 28 -> 29 for DEC-0029 (canonical status drift remediation and cross-document
+# validation), both at Master Source 1.4.1.
+LAST_DEC = 29
 
 # label -> list of accepted heading keywords (lowercase, substring match)
 REQUIRED_HEADINGS: list[tuple[str, list[str]]] = [

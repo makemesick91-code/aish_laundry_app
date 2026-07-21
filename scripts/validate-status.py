@@ -12,6 +12,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _common import (  # noqa: E402
+    CANONICAL_CURRENT_STEP,
+    CURRENT_STEP_ALLOWED,
+    FORWARD_LEAK_STATUSES,
     Reporter,
     declared_statuses,
     read_text,
@@ -34,11 +37,16 @@ STEP0_ALLOWED = ["IN PROGRESS", "TESTED", "WATCH", "GO"]
 # instead of catching it. The declarations are now phase-aware for exactly that
 # reason, and check_runtime_matches_reality() cross-checks the claim against the
 # filesystem so the same class of drift cannot recur silently.
-CURRENT_STEP = 3
-CURRENT_STEP_ALLOWED = ["IN PROGRESS", "TESTED", "WATCH", "GO"]
-
-# Statuses that must never appear against a step later than CURRENT_STEP.
-FORWARD_LEAK_STATUSES = ["IN PROGRESS", "TESTED", "WATCH", "GO", "NO-GO"]
+#
+# Raised 3 -> 4 when DEC-0028 recorded the owner's separate canonical authorization
+# to start Step 4 (Laundry Master Data), in the same pull request that moves Step 4
+# to IN PROGRESS in MASTER_SOURCE.md §24, ROADMAP.md, and STATUS.md. Starting a step
+# confers IN PROGRESS and nothing else; GO stays owner-conferred against exact-SHA
+# evidence.
+#
+# Now imported from _common rather than duplicated here — see
+# _common.CANONICAL_CURRENT_STEP for why that matters.
+CURRENT_STEP = CANONICAL_CURRENT_STEP
 
 # Declarations that hold in EVERY step. These never soften.
 REQUIRED_DECLARATIONS: list[tuple[str, str]] = [
@@ -367,17 +375,129 @@ def check_cross_document_consistency(root, rep) -> None:
         # either. STATUS.md is checked for this above; the derived documents are
         # checked here so a forward leak cannot hide in one of them.
         #
-        # Column-count-agnostic: a Step 4 table row carries a working status in
-        # its LAST cell whether the table is `| Step 4 — Title | Status |` (two
-        # cells) or `| Step 4 | Title | Status |` (three). The earlier form matched
+        # Column-count-agnostic: a step's table row carries a working status in
+        # its LAST cell whether the table is `| Step N — Title | Status |` (two
+        # cells) or `| Step N | Title | Status |` (three). The earlier form matched
         # exactly one middle cell and silently missed the three-column layout.
+        #
+        # The step number is derived from CURRENT_STEP, not hardcoded. It was
+        # pinned to 4 while CURRENT_STEP was 3; leaving it pinned would have
+        # rejected the authorised Step 4 status as a forward leak AND stopped
+        # checking Step 5 at the same time — failing in both directions at once.
+        next_step = CURRENT_STEP + 1
         leaked = re.search(
-            r"\|\s*steps?\s*4\b(?:[^|\n]*\|)+\s*(in progress|tested|watch|go)\b",
+            rf"\|\s*steps?\s*{next_step}\b(?:[^|\n]*\|)+\s*(in progress|tested|watch|go)\b",
             low,
         )
         rep.check(
             leaked is None,
-            f"{rel} does not declare Step 4 started",
+            f"{rel} does not declare Step {next_step} started",
+        )
+
+
+# ---------------------------------------------------------------------------
+# Infrastructure self-consistency (DEC-0029).
+#
+# THE GAP THIS CLOSES: this validator already cross-checked backend runtime, the
+# Flutter workspace, deployment, and Application CI against the filesystem. It had
+# no check that two tables INSIDE STATUS.md agree with each other, and none tying a
+# PostgreSQL or Redis claim to infrastructure/docker-compose.dev.yml.
+#
+# STATUS.md §2 accordingly declared "PostgreSQL runtime foundation | PRESENT" and
+# "Redis runtime foundation | PRESENT" while §6, four sections later, declared
+# "Database | ABSENT" and "Redis | ABSENT" — with docker-compose.dev.yml committed
+# and verify-step-03.sh reporting both services reachable and migrations applied.
+# Each statement was individually well-formed; only their conjunction was wrong,
+# which is why a per-claim check could never have caught it.
+#
+# The rule enforced here is not "never say ABSENT". It is: if one infrastructure
+# subject is declared both present and absent, at least one of those rows must name
+# the environment it describes. §2 (runtime foundations) and §6 (environments) can
+# both be true at once — but only if they say which is which.
+# ---------------------------------------------------------------------------
+
+#: Infrastructure subjects whose present/absent claims must not collide unqualified.
+#: A subject absent from this list is unchecked, so the list reduces the blind spot
+#: rather than eliminating it (DEC-0029, negative consequences).
+INFRA_SUBJECTS: list[tuple[str, str]] = [
+    ("postgresql", r"postgres(?:ql)?|database"),
+    ("redis", r"redis"),
+    ("object storage", r"object storage"),
+]
+
+#: A row carrying any of these words is scoped to an environment and therefore does
+#: not collide with a differently-scoped row about the same subject.
+ENV_QUALIFIER = re.compile(
+    r"\b(local|development|dev|ci|staging|production|prod|ephemeral|per-run)\b",
+    re.IGNORECASE,
+)
+
+PRESENT_WORD = re.compile(r"\bPRESENT\b|\bACTIVE\b|\bREACHABLE\b")
+ABSENT_WORD = re.compile(r"\bABSENT\b|\bNOT CONFIGURED\b")
+
+
+def check_infrastructure_consistency(root, rep) -> None:
+    """No infrastructure subject may be declared present AND absent unqualified."""
+    rep.info("--- infrastructure self-consistency (DEC-0029) ---")
+    text = read_text(root / STATUS)
+
+    rows: list[tuple[str, str]] = []  # (subject cell, whole row)
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped.startswith("|"):
+            continue
+        cells = [c.strip() for c in stripped.strip("|").split("|")]
+        if len(cells) < 2:
+            continue
+        # A separator row (| --- | --- |) carries no claim.
+        if all(set(c) <= set("-: ") for c in cells):
+            continue
+        rows.append((cells[0], stripped))
+
+    for label, pattern in INFRA_SUBJECTS:
+        subject_rows = [
+            (subj, row) for subj, row in rows
+            if re.search(pattern, subj, re.IGNORECASE)
+        ]
+        if not subject_rows:
+            continue
+
+        present_unqualified = [
+            row for subj, row in subject_rows
+            if PRESENT_WORD.search(row.upper()) and not ENV_QUALIFIER.search(row)
+        ]
+        absent_unqualified = [
+            row for subj, row in subject_rows
+            if ABSENT_WORD.search(row.upper()) and not ENV_QUALIFIER.search(row)
+        ]
+        collision = bool(present_unqualified) and bool(absent_unqualified)
+        rep.check(
+            not collision,
+            f"{label}: no unqualified PRESENT/ABSENT collision in {STATUS} "
+            f"({len(present_unqualified)} unqualified present, "
+            f"{len(absent_unqualified)} unqualified absent)",
+        )
+        if collision:
+            for row in (present_unqualified + absent_unqualified)[:4]:
+                rep.info(f"  {row}")
+
+    # Cross-check against the committed development compose file, in BOTH
+    # directions. Claiming the local development database or Redis is ABSENT while
+    # docker-compose.dev.yml defines it is the original defect; claiming it PRESENT
+    # with no compose file at all would be the mirror-image false claim.
+    compose = root / "infrastructure" / "docker-compose.dev.yml"
+    compose_text = read_text(compose).lower() if compose.is_file() else ""
+
+    for label, service in (("PostgreSQL", "postgres"), ("Redis", "redis")):
+        defined = service in compose_text
+        claims_local_absent = re.search(
+            rf"\|[^|\n]*local[^|\n]*{service}[^|\n]*\|[^|\n]*\bABSENT\b",
+            text, re.IGNORECASE,
+        ) is not None
+        rep.check(
+            not (defined and claims_local_absent),
+            f"{STATUS} does not declare local development {label} ABSENT while "
+            f"infrastructure/docker-compose.dev.yml defines it",
         )
 
 
@@ -545,9 +665,26 @@ def main() -> int:
         rep.check(state.get(3) == "GO",
                   f"STEP_03_STATUS is GO after the Step 3 GO tag (found {state.get(3)!r})")
 
-        later_bad = {n: s for n, s in state.items() if n >= 4 and s != "PLANNED"}
+        # The current step may carry a working status; every step AFTER it must be
+        # PLANNED. This bound is derived from CURRENT_STEP rather than hardcoded.
+        # It read `n >= 4` while CURRENT_STEP was 3, which was correct then and
+        # would have been silently wrong the moment Step 4 legitimately started —
+        # it would have forced the authorised current step back to PLANNED.
+        current_machine = state.get(CURRENT_STEP)
+        allowed_machine = {
+            m for m, h in MACHINE_TO_HUMAN.items() if h in CURRENT_STEP_ALLOWED
+        }
+        rep.check(
+            current_machine in allowed_machine,
+            f"STEP_{CURRENT_STEP:02d}_STATUS is one of {sorted(allowed_machine)} "
+            f"(found {current_machine!r})",
+        )
+
+        later_bad = {
+            n: s for n, s in state.items() if n > CURRENT_STEP and s != "PLANNED"
+        }
         rep.check(not later_bad,
-                  f"every step 04-14 is PLANNED (violations: {later_bad})")
+                  f"every step {CURRENT_STEP + 1:02d}-14 is PLANNED (violations: {later_bad})")
 
         # --- machine vs human agreement -----------------------------------
         # Neither form may drift from the other. This is the check that would
@@ -577,6 +714,7 @@ def main() -> int:
 
     # --- claims cross-checked against the filesystem ----------------------
     check_runtime_matches_reality(root, rep)
+    check_infrastructure_consistency(root, rep)
     check_cross_document_consistency(root, rep)
     check_step3_closure(root, rep)
 

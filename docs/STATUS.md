@@ -2,7 +2,7 @@
 
 **This file is machine-validated. The status words below are exact and must not be paraphrased.**
 
-Baseline date: 19 July 2026 · Master Source version: 1.4.0
+Baseline date: 19 July 2026 · Master Source version: 1.4.1
 Status vocabulary: [`governance/STATUS_MODEL.md`](governance/STATUS_MODEL.md)
 Canonical source: [`MASTER_SOURCE.md`](MASTER_SOURCE.md)
 
@@ -16,7 +16,7 @@ Canonical source: [`MASTER_SOURCE.md`](MASTER_SOURCE.md)
 | Step 1 | Product Requirement and Domain Model | GO WITH ACCEPTED DEVIATION |
 | Step 2 | Design System and UX Foundation | GO WITH ACCEPTED DEVIATION |
 | Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | GO WITH ACCEPTED DEVIATION |
-| Step 4 | Laundry Master Data | PLANNED |
+| Step 4 | Laundry Master Data | IN PROGRESS |
 | Step 5 | POS, Order, and Payment Foundation | PLANNED |
 | Step 6 | Production Operations | PLANNED |
 | Step 7 | Customer Tracking and WhatsApp | PLANNED |
@@ -228,7 +228,7 @@ STEP_00_STATUS=GO
 STEP_01_STATUS=GO
 STEP_02_STATUS=GO
 STEP_03_STATUS=GO
-STEP_04_STATUS=PLANNED
+STEP_04_STATUS=IN_PROGRESS
 STEP_05_STATUS=PLANNED
 STEP_06_STATUS=PLANNED
 STEP_07_STATUS=PLANNED
@@ -257,7 +257,7 @@ STEP_03_EVIDENCE_MERGE_SHA=ad31473da8376e91b67449bf7820ab9877ea8a4a
 STEP_03_GO_TAG=aish-laundry-step-03-runtime-auth-multitenancy-rbac-v1.4.0-go
 STEP_03_GO_TAG_OBJECT=8b37230ed8df8da343a1546fd949d8a41329fbdf
 STEP_03_GO_TAG_PEELED=0e2554338812b05eba8411afeb099212b05f9761
-STEP_04_STATUS_NOTE=PLANNED_NOT_STARTED
+STEP_04_STATUS_NOTE=IN_PROGRESS_AUTHORIZED_BY_DEC_0028
 DEPLOYMENT=ABSENT
 <!-- STEP_03_CLOSURE_END -->
 
@@ -361,15 +361,43 @@ none of them, because there is nothing to execute them against.
 
 ## 6. Environment status
 
+Every row names the environment it describes. A service verified locally is never reported as
+deployed infrastructure, and a bare status word is never used where two environments would read the
+same (DEC-0029).
+
 | Environment | Status |
 | --- | --- |
-| Local development runtime | ABSENT |
+| Local development runtime | PRESENT — VERIFIED LOCALLY ONLY |
+| Local development PostgreSQL | PRESENT — VERIFIED LOCALLY ONLY |
+| Local development Redis | PRESENT — VERIFIED LOCALLY ONLY |
+| CI runtime | PRESENT — EPHEMERAL, PER-RUN |
 | Staging | ABSENT |
 | Production | ABSENT |
-| Database | ABSENT |
-| Redis | ABSENT |
-| Object storage | ABSENT |
+| Staging or production database | ABSENT |
+| Staging or production Redis | ABSENT |
+| Object storage | NOT CONFIGURED |
 | Deployment pipeline | ABSENT |
+
+**Four rows in this table were stale and self-contradictory, and are corrected under
+[DEC-0029](decisions/DEC-0029-canonical-status-drift-remediation-and-cross-document-validation.md).**
+This table previously declared `Local development runtime | ABSENT`, `Database | ABSENT`, and
+`Redis | ABSENT` while §2 of this same document declared PostgreSQL and Redis runtime foundations
+`PRESENT`, `infrastructure/docker-compose.dev.yml` defined both services, and
+`scripts/verify-step-03.sh` reported them reachable with `migrate:fresh --seed`, `migrate:rollback`,
+and `migrate` re-apply all passing. Two tables four sections apart contradicted each other on the same
+screen, and a reader could not tell which was true.
+
+The rows were not simply wrong: they were **unqualified**. §2 describes runtime foundations and §6
+describes environments, but neither said so, so `PRESENT` and `ABSENT` collided on the same subject.
+Naming the environment in the row is what makes both statements true at once.
+
+`scripts/validate-status.py` now cross-checks these declarations for contradiction and against
+`infrastructure/docker-compose.dev.yml` in both directions, so the same drift cannot recur silently.
+
+**Local and CI verification is never production evidence.** `PRESENT — VERIFIED LOCALLY ONLY` means a
+loopback-bound development service with fictional seed data was reached from a developer machine. It
+is not a staging service, not a production service, and not a claim that anything is deployed.
+**Deployment remains `ABSENT`**, and no Step 3 or Step 4 result upgrades that.
 
 ---
 

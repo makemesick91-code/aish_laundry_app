@@ -40,7 +40,12 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from _common import Reporter, repo_root, run_main  # noqa: E402
+from _common import (  # noqa: E402
+    CANONICAL_CURRENT_STEP,
+    Reporter,
+    repo_root,
+    run_main,
+)
 
 # ---------------------------------------------------------------------------
 # Approved runtime roots (DEC-0024). Anything runtime-shaped outside these fails.
@@ -419,13 +424,23 @@ def check_governance_transition(root: Path, rep: Reporter) -> list[str]:
         if not list(decisions.glob("DEC-0024-*.md")):
             findings.append("DEC-0024 (runtime introduction) is absent")
 
-    # Status honesty: Step 4+ must not be claimed as implemented or in progress.
+    # Status honesty: a step AFTER the current one must not be claimed as started.
+    #
+    # The boundary is derived from _common.CANONICAL_CURRENT_STEP, not hardcoded.
+    # It was pinned to "Step 4+ during Step 3", which was correct while Step 3 was
+    # current and became wrong in both directions the moment Step 4 was authorised:
+    # it rejected the legitimate Step 4 status AND stopped guarding Step 5.
+    next_step = CANONICAL_CURRENT_STEP + 1
+    future_steps = "|".join(str(n) for n in range(next_step, 15))
     status = root / "docs/STATUS.md"
     if status.is_file():
         for line in status.read_text(encoding="utf-8").splitlines():
-            if re.search(r"\|\s*Step\s+(4|5|6|7|8|9|1[0-4])\s*\|", line):
+            if re.search(rf"\|\s*Step\s+({future_steps})\s*\|", line):
                 if re.search(r"\b(IN PROGRESS|TESTED|GO|IMPLEMENTED)\b", line):
-                    findings.append(f"Step 4+ status claim not permitted during Step 3: {line.strip()}")
+                    findings.append(
+                        f"Step {next_step}+ status claim not permitted during "
+                        f"Step {CANONICAL_CURRENT_STEP}: {line.strip()}"
+                    )
 
     return findings
 

@@ -175,9 +175,18 @@ expect_red 26 "customer PII fixture (real-looking phone)"    "step3_base; printf
 echo
 echo "-- governance transition integrity --"
 expect_red 27 "runtime present but DEC-0024 removed"         "step3_base; rm -f docs/decisions/DEC-0024-*.md"
-expect_red 28 "runtime present but Master Source back at 1.3.0" "step3_base; sed -i 's/\*\*Document version: 1.4.0\*\*/**Document version: 1.3.0**/' docs/MASTER_SOURCE.md"
-expect_red 29 "Step 4 claimed IN PROGRESS"                   "step3_base; printf '\n| Step 4 | Laundry Master Data | IN PROGRESS |\n' >> docs/STATUS.md"
-expect_red 30 "Step 5 claimed GO"                            "step3_base; printf '\n| Step 5 | POS and Payment | GO |\n' >> docs/STATUS.md"
+# M28 is version-agnostic and VERIFIES its own mutation applied. It previously
+# pinned the literal '1.4.0'; when the Master Source moved to 1.4.1 the sed matched
+# nothing, exited 0, and the fixture reported a catch for a mutation that never
+# ran — the same silent-no-op class that invalidated an earlier 31/31 figure
+# (Rule 49). The trailing grep makes a failed mutation a loud SETUP ERROR.
+expect_red 28 "runtime present but Master Source rolled back below 1.4.0" \
+  "step3_base; sed -i -E 's/^\*\*Document version: [0-9]+\.[0-9]+\.[0-9]+\*\*/**Document version: 1.3.0**/' docs/MASTER_SOURCE.md; grep -q '^\*\*Document version: 1\.3\.0\*\*' docs/MASTER_SOURCE.md"
+# The forward-leak boundary follows _common.CANONICAL_CURRENT_STEP. These were
+# pinned to Steps 4 and 5 while Step 3 was current; DEC-0028 authorised Step 4, so
+# they move to Steps 5 and 6. Same strength, boundary moved by one.
+expect_red 29 "Step 5 claimed IN PROGRESS"                   "step3_base; printf '\n| Step 5 | POS, Order, and Payment Foundation | IN PROGRESS |\n' >> docs/STATUS.md"
+expect_red 30 "Step 6 claimed GO"                            "step3_base; printf '\n| Step 6 | Production Operations | GO |\n' >> docs/STATUS.md"
 expect_red 31 "symlink escaping the repository"              "step3_base; ln -s /etc backend/escape"
 
 echo

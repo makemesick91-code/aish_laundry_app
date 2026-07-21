@@ -18,7 +18,7 @@ MASTER = "docs/MASTER_SOURCE.md"
 DIGEST_FILE = "docs/MASTER_SOURCE.sha256"
 
 PRODUCT_NAME = "Aish Laundry App"
-VERSION = "1.4.0"
+VERSION = "1.4.1"
 MIN_LINES = 400
 
 # The declared version must appear in the document header, not merely somewhere in
