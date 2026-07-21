@@ -67,7 +67,37 @@ echo "  A migration is not a tested schema and a table is not a feature."
 
 # ---------------------------------------------------------------------------
 hdr "1. Step 0-3 regression (delegated, not restated)"
-gate "Step 3 verifier (carries Steps 0-2)" bash scripts/verify-step-03.sh
+#
+# `verify-step-03.sh` uses THREE exit codes and this gate must not flatten them:
+#   0 = every gate passed and nothing skipped
+#   1 = a gate FAILED
+#   2 = every executed gate passed, but at least one was SKIPPED
+#
+# Exit 2 is the normal state on this branch. The DEC-0026 scaffold-authorization
+# suite runs 38/38 only on a Step 3 feature branch; everywhere else it is a
+# deliberate, owner-approved, VISIBLE exit-78 skip (Rule 49, DEC-0026). Treating
+# 2 as a failure reports a defect that does not exist; treating it as a plain
+# pass would launder a skip into coverage. It is reported as its own state, by
+# name, so a reader sees exactly what did and did not run.
+step3_rc=0
+bash scripts/verify-step-03.sh >/dev/null 2>&1 || step3_rc=$?
+case "${step3_rc}" in
+  0)
+    printf '  %s  %s\n' "$(g 'PASS')" "Step 3 verifier (carries Steps 0-2)"
+    PASS=$((PASS + 1))
+    ;;
+  2)
+    printf '  %s  %s\n' "$(g 'PASS')" \
+      "Step 3 verifier (carries Steps 0-2) — every executed gate passed"
+    PASS=$((PASS + 1))
+    skip "Step 3 verifier had skipped gate(s)" \
+      "expected off a Step 3 branch; run scripts/verify-step-03.sh to see which"
+    ;;
+  *)
+    printf '  %s  %s\n' "$(r 'FAIL')" "Step 3 verifier (carries Steps 0-2)"
+    FAIL=$((FAIL + 1)); FAILED_GATES+=("Step 3 verifier (carries Steps 0-2)")
+    ;;
+esac
 
 # ---------------------------------------------------------------------------
 hdr "2. Step 4 authorization and governance"
