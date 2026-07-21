@@ -27,6 +27,9 @@ dependencies:
 
 dev_dependencies:
   aish_testing: 0.1.0
+  # Test-only: the scripted HTTP adapter that lets a widget test exercise a
+  # real ApiClient without a network. Never a runtime dependency of this app.
+  dio: 5.10.0
   flutter_lints: 6.0.0
   flutter_test:
     sdk: flutter

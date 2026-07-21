@@ -117,20 +117,21 @@ final class CustomerAddress {
     this.notes,
   });
 
-  factory CustomerAddress.fromJson(Map<String, Object?> json) => CustomerAddress(
-    id: json['id']! as String,
-    label: json['label'] as String? ?? '',
-    addressLine: json['address_line'] as String? ?? '',
-    district: json['district'] as String?,
-    city: json['city'] as String?,
-    province: json['province'] as String?,
-    postalCode: json['postal_code'] as String?,
-    notes: json['notes'] as String?,
-    isPickupSuitable: json['is_pickup_suitable'] as bool? ?? false,
-    isDeliverySuitable: json['is_delivery_suitable'] as bool? ?? false,
-    isPrimary: json['is_primary'] as bool? ?? false,
-    isActive: json['is_active'] as bool? ?? true,
-  );
+  factory CustomerAddress.fromJson(Map<String, Object?> json) =>
+      CustomerAddress(
+        id: json['id']! as String,
+        label: json['label'] as String? ?? '',
+        addressLine: json['address_line'] as String? ?? '',
+        district: json['district'] as String?,
+        city: json['city'] as String?,
+        province: json['province'] as String?,
+        postalCode: json['postal_code'] as String?,
+        notes: json['notes'] as String?,
+        isPickupSuitable: json['is_pickup_suitable'] as bool? ?? false,
+        isDeliverySuitable: json['is_delivery_suitable'] as bool? ?? false,
+        isPrimary: json['is_primary'] as bool? ?? false,
+        isActive: json['is_active'] as bool? ?? true,
+      );
 
   final String id;
 

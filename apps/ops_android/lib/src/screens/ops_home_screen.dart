@@ -64,7 +64,8 @@ class OpsHomeScreen extends ConsumerWidget {
           ),
           SizedBox(height: AishSpacing.space2),
           Text(
-            'Belum ada fitur operasional yang dibangun. Menu di bawah ini '
+            'Data induk sudah dapat dikelola. Transaksi, produksi, dan '
+            'pengantaran belum dibangun — menu bertanda "Belum tersedia" '
             'menunjukkan cakupan yang akan datang, bukan kemampuan yang sudah '
             'tersedia.',
             style: textTheme.bodyMedium?.copyWith(
@@ -72,7 +73,52 @@ class OpsHomeScreen extends ConsumerWidget {
             ),
           ),
           SizedBox(height: AishSpacing.space6),
-          // Every entry below is gated on a permission the SERVER reported.
+
+          // ------------------------------------------------------------------
+          // STEP 4 — LAUNDRY MASTER DATA. These entries reach real screens.
+          //
+          // Each is gated on a permission the SERVER reported. That is a
+          // courtesy — it stops a cashier tapping into a screen that would
+          // refuse them — and it is NOT an access control: the permission set
+          // came from the server and is re-checked by the server on every
+          // request. Inverting a predicate here would show more menu items and
+          // grant exactly nothing (Rule 28 hard rule 6).
+          // ------------------------------------------------------------------
+          Text('Data induk', style: textTheme.titleMedium),
+          SizedBox(height: AishSpacing.space2),
+          if (session.allows(Permission.customerView))
+            _NavEntry(
+              label: 'Pelanggan',
+              icon: Icons.people_outline,
+              route: OpsRoutes.customers,
+              available: true,
+            ),
+          if (session.allows(Permission.serviceView) ||
+              session.allows(Permission.priceListView))
+            _NavEntry(
+              label: 'Layanan dan harga',
+              icon: Icons.local_offer_outlined,
+              route: OpsRoutes.catalogue,
+              available: true,
+            ),
+          if (session.allows(Permission.outletView))
+            _NavEntry(
+              label: 'Data outlet',
+              icon: Icons.storefront_outlined,
+              route: OpsRoutes.outletMasterData,
+              available: true,
+            ),
+          if (session.allows(Permission.membershipView))
+            _NavEntry(
+              label: 'Staf dan peran',
+              icon: Icons.badge_outlined,
+              route: OpsRoutes.staffRoster,
+              available: true,
+            ),
+
+          SizedBox(height: AishSpacing.space6),
+          Text('Belum tersedia', style: textTheme.titleMedium),
+          SizedBox(height: AishSpacing.space2),
           if (session.allows(Permission.outletView))
             _NavEntry(
               label: 'Kasir',
@@ -169,11 +215,19 @@ class _NavEntry extends StatelessWidget {
     required this.label,
     required this.icon,
     required this.route,
+    this.available = false,
   });
 
   final String label;
   final IconData icon;
   final String route;
+
+  /// Whether the destination is a BUILT screen or a Step-5+ placeholder.
+  ///
+  /// It changes what assistive technology announces, and it must stay truthful:
+  /// announcing a built screen as "belum tersedia" would be as wrong as
+  /// announcing a placeholder as available (Rule 01).
+  final bool available;
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -182,7 +236,7 @@ class _NavEntry extends StatelessWidget {
       constraints: BoxConstraints(minHeight: AishSizing.sizeTouchMin),
       child: Semantics(
         button: true,
-        label: '$label. Belum tersedia.',
+        label: available ? label : '$label. Belum tersedia.',
         child: ExcludeSemantics(
           child: ListTile(
             leading: Icon(icon),

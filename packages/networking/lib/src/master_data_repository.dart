@@ -91,7 +91,8 @@ final class MasterDataRepository {
     final result = await _client.get(ApiEndpoints.customer(id));
 
     return result.map(
-      (ApiSuccess success) => CustomerDetail.fromJson(_object(success, 'customer')),
+      (ApiSuccess success) =>
+          CustomerDetail.fromJson(_object(success, 'customer')),
     );
   }
 
@@ -113,7 +114,8 @@ final class MasterDataRepository {
     );
 
     return result.map(
-      (ApiSuccess success) => CustomerDetail.fromJson(_object(success, 'customer')),
+      (ApiSuccess success) =>
+          CustomerDetail.fromJson(_object(success, 'customer')),
     );
   }
 
@@ -129,7 +131,8 @@ final class MasterDataRepository {
     );
 
     return result.map(
-      (ApiSuccess success) => CustomerDetail.fromJson(_object(success, 'customer')),
+      (ApiSuccess success) =>
+          CustomerDetail.fromJson(_object(success, 'customer')),
     );
   }
 
@@ -532,13 +535,19 @@ final class MasterDataRepository {
 
   /// Decode a single object under [key].
   ///
-  /// Returns an empty map when the key is absent, which makes the DOMAIN type's
-  /// `fromJson` fail loudly on its required fields rather than this method
-  /// inventing a half-built record. A silently defaulted id is how a screen ends
-  /// up editing the wrong row.
-  static Map<String, Object?> _object(ApiSuccess success, String key) =>
-      (success.dataAsMap[key] as Map<String, Object?>?) ??
-      const <String, Object?>{};
+  /// Returns an empty map when the key is absent OR carries a shape this method
+  /// did not expect — a list where an object belongs, say. The DOMAIN type's
+  /// `fromJson` then fails loudly on its required fields, naming the field it
+  /// could not find, rather than this method throwing an opaque cast error from
+  /// inside a `Result.map`. A silently defaulted id is how a screen ends up
+  /// editing the wrong row, so neither path invents one.
+  ///
+  /// A blind `as Map<String, Object?>?` would throw a `TypeError` whose message
+  /// says nothing about which endpoint disagreed with which client.
+  static Map<String, Object?> _object(ApiSuccess success, String key) {
+    final raw = success.dataAsMap[key];
+    return raw is Map<String, Object?> ? raw : const <String, Object?>{};
+  }
 
   /// Decode a paginated collection under [key].
   ///

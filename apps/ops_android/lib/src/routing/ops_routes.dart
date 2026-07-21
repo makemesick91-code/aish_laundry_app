@@ -19,6 +19,38 @@ abstract final class OpsRoutes {
   static const String outletInactive = '/outlet-nonaktif';
   static const String accessDenied = '/akses-ditolak';
 
+  // -------------------------------------------------------------------------
+  // STEP 4 — LAUNDRY MASTER DATA (FR-018, FR-021 … FR-047)
+  //
+  // These are MASTER-DATA routes. None of them names an order, a payment, a
+  // document, a pickup or a delivery, because none of them reaches one: those
+  // are Step 5 and later, and their placeholders are still placeholders below
+  // (CLAUDE.md §3 — roadmap lock, DEC-0030).
+  //
+  // A customer is addressed by ID in the PATH. It is a tenant-scoped identifier
+  // that grants nothing on its own — the server resolves it within the caller's
+  // verified tenant and answers the same 404 for "belongs to another tenant" as
+  // for "does not exist" (Rule 48 hard rule 5).
+  // -------------------------------------------------------------------------
+  static const String customers = '/beranda/pelanggan';
+  static const String customerCreate = '/beranda/pelanggan/baru';
+
+  /// The detail route pattern. `baru` above is matched FIRST by the router, so
+  /// it can never be read as a customer id.
+  static const String customerDetail = '/beranda/pelanggan/:customerId';
+
+  static String customerDetailFor(String customerId) =>
+      '/beranda/pelanggan/$customerId';
+
+  static const String catalogue = '/beranda/layanan';
+
+  /// Outlet master data. Deliberately carries NO outlet id: the screen operates
+  /// on the session's active outlet only, so there is no parameter an operator
+  /// could edit to address a different outlet.
+  static const String outletMasterData = '/beranda/outlet';
+
+  static const String staffRoster = '/beranda/staf';
+
   // Future canonical Steps — placeholder only.
   static const String futureCounter = '/beranda/kasir';
   static const String futureProduction = '/beranda/produksi';
