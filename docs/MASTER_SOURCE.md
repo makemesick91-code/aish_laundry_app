@@ -1558,11 +1558,20 @@ must be claims the software can substantiate — the honesty rule (§3.1) applie
 
 ## 31. Decision records
 
-Twenty-four decisions are locked. Fifteen were locked at the 1.0.0 baseline; DEC-0016 was added at
-version 1.0.1, DEC-0017 at version 1.2.0, DEC-0018 … DEC-0023 at version 1.3.0, and DEC-0024 at
-version 1.4.0. DEC-0001 … DEC-0023 carry date **19 July 2026**; DEC-0024 carries date
-**20 July 2026**. All carry status **ACCEPTED**. Each has a full record in
+Thirty decisions are locked. Fifteen were locked at the 1.0.0 baseline; DEC-0016 was added at
+version 1.0.1, DEC-0017 at version 1.2.0, DEC-0018 … DEC-0023 at version 1.3.0, DEC-0024 … DEC-0027 at
+version 1.4.0, and DEC-0028 … DEC-0030 at version 1.4.1. DEC-0001 … DEC-0023 carry date
+**19 July 2026**; DEC-0024 … DEC-0027 carry **20 July 2026**; DEC-0028 … DEC-0030 carry
+**21 July 2026**. All carry status **ACCEPTED**. Each has a full record in
 [`decisions/`](decisions/).
+
+**This section was stale and is corrected under
+[DEC-0029](decisions/DEC-0029-canonical-status-drift-remediation-and-cross-document-validation.md).**
+It read "Twenty-four decisions are locked" and listed DEC-0001 … DEC-0024 while DEC-0025, DEC-0026, and
+DEC-0027 already existed as accepted records in [`decisions/`](decisions/) — the same drift class as the
+§24 roadmap table, and undetected for the same reason: no validator compared this table against the
+directory it describes. `scripts/validate-decisions.py` now does, in both directions, so a record added
+without being listed here — or listed here without existing — fails closed.
 
 | ID | Title | Status | Record |
 | --- | --- | --- | --- |
@@ -1590,6 +1599,12 @@ version 1.4.0. DEC-0001 … DEC-0023 carry date **19 July 2026**; DEC-0024 carri
 | DEC-0022 | Canonical UX State Taxonomy and Role-Adaptive Navigation | ACCEPTED | [DEC-0022](decisions/DEC-0022-canonical-ux-state-taxonomy-and-role-adaptive-navigation.md) |
 | DEC-0023 | Low-Fidelity SVG Wireframes; No Final-Logo Fabrication | ACCEPTED | [DEC-0023](decisions/DEC-0023-low-fidelity-wireframes-and-no-final-logo-fabrication.md) |
 | DEC-0024 | Step 3 Runtime Introduction and Runtime Scope Guard Transition | ACCEPTED | [DEC-0024](decisions/DEC-0024-step-3-runtime-introduction-and-runtime-scope-guard-transition.md) |
+| DEC-0025 | Platform-Managed Role Catalogues and Tenant-Scoped Authorization | ACCEPTED | [DEC-0025](decisions/DEC-0025-platform-managed-role-catalogues-and-tenant-scoped-authorization.md) |
+| DEC-0026 | Step 3 Flutter Platform Scaffolding Guard Transition | ACCEPTED | [DEC-0026](decisions/DEC-0026-step-3-flutter-platform-scaffolding-guard-transition.md) |
+| DEC-0027 | Local Development Environment Bootstrap and Template Contract | ACCEPTED | [DEC-0027](decisions/DEC-0027-local-development-environment-bootstrap-and-template-contract.md) |
+| DEC-0028 | Step 4 Scope Resolution and Canonical Authorization | ACCEPTED | [DEC-0028](decisions/DEC-0028-step-04-scope-resolution-and-canonical-authorization.md) |
+| DEC-0029 | Canonical Status Drift Remediation and Cross-Document Validation | ACCEPTED | [DEC-0029](decisions/DEC-0029-canonical-status-drift-remediation-and-cross-document-validation.md) |
+| DEC-0030 | Step 4 Runtime Scope Transition | ACCEPTED | [DEC-0030](decisions/DEC-0030-step-04-runtime-scope-transition.md) |
 
 ### 31.1 Decision record rules
 
@@ -1617,13 +1632,13 @@ semantic versioning.
 
 **1.4.1 — 21 July 2026 — canonical status drift remediation and Step 4 start.**
 
-Added DEC-0028 (Step 4 scope resolution and canonical authorization) and DEC-0029 (canonical status
-drift remediation and cross-document validation). Classified **PATCH** under §1.2: no product decision,
-pricing figure, roadmap number, hierarchy level, reminder stage, or architectural lock changes. Two
-statements of fact are corrected to match evidence that already existed, and one step status advances
-through the ordinary canonical process.
+Added DEC-0028 (Step 4 scope resolution and canonical authorization), DEC-0029 (canonical status drift
+remediation and cross-document validation), and DEC-0030 (Step 4 runtime scope transition). Classified
+**PATCH** under §1.2: no product decision, pricing figure, roadmap number, hierarchy level, reminder
+stage, or architectural lock changes. Statements of fact are corrected to match evidence that already
+existed, and one step status advances through the ordinary canonical process.
 
-**Two stale-truth corrections.** §24 declared Step 2 `IN PROGRESS` and Step 3 `PLANNED` while
+**Three stale-truth corrections.** §24 declared Step 2 `IN PROGRESS` and Step 3 `PLANNED` while
 `ROADMAP.md`, `STATUS.md`, and two immutable annotated `GO` tags all recorded both steps as
 `GO WITH ACCEPTED DEVIATION`. §24 also contradicted §32's own 1.4.0 entry, which describes Step 3
 runtime as delivered. Both rows are corrected. Separately, `STATUS.md` §6 declared the database and
@@ -1633,10 +1648,23 @@ bare word that contradicts §2. **Understatement is corrected with the same seri
 overstatement** — a canonical document that disagrees with an immutable tag is wrong in either
 direction (Rule 01).
 
-**Two validator gaps closed.** No validator had ever parsed this document's own §24 roadmap table —
-`validate-roadmap.py` read only `ROADMAP.md` — and `validate-status.py` had no check that two tables
-inside `STATUS.md` agree. Both gaps are now covered by fail-closed, adversarially tested checks
-(DEC-0029).
+Separately again, §31 declared "Twenty-four decisions are locked" and listed DEC-0001 … DEC-0024 while
+DEC-0025, DEC-0026, and DEC-0027 already existed as accepted records. §31 now lists all thirty.
+
+**Three validator gaps closed.** No validator had ever parsed this document's own §24 roadmap table —
+`validate-roadmap.py` read only `ROADMAP.md`; `validate-status.py` had no check that two tables inside
+`STATUS.md` agree; and nothing compared §31 against `decisions/`. All three gaps are now covered by
+fail-closed, adversarially tested checks, each verified in both directions (DEC-0029).
+
+**Step 4 runtime scope.** DEC-0030 moves exactly four feature labels — service catalog, price list,
+customer management, and printer configuration — from forbidden to permitted in
+`scripts/validate-runtime-scope.py`, effective from canonical step 4. Every other label stays
+forbidden, now named `STEP5_PLUS_FEATURE_TOKENS`: orders, payments, QRIS, production, quality control,
+tracking, WhatsApp, pickup, delivery, courier settlement, the reminder ladder, receivables, finance,
+loyalty, and subscription billing among them. `receipt` stays forbidden while `printer` is permitted,
+because FR-045 authorises printer *configuration* as outlet master data while the nota itself is FR-052
+in Step 5. **A permitted label is not an implemented feature**, and `classify` still reports scope
+classification only (§Rule 36 hard rule 6).
 
 **Step 4 begins.** §24 moves Step 4 from `PLANNED` to `IN PROGRESS` under the separate canonical
 authorization DEC-0028 records, as Rule 49 requires. `IN PROGRESS` is the only status this confers:

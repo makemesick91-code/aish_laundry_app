@@ -106,13 +106,38 @@ APPLICATION_SOURCE_EXTENSIONS = {
 SKIP_DIRS = {".git", ".dart_tool", "node_modules", "vendor", "build", ".gradle", "graphify-out"}
 
 # ---------------------------------------------------------------------------
-# Step 4+ business features. Matched STRUCTURALLY, never as prose substrings.
-# Key = canonical feature label; value = identifier tokens that name it.
+# Business features beyond the current step. Matched STRUCTURALLY, never as prose
+# substrings. Key = canonical feature label; value = identifier tokens that name it.
+#
+# SPLIT BY DELIVERING STEP (DEC-0030). This map was a single STEP4_FEATURE_TOKENS
+# set meaning "Step 4 or later", which was correct while Step 3 was current and
+# became self-contradictory the moment DEC-0028 authorised Step 4: the four labels
+# Step 4 exists to build were the ones the guard refused to allow.
+#
+# Deleting the map to unblock those four was rejected. Twenty-eight of its labels
+# are Step 5+ scope — orders, payments, QRIS, production, tracking, WhatsApp,
+# pickup, delivery, settlement, the reminder ladder, receivables, finance,
+# loyalty — and removing it would unblock all of them at exactly the moment the
+# tree first has enough runtime for forward leak to be tempting.
 # ---------------------------------------------------------------------------
+
+#: Labels Step 4 delivers (FR-021 … FR-047). Permitted once the canonical current
+#: step reaches 4, and forbidden before it. DEC-0030 authorises exactly these four
+#: and no others.
 STEP4_FEATURE_TOKENS = {
     "service catalog":      {"service_catalog", "servicecatalog", "katalog_layanan"},
     "price list":           {"price_list", "pricelist", "daftar_harga", "price_lists"},
     "customer management":  {"customers", "customer_profiles", "pelanggan"},
+    # FR-045 registers printer CONFIGURATION as outlet master data. The nota itself
+    # is FR-052 (Step 5), so "receipt" below stays forbidden. The distinction is
+    # deliberate and is covered by an adversarial fixture.
+    "printer":              {"printers", "printer_settings"},
+}
+
+#: Labels owned by Step 5 and later. Forbidden unconditionally at Step 4.
+#: Editing this set to unblock work is a governance breach, not a fix (DEC-0030
+#: supersession policy, Rule 36 hard rule 8).
+STEP5_PLUS_FEATURE_TOKENS = {
     "POS":                  {"pos", "kasir", "point_of_sale"},
     "order":                {"orders", "order_lines", "order_items", "transaksi", "pesanan"},
     "laundry intake":       {"intakes", "laundry_intake", "penerimaan"},
@@ -120,7 +145,6 @@ STEP4_FEATURE_TOKENS = {
     "refund":               {"refunds", "pengembalian_dana"},
     "QRIS":                 {"qris"},
     "receipt":              {"receipts", "nota", "struk"},
-    "printer":              {"printers", "printer_settings"},
     "production":           {"production_jobs", "produksi"},
     "washing":              {"washing", "pencucian"},
     "drying":               {"drying", "pengeringan"},
@@ -266,11 +290,29 @@ def tokens_in(text: str) -> set[str]:
     return {t.lower() for t in re.findall(r"[A-Za-z_][A-Za-z0-9_]*", text)}
 
 
+#: How findings name the forbidden band. Derived, so the message can never claim
+#: "Step 4+" after Step 4 has legitimately started.
+FORBIDDEN_LABEL = f"Step {CANONICAL_CURRENT_STEP + 1}+"
+
+
+def forbidden_feature_map() -> dict[str, set[str]]:
+    """Feature labels that are forbidden AT THE CURRENT CANONICAL STEP.
+
+    Step 5+ labels are always forbidden. The four Step 4 labels are forbidden only
+    while the canonical current step is below 4, so this guard cannot retroactively
+    permit anything in a Step 0-3 tree (DEC-0030, decision 4).
+    """
+    forbidden = dict(STEP5_PLUS_FEATURE_TOKENS)
+    if CANONICAL_CURRENT_STEP < 4:
+        forbidden.update(STEP4_FEATURE_TOKENS)
+    return forbidden
+
+
 def feature_hits(tokens: set[str]) -> list[str]:
-    """Return Step 4 feature labels whose tokens appear, minus allowed Step 3 words."""
+    """Return forbidden feature labels whose tokens appear, minus allowed Step 3 words."""
     usable = tokens - STEP3_ALLOWED_TOKENS
     hits = []
-    for label, toks in STEP4_FEATURE_TOKENS.items():
+    for label, toks in forbidden_feature_map().items():
         if toks & usable:
             hits.append(label)
     return hits
@@ -290,7 +332,7 @@ def scan_step4_leakage(root: Path, files: list[tuple[str, Path]], rep: Reporter)
         m = re.search(r"/migrations/\d[\d_]*_create_([a-z0-9_]+)_table\.php$", low)
         if m:
             for label in feature_hits({m.group(1)}):
-                findings.append(f"Step 4+ migration creates '{m.group(1)}' table ({label}): {rel}")
+                findings.append(f"{FORBIDDEN_LABEL} migration creates '{m.group(1)}' table ({label}): {rel}")
 
         # (b) Schema::create('<table>') inside any PHP file
         if ext == ".php":
@@ -301,18 +343,18 @@ def scan_step4_leakage(root: Path, files: list[tuple[str, Path]], rep: Reporter)
                 continue
             for tm in re.finditer(r"Schema::(?:create|table)\(\s*['\"]([a-z0-9_]+)['\"]", text):
                 for label in feature_hits({tm.group(1)}):
-                    findings.append(f"Step 4+ table '{tm.group(1)}' ({label}) in {rel}")
+                    findings.append(f"{FORBIDDEN_LABEL} table '{tm.group(1)}' ({label}) in {rel}")
             # (c) Route path segments
             for rm in re.finditer(r"Route::[a-zA-Z]+\(\s*['\"]([^'\"]+)['\"]", text):
                 segs = {s.lower() for s in rm.group(1).split("/") if s and not s.startswith("{")}
                 for label in feature_hits(segs):
-                    findings.append(f"Step 4+ route '/{rm.group(1)}' ({label}) in {rel}")
+                    findings.append(f"{FORBIDDEN_LABEL} route '/{rm.group(1)}' ({label}) in {rel}")
             # (d) Eloquent model class names
             for cm in re.finditer(r"class\s+([A-Za-z0-9_]+)\s+extends\s+Model\b", text):
                 snake = re.sub(r"(?<!^)(?=[A-Z])", "_", cm.group(1)).lower()
                 plural = snake + "s"
                 for label in feature_hits({snake, plural}):
-                    findings.append(f"Step 4+ Eloquent model '{cm.group(1)}' ({label}) in {rel}")
+                    findings.append(f"{FORBIDDEN_LABEL} Eloquent model '{cm.group(1)}' ({label}) in {rel}")
 
         # (e) Module / feature directory names (backend modules, Flutter features)
         for seg_pat in (r"/modules/([a-z0-9_]+)/", r"/features/([a-z0-9_]+)/",
@@ -320,7 +362,7 @@ def scan_step4_leakage(root: Path, files: list[tuple[str, Path]], rep: Reporter)
             dm = re.search(seg_pat, low)
             if dm:
                 for label in feature_hits({dm.group(1)}):
-                    findings.append(f"Step 4+ module directory '{dm.group(1)}' ({label}): {rel}")
+                    findings.append(f"{FORBIDDEN_LABEL} module directory '{dm.group(1)}' ({label}): {rel}")
 
     return sorted(set(findings))
 
@@ -532,7 +574,7 @@ def main() -> int:
     for msg in leakage:
         rep.fail(f"step-4-leakage: {msg}")
     if not leakage:
-        rep.ok("no Step 4+ business feature detected by table, route, model, or module")
+        rep.ok(f"no {FORBIDDEN_LABEL} business feature detected by table, route, model, or module")
 
     for msg in deployment:
         rep.fail(f"deployment: {msg}")

@@ -25,7 +25,13 @@ Backed by **DEC-0024 — Step 3 Runtime Introduction and Runtime Scope Guard Tra
    manifests are limited to `pubspec.yaml` (Dart workspace root) and `analysis_options.yaml` (shared
    lints) at the repository root. A runtime manifest or application source file outside an approved
    root fails, with no exception for convenience or a "temporary" location.
-4. **Step 4 and later business modules are forbidden**, regardless of how they are named. Detection is
+4. **Business modules beyond the current authorised step are forbidden**, regardless of how they are
+   named. **From Step 4 this means Step 5 and later** — DEC-0030 moved exactly four feature labels
+   (service catalog, price list, customer management, printer configuration) from forbidden to
+   permitted, because Step 4 was authorised to build them (DEC-0028) and they trace to FR-021 … FR-047.
+   Every other label remains forbidden in `STEP5_PLUS_FEATURE_TOKENS`. `receipt` stays forbidden while
+   `printer` is permitted: FR-045 authorises printer *configuration* as outlet master data, and the
+   nota itself is FR-052 in Step 5. Detection is
    **structural** — migration filenames, `Schema::create` table arguments, route path segments,
    Eloquent model class names, and module or feature directory names — never naive prose substring
    matching. A guard that flagged the word "order" would fire on `orderBy()` and on the phrase "in
@@ -49,9 +55,12 @@ Backed by **DEC-0024 — Step 3 Runtime Introduction and Runtime Scope Guard Tra
 2. *(continued)* A prior `GO` was conferred against the rule that existed at the time. Applying a later
    rule to an earlier tag would invalidate a `GO` on a standard that did not exist when it was granted.
 8. **The scope guard may only be narrowed, never silently widened.** Making the guard stricter needs no
-   decision record. Widening the approved runtime roots, adding a runtime language, or authorizing
-   deployment requires its own decision record naming what it supersedes (DEC-0024's supersession
-   policy).
+   decision record. Widening the approved runtime roots, adding a runtime language, permitting a
+   further business-feature label, or authorizing deployment requires its own decision record naming
+   what it supersedes (DEC-0024's supersession policy). This is the mechanism DEC-0030 used, and it is
+   the only permitted mechanism: **editing `STEP5_PLUS_FEATURE_TOKENS` to unblock work is a governance
+   breach, not a fix.** The step that owns a label must itself have been authorised before that label
+   may be permitted.
 9. **A symlink that escapes the repository root is treated as a scope violation**, regardless of what
    it points to or why it was added.
 

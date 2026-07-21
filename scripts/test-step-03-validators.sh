@@ -66,7 +66,11 @@ step3_base() {
   printf 'name: ops_android\n'         > apps/ops_android/pubspec.yaml
   printf 'void main() {}\n'            > apps/ops_android/lib/main.dart
   printf '<?php\nclass Kernel {}\n'    > backend/app/Kernel.php
-  sed -i 's/\*\*Document version: 1\.3\.0\*\*/**Document version: 1.4.0**/' docs/MASTER_SOURCE.md
+  # Version-agnostic: this pinned the literal 1.3.0 and became a silent no-op once
+  # the Master Source moved past it. A base fixture that quietly stops doing its job
+  # is the same defect class M28 exists to catch.
+  sed -i -E 's/^\*\*Document version: [0-9]+\.[0-9]+\.[0-9]+\*\*/**Document version: 1.4.1**/' docs/MASTER_SOURCE.md
+  grep -q '^\*\*Document version: 1\.4\.1\*\*' docs/MASTER_SOURCE.md
   touch docs/decisions/DEC-0024-step-3-runtime-introduction.md
 }
 
@@ -190,12 +194,40 @@ expect_red 30 "Step 6 claimed GO"                            "step3_base; printf
 expect_red 31 "symlink escaping the repository"              "step3_base; ln -s /etc backend/escape"
 
 echo
+echo "-- DEC-0030: Step 5+ features stay forbidden after Step 4 opened --"
+# Permitting four Step 4 labels must not have loosened anything else. These probe
+# the retained set directly, including the sharp edge DEC-0030 created.
+expect_red 32 "receipt/nota table (printer is Step 4, nota is Step 5 FR-052)" \
+  "step3_base; printf '<?php\nSchema::create(\"nota\", function(\$t){});\n' > backend/app/Nota.php"
+expect_red 33 "orders table"                                 "step3_base; printf '<?php\nSchema::create(\"orders\", function(\$t){});\n' > backend/app/Ord.php"
+expect_red 34 "payments table"                               "step3_base; printf '<?php\nSchema::create(\"payments\", function(\$t){});\n' > backend/app/Pay.php"
+expect_red 35 "POS renamed to 'kasir' (evasion by renaming)" "step3_base; mkdir -p backend/app/Modules/kasir; printf '<?php\nclass X {}\n' > backend/app/Modules/kasir/X.php"
+expect_red 36 "tracking_tokens table"                        "step3_base; printf '<?php\nSchema::create(\"tracking_tokens\", function(\$t){});\n' > backend/app/Trk.php"
+expect_red 37 "subscription billing table"                   "step3_base; printf '<?php\nSchema::create(\"subscriptions\", function(\$t){});\n' > backend/app/Sub.php"
+
+echo
 echo "-- legitimate Step 3 runtime must PASS --"
 expect_green 1 "authorised backend + Flutter foundation"     "step3_base"
 expect_green 2 "tenancy tables (memberships, outlets, roles)" "step3_base; printf '<?php\nSchema::create(\"memberships\", function(\$t){});\nSchema::create(\"outlets\", function(\$t){});\nSchema::create(\"roles\", function(\$t){});\n' > backend/app/Tenancy.php"
 expect_green 3 "Eloquent orderBy() must not trip 'order'"    "step3_base; printf '<?php\nclass Tenant extends Model { public function s(){ return \$this->q()->orderBy(\"name\")->get(); } }\n' > backend/app/Tenant.php"
 expect_green 4 "prose mentioning payment/POS in docs"        "step3_base; printf '# Notes\nPOS and payment are owned by Step 5 and are NOT IMPLEMENTED.\n' > docs/runtime/NOTE.md"
 expect_green 5 "documented fictional phone in docs"          "step3_base; printf 'Contoh: 081234567890\n' > docs/runtime/EXAMPLE.md"
+
+echo
+echo "-- DEC-0030: authorised Step 4 master data must PASS --"
+# The four labels DEC-0030 permits, exercised through the same structural signals
+# the guard uses for rejection: migration filename, Schema::create, Eloquent model
+# class name, and module directory.
+expect_green 6 "customers table + Customer model (FR-021…FR-030)" \
+  "step3_base; printf '<?php\nSchema::create(\"customers\", function(\$t){});\nclass Customer extends Model {}\n' > backend/app/Cust.php"
+expect_green 7 "price_lists and service_catalog tables (FR-031…FR-040)" \
+  "step3_base; printf '<?php\nSchema::create(\"price_lists\", function(\$t){});\nSchema::create(\"service_catalog\", function(\$t){});\n' > backend/app/Cat.php"
+expect_green 8 "printer configuration table (FR-045)" \
+  "step3_base; printf '<?php\nSchema::create(\"printers\", function(\$t){});\n' > backend/app/Prn.php"
+expect_green 9 "Step 4 migration filenames" \
+  "step3_base; touch backend/database/migrations/2026_07_21_000100_create_customers_table.php backend/database/migrations/2026_07_21_000200_create_price_lists_table.php"
+expect_green 10 "Step 4 module directory" \
+  "step3_base; mkdir -p backend/app/Modules/customers; printf '<?php\nclass X {}\n' > backend/app/Modules/customers/X.php"
 
 # ---------------------------------------------------------------------------
 AFTER="$(fingerprint)"

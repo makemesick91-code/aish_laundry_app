@@ -66,9 +66,8 @@ EXPECTED_RULE_COUNT = 51
 # Master Source 1.4.0. Raising this count WIDENS coverage — every record up to the
 # count must exist — so it can never be used to skip a record.
 #
-# Raised 27 -> 29 at Master Source 1.4.1 for DEC-0028 (Step 4 scope resolution and
-# canonical authorization) and DEC-0029 (canonical status drift remediation).
-EXPECTED_DECISION_COUNT = 29
+# Raised 27 -> 30 at Master Source 1.4.1 for DEC-0028, DEC-0029, and DEC-0030.
+EXPECTED_DECISION_COUNT = 30
 
 
 def main() -> int:
