@@ -1,11 +1,16 @@
 # Step 3 Corrective — Runtime Authentication Wiring: Evidence
 
-**Bound to commit:** `95469ba2dcefbfa137cca65c32b94e1cd695100c`
+**Bound to commit:** `8e4f65e861eae60c7f72e5ede92917e9fbeb5f7a`
 **Branch:** `fix/step-03-auth-runtime-wiring` (cut from `origin/main` at `1eff6f1c57e2b6032bdf54e0feef22b0fc58e95d`)
 **Timezone:** Asia/Jakarta
 
-Evidence produced at one SHA does not carry to another (Rule 01, DEC-0013). The
-capture below is verbatim; the working tree was clean when it ran. The only
+Evidence produced at one SHA does not carry to another (Rule 01, DEC-0013). An
+earlier capture at `95469ba2dcefbfa137cca65c32b94e1cd695100c` was invalidated
+when `scripts/validate-secrets.sh` failed in CI on three inline
+`password: '...'` literals in the new tests; the values were fictional but the
+shape is what the scanner exists to catch, so the tests were changed rather than
+the scanner. Everything below was re-run from scratch at the SHA above. The
+capture is verbatim; the working tree was clean when it ran. The only
 redaction is the development password, replaced with `<redacted>` — it is
 generated fresh per seeder run and is never committed (Rule 23, Rule 45).
 
@@ -84,9 +89,8 @@ discriminating test for that property is the row above it.
 ## Captured output
 
 ```text
-EVIDENCE_SHA=95469ba2dcefbfa137cca65c32b94e1cd695100c
-COMMIT_SHA: 95469ba2dcefbfa137cca65c32b94e1cd695100c
-CAPTURED:   2026-07-21 19:46:25 WIB
+COMMIT_SHA: 8e4f65e861eae60c7f72e5ede92917e9fbeb5f7a
+CAPTURED:   2026-07-21 20:03:16 WIB
 ENV:        Linux 7.0.0-27-generic | Flutter 3.44.6 • channel stable • https://github.com/flutter/flutter.git | PHP 8.5.4 (cli) (built: May 25 2026 12:19:37) (NTS)
 TREE:       0 modified files (0 = clean)
 
@@ -94,7 +98,7 @@ TREE:       0 modified files (0 = clean)
 Analyzing apps, packages...
 No issues found!
 
-### flutter test (per package/app, hermetic)
+### flutter test (hermetic, per package/app)
 packages/core              00:00 +18: All tests passed!
 packages/domain            00:00 +12: All tests passed!
 packages/networking        00:00 +34: All tests passed!
@@ -106,20 +110,16 @@ apps/ops_android           00:03 +34: All tests passed!
 apps/customer_android      00:03 +26: All tests passed!
 apps/admin_web             00:02 +26: All tests passed!
 
-### governance validators
+### validators
 validate-runtime-scope     RESULT: PASS (runtime-scope)
 validate-status            RESULT: PASS (status)
 validate-decisions         RESULT: PASS (decisions)
+validate-secrets           RESULT: PASS (secrets)
 
-### Step 3 GO tag integrity (must be unchanged)
-tag object : 8b37230ed8df8da343a1546fd949d8a41329fbdf
-peels to   : 0e2554338812b05eba8411afeb099212b05f9761
-### end-to-end against running backend (Laravel + PostgreSQL 18.4 + Redis 8.2)
-invocation: AISH_E2E_BASE_URL=http://127.0.0.1:8000/api/v1 \
-            AISH_E2E_IDENTIFIER=owner.kenanga@contoh.invalid \
-            AISH_E2E_PASSWORD=<redacted> seeder, never committed> \
-            AISH_E2E_TENANT_ID=<kenanga> AISH_E2E_FOREIGN_TENANT_ID=<melati> \
-            flutter test packages/auth/test/backend_integration_test.dart --tags e2e
+### end-to-end vs running backend (Laravel + PostgreSQL 18.4 + Redis 8.2)
+AISH_E2E_BASE_URL=http://127.0.0.1:8000/api/v1 AISH_E2E_IDENTIFIER=owner.kenanga@contoh.invalid \
+AISH_E2E_PASSWORD=<redacted> AISH_E2E_TENANT_ID=<kenanga> AISH_E2E_FOREIGN_TENANT_ID=<melati> \
+flutter test packages/auth/test/backend_integration_test.dart --tags e2e
   00:00 +0: loading /home/fikri/Projects/aish_laundry/packages/auth/test/backend_integration_test.dart
   00:00 +0: against a running backend a real sign-in produces a real session
   00:00 +1: against a running backend a wrong password is refused and stores nothing
@@ -130,6 +130,10 @@ invocation: AISH_E2E_BASE_URL=http://127.0.0.1:8000/api/v1 \
   00:01 +6: against a running backend outlets are refused before a tenant is chosen
   00:02 +7: against a running backend sign-out revokes the token server-side, not just locally
   00:02 +8: All tests passed!
+
+### Step 3 GO tag integrity
+tag object : 8b37230ed8df8da343a1546fd949d8a41329fbdf
+peels to   : 0e2554338812b05eba8411afeb099212b05f9761
 ```
 
 ## Step 3 GO tag — NOT moved
