@@ -528,7 +528,58 @@ final class StaffAssignmentTest extends TestCase
             ->json('data.staff.0');
 
         $this->assertArrayNotHasKey('phone', $body['user']);
-        $this->assertStringNotContainsString('08', json_encode($body['user']) ?: '');
+
+        // ASSERT A PHONE SHAPE, NOT THE SUBSTRING "08".
+        //
+        // The previous assertion was `assertStringNotContainsString('08', ...)`
+        // and it was FLAKY: the projection carries a generated UUID and a
+        // generated email, and a UUID such as
+        // `019f841a-0849-7241-...` contains "08" by chance. The test failed
+        // intermittently for a reason that had nothing to do with a phone
+        // number, which is worse than no test — an intermittently red gate
+        // teaches a reader to re-run rather than to look.
+        //
+        // What the rule actually forbids is a PHONE NUMBER reaching the roster
+        // projection, so that is what is matched: an Indonesian subscriber
+        // number in any of the forms `PhoneNumber::normalize` accepts.
+        $encoded = json_encode($body['user']) ?: '';
+
+        $this->assertDoesNotMatchRegularExpression(
+            '/(?<![0-9])(?:\+?62|0)8[0-9]{7,11}(?![0-9])/',
+            $encoded,
+            'The staff projection carries something shaped like an Indonesian '
+            .'phone number. A roster screen has no operational need for one '
+            .'(Rule 32 hard rule 4).'
+        );
+    }
+
+    public function test_the_phone_shape_assertion_actually_catches_a_phone_number(): void
+    {
+        // The guard above is only worth having if it fires. A regular
+        // expression that matched nothing would let the real assertion pass
+        // silently for ever, so its positive case is pinned here.
+        $pattern = '/(?<![0-9])(?:\+?62|0)8[0-9]{7,11}(?![0-9])/';
+
+        foreach (['081200000001', '+6281200000001', '6281200000001'] as $phone) {
+            $this->assertMatchesRegularExpression(
+                $pattern,
+                json_encode(['phone' => $phone]) ?: '',
+                "The phone-shape guard failed to match {$phone}."
+            );
+        }
+
+        // And it must NOT fire on the values that made the old assertion flaky.
+        foreach ([
+            '019f841a-0849-7241-ba0a-ed94168b3d48',
+            'uji.lhkkgidpb3@contoh.invalid',
+            'Pengguna Uji Fiktif',
+        ] as $benign) {
+            $this->assertDoesNotMatchRegularExpression(
+                $pattern,
+                json_encode(['value' => $benign]) ?: '',
+                "The phone-shape guard fired on the benign value {$benign}."
+            );
+        }
     }
 
     // ==================================================================
