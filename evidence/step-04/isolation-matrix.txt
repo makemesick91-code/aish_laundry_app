@@ -1,0 +1,21 @@
+
+   PASS  Tests\Feature\Security\Step04IsolationMatrixTest
+  ✓ c1 control every aggregate is reachable within its own tenant        0.79s  
+  ✓ c2 violation no aggregate is reachable across the tenant boundary b… 0.30s  
+  ✓ c3 a foreign id and an absent id are byte identical                  0.27s  
+  ✓ c4 control a list returns the callers own records                    0.30s  
+  ✓ c5 violation a list never contains another tenants record            0.32s  
+  ✓ c6 a filter parameter cannot widen the tenant scope                  0.29s  
+  ✓ c7 a foreign brand filter yields nothing rather than an error        0.27s  
+  ✓ c8 control search finds the callers own record                       0.26s  
+  ✓ c9 violation search never reaches across the tenant boundary         0.35s  
+  ✓ c10 searching a foreign customers exact phone finds nothing          0.27s  
+  ✓ c11 no export path exists in step 4                                  0.10s  
+  ✓ c12 step 4 stores no file and serves no file url                     0.11s  
+  ✓ c13 a client supplied tenant header is not authorization proof       0.26s  
+  ✓ c14 a foreign brand or outlet id is rejected not silently scoped aw… 0.28s  
+  ✓ c15 a forged tenant id in the body is ignored not honoured           0.29s  
+
+  Tests:    15 passed (728 assertions)
+  Duration: 4.59s
+

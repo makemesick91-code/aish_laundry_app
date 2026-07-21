@@ -1,0 +1,56 @@
+========================================================================
+STEP 4 CANONICAL VERIFICATION — LAUNDRY MASTER DATA
+========================================================================
+  commit    : bfbf3bbf765540ada119ba17f349ca9ef32678a4
+  branch    : feature/step-04-laundry-master-data
+  timestamp : 2026-07-21T09:57:20Z (UTC)
+
+  Step 4 is MASTER DATA. It is not the workflows that consume it.
+  A migration is not a tested schema and a table is not a feature.
+
+== 1. Step 0-3 regression (delegated, not restated) ==
+  PASS  Step 3 verifier (carries Steps 0-2) — every executed gate passed
+  SKIP  Step 3 verifier had skipped gate(s) — expected off a Step 3 branch; run scripts/verify-step-03.sh to see which
+
+== 2. Step 4 authorization and governance ==
+  PASS  DEC-0028 present and ACCEPTED
+  PASS  DEC-0030 present and ACCEPTED
+  PASS  DEC-0031 present and ACCEPTED
+  PASS  Rule 50 (Step 4 status) present
+
+== 3. Step 4 scope — master data, not the workflow ==
+  PASS  DEC-0030 label audit
+  PASS  Step 4 validator adversarial harness
+  PASS  no Step 5 route registered
+  PASS  no Step 5 endpoint constant
+
+== 4. Step 4 hard gates (authoritative PostgreSQL) ==
+  PASS  tenant isolation matrix (all 6 access paths)
+  PASS  customer master data
+  PASS  service catalogue surface
+  PASS  price list integrity
+  PASS  outlet master data
+  PASS  staff assignment
+  PASS  role catalogue alignment
+  PASS  integer Rupiah rounding
+  PASS  Step 4 schema invariants (money type, tenant_id)
+
+== 5. Step 4 client surfaces ==
+  PASS  Ops Android master-data suite
+  PASS  Console master-data suite
+  PASS  no retry affordance on the stale-write path
+  PASS  no unmask control in client source
+
+== 6. Public repository safety for Step 4 fixtures ==
+  PASS  public repository safety (canonical scan)
+  PASS  working tree clean
+
+========================================================================
+STEP 4 VERIFICATION: 24 passed, 0 failed, 1 skipped
+SKIPPED (NOT verified — do not report these as passing):
+  - Step 3 verifier had skipped gate(s) (expected off a Step 3 branch; run scripts/verify-step-03.sh to see which)
+  commit: bfbf3bbf765540ada119ba17f349ca9ef32678a4
+========================================================================
+
+  This verifier classified and executed gates. It is not owner acceptance.
+  GO is conferred by the repository owner and is never self-declared.

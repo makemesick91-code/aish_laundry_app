@@ -1,0 +1,31 @@
+========================================================================
+ADVERSARIAL TEST — STEP 4 VALIDATORS
+========================================================================
+
+CONTROL — legitimate Step 4 input must be ACCEPTED
+  ok    runtime scope guard accepts the current tree
+  ok    DEC-0030 label audit accepts the current tree
+
+VIOLATION — a Step 5+ table, under its plain name and renamed
+  ok    scope guard rejects a Step 5 order table
+  ok    label audit rejects a Step 5 order table
+  ok    label audit rejects a compound-renamed receipt table
+  ok    label audit rejects an Indonesian-renamed document table
+
+VIOLATION — a Step 5 route added to a permitted Step 4 module
+  ok    scope guard rejects a Step 5 payment route
+  ok    label audit rejects a Step 5 payment route
+
+VIOLATION — printer configuration becoming a document (FR-045 vs FR-052)
+  ok    label audit rejects a document template beside printer config
+
+VIOLATION — a permitted label traced to a non-existent requirement
+  ok    label audit rejects a label citing an absent requirement
+
+VIOLATION — a future-step route no longer resolving to a placeholder
+  ok    label audit rejects a future route with no placeholder
+
+========================================================================
+working tree verified byte-identical before and after
+SUMMARY [step-04-validators]: 11/11 expectations met, 0 failed
+RESULT: PASS (step-04-validators)

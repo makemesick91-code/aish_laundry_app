@@ -1,0 +1,26 @@
+========================================================================
+DEC-0030 LABEL AUDIT — the residual after four labels were permitted
+========================================================================
+
+PASS  every permitted label traces to a requirement the PRD carries
+PASS  no structural identifier carries a label DEC-0030 did not permit
+PASS  printer configuration has not become a printed document
+PASS  every future-step route still resolves to a placeholder
+
+------------------------------------------------------------------------
+  permitted labels audited : 4
+  forbidden labels checked : 10
+  source files examined    : 257
+  structural allowlist     : 4 entries, each with a reason
+
+  RESIDUAL RISK, stated rather than implied: DEC-0030 reduced token
+  protection for four labels. Those labels are now guarded by the
+  boundary checks above rather than by outright prohibition, which is
+  a weaker control. A Step 5 workflow built INSIDE one of the four
+  permitted modules, under a permitted name, would not be caught here
+  by name alone — it is caught by review and by the absence of any
+  order/payment route (asserted in Step04IsolationMatrixTest).
+------------------------------------------------------------------------
+
+SUMMARY [dec-0030-labels]: 4/4 checks passed, 0 failed
+RESULT: PASS (dec-0030-labels)
