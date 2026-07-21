@@ -102,6 +102,7 @@ gate "runtime CI adversarial suite"      bash scripts/test-runtime-ci-validator.
 gate "toolchain locks"                   python3 scripts/validate-toolchain-locks.py
 gate "dev environment contract"          python3 scripts/validate-dev-environment-contract.py
 gate "dev environment adversarial suite" bash scripts/test-dev-environment-contract.sh
+gate "status advancement adversarial suite" bash scripts/test-status-advancement.sh
 
 hdr "4. Backend (authoritative PostgreSQL)"
 if ! (cd backend && php artisan --version >/dev/null 2>&1); then

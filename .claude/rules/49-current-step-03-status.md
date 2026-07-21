@@ -15,7 +15,7 @@ Canonical status: [`../../docs/STATUS.md`](../../docs/STATUS.md). Master Source 
 | Step 0 — Master Source and Governance | **GO WITH ACCEPTED DEVIATION** |
 | Step 1 — Product Requirement and Domain Model | **GO WITH ACCEPTED DEVIATION** |
 | Step 2 — Design System and UX Foundation | **GO WITH ACCEPTED DEVIATION** |
-| Step 3 — Runtime, Authentication, Multi-Tenancy, and RBAC | **IN PROGRESS** |
+| Step 3 — Runtime, Authentication, Multi-Tenancy, and RBAC | **GO WITH ACCEPTED DEVIATION** |
 | Steps 4–14 | **PLANNED** |
 | PostgreSQL runtime foundation | **PRESENT** |
 | Redis runtime foundation | **PRESENT** |
@@ -34,16 +34,28 @@ status file that asserts an absence which the filesystem contradicts is not a co
 file — it is a false claim under Rule 01, and `scripts/validate-status.py` now cross-checks these
 claims against the filesystem in both directions so the same drift cannot recur silently.
 
-**The correction does not advance Step 3.** `IN PROGRESS` is unchanged. Runtime presence is never
-proof of runtime correctness (Rule 36, hard rule 6), and no authentication, tenancy, RBAC, or
-accessibility claim is upgraded by this edit.
+**Step 3 is now `GO WITH ACCEPTED DEVIATION` and GO-tagged.** The owner conferred `GO` against
+exact-SHA evidence after Step 3 runtime, authentication, multi-tenancy, and RBAC were built, verified,
+and merged to `main`. The immutable annotated tag
+`aish-laundry-step-03-runtime-auth-multitenancy-rbac-v1.4.0-go` (object
+`8b37230ed8df8da343a1546fd949d8a41329fbdf`) peels to the runtime merge SHA
+`0e2554338812b05eba8411afeb099212b05f9761` — **never** to the later post-tag evidence commit
+`ad31473da8376e91b67449bf7820ab9877ea8a4a`. The full closure evidence is
+[`../../evidence/step-03/STEP-03-GO-CLOSURE.md`](../../evidence/step-03/STEP-03-GO-CLOSURE.md). The tag
+is immutable and must never be moved, deleted, recreated, or retargeted.
 
-**`GO` is conferred by the repository owner and is never self-declared by an agent** (Rule 01). While
-Step 3's pull request is open, the maximum permissible status for Step 3 is `IN PROGRESS`, `TESTED`, or
-`WATCH` — never `GO`. `IN PROGRESS` carries no milestone qualifier: the runtime-scope-guard transition
-and the approved-root scaffolding are done, but naming a "phase complete" inside a status invites it to
-be read as partial completion of the Step. It is not. Nothing in this snapshot claims that
-authentication, tenancy, RBAC, or any application feature has been built or tested.
+**`GO` was conferred by the repository owner, never self-declared by an agent** (Rule 01). It carries
+the accepted deviations recorded below and does **not** upgrade any narrower claim: runtime presence is
+never proof of runtime correctness (Rule 36, hard rule 6), Android artefacts remain debug-only, and no
+performance, deployment, or UAT result is asserted. **`GO WITH ACCEPTED DEVIATION` is not an
+unqualified `GO`.** The deviations are DEC-0017 (single-maintainer governance; no independent human
+review) and DEC-0026 (the scaffold-authorization suite runs 38/38 only on a Step 3 feature branch; on
+`main` and in a fresh clone it is a visible exit-78 SKIP by owner-approved branch/path pin, never
+represented as PASS), together with the debug-only runtime limitations.
+
+**Step 3 `GO` does not start Step 4 and does not authorise deployment.** Step 4 remains
+`PLANNED / NOT STARTED` and its business features remain `NOT IMPLEMENTED`; deployment remains
+`ABSENT`. Any Step 4 work begins only through a separately authorised canonical Step 4 process.
 
 ## The permitted accessibility wording for Step 3
 
@@ -110,10 +122,11 @@ sounded.
 
 ## Step boundary
 
-**Step 4 cannot begin before Step 3 has `GO`.** Laundry master data, service catalog, and pricing
-implementation belong to Step 4 and are not pulled forward while Step 3 remains `IN PROGRESS`. Step
-numbers are locked and are never reused, renumbered, swapped, merged, or split without an accepted
-decision record (Master Source §24).
+**Step 3 has `GO`, so Step 4 is now the next step in sequence — but it remains `PLANNED / NOT STARTED`
+and begins only through a separately authorised canonical Step 4 process.** Step 3 `GO` is not Step 4
+authorization. Laundry master data, service catalog, and pricing implementation belong to Step 4 and
+are not pulled forward on the strength of the Step 3 tag. Step numbers are locked and are never reused,
+renumbered, swapped, merged, or split without an accepted decision record (Master Source §24).
 
 ## Maintenance
 
@@ -140,8 +153,12 @@ decision record (Master Source §24).
   permitted wording above (Rule 27, Rule 41).
 - **Any runtime artefact created outside the approved roots, or any Step 4+ feature detected** — remove
   it and report the scope breach (Rule 36).
-- **`GO` written for Step 3 by an agent while its pull request is open** — revert the wording; `GO` is
-  the owner's to confer.
+- **`GO` written for Step 3 by an agent without a recorded owner authorization** — revert the wording;
+  `GO` is the owner's to confer. Step 3's `GO WITH ACCEPTED DEVIATION` was owner-conferred against
+  exact-SHA evidence and recorded in `evidence/step-03/STEP-03-GO-CLOSURE.md`.
+- **Step 3 reverted to `IN PROGRESS` or `PLANNED` after the GO tag exists** — that is a false
+  understatement; the GO tag is immutable and the status is `GO WITH ACCEPTED DEVIATION`.
+  `scripts/validate-status.py` fails closed on it.
 - **A status advanced without exact-SHA evidence** — revert the advancement.
 - **A prior `GO` tag moved, deleted, or re-pointed** — record the incident, restore the original target
   if possible, and publish a corrective tag (Rule 11).

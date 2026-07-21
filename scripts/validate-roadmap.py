@@ -21,9 +21,17 @@ from _common import (  # noqa: E402
 
 ROADMAP = "docs/ROADMAP.md"
 
-# The step currently under way. Bump this only when a step actually starts, in the
-# same pull request that moves the status in ROADMAP.md and STATUS.md.
-CURRENT_STEP = 2
+# The highest step that has STARTED. It may carry any working status through GO —
+# GO is the terminal status of the current step, not a signal to advance this
+# constant. Bump it only when the NEXT step actually starts, in the same pull
+# request that moves the status in ROADMAP.md and STATUS.md.
+#
+# Raised 2 -> 3 when Step 3 reached GO WITH ACCEPTED DEVIATION and was GO-tagged
+# (aish-laundry-step-03-...-v1.4.0-go). It lagged at 2 through the whole of Step 3:
+# runtime was built, merged, and tagged while this still read 2 and forced Step 3
+# to be PLANNED — the roadmap-validator twin of the stale STATUS.md drift DEC-0027
+# recorded. Step 4 has NOT started, so this stays 3, and Steps 4-14 stay PLANNED.
+CURRENT_STEP = 3
 CURRENT_STEP_ALLOWED = ["IN PROGRESS", "TESTED", "WATCH", "GO"]
 
 # Statuses that must never appear against a step later than CURRENT_STEP. Work
