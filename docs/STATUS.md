@@ -214,7 +214,7 @@ is a false claim rather than a conservative one (Rule 01, DEC-0029).
 | Deployment | ABSENT |
 | Application CI | ACTIVE — THREE STEP 3 RUNTIME CONTEXTS VERIFIED |
 | UAT | NOT STARTED |
-| End-to-end client↔backend session | **ABSENT — NO CONCRETE `AuthService` EXISTS** |
+| Client↔API end-to-end session | **ABSENT — NO CONCRETE `AuthService` EXISTS** |
 
 ### The three Flutter apps cannot authenticate against a running backend
 
