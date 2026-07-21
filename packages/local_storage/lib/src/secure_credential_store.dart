@@ -46,6 +46,14 @@ abstract interface class SecureCredentialStore {
 abstract final class CredentialKeys {
   static const String sessionToken = 'session_token';
   static const String deviceIdentifier = 'device_identifier';
+
+  /// Which user's namespace holds the session credential.
+  ///
+  /// Lives in the DEVICE namespace, because at startup there is no identity yet
+  /// and therefore no user namespace to look in. It is a pointer, never a
+  /// credential: knowing it grants nothing, and the token it points at is still
+  /// server-verified before any session is considered restored.
+  static const String activeUserId = 'active_user_id';
   static const String lastActiveTenantId = 'last_active_tenant_id';
   static const String lastActiveOutletId = 'last_active_outlet_id';
 }
