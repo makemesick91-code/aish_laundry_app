@@ -7,6 +7,7 @@ use App\Modules\CustomerManagement\Http\Controllers\CustomerController;
 use App\Modules\Identity\Http\Controllers\AuthController;
 use App\Modules\Identity\Http\Controllers\PasswordResetController;
 use App\Modules\Identity\Http\Controllers\SessionController;
+use App\Modules\Organization\Http\Controllers\OutletMasterDataController;
 use App\Modules\Tenancy\Http\Controllers\ContextController;
 use App\Modules\Tenancy\Http\Controllers\MembershipController;
 use Illuminate\Support\Facades\Route;
@@ -119,4 +120,54 @@ Route::middleware(['auth.api', 'tenant.context'])->group(function (): void {
         ->name('api.v1.customers.consents.index');
     Route::post('customers/{customer}/consents', [CustomerConsentController::class, 'store'])
         ->name('api.v1.customers.consents.store');
+
+    // -----------------------------------------------------------------------
+    // Outlet master data (FR-041 … FR-047).
+    //
+    // Every satellite is nested UNDER its outlet, so the tenant-scoped outlet
+    // lookup happens before the satellite is addressed at all. A flat
+    // `/zones/{id}` route would make the outlet a body field somebody could
+    // aim at another tenant, and would rely on a foreign key to say no.
+    //
+    // No destroy route anywhere below: a zone, shift, or printer a future order
+    // or delivery references must stay resolvable, so `is_active: false`
+    // replaces deletion (T-18).
+    // -----------------------------------------------------------------------
+    Route::get('outlets/{outlet}/master-data', [OutletMasterDataController::class, 'show'])
+        ->name('api.v1.outlets.master-data.show');
+    Route::patch('outlets/{outlet}/master-data', [OutletMasterDataController::class, 'update'])
+        ->name('api.v1.outlets.master-data.update');
+
+    // FR-043 — coverage definition only. Routing is Step 8.
+    Route::get('outlets/{outlet}/service-zones', [OutletMasterDataController::class, 'zones'])
+        ->name('api.v1.outlets.service-zones.index');
+    Route::post('outlets/{outlet}/service-zones', [OutletMasterDataController::class, 'storeZone'])
+        ->name('api.v1.outlets.service-zones.store');
+    Route::patch('outlets/{outlet}/service-zones/{zone}', [OutletMasterDataController::class, 'updateZone'])
+        ->name('api.v1.outlets.service-zones.update');
+
+    // FR-044 — definitions only. Shift closing and cash variance are Step 5.
+    Route::get('outlets/{outlet}/shifts', [OutletMasterDataController::class, 'shifts'])
+        ->name('api.v1.outlets.shifts.index');
+    Route::post('outlets/{outlet}/shifts', [OutletMasterDataController::class, 'storeShift'])
+        ->name('api.v1.outlets.shifts.store');
+    Route::patch('outlets/{outlet}/shifts/{shift}', [OutletMasterDataController::class, 'updateShift'])
+        ->name('api.v1.outlets.shifts.update');
+
+    // FR-045 — printer CONFIGURATION. The document a printer prints is FR-052
+    // in Step 5, and `receipt`/`nota`/`struk` remain forbidden (DEC-0030).
+    Route::get('outlets/{outlet}/printers', [OutletMasterDataController::class, 'printers'])
+        ->name('api.v1.outlets.printers.index');
+    Route::post('outlets/{outlet}/printers', [OutletMasterDataController::class, 'storePrinter'])
+        ->name('api.v1.outlets.printers.store');
+    Route::patch('outlets/{outlet}/printers/{printer}', [OutletMasterDataController::class, 'updatePrinter'])
+        ->name('api.v1.outlets.printers.update');
+
+    // FR-046 — tenant-wide proof policy. CONFIGURATION only; capturing a proof
+    // at a custody transfer is Step 8. Not nested under an outlet because the
+    // policy is tenant-wide by design (see OutletPolicy::manageProofPolicy).
+    Route::get('proof-policy', [OutletMasterDataController::class, 'proofPolicy'])
+        ->name('api.v1.proof-policy.show');
+    Route::patch('proof-policy', [OutletMasterDataController::class, 'updateProofPolicy'])
+        ->name('api.v1.proof-policy.update');
 });

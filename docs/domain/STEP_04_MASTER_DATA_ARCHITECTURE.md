@@ -233,11 +233,23 @@ instead of counting it toward a pass.
 |---|---|
 | Publishing a price list | PostgreSQL exclusion constraint (P4) — correctness does not depend on application timing |
 | Customer create with duplicate phone | Unique index `(tenant_id, phone_normalized)` — the DB rejects the second writer |
-| Any mutating master-data update | Optimistic concurrency on `updated_at`; a stale write is surfaced, never silently applied (Rule 07 hard rule 5's principle, applied to master data) |
+| Any mutating master-data update | Optimistic concurrency on an explicit `version` counter; a stale write is surfaced, never silently applied (Rule 07 hard rule 5's principle, applied to master data) |
 | Staff assignment | Unique index `(tenant_id, membership_id, outlet_id)` |
 
 **No distributed lock is introduced.** Every case above is resolvable by a database constraint, and a
 lock that is not needed is a failure mode that is not needed (Rule 44).
+
+**Correction — the concurrency token is a counter, not `updated_at`.** This table previously specified
+optimistic concurrency "on `updated_at`". That was implemented, tested, and found **wrong**: Laravel's
+`timestamps()` produces a **second-precision** column in PostgreSQL, so two edits inside the same second
+carry an identical `updated_at`. A stale-write detector blind precisely when two writers collide is not
+a detector, and the failure was silent — a test passed whenever the two writes happened to straddle a
+second boundary.
+
+The mechanism is therefore an explicit, server-owned `version` counter incremented on every save
+(`SharedKernel\Concerns\HasOptimisticVersion`), carried on every Step 4 master-data table. It cannot
+collide and does not depend on clock precision. This is recorded here rather than silently corrected in
+code, because the original statement was published and was wrong (Rule 01).
 
 ---
 
