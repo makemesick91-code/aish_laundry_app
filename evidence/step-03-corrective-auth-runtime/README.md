@@ -1,6 +1,6 @@
 # Step 3 Corrective — Runtime Authentication Wiring: Evidence
 
-**Bound to commit:** `838ee7b8f00bf2e7be3bb93fc9ed6bfafff14d8c`
+**Bound to commit:** `80d59f2d1884e5c70b1ddec3a7894a7745333b16`
 **Branch:** `fix/step-03-auth-runtime-wiring` (cut from `origin/main` at `1eff6f1c57e2b6032bdf54e0feef22b0fc58e95d`)
 **Timezone:** Asia/Jakarta
 
@@ -15,6 +15,10 @@ rather than quietly replaced:
   * `0af9a743f55ac9e46576472e1d3c605cbf03fdb4` — `dart format
     --set-exit-if-changed` failed in CI on seven files. The local gate list had
     omitted the format check; it is included below from here.
+  * `3fa4e89b3d6765f40eed4fb25c0ce298aeca6bf2` — `scripts/scan-web-build.py`
+    found `localStorage`/`sessionStorage` in the Console Web build. This one was
+    a REAL SECURITY REGRESSION that this branch introduced, and it is described
+    in full under "The regression CI caught" below.
 
 Everything below was re-run from scratch at the SHA above. The capture is
 verbatim; the working tree was clean when it ran. The only
@@ -79,15 +83,42 @@ discriminating test for that property is the row above it.
    on "Memeriksa sesi Anda…" with a spinner and no way forward — contrary to
    Rule 29 hard rule 13. Storage calls are now bounded and fail closed.
 
+## The regression CI caught
+
+Adding `aish_local_storage` as a dependency of `aish_auth` pulled
+`flutter_secure_storage` into the Console Web build. Its web implementation IS
+`localStorage`/`sessionStorage`, which **Rule 38 hard rule 2 forbids** for
+credential material. `apps/admin_web` had never depended on that package; the
+transitive edge came from this branch.
+
+It could not be fixed by not calling the plugin — a plugin anywhere in a build's
+dependency graph is registered into that build. The dependency edge itself had
+to go, so the abstraction moved to pure-Dart `aish_core` and only the
+platform-backed implementation stayed in `aish_local_storage`, which is now
+reachable from the two Android surfaces alone.
+
+Verified against the BUILT ARTEFACT, not the dependency list: `flutter build web
+--release` followed by `scripts/scan-web-build.py`, which reports *no browser
+token storage, credential assignment, or dev value found*. `flutter pub deps`
+still names the plugin because it reports workspace-wide packages; that output is
+not authoritative and the build was checked directly.
+
+This is recorded because a reviewer is entitled to know that the branch
+introduced a credential-storage regression and that the gate — not the author —
+is what caught it.
+
 ## Residual risk — stated, not hidden
 
 - **Keystore behaviour on a physical device is UNVERIFIED.** `flutter_secure_storage`
   has no platform channel under `flutter test`, so the end-to-end suite substitutes
   `InMemoryCredentialStore`. The service, HTTP client, wire format, server and
   database in that suite are all real; only persistence is substituted.
-- **No Android or web release build was produced or exercised here.**
+- **No Android release build was produced or exercised here.** A Console Web
+  release build WAS produced and scanned (see above), but it was not loaded in a
+  browser or driven through a session.
 - **Console Web cookie transport was not exercised against a browser.** Its
-  transport wiring is asserted by composition test, not by a browser session.
+  transport wiring is asserted by composition test, and its build is asserted by
+  artefact scan, but no browser session was driven end to end.
 - Governance remains single-maintainer; independent human approval is `ABSENT`
   (DEC-0017). Nothing below is independent peer review.
 
@@ -96,13 +127,13 @@ discriminating test for that property is the row above it.
 ## Captured output
 
 ```text
-COMMIT_SHA: 838ee7b8f00bf2e7be3bb93fc9ed6bfafff14d8c
-CAPTURED:   2026-07-21 20:07:43 WIB
+COMMIT_SHA: 80d59f2d1884e5c70b1ddec3a7894a7745333b16
+CAPTURED:   2026-07-21 20:22:47 WIB
 ENV:        Linux 7.0.0-27-generic | Flutter 3.44.6 • channel stable • https://github.com/flutter/flutter.git | PHP 8.5.4 (cli) (built: May 25 2026 12:19:37) (NTS)
 TREE:       0 modified files (0 = clean)
 
 ### dart format --output=none --set-exit-if-changed .
-Formatted 112 files (0 changed) in 0.47 seconds.
+Formatted 113 files (0 changed) in 0.47 seconds.
 ### dart analyze apps packages
 Analyzing apps, packages...
 No issues found!
@@ -125,10 +156,10 @@ validate-status            RESULT: PASS (status)
 validate-decisions         RESULT: PASS (decisions)
 validate-secrets           RESULT: PASS (secrets)
 
+### Console Web release build + browser-storage scan
+scan-web-build.py            no browser token storage, credential assignment, or dev value found
+
 ### end-to-end vs running backend (Laravel + PostgreSQL 18.4 + Redis 8.2)
-AISH_E2E_BASE_URL=http://127.0.0.1:8000/api/v1 AISH_E2E_IDENTIFIER=owner.kenanga@contoh.invalid \
-AISH_E2E_PASSWORD=<redacted> AISH_E2E_TENANT_ID=<kenanga> AISH_E2E_FOREIGN_TENANT_ID=<melati> \
-flutter test packages/auth/test/backend_integration_test.dart --tags e2e
   00:00 +0: loading /home/fikri/Projects/aish_laundry/packages/auth/test/backend_integration_test.dart
   00:00 +0: against a running backend a real sign-in produces a real session
   00:00 +1: against a running backend a wrong password is refused and stores nothing
