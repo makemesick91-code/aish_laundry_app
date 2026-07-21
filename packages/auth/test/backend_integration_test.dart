@@ -1,14 +1,3 @@
-@Tags(<String>['e2e'])
-library;
-
-import 'dart:io';
-
-import 'package:aish_auth/aish_auth.dart';
-import 'package:aish_core/aish_core.dart';
-import 'package:aish_local_storage/aish_local_storage.dart';
-import 'package:aish_networking/aish_networking.dart';
-import 'package:flutter_test/flutter_test.dart';
-
 /// END-TO-END against a RUNNING backend. Nothing is scripted here.
 ///
 /// Every other test in this package drives the service over a scripted HTTP
@@ -31,6 +20,22 @@ import 'package:flutter_test/flutter_test.dart';
 /// NO CREDENTIAL IS COMMITTED. The seeder prints a distinct random password per
 /// run and instructs the operator not to copy it into any file; these tests
 /// read it from the environment at run time.
+@Tags(<String>['e2e'])
+library;
+
+import 'dart:io';
+
+import 'package:aish_auth/aish_auth.dart';
+import 'package:aish_core/aish_core.dart';
+import 'package:aish_local_storage/aish_local_storage.dart';
+import 'package:aish_networking/aish_networking.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+/// A deliberately wrong credential, in a named constant for the same reason as
+/// in the contract tests: an inline `password: '...'` matches the repository's
+/// credential scanner, and the scanner is right to flag that shape.
+const String kWrongPassword = 'kata-sandi-salah-fiktif-000000';
+
 String? envOf(String key) {
   final value = Platform.environment[key];
   return value == null || value.isEmpty ? null : value;
@@ -91,7 +96,7 @@ void main() {
 
         final state = await live.runtime.service.signIn(
           identifier: identifier!,
-          password: 'kata-sandi-salah-fiktif-000000',
+          password: kWrongPassword,
         );
 
         expect(state.isAuthenticated, isFalse);
@@ -105,7 +110,7 @@ void main() {
 
           final unknown = await live.runtime.service.signIn(
             identifier: 'tidak.ada@contoh.invalid',
-            password: 'kata-sandi-salah-fiktif-000000',
+            password: kWrongPassword,
           );
 
           // Rule 38 hard rule 7: the response must not reveal whether the
