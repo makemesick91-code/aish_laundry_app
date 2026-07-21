@@ -2,6 +2,7 @@ import 'package:aish_auth/aish_auth.dart';
 import 'package:aish_core/aish_core.dart';
 import 'package:aish_networking/aish_networking.dart';
 import 'package:aish_admin_web/src/app.dart';
+import 'package:aish_admin_web/src/master_data/master_data_screens.dart';
 import 'package:aish_testing/aish_testing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -75,6 +76,37 @@ void main() {
       expect(
         container.read(apiClientProvider).transport,
         CredentialTransport.sessionCookie,
+      );
+    });
+
+    test('resolves a CONCRETE MasterDataRepository without throwing', () {
+      final container = productionContainer();
+
+      // The same defect as authServiceProvider, one layer up: this provider
+      // threw UnimplementedError and was overridden only in widget tests, so
+      // every production master-data screen threw the moment it opened while
+      // the suite stayed green.
+      final repository = container.read(masterDataRepositoryProvider);
+
+      expect(repository, isA<MasterDataRepository>());
+    });
+
+    test('the repository shares the authenticated ApiClient', () {
+      final container = productionContainer();
+
+      // Built from apiClientProvider, so master-data requests carry the same
+      // credential and the same X-Tenant-Id as everything else. A repository
+      // over its own client would authenticate as nobody.
+      expect(
+        () => container.read(masterDataRepositoryProvider),
+        returnsNormally,
+      );
+      expect(
+        identical(
+          container.read(apiClientProvider),
+          container.read(authRuntimeProvider).client,
+        ),
+        isTrue,
       );
     });
 

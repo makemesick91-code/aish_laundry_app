@@ -7,13 +7,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app.dart';
 
-/// Supplies the repository. Overridden in tests with a fake.
+/// Supplies the repository, built from the surface's authenticated
+/// [ApiClient]. A test overrides it with a fake.
+///
+/// THIS PROVIDER PREVIOUSLY THREW `UnimplementedError` and was overridden only
+/// in tests, so every production master-data screen threw the moment it was
+/// opened in a real build while the widget suite stayed green — the same defect
+/// DEC-0032 records for `authServiceProvider`, one layer up.
 final Provider<MasterDataRepository> masterDataRepositoryProvider =
     Provider<MasterDataRepository>(
-      (ref) => throw UnimplementedError(
-        'masterDataRepositoryProvider must be overridden with a repository '
-        'built from the surface\'s ApiClient.',
-      ),
+      (ref) => MasterDataRepository(ref.watch(apiClientProvider)),
     );
 
 /// The Step 4 master-data section of the console (FR-021 … FR-047).
