@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../app.dart';
+import '../master_data/master_data_screens.dart';
 import '../screens/console_session_screens.dart';
 import '../screens/portfolio_shell.dart';
 import '../screens/select_tenant_screen.dart';
@@ -79,14 +80,13 @@ final Provider<GoRouter> consoleRouterProvider = Provider<GoRouter>((ref) {
         path: ConsoleRoutes.portfolio,
         builder: (_, _) => const PortfolioShell(child: PortfolioOverview()),
         routes: <RouteBase>[
+          // Step 4 master data is BUILT, so the placeholder is gone rather
+          // than sitting alongside it. A `FutureStepPlaceholder` left in place
+          // next to a working screen would tell an operator the feature does
+          // not exist, which stopped being true (Rule 01).
           GoRoute(
             path: 'data-induk',
-            builder: (_, _) => const PortfolioShell(
-              child: FutureStepPlaceholder(
-                featureName: 'Data induk laundry',
-                owningStep: 'Step 4',
-              ),
-            ),
+            builder: (_, _) => const PortfolioShell(child: MasterDataScreen()),
           ),
           GoRoute(
             path: 'keuangan',

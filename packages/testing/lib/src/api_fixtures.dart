@@ -132,6 +132,20 @@ abstract final class ApiFixtures {
           Permission(Permission.deviceSessionView),
           Permission(Permission.permissionInspect),
           Permission(Permission.auditView),
+
+          // Step 4 master data (DEC-0028). The real `tenant_owner` role holds
+          // every one of these, so a fixture that omitted them would let a
+          // console test pass while the owner's own screens were empty.
+          Permission(Permission.customerView),
+          Permission(Permission.customerManage),
+          Permission(Permission.customerConsentManage),
+          Permission(Permission.serviceView),
+          Permission(Permission.serviceManage),
+          Permission(Permission.priceListView),
+          Permission(Permission.priceListManage),
+          Permission(Permission.priceListPublish),
+          Permission(Permission.outletMasterDataManage),
+          Permission(Permission.staffAssignmentManage),
         },
       );
 
@@ -142,6 +156,15 @@ abstract final class ApiFixtures {
           Permission(Permission.tenantView),
           Permission(Permission.outletView),
           Permission(Permission.sessionViewSelf),
+
+          // Step 4. A kasir finds and registers a customer and READS the
+          // prices it quotes. It does not author the catalogue and does not
+          // change a price — a cashier changing a price is the financial
+          // control point FR-039 exists to guard.
+          Permission(Permission.customerView),
+          Permission(Permission.customerManage),
+          Permission(Permission.serviceView),
+          Permission(Permission.priceListView),
         },
       );
 

@@ -91,11 +91,50 @@ final class ApiClient {
     String path, {
     Map<String, Object?>? body,
     CorrelationId? correlationId,
+    String? expectedVersion,
   }) => _send(
     () => _dio.post<Object?>(
       path,
       data: body,
-      options: Options(headers: _headers(correlationId)),
+      options: Options(headers: _headers(correlationId, expectedVersion)),
+    ),
+  );
+
+  /// Partial update of an existing record.
+  ///
+  /// [expectedVersion] is the optimistic-concurrency token the caller read with
+  /// the record. Sending it means "I am editing the version I saw"; if the
+  /// record has moved on, the server answers `CONFLICT` and the edit is refused
+  /// rather than silently overwriting somebody else's work (threat T-12).
+  ///
+  /// A management screen that omits it is choosing last-write-wins, which for
+  /// master data governing prices and messaging windows is a defect rather than
+  /// a simplification.
+  Future<Result<ApiSuccess>> patch(
+    String path, {
+    Map<String, Object?>? body,
+    CorrelationId? correlationId,
+    String? expectedVersion,
+  }) => _send(
+    () => _dio.patch<Object?>(
+      path,
+      data: body,
+      options: Options(headers: _headers(correlationId, expectedVersion)),
+    ),
+  );
+
+  /// Wholesale replacement — used where a collection is only meaningful as a
+  /// whole, such as a service package's composition.
+  Future<Result<ApiSuccess>> put(
+    String path, {
+    Map<String, Object?>? body,
+    CorrelationId? correlationId,
+    String? expectedVersion,
+  }) => _send(
+    () => _dio.put<Object?>(
+      path,
+      data: body,
+      options: Options(headers: _headers(correlationId, expectedVersion)),
     ),
   );
 
@@ -109,10 +148,20 @@ final class ApiClient {
     ),
   );
 
+  /// The optimistic-concurrency precondition header.
+  ///
+  /// Matches `SharedKernel\Http\OptimisticConcurrency::HEADER` on the server.
+  /// The value is an opaque server-issued token: the client compares it and
+  /// returns it, and never parses or generates one.
+  static const String versionHeaderName = 'If-Unmodified-Since-Version';
+
   Map<String, Object?> _headers(
-    CorrelationId? correlationId,
-  ) => <String, Object?>{
+    CorrelationId? correlationId, [
+    String? expectedVersion,
+  ]) => <String, Object?>{
     CorrelationId.headerName: (correlationId ?? CorrelationId.generate()).value,
+    if (expectedVersion != null && expectedVersion.isNotEmpty)
+      versionHeaderName: expectedVersion,
   };
 
   Future<Result<ApiSuccess>> _send(

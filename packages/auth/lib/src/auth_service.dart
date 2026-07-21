@@ -85,7 +85,13 @@ AuthState authStateFor(
   // genuinely session-ending on web and is reported as an expiry.
   ClientErrorConsequence.csrfFailed => AuthState.sessionExpired(cause: cause),
   // Everything below is TRANSIENT. None of these ends a session.
+  //
+  // `staleWrite` belongs here and nowhere else: a conflicting edit says
+  // something about ONE RECORD, never about the caller's session or their
+  // right to be in this tenant. Treating it as session-ending would sign a
+  // user out because a colleague saved first (threat T-12).
   ClientErrorConsequence.validationFailed ||
+  ClientErrorConsequence.staleWrite ||
   ClientErrorConsequence.rateLimited ||
   ClientErrorConsequence.serviceUnavailable ||
   ClientErrorConsequence.networkUnavailable ||
