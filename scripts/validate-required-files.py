@@ -67,7 +67,7 @@ EXPECTED_RULE_COUNT = 51
 # count must exist — so it can never be used to skip a record.
 #
 # Raised 27 -> 30 at Master Source 1.4.1 for DEC-0028, DEC-0029, and DEC-0030.
-EXPECTED_DECISION_COUNT = 30
+EXPECTED_DECISION_COUNT = 31
 
 
 def main() -> int:

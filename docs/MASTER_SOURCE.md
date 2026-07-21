@@ -1558,10 +1558,10 @@ must be claims the software can substantiate — the honesty rule (§3.1) applie
 
 ## 31. Decision records
 
-Thirty decisions are locked. Fifteen were locked at the 1.0.0 baseline; DEC-0016 was added at
+Thirty-one decisions are locked. Fifteen were locked at the 1.0.0 baseline; DEC-0016 was added at
 version 1.0.1, DEC-0017 at version 1.2.0, DEC-0018 … DEC-0023 at version 1.3.0, DEC-0024 … DEC-0027 at
-version 1.4.0, and DEC-0028 … DEC-0030 at version 1.4.1. DEC-0001 … DEC-0023 carry date
-**19 July 2026**; DEC-0024 … DEC-0027 carry **20 July 2026**; DEC-0028 … DEC-0030 carry
+version 1.4.0, and DEC-0028 … DEC-0031 at version 1.4.1. DEC-0001 … DEC-0023 carry date
+**19 July 2026**; DEC-0024 … DEC-0027 carry **20 July 2026**; DEC-0028 … DEC-0031 carry
 **21 July 2026**. All carry status **ACCEPTED**. Each has a full record in
 [`decisions/`](decisions/).
 
@@ -1605,6 +1605,7 @@ without being listed here — or listed here without existing — fails closed.
 | DEC-0028 | Step 4 Scope Resolution and Canonical Authorization | ACCEPTED | [DEC-0028](decisions/DEC-0028-step-04-scope-resolution-and-canonical-authorization.md) |
 | DEC-0029 | Canonical Status Drift Remediation and Cross-Document Validation | ACCEPTED | [DEC-0029](decisions/DEC-0029-canonical-status-drift-remediation-and-cross-document-validation.md) |
 | DEC-0030 | Step 4 Runtime Scope Transition | ACCEPTED | [DEC-0030](decisions/DEC-0030-step-04-runtime-scope-transition.md) |
+| DEC-0031 | Step 4 Traceability Boundaries | ACCEPTED | [DEC-0031](decisions/DEC-0031-step-04-traceability-boundaries.md) |
 
 ### 31.1 Decision record rules
 
@@ -1633,7 +1634,8 @@ semantic versioning.
 **1.4.1 — 21 July 2026 — canonical status drift remediation and Step 4 start.**
 
 Added DEC-0028 (Step 4 scope resolution and canonical authorization), DEC-0029 (canonical status drift
-remediation and cross-document validation), and DEC-0030 (Step 4 runtime scope transition). Classified
+remediation and cross-document validation), DEC-0030 (Step 4 runtime scope transition), and DEC-0031
+(Step 4 traceability boundaries). Classified
 **PATCH** under §1.2: no product decision, pricing figure, roadmap number, hierarchy level, reminder
 stage, or architectural lock changes. Statements of fact are corrected to match evidence that already
 existed, and one step status advances through the ordinary canonical process.
