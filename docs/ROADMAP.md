@@ -110,7 +110,14 @@ component, and a wireframe is not a screen.
 
 ## Step 3 — Runtime, Authentication, Multi-Tenancy, and RBAC
 
-**Status: PLANNED**
+**Status: GO WITH ACCEPTED DEVIATION**
+
+Complete and GO-tagged (`aish-laundry-step-03-runtime-auth-multitenancy-rbac-v1.4.0-go`,
+peeling to `0e2554338812b05eba8411afeb099212b05f9761`). Closure evidence:
+[`evidence/step-03/STEP-03-GO-CLOSURE.md`](../evidence/step-03/STEP-03-GO-CLOSURE.md).
+Accepted deviations: DEC-0017 (single-maintainer, no independent human review),
+DEC-0026 (feature-branch 38/38; `main`/fresh-clone visible exit-78 SKIP by
+owner-approved branch/path pin), and debug-only runtime with no deployment.
 
 The first Step permitted to create a runtime.
 

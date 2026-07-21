@@ -34,7 +34,7 @@ date **19 July 2026**).
 | Step 0 — Master Source and Governance | **GO** (owner-conferred 19 July 2026, with a recorded deviation) |
 | Step 1 — Product Requirement and Domain Model | **GO** (owner-conferred 19 July 2026, with a recorded deviation) |
 | Step 2 — Design System and UX Foundation | **GO** (owner-conferred 20 July 2026, with four recorded deviations) |
-| Step 3 — Runtime, Authentication, Multi-Tenancy, and RBAC | **IN PROGRESS** |
+| Step 3 — Runtime, Authentication, Multi-Tenancy, and RBAC | **GO WITH ACCEPTED DEVIATION** (owner-conferred, GO-tagged) |
 | Step 4–14 | **PLANNED** |
 | All product business features | **NOT IMPLEMENTED** |
 | Backend runtime | **PRESENT — STEP 3 FOUNDATION ONLY** |
@@ -45,14 +45,21 @@ date **19 July 2026**).
 | Application CI | **ACTIVE** |
 | UAT | **NOT STARTED** |
 
-This table previously read Step 3–14 `PLANNED`, backend runtime `ABSENT`, Flutter workspace `ABSENT`,
-and Application CI `NOT APPLICABLE`. Those statements became false when DEC-0024 authorised Step 3
-runtime and runtime was actually committed; they are corrected here under DEC-0027. **The correction
-does not advance Step 3.** Runtime existing is not runtime working, and `classify` passing is not a
-test result (Rule 36, hard rule 6). Step 3 remains `IN PROGRESS` and its `GO` is the owner's to
-confer. **Step 4+ laundry business functionality — POS, orders, payments, production, tracking,
-delivery, reminders, finance, subscription — remains `NOT IMPLEMENTED`** regardless of how much
-foundation runtime exists (Rule 42).
+This table previously read Step 3 `IN PROGRESS`, backend runtime `ABSENT`, Flutter workspace `ABSENT`,
+and Application CI `NOT APPLICABLE`. The absence claims were corrected under DEC-0027 when runtime was
+committed; Step 3 has since been built, verified, merged, and **owner-conferred `GO WITH ACCEPTED
+DEVIATION`**, and GO-tagged
+`aish-laundry-step-03-runtime-auth-multitenancy-rbac-v1.4.0-go` (peeling to
+`0e2554338812b05eba8411afeb099212b05f9761`, **not** the later post-tag evidence commit
+`ad31473da8376e91b67449bf7820ab9877ea8a4a`; see `evidence/step-03/STEP-03-GO-CLOSURE.md`). The tag is
+immutable. **`GO WITH ACCEPTED DEVIATION` is not an unqualified `GO`:** the deviations are DEC-0017
+(single-maintainer; no independent human review) and DEC-0026 (scaffold-authorization 38/38 only on a
+Step 3 feature branch; a visible exit-78 SKIP on `main`/fresh clone, never PASS), plus debug-only
+runtime with no deployment. **Step 3 `GO` does not start Step 4 and does not authorise deployment.**
+**Step 4+ laundry business functionality — POS, orders, payments, production, tracking, delivery,
+reminders, finance, subscription — remains `NOT IMPLEMENTED`** regardless of how much foundation
+runtime exists (Rule 42), and Step 4 begins only through a separately authorised canonical Step 4
+process. Deployment remains `ABSENT`.
 
 Repository visibility is **PUBLIC** by deliberate owner decision (AMENDMENT-0001), locked as an
 **accepted deviation** from a canonical desired **PRIVATE** by DEC-0016. Never describe this repository

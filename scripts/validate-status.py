@@ -153,6 +153,121 @@ def parse_canonical_state(text: str) -> tuple[dict[int, str], list[str]]:
     return state, errors
 
 
+# ---------------------------------------------------------------------------
+# Step 3 GO-tag closure facts (committed constants).
+#
+# These are the canonical truth the STATUS.md STEP_03_CLOSURE_* block must match.
+# Keeping them in the validator, separate from the document, is the anti-drift
+# mechanism: a hand-edit to STATUS.md that mis-states the tag target, or that
+# confuses the post-tag EVIDENCE commit with the tag's true target, fails here.
+#
+# The tag PEELS to the RUNTIME merge SHA, never to the EVIDENCE merge SHA. That
+# distinction is the whole point of the block — a tag silently re-pointed at the
+# evidence commit would be a moved-tag incident, and this catches its paper trail.
+# ---------------------------------------------------------------------------
+STEP3_GO_TAG = "aish-laundry-step-03-runtime-auth-multitenancy-rbac-v1.4.0-go"
+STEP3_TAG_OBJECT = "8b37230ed8df8da343a1546fd949d8a41329fbdf"
+STEP3_RUNTIME_MERGE_SHA = "0e2554338812b05eba8411afeb099212b05f9761"
+STEP3_EVIDENCE_MERGE_SHA = "ad31473da8376e91b67449bf7820ab9877ea8a4a"
+
+CLOSURE_BEGIN = "<!-- STEP_03_CLOSURE_BEGIN -->"
+CLOSURE_END = "<!-- STEP_03_CLOSURE_END -->"
+CLOSURE_LINE = re.compile(r"^([A-Z0-9_]+)=(.+)$")
+
+
+def parse_closure_block(text: str) -> tuple[dict[str, str], list[str]]:
+    """Parse the STEP_03_CLOSURE_* block. FAILS CLOSED on any structural fault."""
+    begins, ends = text.count(CLOSURE_BEGIN), text.count(CLOSURE_END)
+    if begins == 0 or ends == 0:
+        return {}, [f"closure block missing ({CLOSURE_BEGIN} x{begins}, {CLOSURE_END} x{ends})"]
+    if begins != 1 or ends != 1:
+        return {}, [f"exactly one closure block required (found {begins} begin, {ends} end)"]
+    body = text.split(CLOSURE_BEGIN, 1)[1].split(CLOSURE_END, 1)[0]
+    kv: dict[str, str] = {}
+    errors: list[str] = []
+    for raw in body.splitlines():
+        line = raw.strip()
+        if not line or line.startswith("<!--") or line.startswith("-->"):
+            continue
+        m = CLOSURE_LINE.match(line)
+        if not m:
+            errors.append(f"unparseable closure line: {line!r}")
+            continue
+        key, val = m.group(1), m.group(2).strip()
+        if key in kv:
+            errors.append(f"duplicate closure key {key}")
+        kv[key] = val
+    return kv, errors
+
+
+def check_step3_closure(root, rep) -> None:
+    """The Step 3 GO-tag closure block must match the committed constants and be
+    internally consistent; when a local git tag exists, the real tag must match."""
+    rep.info("--- Step 3 GO-tag closure (status advancement) ---")
+    text = read_text(root / STATUS)
+    kv, errors = parse_closure_block(text)
+    for e in errors:
+        rep.fail(f"closure block: {e}")
+    if errors:
+        return
+
+    expected = {
+        "STEP_03_CLOSURE_CLASSIFICATION": "GO_WITH_ACCEPTED_DEVIATION",
+        "STEP_03_GO_TAG": STEP3_GO_TAG,
+        "STEP_03_GO_TAG_OBJECT": STEP3_TAG_OBJECT,
+        "STEP_03_RUNTIME_MERGE_SHA": STEP3_RUNTIME_MERGE_SHA,
+        "STEP_03_GO_TAG_PEELED": STEP3_RUNTIME_MERGE_SHA,
+        "STEP_03_EVIDENCE_MERGE_SHA": STEP3_EVIDENCE_MERGE_SHA,
+        "DEPLOYMENT": "ABSENT",
+    }
+    for key, want in expected.items():
+        got = kv.get(key)
+        rep.check(got == want, f"closure {key} == {want!r} (found {got!r})")
+
+    # The invariant that matters most: the tag targets the RUNTIME merge, and the
+    # evidence commit is a DIFFERENT, later SHA that the tag must never point to.
+    peeled = kv.get("STEP_03_GO_TAG_PEELED")
+    evidence = kv.get("STEP_03_EVIDENCE_MERGE_SHA")
+    rep.check(peeled == STEP3_RUNTIME_MERGE_SHA,
+              "GO tag peels to the runtime merge SHA")
+    rep.check(peeled != evidence,
+              "GO tag peeled SHA is NOT the post-tag evidence SHA")
+    rep.check(STEP3_RUNTIME_MERGE_SHA != STEP3_EVIDENCE_MERGE_SHA,
+              "runtime merge SHA and evidence merge SHA are distinct")
+
+    # The accepted deviations must stay VISIBLE. `GO WITH ACCEPTED DEVIATION` is
+    # not an unqualified GO, and silently dropping DEC-0017 or DEC-0026 from the
+    # status narrative would misrepresent the closure. Both must be named.
+    for dec in ("DEC-0017", "DEC-0026"):
+        rep.check(dec in text,
+                  f"STATUS.md keeps the accepted-deviation reference {dec} visible")
+
+    # Optional live verification: only when a real local tag is present. A fresh
+    # clone without tags fetched must not fail on this, so absence is not failure.
+    git_dir = root / ".git"
+    if not git_dir.exists():
+        return
+    try:
+        import subprocess
+        obj = subprocess.run(
+            ["git", "-C", str(root), "rev-parse", STEP3_GO_TAG],
+            capture_output=True, text=True,
+        )
+        peeled_real = subprocess.run(
+            ["git", "-C", str(root), "rev-parse", f"{STEP3_GO_TAG}^{{commit}}"],
+            capture_output=True, text=True,
+        )
+    except Exception:
+        return
+    if obj.returncode != 0 or peeled_real.returncode != 0:
+        rep.info("Step 3 GO tag not present in this checkout; skipping live tag check")
+        return
+    rep.check(obj.stdout.strip() == STEP3_TAG_OBJECT,
+              "real local tag object matches the recorded tag object")
+    rep.check(peeled_real.stdout.strip() == STEP3_RUNTIME_MERGE_SHA,
+              "real local tag peels to the recorded runtime merge SHA")
+
+
 def check_runtime_matches_reality(root, rep) -> None:
     """Cross-check runtime claims against the filesystem.
 
@@ -200,6 +315,7 @@ def check_runtime_matches_reality(root, rep) -> None:
 CANONICAL_STATUS_DOCS = [
     "CLAUDE.md",
     ".claude/rules/49-current-step-03-status.md",
+    ".claude/rules/15-current-product-status.md",
 ]
 
 # claim label -> (regex over the document, predicate over the repo)
@@ -250,8 +366,14 @@ def check_cross_document_consistency(root, rep) -> None:
         # A later step must not be declared started in an enforcement layer
         # either. STATUS.md is checked for this above; the derived documents are
         # checked here so a forward leak cannot hide in one of them.
+        #
+        # Column-count-agnostic: a Step 4 table row carries a working status in
+        # its LAST cell whether the table is `| Step 4 — Title | Status |` (two
+        # cells) or `| Step 4 | Title | Status |` (three). The earlier form matched
+        # exactly one middle cell and silently missed the three-column layout.
         leaked = re.search(
-            r"\|\s*steps?\s*4\b[^|\n]*\|[^|\n]*\b(in progress|tested|watch|go)\b", low
+            r"\|\s*steps?\s*4\b(?:[^|\n]*\|)+\s*(in progress|tested|watch|go)\b",
+            low,
         )
         rep.check(
             leaked is None,
@@ -415,8 +537,13 @@ def main() -> int:
         rep.check(not missing,
                   f"canonical state declares every step 00-14 (missing: {missing})")
 
-        rep.check(state.get(3) == "IN_PROGRESS",
-                  f"STEP_03_STATUS is IN_PROGRESS (found {state.get(3)!r})")
+        # Step 3 is GO WITH ACCEPTED DEVIATION and GO-tagged. Once the immutable
+        # GO tag exists, PLANNED or IN_PROGRESS here is a FALSE UNDERSTATEMENT —
+        # exactly the drift, in the opposite direction, that DEC-0027 caught when
+        # this file still forced IN_PROGRESS after runtime shipped. It fails
+        # closed on anything but GO.
+        rep.check(state.get(3) == "GO",
+                  f"STEP_03_STATUS is GO after the Step 3 GO tag (found {state.get(3)!r})")
 
         later_bad = {n: s for n, s in state.items() if n >= 4 and s != "PLANNED"}
         rep.check(not later_bad,
@@ -451,6 +578,7 @@ def main() -> int:
     # --- claims cross-checked against the filesystem ----------------------
     check_runtime_matches_reality(root, rep)
     check_cross_document_consistency(root, rep)
+    check_step3_closure(root, rep)
 
     return rep.finish()
 

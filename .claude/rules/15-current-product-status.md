@@ -15,7 +15,7 @@ Master Source version **1.4.0**, baseline date **19 July 2026**.
 | Step 0 — Master Source and Governance | **GO** (owner-conferred 19 July 2026, with a recorded deviation) |
 | Step 1 — Product Requirement and Domain Model | **GO** (owner-conferred 19 July 2026, with a recorded deviation) |
 | Step 2 — Design System and UX Foundation | **GO** (owner-conferred 20 July 2026, with four recorded deviations) |
-| Step 3 — Runtime, Authentication, Multi-Tenancy, and RBAC | **PLANNED** |
+| Step 3 — Runtime, Authentication, Multi-Tenancy, and RBAC | **GO WITH ACCEPTED DEVIATION** |
 | Step 4 — Laundry Master Data | **PLANNED** |
 | Step 5 — POS, Order, and Payment Foundation | **PLANNED** |
 | Step 6 — Production Operations | **PLANNED** |
@@ -27,36 +27,39 @@ Master Source version **1.4.0**, baseline date **19 July 2026**.
 | Step 12 — Subscription and Platform Administration | **PLANNED** |
 | Step 13 — Security, Performance, Backup, and Recovery | **PLANNED** |
 | Step 14 — Pilot and Commercial Launch | **PLANNED** |
-| **All product features** | **NOT IMPLEMENTED** |
-| **Backend runtime** | **ABSENT** |
-| **Flutter workspace** | **ABSENT** |
+| **All product business features** | **NOT IMPLEMENTED** |
+| **Backend runtime** | **PRESENT — STEP 3 FOUNDATION ONLY** |
+| **Flutter workspace** | **PRESENT** |
 | **Deployment** | **ABSENT** |
-| **Application CI** | **NOT APPLICABLE** |
+| **Application CI** | **ACTIVE** |
 | **UAT** | **NOT STARTED** |
 
 ## What this means concretely
 
-- There is **no** Laravel application, `composer.json`, `artisan`, database, schema, migration, or
-  API endpoint. Backend runtime is **ABSENT**.
-- There is **no** Flutter or Dart project, `pubspec.yaml`, screen, widget, or design system
-  implementation. Flutter workspace is **ABSENT**.
-- There is **no** authentication, tenancy implementation, POS, payment, production workflow, tracking
-  portal, WhatsApp integration, pickup/delivery, unclaimed-laundry reminder, reporting, or
-  subscription code. All product features are **NOT IMPLEMENTED**.
-- Nothing is deployed anywhere. Deployment is **ABSENT**.
-- There is no application build or test pipeline; Step 0 automation is governance validation only.
-  Application CI is **NOT APPLICABLE**.
+- Step 3 reached **GO WITH ACCEPTED DEVIATION** and is GO-tagged
+  (`aish-laundry-step-03-runtime-auth-multitenancy-rbac-v1.4.0-go`, peeling to
+  `0e2554338812b05eba8411afeb099212b05f9761`). See `docs/STATUS.md` and
+  `evidence/step-03/STEP-03-GO-CLOSURE.md`.
+- The Laravel backend, PostgreSQL, and Redis foundation **exist** (auth, tenancy, RBAC, audit only);
+  the Flutter workspace and three application shells **exist**. This is Step 3 **foundation** —
+  `composer.json`, `pubspec.yaml`, migrations, and runtime CI are present and verified.
+- **All Step 4+ product business features remain `NOT IMPLEMENTED`** — POS, orders, payments,
+  production, tracking, WhatsApp, pickup/delivery, unclaimed-laundry reminders, reporting, and
+  subscription. Runtime foundation existing is never the same as a product feature existing (Rule 42).
+- Nothing is deployed anywhere. Deployment is **ABSENT**, and Step 3 `GO` does **not** authorise it.
+- Application CI is **ACTIVE**: the Step 3 runtime workflows run on every change to `main`.
 - No user acceptance testing has occurred. UAT is **NOT STARTED**.
 
 ## What does exist
 
-Governance and documentation artifacts only: the Master Source, decision records, this rule set,
-`CLAUDE.md`, the destructive-operations guard, governance validation scripts, and placeholder
-directory structure.
+Governance and documentation artifacts, **plus the Step 3 runtime foundation**: the Master Source,
+decision records, this rule set, `CLAUDE.md`, the destructive-operations guard, governance and runtime
+validation scripts, the Laravel auth/tenancy/RBAC backend, the PostgreSQL and Redis development
+foundation, the Flutter workspace and three application shells, and the Step 3 evidence pack.
 
-**Runtime folders (`apps/`, `backend/`, `packages/`, `infrastructure/`) contain only `README` or
-`.gitkeep` files. An empty folder is never an implemented feature and must never be described as
-one.**
+**Step 4+ runtime does not exist. The `apps/`, `backend/`, and `packages/` roots now hold real Step 3
+foundation code; they must never be described as holding Step 4 business features, which remain
+`NOT IMPLEMENTED`. An empty or foundation-only folder is never an implemented product feature.**
 
 ## Repository facts
 

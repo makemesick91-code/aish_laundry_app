@@ -15,7 +15,7 @@ Canonical source: [`MASTER_SOURCE.md`](MASTER_SOURCE.md)
 | Step 0 | Master Source and Governance | GO WITH ACCEPTED DEVIATION |
 | Step 1 | Product Requirement and Domain Model | GO WITH ACCEPTED DEVIATION |
 | Step 2 | Design System and UX Foundation | GO WITH ACCEPTED DEVIATION |
-| Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | IN PROGRESS |
+| Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | GO WITH ACCEPTED DEVIATION |
 | Step 4 | Laundry Master Data | PLANNED |
 | Step 5 | POS, Order, and Payment Foundation | PLANNED |
 | Step 6 | Production Operations | PLANNED |
@@ -163,10 +163,32 @@ plus the Step 2 design open questions in
 [`ux/UX_OPEN_QUESTIONS.md`](ux/UX_OPEN_QUESTIONS.md). None was closed by
 inventing a product decision.
 
-**Step 3 is IN PROGRESS.** Runtime exists and is authorised by
-[DEC-0024](decisions/DEC-0024-step-3-runtime-introduction-and-runtime-scope-guard-transition.md).
-Runtime existing is not runtime working: see §2 for exactly what is verified and
-what is not.
+**Step 3 is COMPLETE — GO WITH ACCEPTED DEVIATION, and GO-tagged.** Runtime was
+authorised by
+[DEC-0024](decisions/DEC-0024-step-3-runtime-introduction-and-runtime-scope-guard-transition.md),
+built, verified, merged to `main`, and the owner conferred `GO` against exact-SHA
+evidence. The immutable annotated tag
+`aish-laundry-step-03-runtime-auth-multitenancy-rbac-v1.4.0-go` (object
+`8b37230ed8df8da343a1546fd949d8a41329fbdf`) peels to the runtime merge SHA
+`0e2554338812b05eba8411afeb099212b05f9761` — **not** to the later post-tag
+evidence commit `ad31473da8376e91b67449bf7820ab9877ea8a4a`. The full closure
+evidence is [`evidence/step-03/STEP-03-GO-CLOSURE.md`](../evidence/step-03/STEP-03-GO-CLOSURE.md).
+
+`GO WITH ACCEPTED DEVIATION` is not an unqualified `GO`. The deviations accepted
+at Step 3 closure are **DEC-0017** (single-maintainer governance; no independent
+human review — compensating controls are not equivalent to peer review),
+**DEC-0026** (the scaffold-authorization suite runs 38/38 only on a Step 3
+feature branch; on `main` and in a fresh clone it is a visible exit-78 SKIP by
+owner-approved branch/path pin, never represented as PASS), and the runtime
+limitations recorded in §2 — Android artefacts are debug-only, and there is no
+signing, no device execution, no performance or accessibility audit, no UAT, and
+no deployment. Runtime existing and passing its gates is not runtime deployed:
+see §2 for exactly what is verified and what is not.
+
+**Step 3 GO does not start Step 4 and does not authorise deployment.** Step 4
+remains `PLANNED / NOT STARTED`; deployment remains `ABSENT`. Any Step 4 work
+begins only through a separately authorised canonical Step 4 process, and the
+Step 3 tag never moves.
 
 ---
 
@@ -205,7 +227,7 @@ block does not by itself advance a step.
 STEP_00_STATUS=GO
 STEP_01_STATUS=GO
 STEP_02_STATUS=GO
-STEP_03_STATUS=IN_PROGRESS
+STEP_03_STATUS=GO
 STEP_04_STATUS=PLANNED
 STEP_05_STATUS=PLANNED
 STEP_06_STATUS=PLANNED
@@ -218,6 +240,26 @@ STEP_12_STATUS=PLANNED
 STEP_13_STATUS=PLANNED
 STEP_14_STATUS=PLANNED
 <!-- CANONICAL_STEP_STATE_END -->
+
+<!--
+Step 3 closure facts, machine-readable. `scripts/validate-status.py` checks these
+against its own committed constants and for internal consistency: the GO tag must
+peel to the RUNTIME merge SHA, never to the post-tag EVIDENCE SHA, and the two
+must differ. When a `.git` tag is present locally the validator additionally
+verifies the real tag object and peeled commit match these values. FAILS CLOSED.
+STEP_03_STATUS=GO above without this block, or this block disagreeing with it, is
+a failure. Editing these lines never moves the real immutable tag.
+-->
+<!-- STEP_03_CLOSURE_BEGIN -->
+STEP_03_CLOSURE_CLASSIFICATION=GO_WITH_ACCEPTED_DEVIATION
+STEP_03_RUNTIME_MERGE_SHA=0e2554338812b05eba8411afeb099212b05f9761
+STEP_03_EVIDENCE_MERGE_SHA=ad31473da8376e91b67449bf7820ab9877ea8a4a
+STEP_03_GO_TAG=aish-laundry-step-03-runtime-auth-multitenancy-rbac-v1.4.0-go
+STEP_03_GO_TAG_OBJECT=8b37230ed8df8da343a1546fd949d8a41329fbdf
+STEP_03_GO_TAG_PEELED=0e2554338812b05eba8411afeb099212b05f9761
+STEP_04_STATUS_NOTE=PLANNED_NOT_STARTED
+DEPLOYMENT=ABSENT
+<!-- STEP_03_CLOSURE_END -->
 
 ---
 
