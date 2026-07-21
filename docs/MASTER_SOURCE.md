@@ -1,6 +1,6 @@
 # Aish Laundry App — Master Source
 
-**Document version: 1.4.1**
+**Document version: 1.4.2**
 **Baseline date: 19 July 2026**
 
 Owner: Aish Tech Solution
@@ -1558,9 +1558,9 @@ must be claims the software can substantiate — the honesty rule (§3.1) applie
 
 ## 31. Decision records
 
-Thirty-one decisions are locked. Fifteen were locked at the 1.0.0 baseline; DEC-0016 was added at
+Thirty-two decisions are locked. Fifteen were locked at the 1.0.0 baseline; DEC-0016 was added at
 version 1.0.1, DEC-0017 at version 1.2.0, DEC-0018 … DEC-0023 at version 1.3.0, DEC-0024 … DEC-0027 at
-version 1.4.0, and DEC-0028 … DEC-0031 at version 1.4.1. DEC-0001 … DEC-0023 carry date
+version 1.4.0, DEC-0028 … DEC-0031 at version 1.4.1, and DEC-0032 at version 1.4.2. DEC-0001 … DEC-0023 carry date
 **19 July 2026**; DEC-0024 … DEC-0027 carry **20 July 2026**; DEC-0028 … DEC-0031 carry
 **21 July 2026**. All carry status **ACCEPTED**. Each has a full record in
 [`decisions/`](decisions/).
@@ -1606,6 +1606,7 @@ without being listed here — or listed here without existing — fails closed.
 | DEC-0029 | Canonical Status Drift Remediation and Cross-Document Validation | ACCEPTED | [DEC-0029](decisions/DEC-0029-canonical-status-drift-remediation-and-cross-document-validation.md) |
 | DEC-0030 | Step 4 Runtime Scope Transition | ACCEPTED | [DEC-0030](decisions/DEC-0030-step-04-runtime-scope-transition.md) |
 | DEC-0031 | Step 4 Traceability Boundaries | ACCEPTED | [DEC-0031](decisions/DEC-0031-step-04-traceability-boundaries.md) |
+| DEC-0032 | Step 3 Post-GO Corrective Remediation: Runtime Authentication Wiring | ACCEPTED | [DEC-0032](decisions/DEC-0032-step-03-post-go-corrective-auth-runtime-wiring.md) |
 
 ### 31.1 Decision record rules
 
@@ -1628,6 +1629,28 @@ Mapping from foundation area to rule file, decision record, and validator:
 
 The canonical changelog is [`CHANGELOG.md`](CHANGELOG.md), maintained in Keep a Changelog format with
 semantic versioning.
+
+### 32.00000 Version 1.4.2
+
+**1.4.2 — 22 July 2026 — Step 3 post-GO corrective remediation recorded.**
+
+Added DEC-0032 (Step 3 post-GO corrective remediation: runtime authentication wiring). Classified
+**PATCH** under §1.2: no product decision, pricing figure, roadmap number, hierarchy level, reminder
+stage, or architectural lock changes. The only edit is the §31 index entry that
+`scripts/validate-decisions.py` requires for every decision record on disk, plus this changelog note.
+
+**What DEC-0032 records.** `AuthService` had exactly one implementation in the tree — the test double
+in `packages/testing` — and all three Flutter applications declared their production provider as a
+throwing stub with no production override. Every real launch threw on the first frame that read it, so
+no surface could authenticate against a real backend. The defect is classified as an internal
+pre-existing Step 3 runtime defect at `HIGH — REAL RUNTIME PATH UNAVAILABLE`, remediated after `GO` on
+a separate branch and merged through PR #19.
+
+**The Step 3 `GO` determination and its tag are unchanged.** The immutable tag
+`aish-laundry-step-03-runtime-auth-multitenancy-rbac-v1.4.0-go` was not moved, deleted, recreated, or
+retargeted; it still peels to `0e2554338812b05eba8411afeb099212b05f9761` and it does **not** cover the
+correction. Step 3 remains `GO WITH ACCEPTED DEVIATION`. Nothing here advances a step status,
+authorises deployment, or starts Step 4.
 
 ### 32.00000 Version 1.4.1
 
@@ -2036,4 +2059,4 @@ was met.
 
 ---
 
-*End of Master Source, version 1.4.1, baseline date 19 July 2026.*
+*End of Master Source, version 1.4.2, baseline date 19 July 2026.*
