@@ -1,9 +1,35 @@
-# DEC-0032 — Step 3 Post-GO Corrective Remediation: Runtime Authentication Wiring
+# Step 3 Post-GO Corrective Remediation: Runtime Authentication Wiring
 
-**ID:** DEC-0032
-**Title:** Step 3 Post-GO Corrective Remediation: Runtime Authentication Wiring
-**Status:** ACCEPTED
+**Type:** Corrective classification and rationale (evidence artefact)
+**Status:** RECORDED — decision record DEFERRED, see "Decision-record numbering" below
 **Date:** 21 July 2026
+
+> **This is not a decision record.** It carries the classification, rationale and
+> verification for a corrective bug fix so that none of it is lost, and so the
+> reasoning is reviewable at the SHA it was produced from. It introduces no
+> product decision and changes no product decision.
+
+## Decision-record numbering
+
+A decision record for this remediation is **deferred deliberately**, not omitted.
+
+`scripts/validate-decisions.py` requires a CONTIGUOUS range of decision IDs and
+pins `LAST_DEC = 27` on `main`. DEC-0028 through DEC-0031 are accepted records
+that exist only on `feature/step-04-laundry-master-data` and have not yet
+merged. That leaves no ID this branch can use without one of three costs:
+
+  * taking DEC-0028 here would collide when PR #18 lands, forcing four already
+    accepted records to be renumbered and every citation in Rule 49, Rule 50,
+    `STATUS.md` and `ROADMAP.md` to be rewritten — and a decision ID is meant to
+    be permanent;
+  * taking DEC-0032 here would leave IDs 28–31 absent, which the validator
+    treats as a hard failure, so `main` would go red until PR #18 merged;
+  * editing the validator to tolerate a gap would weaken a governance gate to
+    unblock work, which is a breach in itself.
+
+The owner elected to defer. Once PR #18 has landed its records, this content is
+promoted to **DEC-0032** with no ID reused, no accepted record renumbered, and
+no validator weakened.
 
 ---
 
@@ -176,11 +202,11 @@ introduces **no new product requirement** and no new product decision.
 - Rule 47 — validators tested adversarially before being relied upon as gates.
 - Rule 49 — Step 3 status snapshot; this record adds the post-GO corrective state.
 
-## Supersession policy
+## Promotion and supersession policy
 
-This record is superseded only by a later accepted decision record that names it explicitly. It does
-**not** supersede DEC-0024, DEC-0025, or DEC-0026, and it does not alter the Step 3 `GO` determination
-or its tag.
+This artefact is promoted to DEC-0032 once decision IDs 28–31 have merged to `main`. Until then it
+carries no decision-record authority and must not be cited as one. It does **not** supersede DEC-0024,
+DEC-0025, or DEC-0026, and it does not alter the Step 3 `GO` determination or its tag.
 
 Widening what the authentication runtime may do — a new credential transport, a new token storage
 mechanism, a second authentication framework, or any relaxation of server-side verification — requires
