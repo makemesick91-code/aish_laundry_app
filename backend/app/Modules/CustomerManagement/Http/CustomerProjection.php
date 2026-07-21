@@ -7,6 +7,7 @@ namespace App\Modules\CustomerManagement\Http;
 use App\Modules\CustomerManagement\Models\Customer;
 use App\Modules\CustomerManagement\Models\CustomerAddress;
 use App\Modules\CustomerManagement\Support\PhoneNumber;
+use App\Modules\SharedKernel\Http\OptimisticConcurrency;
 
 /**
  * THE ALLOW-LIST PROJECTION for customer data (Rule 32, hard rule 7).
@@ -51,6 +52,13 @@ final class CustomerProjection
             'status' => $customer->status,
             'created_at' => $customer->created_at?->toIso8601String(),
             'updated_at' => $customer->updated_at?->toIso8601String(),
+
+            // The optimistic-concurrency token a client echoes back when it
+            // edits (threat T-12). Opaque: compare it and return it, never parse
+            // it. Note it is NOT `updated_at`, which is second-precision here
+            // and therefore blind to two edits in the same second — see
+            // `SharedKernel\Concerns\HasOptimisticVersion`.
+            'version' => OptimisticConcurrency::versionOf($customer),
         ];
     }
 

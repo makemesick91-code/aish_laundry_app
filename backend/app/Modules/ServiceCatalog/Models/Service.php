@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\ServiceCatalog\Models;
 
+use App\Modules\SharedKernel\Concerns\HasOptimisticVersion;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -28,6 +29,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Service extends Model
 {
     use HasFactory;
+    use HasOptimisticVersion;
     use HasUuids;
     use SoftDeletes;
 

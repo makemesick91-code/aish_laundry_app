@@ -9,6 +9,8 @@ use App\Modules\Identity\Http\Controllers\PasswordResetController;
 use App\Modules\Identity\Http\Controllers\SessionController;
 use App\Modules\Organization\Http\Controllers\OutletMasterDataController;
 use App\Modules\Organization\Http\Controllers\StaffAssignmentController;
+use App\Modules\ServiceCatalog\Http\Controllers\PriceListController;
+use App\Modules\ServiceCatalog\Http\Controllers\ServiceCatalogController;
 use App\Modules\Tenancy\Http\Controllers\ContextController;
 use App\Modules\Tenancy\Http\Controllers\MembershipController;
 use Illuminate\Support\Facades\Route;
@@ -200,4 +202,81 @@ Route::middleware(['auth.api', 'tenant.context'])->group(function (): void {
         ->name('api.v1.staff.roles.assign');
     Route::delete('staff/{membership}/roles/{role}', [StaffAssignmentController::class, 'removeRole'])
         ->name('api.v1.staff.roles.remove');
+
+    // -----------------------------------------------------------------------
+    // Service catalogue (FR-031 … FR-033, FR-040).
+    //
+    // The catalogue says WHAT is sold. What it COSTS is on a per-brand price
+    // list below, because FR-034 requires the same service to be priced
+    // differently per brand and FR-040 requires exactly one canonical source.
+    //
+    // No destroy route: a service a future order references must stay
+    // resolvable, so `is_active: false` replaces deletion (T-18).
+    // -----------------------------------------------------------------------
+    Route::get('service-categories', [ServiceCatalogController::class, 'categories'])
+        ->name('api.v1.service-categories.index');
+    Route::post('service-categories', [ServiceCatalogController::class, 'storeCategory'])
+        ->name('api.v1.service-categories.store');
+    Route::patch('service-categories/{category}', [ServiceCatalogController::class, 'updateCategory'])
+        ->name('api.v1.service-categories.update');
+
+    Route::get('services', [ServiceCatalogController::class, 'services'])
+        ->name('api.v1.services.index');
+    Route::post('services', [ServiceCatalogController::class, 'storeService'])
+        ->name('api.v1.services.store');
+    Route::get('services/{service}', [ServiceCatalogController::class, 'showService'])
+        ->name('api.v1.services.show');
+    Route::patch('services/{service}', [ServiceCatalogController::class, 'updateService'])
+        ->name('api.v1.services.update');
+
+    Route::get('service-packages', [ServiceCatalogController::class, 'packages'])
+        ->name('api.v1.service-packages.index');
+    Route::post('service-packages', [ServiceCatalogController::class, 'storePackage'])
+        ->name('api.v1.service-packages.store');
+    Route::patch('service-packages/{package}', [ServiceCatalogController::class, 'updatePackage'])
+        ->name('api.v1.service-packages.update');
+
+    // PUT, and a wholesale replacement: a composition is only meaningful as a
+    // whole, and patching it line by line leaves the package transiently
+    // describing something the tenant never intended.
+    Route::put('service-packages/{package}/items', [ServiceCatalogController::class, 'setPackageItems'])
+        ->name('api.v1.service-packages.items.set');
+
+    // FR-033 — CATALOGUE ENTRIES ONLY. Applying an add-on to an order line is
+    // Step 5, and no route here links an add-on to anything orderable.
+    Route::get('service-addons', [ServiceCatalogController::class, 'addons'])
+        ->name('api.v1.service-addons.index');
+    Route::post('service-addons', [ServiceCatalogController::class, 'storeAddon'])
+        ->name('api.v1.service-addons.store');
+    Route::patch('service-addons/{addon}', [ServiceCatalogController::class, 'updateAddon'])
+        ->name('api.v1.service-addons.update');
+
+    // -----------------------------------------------------------------------
+    // Per-brand price lists (FR-034 … FR-040).
+    //
+    // Publishing has its OWN route and its OWN permission because it is the
+    // irreversible act: a published version is frozen and becomes the price
+    // customers are charged. There is no update route for a published list —
+    // superseding creates a new version and leaves the prior one byte-identical
+    // (FR-035, FR-036).
+    //
+    // No price-list destroy route: a published list is the record of what a past
+    // order was charged. The single DELETE below removes an item from a DRAFT,
+    // which has never priced anything.
+    // -----------------------------------------------------------------------
+    Route::get('price-lists', [PriceListController::class, 'index'])
+        ->name('api.v1.price-lists.index');
+    Route::post('price-lists', [PriceListController::class, 'store'])
+        ->name('api.v1.price-lists.store');
+    Route::get('price-lists/{priceList}', [PriceListController::class, 'show'])
+        ->name('api.v1.price-lists.show');
+    Route::post('price-lists/{priceList}/publish', [PriceListController::class, 'publish'])
+        ->name('api.v1.price-lists.publish');
+
+    Route::post('price-lists/{priceList}/items', [PriceListController::class, 'storeItem'])
+        ->name('api.v1.price-lists.items.store');
+    Route::patch('price-lists/{priceList}/items/{item}', [PriceListController::class, 'updateItem'])
+        ->name('api.v1.price-lists.items.update');
+    Route::delete('price-lists/{priceList}/items/{item}', [PriceListController::class, 'destroyItem'])
+        ->name('api.v1.price-lists.items.destroy');
 });

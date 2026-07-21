@@ -11,10 +11,14 @@ use App\Modules\Authorization\Policies\DeviceSessionPolicy;
 use App\Modules\Authorization\Policies\LaundryBrandPolicy;
 use App\Modules\Authorization\Policies\MembershipPolicy;
 use App\Modules\Authorization\Policies\OutletPolicy;
+use App\Modules\Authorization\Policies\PriceListPolicy;
+use App\Modules\Authorization\Policies\ServicePolicy;
 use App\Modules\CustomerManagement\Models\Customer;
 use App\Modules\Identity\Models\User;
 use App\Modules\Organization\Models\LaundryBrand;
 use App\Modules\Organization\Models\Outlet;
+use App\Modules\ServiceCatalog\Models\PriceList;
+use App\Modules\ServiceCatalog\Models\Service;
 use App\Modules\Tenancy\Context\TenantContext;
 use App\Modules\Tenancy\Models\DeviceSession;
 use App\Modules\Tenancy\Models\Membership;
@@ -52,6 +56,15 @@ final class AuthorizationServiceProvider extends ServiceProvider
 
         // Step 4 master data (DEC-0028).
         Gate::policy(Customer::class, CustomerPolicy::class);
+
+        // ONE policy governs the whole catalogue — category, service, package,
+        // and add-on — registered against Service as its representative model.
+        // They share a permission pair, and nobody would sensibly grant the
+        // right to author services while withholding the right to author the
+        // categories they sit in.
+        Gate::policy(Service::class, ServicePolicy::class);
+
+        Gate::policy(PriceList::class, PriceListPolicy::class);
 
         $this->defineContextGates();
     }

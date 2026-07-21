@@ -11,6 +11,7 @@ use App\Modules\CustomerManagement\Support\PhoneNumber;
 use App\Modules\SharedKernel\Http\ApiException;
 use App\Modules\SharedKernel\Http\ApiResponse;
 use App\Modules\SharedKernel\Http\ErrorCode;
+use App\Modules\SharedKernel\Http\OptimisticConcurrency;
 use App\Modules\Tenancy\Context\TenantContext;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -151,6 +152,12 @@ final class CustomerController
         $model = $this->findOrFail($context, $customer);
 
         Gate::authorize('update', $model);
+
+        // Two operators editing the same customer must not silently overwrite
+        // each other. A caller that sends the version it read is never
+        // overridden; the conflict is surfaced for a human to resolve rather
+        // than resolved by whoever saved last (threat T-12).
+        OptimisticConcurrency::assertFresh($request, $model);
 
         $validated = $request->validate([
             'name' => ['sometimes', 'string', 'max:255'],
