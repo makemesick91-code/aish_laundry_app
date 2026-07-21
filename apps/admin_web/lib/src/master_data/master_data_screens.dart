@@ -1,11 +1,11 @@
 import 'package:aish_core/aish_core.dart';
 import 'package:aish_design_system/aish_design_system.dart';
 import 'package:aish_domain/aish_domain.dart';
+import 'package:aish_networking/aish_networking.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app.dart';
-import 'master_data_repository.dart';
 
 /// Supplies the repository. Overridden in tests with a fake.
 final Provider<MasterDataRepository> masterDataRepositoryProvider =

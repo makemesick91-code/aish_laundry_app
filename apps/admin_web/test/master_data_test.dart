@@ -1,5 +1,4 @@
 import 'package:aish_admin_web/src/app.dart';
-import 'package:aish_admin_web/src/master_data/master_data_repository.dart';
 import 'package:aish_admin_web/src/master_data/master_data_screens.dart';
 import 'package:aish_auth/aish_auth.dart';
 import 'package:aish_core/aish_core.dart';
