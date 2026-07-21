@@ -69,8 +69,7 @@ final class CustomerSummary {
           other.version == version);
 
   @override
-  int get hashCode =>
-      Object.hash(id, code, name, phoneMasked, status, version);
+  int get hashCode => Object.hash(id, code, name, phoneMasked, status, version);
 
   /// Deliberately omits the masked phone.
   ///

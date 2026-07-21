@@ -25,8 +25,8 @@ final class StaffMember {
   });
 
   factory StaffMember.fromJson(Map<String, Object?> json) {
-    final user = (json['user'] as Map<String, Object?>?) ??
-        const <String, Object?>{};
+    final user =
+        (json['user'] as Map<String, Object?>?) ?? const <String, Object?>{};
 
     return StaffMember(
       membershipId: json['membership_id']! as String,
@@ -125,7 +125,9 @@ final class OutletAssignment {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is OutletAssignment && other.id == id && other.isActive == isActive);
+      (other is OutletAssignment &&
+          other.id == id &&
+          other.isActive == isActive);
 
   @override
   int get hashCode => Object.hash(id, isActive);

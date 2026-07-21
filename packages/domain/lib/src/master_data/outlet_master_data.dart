@@ -27,7 +27,8 @@ final class OutletMasterData {
   });
 
   factory OutletMasterData.fromJson(Map<String, Object?> json) {
-    final quiet = (json['quiet_hours'] as Map<String, Object?>?) ??
+    final quiet =
+        (json['quiet_hours'] as Map<String, Object?>?) ??
         const <String, Object?>{};
 
     final hours = <String, OperatingDay>{};
@@ -96,9 +97,7 @@ final class OutletMasterData {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is OutletMasterData &&
-          other.id == id &&
-          other.version == version);
+      (other is OutletMasterData && other.id == id && other.version == version);
 
   @override
   int get hashCode => Object.hash(id, version);
@@ -173,10 +172,10 @@ final class OutletServiceZone {
         name: json['name']! as String,
         isActive: json['is_active'] as bool? ?? true,
         description: json['description'] as String?,
-        postalCodes: ((json['postal_codes'] as List<Object?>?) ??
-                const <Object?>[])
-            .cast<String>()
-            .toList(growable: false),
+        postalCodes:
+            ((json['postal_codes'] as List<Object?>?) ?? const <Object?>[])
+                .cast<String>()
+                .toList(growable: false),
         version: json['version'] as String?,
       );
 

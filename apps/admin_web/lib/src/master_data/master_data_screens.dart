@@ -92,7 +92,9 @@ class _MasterDataScreenState extends ConsumerState<MasterDataScreen>
           child: TabBarView(
             controller: _tabs,
             children: <Widget>[
-              _CustomersTab(canManage: session.allows(Permission.customerManage)),
+              _CustomersTab(
+                canManage: session.allows(Permission.customerManage),
+              ),
               _ServicesTab(canManage: session.allows(Permission.serviceManage)),
               _PriceListsTab(
                 canPublish: session.allows(Permission.priceListPublish),
@@ -225,9 +227,7 @@ class _FailureState extends StatelessWidget {
     final bool retryable = failure.isRetryable;
 
     return StateMessage(
-      title: retryable
-          ? 'Data gagal dimuat'
-          : 'Data ini sudah berubah',
+      title: retryable ? 'Data gagal dimuat' : 'Data ini sudah berubah',
       description: retryable
           ? 'Periksa koneksi Anda lalu coba lagi.'
           : 'Muat ulang untuk melihat perubahan terbaru, lalu ulangi tindakan Anda.',

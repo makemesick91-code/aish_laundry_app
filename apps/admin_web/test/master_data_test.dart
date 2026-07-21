@@ -322,7 +322,10 @@ void main() {
       );
       await pumpSection(tester, harness.repository, auth);
 
-      expect(find.text('Anda tidak memiliki akses ke data ini'), findsOneWidget);
+      expect(
+        find.text('Anda tidak memiliki akses ke data ini'),
+        findsOneWidget,
+      );
 
       // Across a tenant boundary the server answers identically for "not yours"
       // and "not there". A client that said "tidak ditemukan" here would leak
@@ -338,8 +341,11 @@ void main() {
     testWidgets('a NETWORK error offers a retry and a support reference', (
       tester,
     ) async {
-      final harness = scripted(503, '{"error":{"code":"SERVICE_UNAVAILABLE",'
-          '"message":"x"},"meta":{"request_id":"uji-0004"}}');
+      final harness = scripted(
+        503,
+        '{"error":{"code":"SERVICE_UNAVAILABLE",'
+        '"message":"x"},"meta":{"request_id":"uji-0004"}}',
+      );
       await pumpSection(tester, harness.repository, auth);
 
       expect(find.text('Data gagal dimuat'), findsOneWidget);

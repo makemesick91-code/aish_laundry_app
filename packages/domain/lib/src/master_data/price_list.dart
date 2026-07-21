@@ -14,7 +14,11 @@ enum PriceListStatus {
     'active' => PriceListStatus.active,
     'superseded' => PriceListStatus.superseded,
     'archived' => PriceListStatus.archived,
-    _ => throw ArgumentError.value(value, 'status', 'Status daftar harga tidak dikenal'),
+    _ => throw ArgumentError.value(
+      value,
+      'status',
+      'Status daftar harga tidak dikenal',
+    ),
   };
 
   /// Bahasa Indonesia label (Rule 30 rule 3 — status labels come from the

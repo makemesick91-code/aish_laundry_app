@@ -46,7 +46,8 @@ final class MasterDataRepository {
     );
 
     return result.map(
-      (ApiSuccess success) => _list(success, 'customers', CustomerSummary.fromJson),
+      (ApiSuccess success) =>
+          _list(success, 'customers', CustomerSummary.fromJson),
     );
   }
 
@@ -105,7 +106,8 @@ final class MasterDataRepository {
     );
 
     return result.map(
-      (ApiSuccess success) => _list(success, 'services', CatalogService.fromJson),
+      (ApiSuccess success) =>
+          _list(success, 'services', CatalogService.fromJson),
     );
   }
 
@@ -170,7 +172,8 @@ final class MasterDataRepository {
     );
 
     return result.map(
-      (ApiSuccess success) => _list(success, 'packages', CatalogPackage.fromJson),
+      (ApiSuccess success) =>
+          _list(success, 'packages', CatalogPackage.fromJson),
     );
   }
 
@@ -181,10 +184,7 @@ final class MasterDataRepository {
   Future<Result<List<PriceListSummary>>> priceLists({String? status}) async {
     final result = await _client.get(
       ApiEndpoints.priceLists,
-      query: <String, Object?>{
-        'status': ?status,
-        'per_page': 100,
-      },
+      query: <String, Object?>{'status': ?status, 'per_page': 100},
     );
 
     return result.map(
@@ -215,9 +215,7 @@ final class MasterDataRepository {
   }) async {
     final result = await _client.post(
       ApiEndpoints.priceListPublish(id),
-      body: <String, Object?>{
-        'supersedes_price_list_id': ?supersedesId,
-      },
+      body: <String, Object?>{'supersedes_price_list_id': ?supersedesId},
     );
 
     return result.map(
@@ -292,7 +290,8 @@ final class MasterDataRepository {
     final result = await _client.get(ApiEndpoints.outletServiceZones(outletId));
 
     return result.map(
-      (ApiSuccess success) => _list(success, 'zones', OutletServiceZone.fromJson),
+      (ApiSuccess success) =>
+          _list(success, 'zones', OutletServiceZone.fromJson),
     );
   }
 
@@ -308,7 +307,8 @@ final class MasterDataRepository {
     final result = await _client.get(ApiEndpoints.outletPrinters(outletId));
 
     return result.map(
-      (ApiSuccess success) => _list(success, 'printers', OutletPrinter.fromJson),
+      (ApiSuccess success) =>
+          _list(success, 'printers', OutletPrinter.fromJson),
     );
   }
 
@@ -388,9 +388,6 @@ final class MasterDataRepository {
       return const <Never>[];
     }
 
-    return raw
-        .cast<Map<String, Object?>>()
-        .map(parse)
-        .toList(growable: false);
+    return raw.cast<Map<String, Object?>>().map(parse).toList(growable: false);
   }
 }

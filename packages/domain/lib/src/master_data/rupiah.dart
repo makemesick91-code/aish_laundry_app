@@ -25,7 +25,8 @@ import 'package:meta/meta.dart';
 /// surface to compute an order total, and an order is Step 5 regardless.
 @immutable
 final class Rupiah implements Comparable<Rupiah> {
-  const Rupiah(this.amount) : assert(amount >= 0, 'A price may not be negative');
+  const Rupiah(this.amount)
+    : assert(amount >= 0, 'A price may not be negative');
 
   /// Parse a wire value.
   ///

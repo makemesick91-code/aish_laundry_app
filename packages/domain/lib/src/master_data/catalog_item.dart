@@ -15,7 +15,11 @@ enum ServiceUnitKind {
     'satuan' => ServiceUnitKind.satuan,
     // An unknown unit is a server/client version mismatch, not something to
     // guess at: guessing would silently price a weight as a count.
-    _ => throw ArgumentError.value(value, 'unit_kind', 'Jenis satuan tidak dikenal'),
+    _ => throw ArgumentError.value(
+      value,
+      'unit_kind',
+      'Jenis satuan tidak dikenal',
+    ),
   };
 
   String get wireValue => name;
