@@ -21,7 +21,7 @@ FIRST_DEC = 1
 # Raised 27 -> 30 at Master Source 1.4.1 for DEC-0028 (Step 4 scope resolution and
 # canonical authorization), DEC-0029 (canonical status drift remediation and
 # cross-document validation), and DEC-0030 (Step 4 runtime scope transition).
-LAST_DEC = 32
+LAST_DEC = 33
 
 # label -> list of accepted heading keywords (lowercase, substring match)
 REQUIRED_HEADINGS: list[tuple[str, list[str]]] = [

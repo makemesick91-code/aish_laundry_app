@@ -1,6 +1,6 @@
 # Aish Laundry App — Master Source
 
-**Document version: 1.4.2**
+**Document version: 1.4.3**
 **Baseline date: 19 July 2026**
 
 Owner: Aish Tech Solution
@@ -1558,9 +1558,9 @@ must be claims the software can substantiate — the honesty rule (§3.1) applie
 
 ## 31. Decision records
 
-Thirty-two decisions are locked. Fifteen were locked at the 1.0.0 baseline; DEC-0016 was added at
+Thirty-three decisions are locked. Fifteen were locked at the 1.0.0 baseline; DEC-0016 was added at
 version 1.0.1, DEC-0017 at version 1.2.0, DEC-0018 … DEC-0023 at version 1.3.0, DEC-0024 … DEC-0027 at
-version 1.4.0, DEC-0028 … DEC-0031 at version 1.4.1, and DEC-0032 at version 1.4.2. DEC-0001 … DEC-0023 carry date
+version 1.4.0, DEC-0028 … DEC-0031 at version 1.4.1, DEC-0032 at version 1.4.2, and DEC-0033 at version 1.4.3. DEC-0001 … DEC-0023 carry date
 **19 July 2026**; DEC-0024 … DEC-0027 carry **20 July 2026**; DEC-0028 … DEC-0031 carry
 **21 July 2026**. All carry status **ACCEPTED**. Each has a full record in
 [`decisions/`](decisions/).
@@ -1607,6 +1607,7 @@ without being listed here — or listed here without existing — fails closed.
 | DEC-0030 | Step 4 Runtime Scope Transition | ACCEPTED | [DEC-0030](decisions/DEC-0030-step-04-runtime-scope-transition.md) |
 | DEC-0031 | Step 4 Traceability Boundaries | ACCEPTED | [DEC-0031](decisions/DEC-0031-step-04-traceability-boundaries.md) |
 | DEC-0032 | Step 3 Post-GO Corrective Remediation: Runtime Authentication Wiring | ACCEPTED | [DEC-0032](decisions/DEC-0032-step-03-post-go-corrective-auth-runtime-wiring.md) |
+| DEC-0033 | Step 4 Independent Review Findings SEC-01 … SEC-12, and the Conditions Under Which Each Closes | ACCEPTED | [DEC-0033](decisions/DEC-0033-step-04-independent-review-closure.md) |
 
 ### 31.1 Decision record rules
 
@@ -2059,4 +2060,4 @@ was met.
 
 ---
 
-*End of Master Source, version 1.4.2, baseline date 19 July 2026.*
+*End of Master Source, version 1.4.3, baseline date 19 July 2026.*
