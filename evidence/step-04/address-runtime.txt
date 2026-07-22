@@ -1,0 +1,39 @@
+SEC-05 / FR-024 / FR-025 — ADDRESS RUNTIME PROOF
+================================================
+Bound to commit: 93d8f8b112d4d57c0ae00e9d6c41f51fa5abc434
+Note: this file is written at the SHA above; the commit that ADDS it
+necessarily has a different SHA (accepted evidence indirection).
+Timestamp (Asia/Jakarta): 2026-07-22 14:00:02 WIB
+Device: Android emulator-5554 (Android 34 x86_64). No physical device used.
+Backend: Laravel on 127.0.0.1:8000, PostgreSQL 18.4, Redis 8.2, all loopback-bound.
+Bridge: adb reverse tcp:8000 tcp:8000. No service bound to 0.0.0.0.
+Composition: productionContainer() overrides the environment and nothing else.
+
+SANITISATION: identifiers and outcomes only. No password, no token, no
+authorization header, no street, no postal code, no note. Seed passwords are
+generated per run and exist only in the operator's terminal.
+
+COMMAND (credentials redacted):
+  flutter test integration_test/address_runtime_test.dart -d emulator-5554 \
+    --dart-define=AISH_E2E_IDENTIFIER=owner.melati@contoh.invalid \
+    --dart-define=AISH_E2E_PASSWORD=<REDACTED> \
+    --dart-define=AISH_E2E_TENANT_ID=<tenant A> \
+    --dart-define=AISH_E2E_FOREIGN_IDENTIFIER=owner.kenanga@contoh.invalid \
+    --dart-define=AISH_E2E_FOREIGN_PASSWORD=<REDACTED> \
+    --dart-define=AISH_E2E_FOREIGN_TENANT_ID=<tenant B> \
+    --dart-define=AISH_E2E_RESTRICTED_IDENTIFIER=kurir.melati@contoh.invalid \
+    --dart-define=AISH_E2E_RESTRICTED_PASSWORD=<REDACTED>
+
+OUTPUT:
+ADDR: signed-in=ok tenant=019f889a-4e58-732e-9a52-0d894c788a45
+ADDR: create=ok id=019f88a0-3613-7228-b6e6-6e98274c01b7
+ADDR: list=ok count=1 precision=full
+ADDR: edit=ok version-advanced=true
+ADDR: stale-write refused=CONFLICT session-intact=true
+ADDR: archive=ok row-preserved=true
+ADDR: reactivate=ok primary=false
+ADDR: authorized-projection precision=full street=present
+ADDR: restricted-context refused=FORBIDDEN
+ADDR: cross-tenant refused=NOT_FOUND indistinguishable-from-absent=true
+ADDR: runtime-proof complete
+00:03 +1: All tests passed!
