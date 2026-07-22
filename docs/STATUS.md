@@ -214,41 +214,69 @@ is a false claim rather than a conservative one (Rule 01, DEC-0029).
 | Deployment | ABSENT |
 | Application CI | ACTIVE — THREE STEP 3 RUNTIME CONTEXTS VERIFIED |
 | UAT | NOT STARTED |
-| Client↔API end-to-end session | **ABSENT — NO CONCRETE `AuthService` EXISTS** |
+| Client↔API end-to-end session | **PRESENT — VERIFIED ON A REAL DEVICE AND IN A REAL BROWSER** |
 
-### The three Flutter apps cannot authenticate against a running backend
+### Client↔API authentication: the defect, and its correction
 
-Recorded here on 21 July 2026 because it was not previously disclosed anywhere,
-and it bounds what every client-side claim in this file may mean.
+**Current state:** all three canonical Flutter surfaces resolve a concrete
+`BackendAuthService` in their production composition and have authenticated
+against a running backend. The paragraphs below record the defect that made this
+section necessary, because deleting that history would leave the correction
+looking like something that was always true.
 
-`AuthService` is an interface in `packages/auth`. The only implementation of it
-in the entire workspace is `FakeAuthService` in `packages/testing`, and no
-`main.dart` overrides `authServiceProvider` — each app entrypoint overrides
-`environmentProvider` and nothing else. Every authenticated screen reads
-`authServiceProvider`, so a real launch throws `UnimplementedError` on the
-startup frame.
+#### What was wrong (historical, corrected)
 
-**What this does and does not invalidate.** The apps genuinely build (debug APK
-and release web, exit 0) and their widget suites genuinely pass, exercising a
-real `ApiClient` over a scripted HTTP transport. Those results stand. What has
-never happened is a client reaching a live backend: no sign-in, no session
-restoration, no tenant selection, and no master-data request has executed
-end-to-end against the running API.
+Recorded 21 July 2026. `AuthService` was an interface in `packages/auth` whose
+only implementation in the workspace was `FakeAuthService` in
+`packages/testing`. No `main.dart` overrode `authServiceProvider` — each entry
+point overrode `environmentProvider` and nothing else — so every authenticated
+screen read a provider that threw `UnimplementedError` on the startup frame. No
+build of any surface could sign in. Widget suites stayed green throughout,
+because each test supplied the missing dependency through the same provider the
+production code read.
 
-No Step 4 claim in this repository asserts an end-to-end verified counter flow,
-and none may. Client-side Step 4 evidence is widget- and contract-level only,
-and says so wherever it appears.
+The same defect then recurred one layer up in Step 4:
+`masterDataRepositoryProvider` threw identically in Ops Android and Console Web,
+so every master-data screen died the moment it was opened.
 
-**This is a Step 3 foundation gap, not a Step 4 defect**, and it is left as one
-deliberately: implementing HTTP authentication is Step 3 runtime scope, Step 3
-is `GO`-tagged and immutable, and retro-filling it inside Step 4 would be an
-unauthorised scope decision (Rule 12). It requires the repository owner's
-direction.
+#### What is true now
 
-**Runtime existing is not runtime working.** The backend boots, migrates against
-authoritative PostgreSQL 18.4, and passes 202 tests; the Dart workspace analyses
-clean and passes 187 tests. No Android or Web artefact has been built, so no build
-result is claimed.
+Both are fixed and the fixes are verified, not asserted:
+
+- `BackendAuthService` is a concrete production implementation in
+  `packages/auth`. `authServiceProvider` resolves to it in all three
+  applications; no `main.dart` override is needed because the production default
+  IS the real implementation and a test overrides it.
+- `masterDataRepositoryProvider` is built from the surface's authenticated
+  `ApiClient` in Ops Android and Console Web, so master-data requests carry the
+  same credential and `X-Tenant-Id`. Customer Android deliberately has none.
+- A real device run against a running backend has executed sign-in, session
+  restoration from the Android Keystore, tenant and outlet selection, customer
+  search, a customer write with a server-confirmed reload, catalogue, outlet
+  detail and staff roster.
+- Console Web boots and authenticates in real Chrome with `localStorage` and
+  `sessionStorage` empty after authentication.
+- `scripts/validate-production-composition.py` and its adversarial harness make
+  a recurrence fail at validation time rather than at first user navigation.
+
+The correction was made on a separate branch after Step 3 `GO`, merged through
+PR #19 (merge `0f065a330e085228aaeed086f620d8752291e0af`), and recorded as
+**DEC-0032**. Threat **T-51** records the failure mode.
+
+#### What the correction does NOT change
+
+**The Step 3 `GO` tag was not moved and does not cover this fix.**
+`aish-laundry-step-03-runtime-auth-multitenancy-rbac-v1.4.0-go` still resolves to
+tag object `8b37230ed8df8da343a1546fd949d8a41329fbdf`, peeling to
+`0e2554338812b05eba8411afeb099212b05f9761`. Step 3 remains
+`GO WITH ACCEPTED DEVIATION`. The tag records what was true at closure —
+including that this defect was present and undetected — and rewriting it would
+erase the evidence that the gate missed something.
+
+**Runtime existing is still not runtime working.** Every claim above is bound to
+captured output at an exact SHA in
+[`../evidence/step-03-corrective-auth-runtime/`](../evidence/step-03-corrective-auth-runtime/)
+and `evidence/step-04/`. Step 4 remains `IN PROGRESS`; PR #18 is unmerged.
 
 <!-- CANONICAL_STEP_STATE_BEGIN -->
 <!--
