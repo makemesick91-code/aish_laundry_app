@@ -74,6 +74,9 @@ reason recapture is now a script rather than a ritual nobody had time to repeat.
 | 14 | `invalid-first-run-verifications.md` | three verifications that were green and proved nothing |
 | 15 | `corrections.md` | claims corrected after they had been committed |
 | 16 | `ops-flutter.txt` | Ops surface capture |
+| 17 | `sanitisation-scan.txt` | credential/PII scans, every hit's disposition recorded |
+| 18 | `authoritative-ci.txt` | 11 workflow run IDs at the exact final SHA, with SHA equality |
+| 19 | `MERGE-READINESS.md` | the pre-merge report and the owner actions reserved |
 
 Governance context lives outside this directory and is referenced rather than
 copied: [DEC-0031](../../docs/decisions/DEC-0031-step-04-traceability-boundaries.md),

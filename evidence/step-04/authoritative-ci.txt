@@ -1,0 +1,34 @@
+PHASE J — AUTHORITATIVE CI AT THE EXACT FINAL SHA
+==================================================
+CI-tested SHA: 1363998bb918cc74d1bb54e13d8bd7c119b675aa
+Timestamp (Asia/Jakarta): 2026-07-23 00:25:33 WIB
+
+SHA EQUALITY (the whole point of this file):
+  local HEAD             = 1363998bb918cc74d1bb54e13d8bd7c119b675aa
+  remote feature branch  = 1363998bb918cc74d1bb54e13d8bd7c119b675aa
+  PR #18 head            = 1363998bb918cc74d1bb54e13d8bd7c119b675aa
+  CI-tested SHA          = 1363998bb918cc74d1bb54e13d8bd7c119b675aa
+
+WORKFLOW RUNS (every run filtered to headSha == the final SHA):
+  run 29941516102  completed/success  Authentication and RBAC
+  run 29941514535  completed/success  Governance
+  run 29941514508  completed/success  Security
+  run 29941514569  completed/success  Product Requirements
+  run 29941514661  completed/success  Accessibility and Privacy
+  run 29941512798  completed/success  Design System
+  run 29941512622  completed/success  Domain Model
+  run 29941512618  completed/success  Runtime Detection
+  run 29941512541  completed/success  UX Foundation
+  run 29941512539  completed/success  Tenant Isolation
+  run 29941512647  completed/success  Runtime Foundation
+
+  workflows at this SHA: 11    successful: 11
+
+NOTE ON EARLIER CI. Every run against an earlier SHA is checkpoint evidence
+only and is not cited for closure. A commit invalidates the previous final
+CI, without exception — that rule is why the counts above were re-run rather
+than carried forward from 405cd13 or b1cfc05.
+
+This file is written AFTER the run it describes, so the commit adding it
+has a later SHA than the one CI tested. That is the accepted evidence
+indirection recorded in README.md section 7.
