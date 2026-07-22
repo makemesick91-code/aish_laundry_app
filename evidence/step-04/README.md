@@ -29,9 +29,10 @@ SHA does not carry over to another** (Rule 01, DEC-0013).
 **Accepted evidence indirection.** The captures were produced at the anchor SHA
 above. The commit that *adds* them necessarily has a different SHA — a file
 cannot contain the hash of the commit introducing it. The delta between anchor
-and final documentation head is **documentation only**: no runtime source, no
-migration, no test, no validator, no verification script. §7 records the
-changed-file list. Authoritative CI runs against the final head, and PR #18's
+and final documentation head is **evidence and documentation, plus the capture
+script itself** — no runtime source, no migration, no test, no validator, no
+verification script. §7 names that one exception explicitly and says why it
+cannot affect a result. Authoritative CI runs against the final head, and PR #18's
 head equals it.
 
 **Regenerating this pack is one command:** `bash scripts/capture-step-04-evidence.sh`.
@@ -148,14 +149,31 @@ accepted after proving CI database isolation across six conditions.
 
 Anchor: `6abd3fdc918a740ea400819a23e9b0cc371778f5`.
 
-The final documentation head adds only `evidence/step-04/**` and `docs/**`. No
-file under `backend/app`, `backend/database`, `backend/tests`, `apps/`,
-`packages/`, `scripts/`, or `.github/workflows/` differs between the anchor and
-the final head.
+The delta from the anchor to the final documentation head is:
 
-That property is what makes the indirection acceptable: **the code these captures
-describe is byte-identical to the code CI tests.** The exact changed-file list is
-reproducible with:
+- `evidence/step-04/**` — the captures and this README;
+- `scripts/capture-step-04-evidence.sh` — **one exception, named rather than
+  glossed over.**
+
+**The exception, stated plainly.** An earlier draft of this section claimed no
+file under `scripts/` differed. That was wrong: the capture script gained a path
+scrubber after the anchor commit. The claim is corrected here rather than left
+standing, because an evidence document that overstates its own integrity is worse
+than one that admits a caveat.
+
+Why it does not undermine the indirection: the capture script **produces**
+evidence, it does not **verify** anything. No gate, test, validator or CI job
+reads it, and its only post-anchor change replaces absolute machine paths with
+`<REPO>` in captured text. It cannot alter a result, only how a result is
+printed.
+
+**No file under `backend/app`, `backend/database`, `backend/tests`,
+`backend/routes`, `backend/config`, `apps/`, `packages/`, `.github/workflows/`,
+or any `validate-*`/`verify-*`/`test-*` script differs between the anchor and the
+final head.** That is the property that matters: **the code these captures
+describe is byte-identical to the code CI tests.**
+
+The exact changed-file list is reproducible with:
 
 ```text
 git diff --name-only 6abd3fdc918a740ea400819a23e9b0cc371778f5..<final-head>
