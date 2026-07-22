@@ -20,9 +20,15 @@ use Illuminate\Support\Facades\Schema;
  * opt-out cannot be reset because there is no row to overwrite — the guarantee
  * is structural rather than a rule somebody must remember (invariants C5-C7).
  *
- * A DB rule makes it structural at the engine too: UPDATE and DELETE on this
- * table are rejected. Even a migration, an import, or a direct `psql` session
- * cannot rewrite consent history.
+ * A DB boundary makes it structural at the engine too. The rules created below
+ * were the FIRST attempt at that and were NOT sufficient: PostgreSQL's rule
+ * system never sees a table-level truncation, and `DO INSTEAD NOTHING` refuses
+ * silently. `2026_07_22_000100_harden_customer_consents_append_only.php`
+ * replaces them with raising triggers and closes that path (SEC-12).
+ *
+ * The rules are left in place here rather than edited away: this migration has
+ * already been applied, and rewriting it would hide that the weaker boundary
+ * ever existed.
  *
  * `recorded_at` is set SERVER-SIDE and never accepted from a client. A consent
  * timestamp a client could choose is a consent record an operator could

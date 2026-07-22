@@ -8,6 +8,7 @@ use App\Modules\Authorization\PermissionRegistry;
 use App\Modules\CustomerManagement\Models\Customer;
 use App\Modules\CustomerManagement\Models\CustomerConsent;
 use App\Modules\CustomerManagement\Support\PhoneNumber;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
@@ -20,7 +21,7 @@ use Tests\TestCase;
  * Runs against PostgreSQL, which is the only engine whose result counts as
  * tenant-isolation evidence (Rule 43, hard rules 1-2). Several assertions here
  * depend on PostgreSQL-specific behaviour — partial unique indexes, check
- * constraints, and the append-only RULEs on `customer_consents` — and would
+ * constraints, and the append-only triggers on `customer_consents` — and would
  * silently pass on a substitute engine that ignores them.
  *
  * Every value is fictional and recognisably so (Rule 23, Rule 45).
@@ -402,16 +403,116 @@ final class CustomerMasterDataTest extends TestCase
         $customer = $this->makeCustomerDirectly($tenant->id, '081200000012');
         $this->makeConsentDirectly($customer, CustomerConsent::STATE_WITHDRAWN);
 
-        // The path FR-028 actually names: a migration or an import running
-        // OUTSIDE the application. The PostgreSQL RULE makes it a no-op.
-        DB::statement("UPDATE customer_consents SET state = 'granted'");
-        DB::statement('DELETE FROM customer_consents');
+        // The paths FR-028 actually names: a migration or an import running
+        // OUTSIDE the application.
+        //
+        // This previously asserted that the statements were SILENT NO-OPS,
+        // because the boundary was two `DO INSTEAD NOTHING` rules. That was a
+        // weaker property than the comment above it claimed, and it left the
+        // one statement rules never see — TRUNCATE — completely unguarded
+        // (SEC-12). The boundary is now a raising trigger, so each statement is
+        // asserted REFUSED rather than absorbed.
+        $this->assertStatementRefused("UPDATE customer_consents SET state = 'granted'");
+        $this->assertStatementRefused('DELETE FROM customer_consents');
+        $this->assertStatementRefused('TRUNCATE TABLE customer_consents');
 
+        // The row is still there, unchanged, after all three attempts.
         $this->assertSame(1, CustomerConsent::query()->where('customer_id', $customer->id)->count());
         $this->assertSame(
             CustomerConsent::STATE_WITHDRAWN,
             $customer->fresh()->currentConsentState(CustomerConsent::TYPE_MARKETING_WHATSAPP)
         );
+    }
+
+    /**
+     * The regression for SEC-12 specifically.
+     *
+     * `TRUNCATE` had to be separated from the statement above rather than
+     * folded into it, because the two fail differently: an unguarded UPDATE
+     * leaves rewritten history, an unguarded TRUNCATE leaves NO history at all
+     * for EVERY tenant, and nothing afterwards can tell that consent was ever
+     * recorded. It is also the case the previous protection could not have
+     * caught by construction — PostgreSQL's rule system does not rewrite
+     * TRUNCATE — so a test that only exercised UPDATE and DELETE would have
+     * stayed green over an open hole indefinitely.
+     */
+    public function test_consent_history_cannot_be_truncated_away(): void
+    {
+        $this->seedCatalogue();
+        $tenantA = $this->makeTenant();
+        $tenantB = $this->makeTenant();
+        $customerA = $this->makeCustomerDirectly($tenantA->id, '081200000013');
+        $customerB = $this->makeCustomerDirectly($tenantB->id, '081200000014');
+        $this->makeConsentDirectly($customerA, CustomerConsent::STATE_WITHDRAWN);
+        $this->makeConsentDirectly($customerB, CustomerConsent::STATE_WITHDRAWN);
+
+        $this->assertStatementRefused('TRUNCATE TABLE customer_consents');
+        // The cascading form is a distinct statement to the planner, so it is a
+        // distinct attempt, not a rephrasing of the same one.
+        $this->assertStatementRefused('TRUNCATE TABLE customer_consents CASCADE');
+
+        // Both tenants' withdrawals survive. A control on one tenant only would
+        // not distinguish "refused" from "removed everything except the row I
+        // happened to check".
+        $this->assertSame(2, CustomerConsent::query()->count());
+        foreach ([$customerA, $customerB] as $customer) {
+            $this->assertSame(
+                CustomerConsent::STATE_WITHDRAWN,
+                $customer->fresh()->currentConsentState(CustomerConsent::TYPE_MARKETING_WHATSAPP)
+            );
+        }
+    }
+
+    /**
+     * The trigger is asserted to EXIST IN THE LIVE SCHEMA, not merely to have
+     * been written in a migration file.
+     *
+     * A migration is a statement of intent. `pg_trigger` is the database. If a
+     * later migration disabled or dropped the trigger, every behavioural test
+     * above would still pass on a database where the boundary had been removed
+     * only if the removal also removed the rows — which it would not.
+     */
+    public function test_the_append_only_boundary_exists_in_the_live_schema(): void
+    {
+        $triggers = DB::table('pg_trigger')
+            ->join('pg_class', 'pg_class.oid', '=', 'pg_trigger.tgrelid')
+            ->where('pg_class.relname', 'customer_consents')
+            // tgenabled 'D' means DISABLED. A disabled trigger is present in
+            // the catalogue and enforces nothing, so presence alone is not the
+            // assertion.
+            ->where('pg_trigger.tgenabled', '<>', 'D')
+            ->where('pg_trigger.tgisinternal', false)
+            ->pluck('pg_trigger.tgname')
+            ->all();
+
+        foreach ([
+            'customer_consents_refuse_update',
+            'customer_consents_refuse_delete',
+            'customer_consents_refuse_truncate',
+        ] as $expected) {
+            $this->assertContains($expected, $triggers);
+        }
+    }
+
+    /**
+     * Runs one statement and requires PostgreSQL to REFUSE it.
+     *
+     * The savepoint matters. A raising trigger aborts the surrounding
+     * transaction, and `RefreshDatabase` wraps the whole test in one; without
+     * an inner transaction the first refusal would poison every later
+     * assertion and the failure would read as an unrelated cascade.
+     */
+    private function assertStatementRefused(string $sql): void
+    {
+        try {
+            DB::transaction(static fn () => DB::statement($sql));
+            $this->fail("The database ACCEPTED a statement it must refuse: {$sql}");
+        } catch (QueryException $e) {
+            // 23001 restrict_violation — the SQLSTATE the trigger raises. Asserted
+            // rather than string-matching the message, which is localisable and
+            // not a contract.
+            $this->assertSame('23001', $e->getCode(), "Refused, but not by the append-only trigger: {$sql}");
+        }
     }
 
     // -----------------------------------------------------------------------
