@@ -54,6 +54,23 @@ abstract final class ApiEndpoints {
   // edit of an old one (invariant C5).
   static String customerConsents(String id) => 'customers/$id/consents';
 
+  // FR-024. Addresses are referenced by opaque identifier only — never by any
+  // component of the address itself. A path is logged by every proxy in front of
+  // the application, kept in browser history, and passed on in a referrer.
+  static String customerAddresses(String customerId) =>
+      'customers/$customerId/addresses';
+
+  static String customerAddress(String customerId, String addressId) =>
+      'customers/$customerId/addresses/$addressId';
+
+  static String customerAddressArchive(String customerId, String addressId) =>
+      'customers/$customerId/addresses/$addressId/archive';
+
+  static String customerAddressReactivate(
+    String customerId,
+    String addressId,
+  ) => 'customers/$customerId/addresses/$addressId/reactivate';
+
   // Service catalogue (FR-031 … FR-033, FR-040). Carries no price: what a
   // service COSTS lives on a per-brand price list (FR-034).
   static const String serviceCategories = 'service-categories';

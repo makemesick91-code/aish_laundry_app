@@ -150,6 +150,129 @@ final class MasterDataRepository {
   }
 
   // ------------------------------------------------------------------
+  // Saved addresses (FR-024, FR-025)
+  //
+  // MASKING IS THE SERVER'S DECISION AND IS ALREADY APPLIED by the time a
+  // payload reaches here. This repository does not mask, does not unmask, and
+  // does not reconstruct a fuller value from a narrower one — a client that
+  // could widen a projection would be the control's own bypass (Rule 32 hard
+  // rule 3). Every address below carries the `precision` the server chose, so a
+  // screen renders what it was given rather than guessing from which fields
+  // happen to be null.
+  // ------------------------------------------------------------------
+
+  /// The list shape, which carries NO location at any permission level
+  /// (Rule 32 §2.2 rule 7). Rendering fifty addresses on one screen is the
+  /// tenant's customer base in a single photograph.
+  Future<Result<AddressLedger>> addresses(String customerId) async {
+    final result = await _client.get(
+      ApiEndpoints.customerAddresses(customerId),
+    );
+
+    return result.map((ApiSuccess success) {
+      final data = success.dataAsMap;
+      final raw = data['addresses'];
+
+      return AddressLedger(
+        addresses: raw is List
+            ? raw
+                  .whereType<Map<String, Object?>>()
+                  .map(CustomerAddress.fromJson)
+                  .toList(growable: false)
+            : const <CustomerAddress>[],
+        precision: AddressPrecision.parse(data['precision'] as String?),
+      );
+    });
+  }
+
+  Future<Result<CustomerAddress>> address({
+    required String customerId,
+    required String addressId,
+  }) async {
+    final result = await _client.get(
+      ApiEndpoints.customerAddress(customerId, addressId),
+    );
+
+    return result.map(
+      (ApiSuccess success) =>
+          CustomerAddress.fromJson(_object(success, 'address')),
+    );
+  }
+
+  Future<Result<CustomerAddress>> createAddress({
+    required String customerId,
+    required Map<String, Object?> attributes,
+  }) async {
+    final result = await _client.post(
+      ApiEndpoints.customerAddresses(customerId),
+      body: attributes,
+    );
+
+    return result.map(
+      (ApiSuccess success) =>
+          CustomerAddress.fromJson(_object(success, 'address')),
+    );
+  }
+
+  /// [expectedVersion] is the token read WITH the record being edited.
+  ///
+  /// Omitting it is choosing last-write-wins, and for a delivery address that
+  /// means a parcel at the wrong house (threat T-12). The server answers
+  /// `CONFLICT` when the address has moved on, and the edit is refused rather
+  /// than silently overwriting somebody else's correction.
+  Future<Result<CustomerAddress>> updateAddress({
+    required String customerId,
+    required String addressId,
+    required String? expectedVersion,
+    required Map<String, Object?> changes,
+  }) async {
+    final result = await _client.patch(
+      ApiEndpoints.customerAddress(customerId, addressId),
+      body: changes,
+      expectedVersion: expectedVersion,
+    );
+
+    return result.map(
+      (ApiSuccess success) =>
+          CustomerAddress.fromJson(_object(success, 'address')),
+    );
+  }
+
+  /// Deactivate, never delete. An address a past pickup went to must stay
+  /// resolvable or the custody transfer becomes unexplainable (threat T-18).
+  Future<Result<CustomerAddress>> archiveAddress({
+    required String customerId,
+    required String addressId,
+    required String? expectedVersion,
+  }) async {
+    final result = await _client.post(
+      ApiEndpoints.customerAddressArchive(customerId, addressId),
+      expectedVersion: expectedVersion,
+    );
+
+    return result.map(
+      (ApiSuccess success) =>
+          CustomerAddress.fromJson(_object(success, 'address')),
+    );
+  }
+
+  Future<Result<CustomerAddress>> reactivateAddress({
+    required String customerId,
+    required String addressId,
+    required String? expectedVersion,
+  }) async {
+    final result = await _client.post(
+      ApiEndpoints.customerAddressReactivate(customerId, addressId),
+      expectedVersion: expectedVersion,
+    );
+
+    return result.map(
+      (ApiSuccess success) =>
+          CustomerAddress.fromJson(_object(success, 'address')),
+    );
+  }
+
+  // ------------------------------------------------------------------
   // Consent (FR-027, FR-028) — read and APPEND only
   // ------------------------------------------------------------------
 

@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 
+import 'address_precision.dart';
 import 'customer_summary.dart';
 
 /// A customer as the DETAIL projection carries them (FR-021 … FR-030).
@@ -110,6 +111,8 @@ final class CustomerAddress {
     required this.isActive,
     required this.isPickupSuitable,
     required this.isDeliverySuitable,
+    required this.precision,
+    this.version,
     this.district,
     this.city,
     this.province,
@@ -131,6 +134,12 @@ final class CustomerAddress {
         isDeliverySuitable: json['is_delivery_suitable'] as bool? ?? false,
         isPrimary: json['is_primary'] as bool? ?? false,
         isActive: json['is_active'] as bool? ?? true,
+        version: json['version'] as String?,
+        // FAIL CLOSED on an unrecognised or absent precision. A build that does
+        // not know what the server sent must assume it holds the LEAST it is
+        // entitled to, not the most: treating an unknown marker as `full` would
+        // render a street the server may not have intended to disclose.
+        precision: AddressPrecision.parse(json['precision'] as String?),
       );
 
   final String id;
@@ -152,6 +161,20 @@ final class CustomerAddress {
 
   final bool isPrimary;
   final bool isActive;
+
+  /// The optimistic-concurrency token read with this address.
+  ///
+  /// Null on a projection that carries no version. An edit submitted without one
+  /// is choosing last-write-wins, which for a delivery address means a parcel at
+  /// the wrong house (threat T-12).
+  final String? version;
+
+  /// HOW MUCH of this address the server chose to disclose (FR-025).
+  ///
+  /// Carried explicitly rather than inferred from which fields happen to be
+  /// null. A null `addressLine` could mean "masked" or "never filled in", and a
+  /// UI that guesses will eventually guess wrong in the disclosing direction.
+  final AddressPrecision precision;
 
   /// The administrative tail, joined for display. Deliberately excludes
   /// [addressLine]: a caller that wants the street must ask for it explicitly,

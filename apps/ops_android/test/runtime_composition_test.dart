@@ -56,6 +56,28 @@ void main() {
       expect(service, isNot(isA<FakeAuthService>()));
     });
 
+    test('resolves the address surface without a test-only override', () {
+      // Requirement 20 of the SEC-05 UI gate, and the defect class DEC-0032
+      // records: a screen dependency supplied only by a widget test looks
+      // perfectly wired until a real launch reads it. The address section
+      // reaches the backend through `masterDataRepositoryProvider`, so the
+      // production container must resolve it with nothing overridden but the
+      // environment.
+      final container = productionContainer();
+
+      final repository = container.read(masterDataRepositoryProvider);
+
+      expect(repository, isA<MasterDataRepository>());
+
+      // And it is the SAME repository instance the rest of the surface uses,
+      // so the address section cannot end up on a second client with its own
+      // credential and its own tenant context.
+      expect(
+        identical(repository, container.read(masterDataRepositoryProvider)),
+        isTrue,
+      );
+    });
+
     test('shares ONE ApiClient between auth and every repository', () {
       final container = productionContainer();
 

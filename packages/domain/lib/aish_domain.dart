@@ -19,6 +19,8 @@ library;
 
 export 'src/effective_permissions.dart';
 export 'src/laundry_brand.dart';
+export 'src/master_data/address_ledger.dart';
+export 'src/master_data/address_precision.dart';
 export 'src/master_data/catalog_item.dart';
 export 'src/master_data/customer_consent.dart';
 export 'src/master_data/customer_detail.dart';

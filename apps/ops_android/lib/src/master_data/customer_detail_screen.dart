@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../app.dart';
 import '../routing/ops_routes.dart';
+import 'customer_address_section.dart';
 import 'edit_outcome.dart';
 import 'master_data_providers.dart';
 import 'master_data_views.dart';
@@ -349,24 +350,17 @@ class _CustomerBodyState extends ConsumerState<_CustomerBody> {
 
         // ------------------------------------------------------------------
         // Addresses (FR-024, FR-025)
+        //
+        // Managed by its own section, which loads from the server rather than
+        // reading the addresses embedded in this detail payload. The embedded
+        // copy is a snapshot taken when the customer was fetched; an address
+        // edited in the section would leave it stale, and a stale delivery
+        // address is the one failure this surface must not produce.
         // ------------------------------------------------------------------
-        Semantics(
-          header: true,
-          child: Text('Alamat', style: textTheme.titleMedium),
+        CustomerAddressSection(
+          customerId: customer.id,
+          canManage: canManage && !customer.isArchived,
         ),
-        SizedBox(height: AishSpacing.space2),
-        if (customer.addresses.isEmpty)
-          const StateMessage(
-            title: 'Belum ada alamat',
-            description:
-                'Alamat penjemputan dan pengantaran pelanggan akan muncul di '
-                'sini setelah dicatat.',
-            icon: Icons.location_off_outlined,
-          )
-        else
-          ...customer.addresses.map(
-            (address) => _AddressCard(address: address),
-          ),
 
         SizedBox(height: AishSpacing.space6),
 
@@ -406,92 +400,6 @@ class _Field extends StatelessWidget {
       ],
     ),
   );
-}
-
-/// An address at full precision.
-///
-/// This is a staff DETAIL surface, which is the only place Rule 32 hard rule 4
-/// permits a full address at all: never in a list row, and never on the public
-/// tracking projection, which is a separate allow-list that shares no code with
-/// this widget.
-class _AddressCard extends StatelessWidget {
-  const _AddressCard({required this.address});
-
-  final CustomerAddress address;
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
-    return Card(
-      margin: EdgeInsets.only(bottom: AishSpacing.space3),
-      child: Padding(
-        padding: EdgeInsets.all(AishSpacing.space4),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Row(
-              children: <Widget>[
-                Expanded(
-                  child: Text(
-                    address.label.isEmpty ? 'Alamat' : address.label,
-                    style: textTheme.titleSmall,
-                  ),
-                ),
-                if (address.isPrimary)
-                  const StatusChip(
-                    label: 'Utama',
-                    icon: Icons.star_outline,
-                    tone: StatusTone.information,
-                  ),
-                if (!address.isActive) ...<Widget>[
-                  const SizedBox(width: 8),
-                  const StatusChip(
-                    label: 'Nonaktif',
-                    icon: Icons.block_outlined,
-                    tone: StatusTone.neutral,
-                  ),
-                ],
-              ],
-            ),
-            SizedBox(height: AishSpacing.space2),
-            // Rendered as plain text. Automatic link detection is OFF on any
-            // field an untrusted party can populate: a "map" affordance built
-            // from customer-supplied text is a navigation path out of the app
-            // driven by content nobody reviewed (Rule 32 hard rule 24).
-            Text(address.addressLine, style: textTheme.bodyMedium),
-            if (address.areaSummary.isNotEmpty) ...<Widget>[
-              SizedBox(height: AishSpacing.space1),
-              Text(
-                address.areaSummary,
-                style: textTheme.bodySmall?.copyWith(
-                  color: AishSemanticColors.colorSemanticTextSecondary,
-                ),
-              ),
-            ],
-            SizedBox(height: AishSpacing.space2),
-            Wrap(
-              spacing: AishSpacing.space2,
-              children: <Widget>[
-                if (address.isPickupSuitable)
-                  const StatusChip(
-                    label: 'Bisa dijemput',
-                    icon: Icons.local_shipping_outlined,
-                    tone: StatusTone.neutral,
-                  ),
-                if (address.isDeliverySuitable)
-                  const StatusChip(
-                    label: 'Bisa diantar',
-                    icon: Icons.home_outlined,
-                    tone: StatusTone.neutral,
-                  ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 // ---------------------------------------------------------------------------
