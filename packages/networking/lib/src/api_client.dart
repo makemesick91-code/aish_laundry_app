@@ -154,6 +154,12 @@ final class ApiClient {
       data: body,
       options: Options(headers: headers),
     ),
+    // Forwarded, like post() and patch(). It was previously accepted and then
+    // silently dropped, so a caller that passed a version got last-write-wins:
+    // the server's OptimisticConcurrency::assertFresh returns early when no
+    // header arrives, so the stale write would have been ACCEPTED rather than
+    // refused with 409. Found by independent review before any caller existed.
+    expectedVersion: expectedVersion,
   );
 
   Future<Result<ApiSuccess>> delete(
