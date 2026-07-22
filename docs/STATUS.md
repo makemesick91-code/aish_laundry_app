@@ -276,7 +276,39 @@ erase the evidence that the gate missed something.
 **Runtime existing is still not runtime working.** Every claim above is bound to
 captured output at an exact SHA in
 [`../evidence/step-03-corrective-auth-runtime/`](../evidence/step-03-corrective-auth-runtime/)
-and `evidence/step-04/`. Step 4 remains `IN PROGRESS`; PR #18 is unmerged.
+and [`../evidence/step-04/`](../evidence/step-04/). Step 4 remains `IN PROGRESS`;
+PR #18 is unmerged.
+
+### Step 4 pre-merge state
+
+**Classification: `NO-GO — STEP 4 IN PROGRESS / MERGE-READY HANDOFF`.**
+
+This is not a product failure and not an external blocker. It records that the
+two remaining actions — merging PR #18 and conferring a `GO` tag — are the
+repository owner's and are deliberately reserved (Rule 01, Rule 12).
+
+Three independent review rounds produced twenty-three findings. **Three first
+remediations were refuted by a later round**, each failing the same way: a
+control documented as absolute, an unenumerated bypass, and a green test proving
+only the narrower case. The chronology is preserved in
+[`../evidence/step-04/INDEPENDENT-REVIEW-CLOSURE.md`](../evidence/step-04/INDEPENDENT-REVIEW-CLOSURE.md).
+
+All findings are `FIXED_AND_VERIFIED` except **NEW-04**, an
+`ACCEPTED_OPERATIONAL_RESIDUAL` covering local developer and reviewer
+reliability, accepted only after CI database isolation was proven across six
+conditions.
+
+**FR-024 and FR-025 are `COMPLETE_AND_VERIFIED`.** Seven requirements remain
+`PARTIAL_STEP_4_FOUNDATION_COMPLETE / STEP_5_E2E_PENDING`, each with a handoff
+entry naming the proof Step 5 must produce — FR-036 among them, and it is a
+mandatory financial-integrity obligation.
+
+**A deployment prerequisite is recorded and is not a current control.** The
+consent and price-list guarantees hold at the application database connection
+boundary and do not bind a principal that may rewrite the schema; in development
+the application role *is* the superuser and table owner. A non-owner,
+non-superuser role is
+[`REQUIRED_FOR_FUTURE_DEPLOYMENT` / `NOT_YET_PROVISIONED` / `NOT_CLAIMED_AS_CURRENT_CONTROL`](../docs/deployment/DATABASE_ROLE_PREREQUISITE.md).
 
 <!-- CANONICAL_STEP_STATE_BEGIN -->
 <!--
