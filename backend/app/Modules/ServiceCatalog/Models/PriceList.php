@@ -63,18 +63,47 @@ class PriceList extends Model
     public const STATUS_ARCHIVED = 'archived';
 
     /**
-     * The only columns that may change once a list is no longer a draft.
+     * The LIFECYCLE columns a caller may change once a list is no longer a
+     * draft.
      *
-     * All four are lifecycle bookkeeping. None of them is a price, an effective
-     * date, or a brand — changing any of those after publication would rewrite
-     * what a past order was charged.
+     * None of them is a price, an effective date, a brand, a code or a name —
+     * changing any of those after publication would rewrite what a past order
+     * was charged (FR-035, Rule 04 invariant 11).
      */
     private const MUTABLE_AFTER_PUBLISH = [
         'status',
         'supersedes_price_list_id',
         'is_default',
-        'deleted_at',
+    ];
+
+    /**
+     * Columns the PERSISTENCE MECHANISM owns, which a caller never chooses.
+     *
+     * Held separately from the list above, and that separation is the SEC-04
+     * fix rather than a tidying-up.
+     *
+     * `version` was in neither list. `HasOptimisticVersion` registers its
+     * `updating` hook during `bootTraits()`, which runs BEFORE `booted()`, so by
+     * the time the immutability check below ran, the concurrency counter was
+     * already dirty on every single update. The counter therefore appeared as a
+     * forbidden business-field change, and EVERY permitted post-publish
+     * mutation threw. The allow-list above was, in practice, empty.
+     *
+     * Nothing caught it because no test ever asserted that a permitted
+     * post-publish update SUCCEEDS. The negative tests all passed — they were
+     * passing for the wrong reason, since a guard that refuses everything
+     * refuses the forbidden cases too.
+     *
+     * The fix is not to append `version` to the caller-facing list. That would
+     * say a client may choose its own concurrency token, which is exactly what
+     * `HasOptimisticVersion` refuses to allow. It is a separate category:
+     * server-owned bookkeeping that changes as a CONSEQUENCE of a permitted
+     * write, never as the substance of one.
+     */
+    private const SYSTEM_MANAGED = [
+        'version',
         'updated_at',
+        'deleted_at',
     ];
 
     protected $table = 'price_lists';
@@ -135,7 +164,11 @@ class PriceList extends Model
             }
 
             $changed = array_keys($priceList->getDirty());
-            $forbidden = array_diff($changed, self::MUTABLE_AFTER_PUBLISH);
+            $forbidden = array_diff(
+                $changed,
+                self::MUTABLE_AFTER_PUBLISH,
+                self::SYSTEM_MANAGED
+            );
 
             if ($forbidden !== []) {
                 throw new RuntimeException(

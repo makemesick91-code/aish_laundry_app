@@ -131,6 +131,170 @@ final class PriceListIntegrityTest extends TestCase
         $list->save();
     }
 
+    /**
+     * SEC-04 — the POSITIVE control the immutability guard never had.
+     *
+     * Every existing test above asserts that a forbidden change is refused, and
+     * they all passed — while the guard was in fact refusing EVERYTHING.
+     * `HasOptimisticVersion` registers its `updating` hook during
+     * `bootTraits()`, which runs before `booted()`, so the concurrency counter
+     * was already dirty when the immutability check ran and appeared as a
+     * forbidden business-field change on every save. The allow-list was empty in
+     * practice.
+     *
+     * A guard that refuses everything satisfies every negative test in the file.
+     * That is why a negative-only suite cannot establish this contract, and why
+     * this test exists for each permitted field individually rather than as one
+     * combined save.
+     *
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('permittedPostPublishFields')]
+    public function test_a_permitted_lifecycle_field_may_change_after_publication(
+        string $field,
+        mixed $value,
+    ): void {
+        [$context, $brand] = $this->scenario();
+        $list = $this->publishedList($context, $brand, '2026-08-01');
+        $before = (int) $list->version;
+
+        // For the boolean, write the OPPOSITE of what is stored. Writing the
+        // value it already holds leaves the model clean, Eloquent issues no
+        // statement at all, and the test would pass without the guard ever being
+        // consulted — the same "green for an unrelated reason" shape this
+        // finding is about.
+        if ($field === 'is_default') {
+            $value = ! (bool) $list->is_default;
+        }
+
+        $list->{$field} = $value;
+        $list->save();
+
+        $reloaded = PriceList::query()->findOrFail($list->id);
+
+        $this->assertSame(
+            $value,
+            $field === 'is_default' ? (bool) $reloaded->{$field} : $reloaded->{$field},
+            "{$field} is on the permitted list but did not persist"
+        );
+
+        // The counter advances as a CONSEQUENCE of the permitted write. If it
+        // did not, a stale writer could reuse a token this write consumed.
+        $this->assertSame($before + 1, (int) $reloaded->version);
+    }
+
+    /** @return array<string, array{string, mixed}> */
+    public static function permittedPostPublishFields(): array
+    {
+        return [
+            'status' => ['status', PriceList::STATUS_ARCHIVED],
+            'is_default' => ['is_default', false],
+        ];
+    }
+
+    /**
+     * The forbidden set, each named separately.
+     *
+     * Grouping them would let one surviving refusal carry the whole assertion,
+     * which is the failure mode this finding is about.
+     *
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('forbiddenPostPublishFields')]
+    public function test_a_commercial_field_still_cannot_change_after_publication(
+        string $field,
+        mixed $value,
+    ): void {
+        [$context, $brand] = $this->scenario();
+        $list = $this->publishedList($context, $brand, '2026-08-01');
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessageMatches("/{$field}/");
+
+        $list->{$field} = $value;
+        $list->save();
+    }
+
+    /** @return array<string, array{string, mixed}> */
+    public static function forbiddenPostPublishFields(): array
+    {
+        return [
+            'code' => ['code', 'PL-DIUBAH'],
+            'name' => ['name', 'Diubah setelah terbit'],
+            'effective_from' => ['effective_from', '2027-01-01'],
+            'effective_until' => ['effective_until', '2027-12-31'],
+            'laundry_brand_id' => ['laundry_brand_id', '00000000-0000-4000-8000-000000000000'],
+        ];
+    }
+
+    /**
+     * A caller may not supply its own concurrency token, even though the token
+     * is now permitted to change.
+     *
+     * The distinction the fix rests on: `version` is server-owned bookkeeping
+     * that moves as a consequence of a write, never the substance of one. If it
+     * had simply been appended to the caller-facing allow-list, this would pass
+     * a client-chosen value straight through and a client could defeat the
+     * stale-write check by sending whatever the row currently holds.
+     */
+    public function test_a_client_cannot_choose_the_version(): void
+    {
+        [$context, $brand] = $this->scenario();
+        $list = $this->publishedList($context, $brand, '2026-08-01');
+        $before = (int) $list->version;
+
+        // Paired with a genuinely permitted change, so an UPDATE actually
+        // happens. Filling `version` alone leaves the model clean and Eloquent
+        // issues no statement at all, which would pass for the wrong reason.
+        $list->fill(['version' => 9_999]);
+        $list->is_default = ! (bool) $list->is_default;
+        $list->save();
+
+        $this->assertSame($before + 1, (int) PriceList::query()->findOrFail($list->id)->version);
+    }
+
+    /**
+     * Superseding advances the outgoing list's version.
+     *
+     * The publisher closes the outgoing window with a targeted query-builder
+     * update, deliberately going around the model guard. Going around the model
+     * also went around `HasOptimisticVersion`, so the row changed underneath
+     * anyone holding its version while still answering to that version — a
+     * stale write would have been accepted against a list that had just been
+     * superseded.
+     */
+    public function test_superseding_advances_the_outgoing_lists_version(): void
+    {
+        [$context, $brand] = $this->scenario();
+        $first = $this->publishedList($context, $brand, '2026-08-01');
+        $before = (int) $first->fresh()->version;
+
+        $second = $this->draft($context, $brand, 'PL-BERIKUT', '2026-09-01');
+        app(PriceListPublisher::class)->publish($context, $second, $first);
+
+        $this->assertSame(PriceList::STATUS_SUPERSEDED, $first->fresh()->status);
+        $this->assertSame(
+            $before + 1,
+            (int) $first->fresh()->version,
+            'the outgoing list changed without advancing its concurrency token'
+        );
+    }
+
+    /** No HTTP route mutates a published price list. Asserted, not assumed. */
+    public function test_no_route_exposes_a_post_publish_price_list_mutation(): void
+    {
+        $mutating = collect(\Illuminate\Support\Facades\Route::getRoutes()->getRoutes())
+            ->filter(static fn ($r): bool => str_contains($r->uri(), 'price-lists'))
+            ->filter(static fn ($r): bool => (bool) array_intersect($r->methods(), ['PATCH', 'PUT', 'DELETE']))
+            ->map(static fn ($r): string => implode('|', $r->methods()).' '.$r->uri())
+            ->values()
+            ->all();
+
+        // Only the DRAFT item routes may mutate. A route against the price list
+        // itself would be a post-publish edit surface, which does not exist.
+        foreach ($mutating as $route) {
+            $this->assertStringContainsString('/items', $route, "unexpected mutating route: {$route}");
+        }
+    }
+
     public function test_items_of_a_published_price_list_cannot_be_edited_or_added(): void
     {
         [$context, $brand] = $this->scenario();

@@ -117,6 +117,19 @@ final class PriceListPublisher
                             'effective_until' => $supersedes->effective_until,
                             'is_default' => false,
                             'updated_at' => now(),
+
+                            // The concurrency token must advance here too.
+                            // Going around the model to satisfy the immutability
+                            // guard also went around `HasOptimisticVersion`, so
+                            // this row changed underneath anyone holding its
+                            // version while still answering to that version — a
+                            // stale write would have been accepted against a
+                            // list that had just been superseded (SEC-04).
+                            //
+                            // Incremented IN SQL rather than from a value read
+                            // in PHP, so two concurrent publishes cannot both
+                            // compute the same next number.
+                            'version' => DB::raw('version + 1'),
                         ]);
 
                     $priceList->supersedes_price_list_id = $supersedes->id;
