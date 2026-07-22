@@ -109,13 +109,28 @@ than a list of commits:
    regardless: a verification claim bound to a SHA is either accurate or it is
    not.
 
-7. **The consent protection is bounded to the application database role.**
-   `customer_consents` now refuses `UPDATE`, `DELETE` and table truncation
-   through raising triggers, which fire for the table owner and for a superuser
-   alike. It does **not** claim protection against schema-level destruction or
-   trigger disablement by an actor holding ownership or superuser rights — that
-   is the same authority that installed the trigger. The claim is stated at the
-   boundary it actually holds.
+7. **The consent protection is bounded, and this record's first statement of
+   that bound was wrong.** `customer_consents` refuses `UPDATE`, `DELETE` and
+   table truncation through raising triggers.
+
+   This decision originally said the triggers "fire for the table owner and for
+   a superuser alike" and that protection was "bounded to the application
+   database role... not schema owners or superusers." **Both were false.**
+   `CREATE TRIGGER` produces an `ENABLE ORIGIN` trigger, which does not fire
+   under `session_replication_role = 'replica'`; an independent review removed
+   all three refusals with one `SET`, from the application's own connection,
+   with no privilege escalation and no schema change. The carve-out also bounded
+   nothing: the development application role IS the superuser and IS this
+   table's owner, so the protected class and the exception were one principal.
+
+   Corrected by migration `2026_07_22_000300`, which sets `ENABLE ALWAYS`.
+
+   **The bound as it actually holds:** no control enforced inside the database is
+   a boundary against a role that may rewrite the schema. What has been removed
+   is the bypass requiring neither privilege nor DDL. A genuine boundary requires
+   running the application as a non-owner, non-superuser role — a DEPLOYMENT
+   requirement, and deployment remains `ABSENT`, so it is recorded as a
+   requirement rather than claimed as a control.
 
 8. **The destructive-operations guard false positives are a separate governance
    follow-up.** Seven blocks are now recorded across two classes: command text

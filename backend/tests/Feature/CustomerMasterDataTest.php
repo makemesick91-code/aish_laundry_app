@@ -477,10 +477,17 @@ final class CustomerMasterDataTest extends TestCase
         $triggers = DB::table('pg_trigger')
             ->join('pg_class', 'pg_class.oid', '=', 'pg_trigger.tgrelid')
             ->where('pg_class.relname', 'customer_consents')
-            // tgenabled 'D' means DISABLED. A disabled trigger is present in
-            // the catalogue and enforces nothing, so presence alone is not the
-            // assertion.
-            ->where('pg_trigger.tgenabled', '<>', 'D')
+            // 'A' is ENABLE ALWAYS, and nothing weaker is accepted.
+            //
+            // This previously asserted `tgenabled <> 'D'`, which passes
+            // identically for 'O' (ENABLE ORIGIN) and 'A'. That is exactly how
+            // the SEC-12 bypass survived a green test: an origin-enabled trigger
+            // does not fire under `session_replication_role = 'replica'`, so the
+            // suite proved the trigger EXISTED while it could be stepped around
+            // with one `SET`. A liveness check that cannot distinguish the
+            // bypassable state from the hardened one exerts no pressure toward
+            // the safe one.
+            ->where('pg_trigger.tgenabled', 'A')
             ->where('pg_trigger.tgisinternal', false)
             ->pluck('pg_trigger.tgname')
             ->all();
@@ -492,6 +499,48 @@ final class CustomerMasterDataTest extends TestCase
         ] as $expected) {
             $this->assertContains($expected, $triggers);
         }
+    }
+
+    /**
+     * SEC-12 REOPENED — the bypass an independent review found and proved.
+     *
+     * `CREATE TRIGGER` produces an ENABLE ORIGIN trigger, which does not fire
+     * when a session sets `session_replication_role = 'replica'`. All three
+     * refusals disappeared with that one statement — no privilege escalation,
+     * no schema change, from the application's own connection. FR-028 names a
+     * data IMPORT as an attack path, and `pg_restore --disable-triggers` and
+     * logical-replication apply set precisely this GUC: the mechanism the
+     * requirement names by name was the one that walked through.
+     *
+     * ENABLE ALWAYS closes it. This test is BEHAVIOURAL rather than a catalogue
+     * assertion, because the catalogue assertion is what failed to notice.
+     */
+    public function test_consent_history_survives_a_replication_role_bypass_attempt(): void
+    {
+        $this->seedCatalogue();
+        $tenant = $this->makeTenant();
+        $customer = $this->makeCustomerDirectly($tenant->id, '081200000015');
+        $this->makeConsentDirectly($customer, CustomerConsent::STATE_WITHDRAWN);
+
+        // The exact escalation-free bypass: one SET, then the same statements.
+        DB::statement("SET session_replication_role = 'replica'");
+
+        try {
+            $this->assertStatementRefused("UPDATE customer_consents SET state = 'granted'");
+            $this->assertStatementRefused('DELETE FROM customer_consents');
+            $this->assertStatementRefused('TRUNCATE TABLE customer_consents');
+        } finally {
+            // Restored even on failure. Leaking replica mode into later tests
+            // would disable every trigger in the suite and turn unrelated
+            // assertions green for the wrong reason.
+            DB::statement("SET session_replication_role = 'origin'");
+        }
+
+        $this->assertSame(1, CustomerConsent::query()->where('customer_id', $customer->id)->count());
+        $this->assertSame(
+            CustomerConsent::STATE_WITHDRAWN,
+            $customer->fresh()->currentConsentState(CustomerConsent::TYPE_MARKETING_WHATSAPP)
+        );
     }
 
     /**

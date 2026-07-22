@@ -41,6 +41,16 @@ use Illuminate\Support\Facades\DB;
  * offending transaction aborts with a deterministic SQLSTATE rather than
  * quietly doing nothing.
  *
+ * THIS MIGRATION WAS NOT SUFFICIENT ON ITS OWN. `CREATE TRIGGER` produces an
+ * `ENABLE ORIGIN` trigger, which does not fire when a session sets
+ * `session_replication_role = 'replica'` — so all three refusals could be
+ * removed with one extra `SET`, needing no privilege escalation and no schema
+ * change. An independent review proved it. Migration
+ * `2026_07_22_000300_enable_always_customer_consent_triggers.php` moves them to
+ * `ENABLE ALWAYS`. The claims below are corrected in place rather than deleted,
+ * because a correction with its error removed reads as something that was
+ * always right (Rule 01).
+ *
  * WHY NOT PRIVILEGE REVOCATION INSTEAD
  * ------------------------------------
  * `REVOKE TRUNCATE ON customer_consents FROM <app role>` is worth having, but it
@@ -48,23 +58,31 @@ use Illuminate\Support\Facades\DB;
  * implicitly and cannot be revoked out of them, and the development application
  * role owns this table because it ran the migration. A privilege check would
  * therefore pass in a deployment where the app role is not the owner and be
- * inert in the one we actually run. A trigger fires for the owner and for a
- * superuser alike, so the guarantee does not depend on how roles happen to be
- * arranged. Revocation is recorded here as a defence-in-depth measure for a
- * future deployment topology (deployment remains ABSENT), not as today's
- * control.
+ * inert in the one we actually run.
+ *
+ * CORRECTION. This paragraph continued: "A trigger fires for the owner and for
+ * a superuser alike, so the guarantee does not depend on how roles happen to be
+ * arranged." THAT WAS FALSE in the state this migration left the triggers in.
+ * It becomes true only once they are `ENABLE ALWAYS`, which `2026_07_22_000300`
+ * does. Revocation remains a defence-in-depth measure for a future deployment
+ * topology (deployment remains ABSENT), not today's control.
  *
  * WHAT THIS STILL DOES NOT STOP, STATED PLAINLY
  * ---------------------------------------------
  * `DROP TABLE`, `ALTER TABLE ... DISABLE TRIGGER`, and dropping the trigger
- * itself remain available to a role with ownership or superuser rights. That is
- * not a gap this migration can close from inside the database — it is the same
- * authority that installed the trigger. The claim made here is bounded to
- * exactly what is enforced: no ordinary `UPDATE`, `DELETE`, or `TRUNCATE`
- * against this table succeeds, from any client, including `psql`. Schema-level
- * destruction is governed by the migration and access policy above it, not by
- * this trigger, and `down()` below is deliberately the only sanctioned removal
- * path.
+ * itself remain available to a role with ownership or superuser rights.
+ *
+ * CORRECTION. That enumeration was INCOMPLETE, and its incompleteness was the
+ * defect rather than a documentation slip: it omitted `session_replication_role`,
+ * which needs no schema change and no privilege at all. A list headed "stated
+ * plainly" that misses the cheapest bypass is worse than no list, because it
+ * invites the reader to stop looking. `2026_07_22_000300` carries the corrected
+ * enumeration.
+ *
+ * The claim made here — "no ordinary `UPDATE`, `DELETE`, or `TRUNCATE` against
+ * this table succeeds, from any client, including `psql`" — was therefore FALSE
+ * as written. All three succeeded from the application's own connection with one
+ * extra `SET`.
  */
 return new class extends Migration
 {

@@ -191,7 +191,7 @@ Each is `PARTIAL_STEP_4_FOUNDATION_COMPLETE / STEP_5_E2E_PENDING`. **None may be
 | SEC-09 | MEDIUM | printer sort produced HTTP 500 | one allow-list across three tables | `d64835d` | instance + live-schema class test | widened list → fails | `FIXED_AND_VERIFIED` | printer CONFIG only; no nota runtime |
 | SEC-10 | HIGH | 24 mutating routes unaudited | no audit in three modules | `26aa11b` | router-driven gate + behavioural tests | new route + removed record() | `FIXED_AND_VERIFIED` | rejected writes are not audited, by decision |
 | SEC-11 | MEDIUM | `GET /proof-policy` wrote a row | lazy persistence in a read accessor | `d9f0d53` | no-row-created + control | save() restored → fails | `FIXED_AND_VERIFIED` | — |
-| SEC-12 | HIGH | consent RULEs missed truncation and refused silently | rules never see table-level truncation | `76c653c` | UPDATE/DELETE/TRUNCATE refused + live-schema | trigger removed → DB accepts | `FIXED_AND_VERIFIED` | bounded to the application role; not schema owners or superusers |
+| SEC-12 | HIGH | consent RULEs missed truncation and refused silently; then the replacement triggers were themselves bypassable | rules never see table-level truncation; `CREATE TRIGGER` yields `ENABLE ORIGIN`, which `session_replication_role='replica'` skips | `76c653c`, **reopened and re-fixed with `ENABLE ALWAYS`** | UPDATE/DELETE/TRUNCATE refused in normal AND replica mode; live-schema asserts `tgenabled='A'` | migration neutered → DB accepts | `FIXED_AND_VERIFIED` | see §7.4 — no in-database control bounds the dev app role, which is superuser and table owner |
 
 **Eleven `FIXED_AND_VERIFIED`. SEC-02 remains `OPEN`.**
 
@@ -204,7 +204,38 @@ Deleting these would leave the final results looking like they were right the fi
 1. **Three invalid first-run verifications** — an empty catalogue, a skipped cross-tenant assertion, and an escalation test whose actor was permitted. [`invalid-first-run-verifications.md`](../../evidence/step-04/invalid-first-run-verifications.md).
 2. **A test-count claim of 411 where the verified figure was 413.** [`corrections.md`](../../evidence/step-04/corrections.md). Understatement, disclosed regardless.
 3. **Two failed runtime-proof attempts**, both **verification setup errors and not product defects**: a trailing slash in the base URL that failed `Environment.validate`, and tenant identifiers read before a deterministic reseed. Neither was worked around by weakening an assertion.
-4. **A mutation that did not discriminate.** Flipping the customer-detail projection default from `NONE` to `FULL` passed the entire suite, because every caller passes a context explicitly — so the "fails closed" claim was unproven. It now has a dedicated test that fails under that mutation. **This test must not be removed or weakened.**
+4. **SEC-12 was closed, then REFUTED by independent review, then re-fixed.** The
+   triggers were created `ENABLE ORIGIN`, which does not fire under
+   `session_replication_role = 'replica'` — so all three refusals came off with a
+   single `SET`, needing no privilege escalation and no schema change. Worse, the
+   migration comment asserted the opposite ("a trigger fires for the owner and
+   for a superuser alike"); the "stated plainly" list of what it does not stop
+   omitted the cheapest bypass; and the residual recorded here claimed a bound
+   "to the application role, not superusers" when **the development application
+   role IS the superuser and IS the table owner** — so the protected class and
+   the carved-out exception were the same principal. FR-028 names a data
+   *import* as an attack path, and `pg_restore --disable-triggers` sets exactly
+   that GUC. All of it is corrected in place rather than deleted.
+
+   **The honest bound.** Nothing enforced inside the database is a boundary
+   against a role that may rewrite the schema. `ENABLE ALWAYS` removes the bypass
+   that needed neither privilege nor DDL. A genuine boundary requires running the
+   application as a non-owner, non-superuser role — a DEPLOYMENT requirement, and
+   deployment remains `ABSENT`, so it is recorded as a requirement and never
+   claimed as a control.
+
+   The live-schema test asserted `tgenabled <> 'D'`, which passes identically for
+   the bypassable `'O'` and the hardened `'A'`. That is how a green suite sat on
+   top of the defect. It now asserts `'A'`, and a behavioural test performs the
+   bypass and requires refusal.
+
+5. **A dead full-address serializer was removed.** `CustomerProjection::address()`
+   returned `address_line`, `postal_code` and `notes` with no permission context,
+   in the same file whose doctrine is that an unnamed field is never assembled.
+   It had zero callers, so it leaked nothing — and "there are no callers today"
+   is a statement about today.
+
+6. **A mutation that did not discriminate.** Flipping the customer-detail projection default from `NONE` to `FULL` passed the entire suite, because every caller passes a context explicitly — so the "fails closed" claim was unproven. It now has a dedicated test that fails under that mutation. **This test must not be removed or weakened.**
 
 ---
 

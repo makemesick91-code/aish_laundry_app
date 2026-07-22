@@ -99,24 +99,15 @@ final class CustomerProjection
         ]);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    public static function address(CustomerAddress $address): array
-    {
-        return [
-            'id' => $address->id,
-            'label' => $address->label,
-            'address_line' => $address->address_line,
-            'district' => $address->district,
-            'city' => $address->city,
-            'province' => $address->province,
-            'postal_code' => $address->postal_code,
-            'notes' => $address->notes,
-            'is_pickup_suitable' => $address->is_pickup_suitable,
-            'is_delivery_suitable' => $address->is_delivery_suitable,
-            'is_primary' => $address->is_primary,
-            'is_active' => $address->is_active,
-        ];
-    }
+    // `address()` USED TO LIVE HERE and has been removed (SEC-05, NEW-02).
+    //
+    // It was a `public static` serializer returning `address_line`,
+    // `postal_code` and `notes` with NO permission context — a full-precision
+    // address emitter sitting in the same file whose doctrine is that a field
+    // not named is never assembled. It had zero callers, so it leaked nothing;
+    // it was one inviting call site away from bypassing FR-025 entirely, and
+    // "there are no callers today" is a statement about today.
+    //
+    // Every address projection now goes through `AddressProjection`, which
+    // requires a context and fails closed without one.
 }
