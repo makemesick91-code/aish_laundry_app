@@ -66,22 +66,51 @@ final class CustomerProjection
     /**
      * Detail shape for an authorised staff member inside the tenant.
      *
-     * `internal_notes` appears here and only here: it is staff-facing by
-     * definition and never reaches a customer surface (FR-030).
+     * THE CONTEXT GOVERNS TWO FIELDS, NOT ONE.
+     *
+     * `internal_notes` used to be emitted unconditionally, at every context
+     * including `NONE`. That made `NONE` mean "no address" rather than "no
+     * detail", which is not what the name says and not what a caller reading
+     * the name would assume.
+     *
+     * It is the same class of datum as an address `notes` field, which IS
+     * withheld below `FULL` precisely because operator free text carries
+     * location — "antar ke rumah sebelah pagar hijau" is an address written in
+     * prose. `internal_notes` carries that and more: service history,
+     * complaints, and whatever a staff member thought worth recording about a
+     * person. Withholding the street while emitting the commentary about who
+     * lives there would be a strange place to draw a line.
+     *
+     * No shipped role currently reaches `AREA`, so this was latent rather than
+     * live. That is a fact about today's permission topology and not a control
+     * (Rule 03: hiding is never the access control), which is exactly why the
+     * gate is here and not left to the topology.
+     *
+     * FR-030 requires internal notes never to reach the public tracking portal.
+     * The portal is Step 7 and is a separate allow-list projection that shares
+     * no code with this class; this gate is the additional server-side
+     * restriction within the staff surfaces themselves.
+     *
+     * @param  string|null  $context  A masking context from
+     *   `AddressProjection::contextFor()`. Nullable ONLY so an existing caller
+     *   cannot silently pass the wrong context by omission — null yields
+     *   neither addresses nor internal notes, which fails closed.
      *
      * @return array<string, mixed>
      */
-    /**
-     * @param  string|null  $addressContext  The masking context from
-     *   `AddressProjection::contextFor()`. Required in practice; nullable only
-     *   so an existing caller cannot silently pass the WRONG context by
-     *   omission. Passing null yields NO addresses, which fails closed.
-     */
-    public static function detail(Customer $customer, ?string $addressContext = null): array
+    public static function detail(Customer $customer, ?string $context = null): array
     {
+        $resolved = $context ?? AddressProjection::CONTEXT_NONE;
+
         return array_merge(self::summary($customer), [
             'email' => $customer->email,
-            'internal_notes' => $customer->internal_notes,
+
+            // ASSEMBLED, not filtered. At anything below FULL the key is not
+            // present at all, so there is no hidden value in the payload for a
+            // client to recover — the same discipline AddressProjection uses.
+            ...($resolved === AddressProjection::CONTEXT_FULL
+                ? ['internal_notes' => $customer->internal_notes]
+                : []),
             // Routed through the SAME masking projection as the dedicated
             // address endpoints (FR-025). A masked address endpoint would be
             // pointless if the customer detail endpoint embedded the full
@@ -90,7 +119,7 @@ final class CustomerProjection
             'addresses' => $customer->addresses
                 ->map(static fn (CustomerAddress $a): ?array => AddressProjection::forContext(
                     $a,
-                    $addressContext ?? AddressProjection::CONTEXT_NONE
+                    $resolved
                 ))
                 ->filter()
                 ->values()
