@@ -1,4 +1,4 @@
-Resolving dependencies in `/home/fikri/Projects/aish_laundry`...
+Resolving dependencies in `<REPO>`...
 Downloading packages...
   _fe_analyzer_shared 99.0.0 (105.0.0 available)
   analyzer 12.1.0 (14.1.0 available)
@@ -12,86 +12,86 @@ Downloading packages...
   test_api 0.7.11 (0.7.13 available)
   test_core 0.6.17 (0.6.19 available)
   vector_math 2.2.0 (2.4.0 available)
-Got dependencies in `/home/fikri/Projects/aish_laundry`!
+Got dependencies in `<REPO>`!
 12 packages have newer versions incompatible with dependency constraints.
 Try `flutter pub outdated` for more information.
-00:00 +0: loading /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart
-00:00 +0: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
-00:00 +1: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
-00:00 +2: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
-00:00 +3: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
-00:00 +4: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
-00:00 +5: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
-00:00 +6: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
-00:00 +7: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
-00:00 +8: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
-00:00 +9: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
-00:00 +10: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
-00:00 +11: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
-00:00 +12: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
-00:00 +13: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
-00:00 +14: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
-00:00 +15: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
-00:00 +16: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
-00:00 +17: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
-00:00 +18: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
-00:00 +19: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
-00:00 +20: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: Customer lookup renders every canonical state LOADED shows a masked phone and offers no unmask control
-00:00 +21: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: Customer lookup renders every canonical state LOADED shows a masked phone and offers no unmask control
-00:01 +22: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: Customer lookup renders every canonical state LOADED shows a masked phone and offers no unmask control
-00:01 +23: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering the full ordering reaches the shell
-00:01 +24: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: Customer lookup renders every canonical state a list row renders no address component
-00:01 +25: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Tenant selection lists exactly what the server returned
-00:01 +26: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: Customer lookup renders every canonical state EMPTY after a search names the term that found nothing
-00:01 +27: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: Customer lookup renders every canonical state EMPTY after a search names the term that found nothing
-00:01 +28: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Tenant selection a refused tenant lands on access denied
-00:01 +29: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: Customer lookup renders every canonical state DENIED discloses nothing about whether the data exists
-00:01 +30: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Tenant selection an empty tenant list renders a designed empty state
-00:01 +31: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: Customer lookup renders every canonical state OFFLINE reads differently from a server failure
-00:01 +32: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: Customer lookup renders every canonical state OFFLINE reads differently from a server failure
-00:01 +33: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Outlet selection is tenant-scoped shows only outlets of the ACTIVE tenant
-00:01 +34: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Outlet selection is tenant-scoped shows only outlets of the ACTIVE tenant
-00:02 +35: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: Customer lookup renders every canonical state the active tenant is visible on the counter screen
-00:02 +36: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Outlet selection is tenant-scoped the tenant banner stays visible while choosing an outlet
-00:02 +37: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting customer edit offers reload, never retry it names the conflict and offers a reload action
-00:02 +38: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting customer edit offers reload, never retry it names the conflict and offers a reload action
-00:02 +39: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting customer edit offers reload, never retry it names the conflict and offers a reload action
-00:02 +40: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Tenant switching clears the working set switching rebuilds context from a cleared session
-00:02 +41: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting customer edit offers reload, never retry it offers NO generic retry control
-00:02 +42: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting customer edit offers reload, never retry it offers NO generic retry control
-00:02 +43: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Role-aware navigation an owner sees the entries their permissions allow
-00:02 +44: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting customer edit offers reload, never retry it says plainly that nothing was saved
-00:02 +45: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Role-aware navigation a built destination is not announced as unavailable
-00:02 +46: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting customer edit offers reload, never retry it preserves what the operator typed
-00:03 +47: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting customer edit offers reload, never retry it preserves what the operator typed
-00:03 +48: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Ops session and membership states sessionRevoked
-00:03 +49: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting customer edit offers reload, never retry a conflict is not rendered as a validation error
-00:03 +50: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting customer edit offers reload, never retry a conflict is not rendered as a validation error
-00:03 +51: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Ops session and membership states membershipSuspended
-00:03 +52: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting outlet edit behaves the same way reload is offered and retry is not
-00:03 +53: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting outlet edit behaves the same way reload is offered and retry is not
-00:03 +54: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting outlet edit behaves the same way reload is offered and retry is not
-00:03 +55: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting outlet edit behaves the same way reload is offered and retry is not
-00:03 +56: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting outlet edit behaves the same way reload is offered and retry is not
-00:03 +57: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Offline indicator never claims a synchronisation that did not happen
-00:03 +58: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting outlet edit behaves the same way the loaded version token is what the patch sends
-00:03 +59: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Future-feature routes render the literal notice and keep the tenant banner
-00:03 +60: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting outlet edit behaves the same way an operator without the permission gets a read-only view
-00:04 +61: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Future-feature routes the shell renders no fabricated figures
-00:04 +62: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Future-feature routes the shell renders no fabricated figures
-00:04 +63: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: Consent renders its true state and cannot be edited never-asked is not rendered as withdrawn
-00:04 +64: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Logout signs out and returns to sign-in
-00:04 +65: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Logout signs out and returns to sign-in
-00:04 +66: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: Consent renders its true state and cannot be edited withdrawing is confirmed with the safe choice focused
-00:04 +67: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: The roster keeps outlet assignment and role grant apart it says an outlet assignment confers nothing
-00:04 +68: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: The roster keeps outlet assignment and role grant apart a suspended membership offers no assignment control
-00:04 +69: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: The roster keeps outlet assignment and role grant apart the role picker never offers a platform role
-00:04 +70: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: The roster keeps outlet assignment and role grant apart the picker excludes a role the member already holds
-00:04 +71: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: The roster keeps outlet assignment and role grant apart granting a role is confirmed and states the effect
-00:04 +72: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: The roster keeps outlet assignment and role grant apart a refused role grant explains the escalation rule
-00:04 +73: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: The roster keeps outlet assignment and role grant apart revoking a role is confirmed as immediate
-00:04 +74: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: The catalogue quotes a price without computing a total it reads ACTIVE price lists only
-00:05 +75: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: The catalogue quotes a price without computing a total it offers no control that would author a price
-00:05 +76: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: The Ops surface reaches no Step 5+ feature no master-data route names an order, a payment or a document
-00:05 +77: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: The Ops surface reaches no Step 5+ feature the customer detail route is built from an id, not guessed
+00:00 +0: loading <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart
+00:00 +0: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +1: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +2: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +3: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +4: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +5: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +6: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +7: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +8: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +9: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +10: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +11: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +12: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +13: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +14: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +15: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +16: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +17: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +18: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +19: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +20: <REPO>/apps/ops_android/test/master_data_test.dart: Customer lookup renders every canonical state LOADED shows a masked phone and offers no unmask control
+00:00 +21: <REPO>/apps/ops_android/test/master_data_test.dart: Customer lookup renders every canonical state LOADED shows a masked phone and offers no unmask control
+00:01 +22: <REPO>/apps/ops_android/test/master_data_test.dart: Customer lookup renders every canonical state LOADED shows a masked phone and offers no unmask control
+00:01 +23: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering the full ordering reaches the shell
+00:01 +24: <REPO>/apps/ops_android/test/master_data_test.dart: Customer lookup renders every canonical state a list row renders no address component
+00:01 +25: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Tenant selection lists exactly what the server returned
+00:01 +26: <REPO>/apps/ops_android/test/master_data_test.dart: Customer lookup renders every canonical state EMPTY after a search names the term that found nothing
+00:01 +27: <REPO>/apps/ops_android/test/master_data_test.dart: Customer lookup renders every canonical state EMPTY after a search names the term that found nothing
+00:01 +28: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Tenant selection a refused tenant lands on access denied
+00:01 +29: <REPO>/apps/ops_android/test/master_data_test.dart: Customer lookup renders every canonical state DENIED discloses nothing about whether the data exists
+00:01 +30: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Tenant selection an empty tenant list renders a designed empty state
+00:01 +31: <REPO>/apps/ops_android/test/master_data_test.dart: Customer lookup renders every canonical state OFFLINE reads differently from a server failure
+00:01 +32: <REPO>/apps/ops_android/test/master_data_test.dart: Customer lookup renders every canonical state OFFLINE reads differently from a server failure
+00:01 +33: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Outlet selection is tenant-scoped shows only outlets of the ACTIVE tenant
+00:01 +34: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Outlet selection is tenant-scoped shows only outlets of the ACTIVE tenant
+00:02 +35: <REPO>/apps/ops_android/test/master_data_test.dart: Customer lookup renders every canonical state the active tenant is visible on the counter screen
+00:02 +36: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Outlet selection is tenant-scoped the tenant banner stays visible while choosing an outlet
+00:02 +37: <REPO>/apps/ops_android/test/master_data_test.dart: A conflicting customer edit offers reload, never retry it names the conflict and offers a reload action
+00:02 +38: <REPO>/apps/ops_android/test/master_data_test.dart: A conflicting customer edit offers reload, never retry it names the conflict and offers a reload action
+00:02 +39: <REPO>/apps/ops_android/test/master_data_test.dart: A conflicting customer edit offers reload, never retry it names the conflict and offers a reload action
+00:02 +40: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Tenant switching clears the working set switching rebuilds context from a cleared session
+00:02 +41: <REPO>/apps/ops_android/test/master_data_test.dart: A conflicting customer edit offers reload, never retry it offers NO generic retry control
+00:02 +42: <REPO>/apps/ops_android/test/master_data_test.dart: A conflicting customer edit offers reload, never retry it offers NO generic retry control
+00:02 +43: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Role-aware navigation an owner sees the entries their permissions allow
+00:02 +44: <REPO>/apps/ops_android/test/master_data_test.dart: A conflicting customer edit offers reload, never retry it says plainly that nothing was saved
+00:02 +45: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Role-aware navigation a built destination is not announced as unavailable
+00:02 +46: <REPO>/apps/ops_android/test/master_data_test.dart: A conflicting customer edit offers reload, never retry it preserves what the operator typed
+00:03 +47: <REPO>/apps/ops_android/test/master_data_test.dart: A conflicting customer edit offers reload, never retry it preserves what the operator typed
+00:03 +48: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Ops session and membership states sessionRevoked
+00:03 +49: <REPO>/apps/ops_android/test/master_data_test.dart: A conflicting customer edit offers reload, never retry a conflict is not rendered as a validation error
+00:03 +50: <REPO>/apps/ops_android/test/master_data_test.dart: A conflicting customer edit offers reload, never retry a conflict is not rendered as a validation error
+00:03 +51: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Ops session and membership states membershipSuspended
+00:03 +52: <REPO>/apps/ops_android/test/master_data_test.dart: A conflicting outlet edit behaves the same way reload is offered and retry is not
+00:03 +53: <REPO>/apps/ops_android/test/master_data_test.dart: A conflicting outlet edit behaves the same way reload is offered and retry is not
+00:03 +54: <REPO>/apps/ops_android/test/master_data_test.dart: A conflicting outlet edit behaves the same way reload is offered and retry is not
+00:03 +55: <REPO>/apps/ops_android/test/master_data_test.dart: A conflicting outlet edit behaves the same way reload is offered and retry is not
+00:03 +56: <REPO>/apps/ops_android/test/master_data_test.dart: A conflicting outlet edit behaves the same way reload is offered and retry is not
+00:03 +57: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Offline indicator never claims a synchronisation that did not happen
+00:03 +58: <REPO>/apps/ops_android/test/master_data_test.dart: A conflicting outlet edit behaves the same way the loaded version token is what the patch sends
+00:03 +59: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Future-feature routes render the literal notice and keep the tenant banner
+00:03 +60: <REPO>/apps/ops_android/test/master_data_test.dart: A conflicting outlet edit behaves the same way an operator without the permission gets a read-only view
+00:04 +61: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Future-feature routes the shell renders no fabricated figures
+00:04 +62: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Future-feature routes the shell renders no fabricated figures
+00:04 +63: <REPO>/apps/ops_android/test/master_data_test.dart: Consent renders its true state and cannot be edited never-asked is not rendered as withdrawn
+00:04 +64: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Logout signs out and returns to sign-in
+00:04 +65: <REPO>/apps/ops_android/test/tenant_outlet_selection_test.dart: Logout signs out and returns to sign-in
+00:04 +66: <REPO>/apps/ops_android/test/master_data_test.dart: Consent renders its true state and cannot be edited withdrawing is confirmed with the safe choice focused
+00:04 +67: <REPO>/apps/ops_android/test/master_data_test.dart: The roster keeps outlet assignment and role grant apart it says an outlet assignment confers nothing
+00:04 +68: <REPO>/apps/ops_android/test/master_data_test.dart: The roster keeps outlet assignment and role grant apart a suspended membership offers no assignment control
+00:04 +69: <REPO>/apps/ops_android/test/master_data_test.dart: The roster keeps outlet assignment and role grant apart the role picker never offers a platform role
+00:04 +70: <REPO>/apps/ops_android/test/master_data_test.dart: The roster keeps outlet assignment and role grant apart the picker excludes a role the member already holds
+00:04 +71: <REPO>/apps/ops_android/test/master_data_test.dart: The roster keeps outlet assignment and role grant apart granting a role is confirmed and states the effect
+00:04 +72: <REPO>/apps/ops_android/test/master_data_test.dart: The roster keeps outlet assignment and role grant apart a refused role grant explains the escalation rule
+00:04 +73: <REPO>/apps/ops_android/test/master_data_test.dart: The roster keeps outlet assignment and role grant apart revoking a role is confirmed as immediate
+00:04 +74: <REPO>/apps/ops_android/test/master_data_test.dart: The catalogue quotes a price without computing a total it reads ACTIVE price lists only
+00:05 +75: <REPO>/apps/ops_android/test/master_data_test.dart: The catalogue quotes a price without computing a total it offers no control that would author a price
+00:05 +76: <REPO>/apps/ops_android/test/master_data_test.dart: The Ops surface reaches no Step 5+ feature no master-data route names an order, a payment or a document
+00:05 +77: <REPO>/apps/ops_android/test/master_data_test.dart: The Ops surface reaches no Step 5+ feature the customer detail route is built from an id, not guessed
 00:05 +78: All tests passed!

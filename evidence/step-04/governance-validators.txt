@@ -1,0 +1,35 @@
+STEP 4 — GOVERNANCE VALIDATORS
+==============================
+
+Bound to commit: 6abd3fdc918a740ea400819a23e9b0cc371778f5
+Timestamp (Asia/Jakarta): 2026-07-22 23:34:32 WIB
+Environment: PHP 8.5.4, PostgreSQL 18.4, Redis 8.2 (loopback-bound dev services)
+
+$ python3 scripts/validate-master-source.py
+SUMMARY [master-source]: 36/36 checks passed, 0 failed
+RESULT: PASS (master-source)
+
+$ python3 scripts/validate-required-files.py
+SUMMARY [required-files]: 119/119 checks passed, 0 failed
+RESULT: PASS (required-files)
+
+$ python3 scripts/validate-decisions.py
+SUMMARY [decisions]: 108/108 checks passed, 0 failed
+RESULT: PASS (decisions)
+
+$ python3 scripts/validate-runtime-scope.py
+SUMMARY [runtime-scope]: 5/5 checks passed, 0 failed
+RESULT: PASS (runtime-scope)
+
+$ python3 scripts/validate-dec-0030-labels.py
+SUMMARY [dec-0030-labels]: 4/4 checks passed, 0 failed
+RESULT: PASS (dec-0030-labels)
+
+$ python3 scripts/validate-production-composition.py
+SUMMARY [production-composition]: 12/12 checks passed, 0 failed
+RESULT: PASS (production-composition)
+
+$ python3 scripts/validate-auth-runtime-truth.py
+SUMMARY [auth-runtime-truth]: 5/5 checks passed, 0 failed
+RESULT: PASS (auth-runtime-truth)
+

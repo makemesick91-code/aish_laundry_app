@@ -1,6 +1,6 @@
 NEW-04 — CI DATABASE ISOLATION PROOF
 ====================================
-Bound to commit: 405cd131a128b0ac6f9fa86dcb1e13475cee6c7b
+Bound to commit: 6abd3fdc918a740ea400819a23e9b0cc371778f5
 Timestamp (Asia/Jakarta): 2026-07-22 22:57:03 WIB
 
 NEW-04 is: the LOCAL test suite shares the developer database, so

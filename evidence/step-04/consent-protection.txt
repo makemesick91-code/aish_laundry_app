@@ -1,0 +1,24 @@
+SEC-12 — CONSENT PROTECTION, BEHAVIOURAL PROOF
+==============================================
+
+Bound to commit: 6abd3fdc918a740ea400819a23e9b0cc371778f5
+Timestamp (Asia/Jakarta): 2026-07-22 23:34:32 WIB
+Environment: PHP 8.5.4, PostgreSQL 18.4, Redis 8.2 (loopback-bound dev services)
+
+Normal AND replica mode. The fixture is asserted to exist BEFORE any
+refusal is trusted: a closure reviewer's fixture once failed a check
+constraint and the row-level refusals then passed vacuously on an empty
+table.
+
+$ php artisan test --filter="append_only|replication_role_bypass|truncated_away|reset_by_raw_sql"
+
+
+   PASS  Tests\Feature\CustomerMasterDataTest
+  ✓ an opt out cannot be reset by raw sql bypassing the application      0.57s  
+  ✓ consent history cannot be truncated away                             0.11s  
+  ✓ the append only boundary exists in the live schema                   0.02s  
+  ✓ consent history survives a replication role bypass attempt           0.10s  
+
+  Tests:    4 passed (34 assertions)
+  Duration: 0.94s
+

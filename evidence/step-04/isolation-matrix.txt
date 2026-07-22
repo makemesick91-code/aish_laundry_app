@@ -1,21 +1,33 @@
+STEP 4 — TENANT ISOLATION MATRIX (Rule 48 hard rule 3)
+======================================================
 
-   PASS  Tests\Feature\Security\Step04IsolationMatrixTest
-  ✓ c1 control every aggregate is reachable within its own tenant        0.79s  
-  ✓ c2 violation no aggregate is reachable across the tenant boundary b… 0.30s  
-  ✓ c3 a foreign id and an absent id are byte identical                  0.27s  
-  ✓ c4 control a list returns the callers own records                    0.30s  
-  ✓ c5 violation a list never contains another tenants record            0.32s  
-  ✓ c6 a filter parameter cannot widen the tenant scope                  0.29s  
-  ✓ c7 a foreign brand filter yields nothing rather than an error        0.27s  
-  ✓ c8 control search finds the callers own record                       0.26s  
-  ✓ c9 violation search never reaches across the tenant boundary         0.35s  
-  ✓ c10 searching a foreign customers exact phone finds nothing          0.27s  
-  ✓ c11 no export path exists in step 4                                  0.10s  
-  ✓ c12 step 4 stores no file and serves no file url                     0.11s  
-  ✓ c13 a client supplied tenant header is not authorization proof       0.26s  
-  ✓ c14 a foreign brand or outlet id is rejected not silently scoped aw… 0.28s  
-  ✓ c15 a forged tenant id in the body is ignored not honoured           0.29s  
+Bound to commit: 6abd3fdc918a740ea400819a23e9b0cc371778f5
+Timestamp (Asia/Jakarta): 2026-07-22 23:34:32 WIB
+Environment: PHP 8.5.4, PostgreSQL 18.4, Redis 8.2 (loopback-bound dev services)
 
-  Tests:    15 passed (728 assertions)
-  Duration: 4.59s
+Every access path independently: direct id, list, filter, free-text
+search, export, and file URL. A test proving only the direct-id path does
+not satisfy the gate.
+
+$ php artisan test --filter="Isolation"
+
+  ✓ b3 user b cannot reach tenant a                                      0.15s  
+  ✓ b4 owner of both tenants reaches each one explicitly                 0.16s  
+  ✓ b5 tenant switch changes context not identity                        0.17s  
+  ✓ b6 revoked membership blocks with membership revoked                 0.18s  
+  ✓ b7 suspended membership blocks with membership suspended             0.15s  
+  ✓ b8 cross tenant outlet is rejected                                   0.15s  
+  ✓ b9 cross tenant brand never appears in the active tenants outlet li… 0.19s  
+  ✓ b10 forged tenant header is rejected                                 0.14s  
+  ✓ b11 forged tenant route parameter is rejected                        0.15s  
+  ✓ b11b forged tenant id in the request body is rejected                0.14s  
+  ✓ b12 cross tenant resource id is rejected without an existence oracl… 0.16s  
+  ✓ b13 cross tenant role assignment is rejected                         0.14s  
+  ✓ b14 a user cannot reach another users session                        0.16s  
+  ✓ b15 audit entries written by tenant a activity never carry tenant b  0.15s  
+  ✓ b16 stale tenant context is rejected on the next request             0.15s  
+  ✓ b17 platform support gets no tenant data by default                  0.17s  
+
+  Tests:    44 passed (954 assertions)
+  Duration: 8.86s
 

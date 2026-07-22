@@ -1,0 +1,20 @@
+STEP 4 — FLUTTER SUITES
+=======================
+
+Bound to commit: 6abd3fdc918a740ea400819a23e9b0cc371778f5
+Timestamp (Asia/Jakarta): 2026-07-22 23:34:32 WIB
+Environment: PHP 8.5.4, PostgreSQL 18.4, Redis 8.2 (loopback-bound dev services)
+
+$ dart analyze
+Analyzing aish_laundry...
+No issues found!
+
+$ flutter test apps/ops_android/test packages
+00:07 +266 ~8: <REPO>/packages/design_system/test/widgets_test.dart: AishTheme exposes no dark theme
+00:07 +267 ~8: <REPO>/packages/design_system/test/widgets_test.dart: AishTheme pads tap targets at the theme level
+00:07 +268 ~8: All tests passed!
+
+$ (cd apps/admin_web && flutter test)   # run from the app dir: its web-storage scan reads ./lib
+00:03 +57: <REPO>/apps/admin_web/test/console_test.dart: Logout signs out and returns to sign-in
+00:03 +58: <REPO>/apps/admin_web/test/console_test.dart: Logout signs out and returns to sign-in
+00:03 +59: All tests passed!

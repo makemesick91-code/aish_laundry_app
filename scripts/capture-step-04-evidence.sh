@@ -28,6 +28,15 @@ if [ -n "$(git status --porcelain)" ]; then
   exit 1
 fi
 
+# Absolute machine paths are normalised out of every capture.
+#
+# The Flutter runner prints absolute test paths, which embed the operator's home
+# directory. On a PUBLIC repository that is machine-specific noise nobody needs,
+# and it makes two captures from two machines differ for a reason unrelated to
+# the result. It is not a secret — the same username is in every commit — which
+# is why this is normalisation rather than redaction.
+scrub() { sed -E 's#/home/[A-Za-z0-9_.-]+/Projects/aish_laundry#<REPO>#g'; }
+
 header() {
   printf '%s\n%s\n\nBound to commit: %s\nTimestamp (Asia/Jakarta): %s\nEnvironment: PHP %s, PostgreSQL 18.4, Redis 8.2 (loopback-bound dev services)\n\n' \
     "$1" "$(printf '=%.0s' $(seq 1 ${#1}))" "$SHA" "$STAMP" "$(php -r 'echo PHP_VERSION;')"
@@ -40,7 +49,7 @@ echo "Capturing Step 4 evidence at $SHA"
   header "STEP 4 — BACKEND SUITE"
   echo '$ cd backend && php artisan test'
   echo ""
-  (cd backend && php artisan test 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | tail -25)
+  (cd backend && php artisan test 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | scrub | tail -25)
 } > "$OUT/backend-suite.txt"
 
 # --- Database lifecycle ----------------------------------------------------
@@ -51,13 +60,13 @@ echo "Capturing Step 4 evidence at $SHA"
   echo "that dimension however simple it looks."
   echo ""
   echo '$ php artisan migrate:fresh --force'
-  (cd backend && php artisan migrate:fresh --force 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | tail -6)
+  (cd backend && php artisan migrate:fresh --force 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | scrub | tail -6)
   echo ""
   echo '$ php artisan migrate:rollback --step=5 --force'
-  (cd backend && php artisan migrate:rollback --step=5 --force 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | grep -E 'DONE|Nothing')
+  (cd backend && php artisan migrate:rollback --step=5 --force 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | scrub | grep -E 'DONE|Nothing')
   echo ""
   echo '$ php artisan migrate --force'
-  (cd backend && php artisan migrate --force 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | grep -E 'DONE|Nothing')
+  (cd backend && php artisan migrate --force 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | scrub | grep -E 'DONE|Nothing')
 } > "$OUT/database-lifecycle.txt"
 
 # --- Live schema invariants ------------------------------------------------
@@ -110,7 +119,7 @@ else { foreach ($missing as $r) printf("  MISSING tenant_id: %s\n", $r->table_na
   echo ""
   echo '$ php artisan test --filter="append_only|replication_role_bypass|truncated_away|reset_by_raw_sql"'
   echo ""
-  (cd backend && php artisan test --filter='append_only|replication_role_bypass|truncated_away|reset_by_raw_sql' 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | tail -12)
+  (cd backend && php artisan test --filter='append_only|replication_role_bypass|truncated_away|reset_by_raw_sql' 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | scrub | tail -12)
 } > "$OUT/consent-protection.txt"
 
 # --- Isolation matrix ------------------------------------------------------
@@ -122,7 +131,7 @@ else { foreach ($missing as $r) printf("  MISSING tenant_id: %s\n", $r->table_na
   echo ""
   echo '$ php artisan test --filter="Isolation"'
   echo ""
-  (cd backend && php artisan test --filter='Isolation' 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | tail -20)
+  (cd backend && php artisan test --filter='Isolation' 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | scrub | tail -20)
 } > "$OUT/isolation-matrix.txt"
 
 # --- Flutter ---------------------------------------------------------------
@@ -132,10 +141,10 @@ else { foreach ($missing as $r) printf("  MISSING tenant_id: %s\n", $r->table_na
   dart analyze 2>&1 | tail -3
   echo ""
   echo '$ flutter test apps/ops_android/test packages'
-  flutter test apps/ops_android/test packages 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | tail -3
+  flutter test apps/ops_android/test packages 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | scrub | tail -3
   echo ""
   echo '$ (cd apps/admin_web && flutter test)   # run from the app dir: its web-storage scan reads ./lib'
-  (cd apps/admin_web && flutter test 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | tail -3)
+  (cd apps/admin_web && flutter test 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | scrub | tail -3)
 } > "$OUT/flutter-suites.txt"
 
 # --- Governance validators -------------------------------------------------
@@ -173,7 +182,7 @@ else { foreach ($missing as $r) printf("  MISSING tenant_id: %s\n", $r->table_na
   for v in 00 01 02 03 04; do
     printf '$ bash scripts/verify-step-%s.sh\n' "$v"
     out="$(bash "scripts/verify-step-$v.sh" 2>&1)"; rc=$?
-    echo "$out" | sed 's/\x1b\[[0-9;]*m//g' | grep -iE 'VERIFICATION:|SKIP ' | head -3
+    echo "$out" | sed 's/\x1b\[[0-9;]*m//g' | scrub | grep -iE 'VERIFICATION:|SKIP ' | head -3
     echo "  exit=$rc"
     echo ""
   done
