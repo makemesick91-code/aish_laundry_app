@@ -553,6 +553,28 @@ final class CustomerMasterDataTest extends TestCase
      */
     private function assertStatementRefused(string $sql): void
     {
+        // THE PRECONDITION IS PART OF THE ASSERTION.
+        //
+        // A closure reviewer's fixture once failed a check constraint and left
+        // this table EMPTY. The row-level UPDATE and DELETE triggers then never
+        // fired — there was nothing to fire on — and both refusals "passed"
+        // while proving nothing. Only the statement-level truncation trigger
+        // caught anything. The reviewer noticed and redid the run; a suite has
+        // no such instinct.
+        //
+        // So a refusal test now REFUSES TO RUN against an empty table. A
+        // destructive-protocol assertion with no data is not a weaker test, it
+        // is a different test that happens to be green.
+        $before = DB::table('customer_consents')->count();
+
+        $this->assertGreaterThan(
+            0,
+            $before,
+            "PRECONDITION FAILED: customer_consents is empty, so \"{$sql}\" would "
+            .'be refused vacuously — a row-level trigger cannot fire on no rows. '
+            .'Build the fixture before asserting a refusal.'
+        );
+
         try {
             DB::transaction(static fn () => DB::statement($sql));
             $this->fail("The database ACCEPTED a statement it must refuse: {$sql}");
@@ -562,6 +584,14 @@ final class CustomerMasterDataTest extends TestCase
             // not a contract.
             $this->assertSame('23001', $e->getCode(), "Refused, but not by the append-only trigger: {$sql}");
         }
+
+        // And the row count is unchanged AFTER the refusal, so a statement that
+        // was refused loudly but still deleted something cannot pass.
+        $this->assertSame(
+            $before,
+            DB::table('customer_consents')->count(),
+            "The statement was refused, but the row count changed: {$sql}"
+        );
     }
 
     // -----------------------------------------------------------------------
