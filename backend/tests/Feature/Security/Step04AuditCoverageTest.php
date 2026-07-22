@@ -195,6 +195,90 @@ final class Step04AuditCoverageTest extends TestCase
     }
 
     /**
+     * The REVERSE direction: every action in the vocabulary has an emitter.
+     *
+     * The gate above proves no route is unaudited. It says nothing about the
+     * opposite drift — an action constant nobody emits. Independent review found
+     * four: `MEMBERSHIP_CREATED`, `MEMBERSHIP_SUSPENDED`, `MEMBERSHIP_REVOKED`
+     * and `DEVICE_SESSION_REVOKED`.
+     *
+     * They are DEAD VOCABULARY, not missing audit. Device revocation IS audited,
+     * under `AUTH_SESSION_REVOKED`; the membership lifecycle actions have no
+     * command surface to emit them from, which
+     * `test_no_membership_suspension_endpoint_exists_yet` already asserts.
+     *
+     * That distinction matters: an unemitted action reads to an operator
+     * building an alert as a thing that will fire, and they will wait for an
+     * event that cannot arrive. So each one is declared here with its reason,
+     * and a NEW unemitted action fails this test rather than accumulating
+     * quietly.
+     */
+    public function test_every_audit_action_is_either_emitted_or_declared_dormant(): void
+    {
+        // Declared dormant, each with the reason it cannot fire yet.
+        $dormant = [
+            // No endpoint creates a membership; Step 3 seeds them.
+            AuditAction::MEMBERSHIP_CREATED => 'no membership-creation command surface exists',
+            // Asserted separately by test_no_membership_suspension_endpoint_exists_yet.
+            AuditAction::MEMBERSHIP_SUSPENDED => 'no membership-suspension command surface exists',
+            AuditAction::MEMBERSHIP_REVOKED => 'no membership-revocation command surface exists',
+            // Device revocation is audited as AUTH_SESSION_REVOKED instead.
+            AuditAction::DEVICE_SESSION_REVOKED => 'device revocation is emitted as AUTH_SESSION_REVOKED',
+        ];
+
+        $source = '';
+        $directory = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator(app_path())
+        );
+
+        foreach ($directory as $file) {
+            if ($file->isFile() && $file->getExtension() === 'php') {
+                $source .= file_get_contents($file->getPathname());
+            }
+        }
+
+        $constants = (new \ReflectionClass(AuditAction::class))->getConstants();
+
+        $unemitted = [];
+
+        foreach (AuditAction::all() as $action) {
+            $name = array_search($action, $constants, true);
+
+            // An emission site is `AuditAction::NAME` appearing anywhere in
+            // app/ OTHER than the declaration itself. Matching the constant
+            // NAME rather than its wire value, because the wire value also
+            // appears in the declaration line.
+            $uses = substr_count($source, "AuditAction::{$name}");
+
+            if ($uses === 0) {
+                $unemitted[] = $action;
+            }
+        }
+
+        $undeclared = array_values(array_diff($unemitted, array_keys($dormant)));
+
+        $this->assertSame(
+            [],
+            $undeclared,
+            'These audit actions have no emission site in app/ and are not '
+            .'declared dormant. An action nobody emits reads to an operator '
+            .'building an alert as a thing that will fire: '
+            .implode(', ', $undeclared)
+        );
+
+        // And a dormant declaration that HAS started being emitted is stale —
+        // it should move out of this list rather than sit here misdescribing
+        // the system.
+        $stale = array_values(array_diff(array_keys($dormant), $unemitted));
+
+        $this->assertSame(
+            [],
+            $stale,
+            'declared dormant but now emitted: '.implode(', ', $stale)
+        );
+    }
+
+    /**
      * A representative write per category, exercised over HTTP and checked for
      * an actual audit row.
      *

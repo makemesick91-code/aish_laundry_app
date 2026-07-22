@@ -198,23 +198,51 @@ final class PasswordResetController
     }
 
     /**
-     * Development/test delivery. The token appears in the LINK only.
+     * Development/test delivery. THE TOKEN NEVER TOUCHES A LOG.
      *
-     * Note the token is placed in the message STRING, never in the log context
-     * array — the redaction processor scrubs context keys, and relying on it to
-     * carry a secret would be depending on a control to fail safely rather than
-     * not creating the exposure. In a real deployment this transport is replaced
-     * by a provider, which is a Step-gated decision.
+     * It used to. The link was placed in the log MESSAGE rather than the
+     * context array, specifically so the redaction processor would not scrub
+     * it — reasoned as "relying on a redactor to carry a secret is depending on
+     * a control to fail safely." That reasoning is right and its conclusion was
+     * wrong: the answer is not to route around the redactor, it is not to put a
+     * token in a log at all. Rule 46 hard rule 2 admits no exception for level,
+     * for temporariness, or for a local transport.
+     *
+     * Logs are shipped, aggregated, retained and read by people who are not
+     * chasing this request. A file under `storage/app/` is none of those things:
+     * it is git-ignored, it is overwritten each time, and it never leaves the
+     * machine. The log records that a link was written and where — which is what
+     * an operator actually needs in order to find it.
+     *
+     * Found in Step 3 code by the Step 4 independent review (finding N5).
      */
     private function deliverResetLink(string $identifier, string $plainToken): void
     {
         $url = rtrim((string) config('app.url'), '/').'/atur-ulang-kata-sandi?token='.$plainToken;
 
+        $path = (string) config(
+            'aish.password_reset.link_path',
+            storage_path('app/password-reset-link.txt')
+        );
+
+        $directory = dirname($path);
+
+        if (! is_dir($directory)) {
+            mkdir($directory, 0o700, true);
+        }
+
+        // Overwritten, not appended: a growing file of live reset links is a
+        // credential store nobody decided to create. Mode 0600 so it is not
+        // world-readable on a shared machine.
+        file_put_contents($path, $url.PHP_EOL, LOCK_EX);
+        @chmod($path, 0o600);
+
         Log::channel(config('aish.password_reset.log_channel', 'single'))->info(
             sprintf(
-                '[PASSWORD RESET — LOCAL TRANSPORT ONLY] Tautan untuk %s: %s',
+                '[PASSWORD RESET — LOCAL TRANSPORT ONLY] Tautan untuk %s ditulis ke %s',
                 Str::mask($identifier, '*', 2, max(strlen($identifier) - 4, 0)),
-                $url
+                // The PATH, never the URL. The URL carries the token.
+                $path
             )
         );
     }

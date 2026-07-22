@@ -69,7 +69,16 @@ EXPECTED_RULE_COUNT = 51
 # Raised 27 -> 30 at Master Source 1.4.1 for DEC-0028, DEC-0029, and DEC-0030.
 # Raised 31 -> 32 at Master Source 1.4.2 for DEC-0032 (Step 3 post-GO corrective
 # remediation: runtime authentication wiring).
-EXPECTED_DECISION_COUNT = 32
+# Raised 32 -> 33 at Master Source 1.4.3 for DEC-0033 (Step 4 independent review
+# findings and closure conditions).
+#
+# THIS CONSTANT AND `validate-master-source.py`'s VERSION ARE DERIVED FROM THE
+# MASTER SOURCE and must move with it. They did not when 1.4.3 landed, and the
+# result was `verify-step-04.sh` failing at HEAD while a status report claimed it
+# passed — the report was accurate at the SHA it ran against and was never
+# re-run after the bump. A Master Source version change is not complete until
+# every derived validator has been re-run, not merely edited.
+EXPECTED_DECISION_COUNT = 33
 
 
 def main() -> int:

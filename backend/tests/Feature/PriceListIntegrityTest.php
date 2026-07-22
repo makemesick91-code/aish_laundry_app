@@ -166,6 +166,12 @@ final class PriceListIntegrityTest extends TestCase
             $value = ! (bool) $list->is_default;
         }
 
+        // Resolved here rather than in the provider, because it must reference
+        // a real list in THIS tenant to satisfy the composite foreign key.
+        if ($field === 'supersedes_price_list_id') {
+            $value = $this->draft($context, $brand, 'PL-SEBELUM', '2026-06-01')->id;
+        }
+
         $list->{$field} = $value;
         $list->save();
 
@@ -191,10 +197,12 @@ final class PriceListIntegrityTest extends TestCase
             // On the allow-list and previously untested. An allow-list entry
             // nothing exercises is indistinguishable from one that does not
             // work — which is the whole shape of this finding.
-            'supersedes_price_list_id' => [
-                'supersedes_price_list_id',
-                '019f0000-0000-7000-8000-00000000f1c7',
-            ],
+            //
+            // The value is resolved at run time from a REAL list in the same
+            // tenant. It used to be a hand-written UUID referencing nothing,
+            // which passed only because the column had no foreign key — the
+            // test was enshrining the very gap review N3 found.
+            'supersedes_price_list_id' => ['supersedes_price_list_id', null],
         ];
     }
 
@@ -230,6 +238,40 @@ final class PriceListIntegrityTest extends TestCase
             'effective_until' => ['effective_until', '2027-12-31'],
             'laundry_brand_id' => ['laundry_brand_id', '00000000-0000-4000-8000-000000000000'],
         ];
+    }
+
+    /**
+     * A published price list cannot be deleted, softly or otherwise.
+     *
+     * `deleted_at` is on the SYSTEM_MANAGED list, so the immutability guard
+     * permitted the write and `delete()` on an active list SUCCEEDED — after
+     * which the row left the default Eloquent scope and the list stopped being
+     * findable. FR-036 requires a historical order's captured price to survive
+     * any later change, and it resolves through this model.
+     *
+     * Found by independent review. Latent rather than exploited: no HTTP route
+     * reaches it today. Step 5 is what would make it reachable.
+     */
+    public function test_a_published_price_list_cannot_be_soft_deleted(): void
+    {
+        [$context, $brand] = $this->scenario();
+        $list = $this->publishedList($context, $brand, '2026-08-01');
+
+        $this->expectException(RuntimeException::class);
+
+        $list->delete();
+    }
+
+    /** The control: a DRAFT may still be cleaned up. */
+    public function test_a_draft_price_list_may_still_be_deleted(): void
+    {
+        [$context, $brand] = $this->scenario();
+        $draft = $this->draft($context, $brand, 'PL-BUANG', '2026-08-01');
+
+        $draft->delete();
+
+        $this->assertNull(PriceList::query()->find($draft->id));
+        $this->assertNotNull(PriceList::withTrashed()->find($draft->id));
     }
 
     /**

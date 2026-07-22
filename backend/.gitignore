@@ -29,3 +29,4 @@
 
 .phpunit.result.cache
 .phpunit.cache
+/storage/app/password-reset-link.txt

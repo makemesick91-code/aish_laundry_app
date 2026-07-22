@@ -9,6 +9,8 @@ use App\Modules\SharedKernel\Support\Redactor;
 use Illuminate\Support\Facades\Log;
 use Monolog\Level;
 use Monolog\LogRecord;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\BuildsTenantScenario;
 use Tests\Concerns\CapturesLogOutput;
 use Tests\TestCase;
 
@@ -43,7 +45,9 @@ use Tests\TestCase;
  */
 final class LogRedactionTest extends TestCase
 {
+    use BuildsTenantScenario;
     use CapturesLogOutput;
+    use RefreshDatabase;
 
     /**
      * The sensitive shapes that must never survive to disk. Keyed by the log
@@ -186,6 +190,58 @@ final class LogRedactionTest extends TestCase
                 sprintf('Secret under "%s" reached the log at debug level. Rule 03 admits no level exemption.', $key)
             );
         }
+    }
+
+    /**
+     * F6 — a password-reset token never reaches a log (Rule 46 hard rule 2).
+     *
+     * The token used to be written into the log MESSAGE, deliberately placed
+     * where the redaction processor does not reach — the reasoning being that
+     * relying on a redactor to carry a secret depends on a control failing
+     * safely. Correct reasoning, wrong conclusion: the fix is not to bypass the
+     * redactor, it is not to put the token in a log at all.
+     *
+     * This asserts the OUTCOME rather than the mechanism, so it stays true if
+     * the transport is replaced by a provider later.
+     *
+     * Found in Step 3 code by the Step 4 independent review (N5).
+     */
+    public function test_f6_a_password_reset_token_never_reaches_the_log(): void
+    {
+        $logFile = storage_path('logs/laravel.log');
+        $before = is_file($logFile) ? filesize($logFile) : 0;
+
+        $linkPath = storage_path('app/password-reset-link.txt');
+        @unlink($linkPath);
+
+        $user = $this->makeUser();
+
+        $this->postJson('/api/v1/auth/password-reset/request', [
+            'identifier' => $user->email,
+        ])->assertOk();
+
+        // The link WAS delivered — otherwise this test would pass simply because
+        // nothing happened at all.
+        $this->assertFileExists($linkPath, 'the local transport did not deliver a link');
+        $link = (string) file_get_contents($linkPath);
+        $this->assertStringContainsString('token=', $link);
+
+        $token = substr($link, strpos($link, 'token=') + 6);
+        $token = trim($token);
+        $this->assertNotSame('', $token);
+
+        $written = is_file($logFile)
+            ? (string) file_get_contents($logFile, false, null, $before)
+            : '';
+
+        $this->assertStringNotContainsString(
+            $token,
+            $written,
+            'the reset token reached the log stream — Rule 46 hard rule 2 admits no '
+            .'exception for level, temporariness, or a local transport'
+        );
+
+        @unlink($linkPath);
     }
 
     public function test_f5_the_redaction_processor_is_installed_on_the_active_log_channel(): void

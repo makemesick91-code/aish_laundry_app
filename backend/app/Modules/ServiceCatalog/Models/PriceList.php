@@ -103,6 +103,13 @@ class PriceList extends Model
     private const SYSTEM_MANAGED = [
         'version',
         'updated_at',
+
+        // `deleted_at` is here because a soft delete writes it, and a soft
+        // delete of a DRAFT is legitimate. It does NOT authorise soft-deleting
+        // a PUBLISHED list — that is refused separately in `booted()`, because
+        // the immutability guard only inspects which COLUMNS moved and cannot
+        // tell a draft cleanup from the removal of the prices a historical
+        // order resolves through.
         'deleted_at',
     ];
 
@@ -156,6 +163,30 @@ class PriceList extends Model
 
     protected static function booted(): void
     {
+        // A PUBLISHED list is never deleted, softly or otherwise.
+        //
+        // Found by independent review: `deleted_at` sits in SYSTEM_MANAGED, so
+        // the immutability guard permitted the write, and `delete()` on an
+        // active list succeeded — after which the row left the default Eloquent
+        // scope entirely. FR-036 requires a historical order's price to survive
+        // any later change, and it resolves through this model; a list that
+        // silently stops being findable is that requirement failing quietly
+        // rather than loudly.
+        //
+        // No HTTP route reaches this today, which is why it was latent rather
+        // than exploited. Step 5 is what makes it reachable.
+        static::deleting(function (self $priceList): void {
+            if ($priceList->isDraft()) {
+                return;
+            }
+
+            throw new RuntimeException(
+                'A published price list is never deleted (FR-035, FR-036). A '
+                .'historical order resolves its captured price through this '
+                .'record. Archive it by setting its status instead.'
+            );
+        });
+
         static::updating(function (self $priceList): void {
             // `getOriginal('status')` is the status as loaded, so a row being
             // published in THIS save is still a draft here and passes.

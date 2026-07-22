@@ -797,14 +797,31 @@ final class AuthenticationAdversarialMatrixTest extends TestCase
      */
     private function issueResetToken(User $user): string
     {
-        $path = $this->beginLogCapture();
+        // Read from the LINK FILE, not from the log.
+        //
+        // This helper used to recover the token by grepping the log, which
+        // worked only because the token was written there — the exposure the
+        // Step 4 independent review found (N5, Rule 46 hard rule 2). These four
+        // tests therefore DEPENDED ON THE DEFECT, and fixing it broke them,
+        // which is the correct direction: a test that reads a secret out of a
+        // log is asserting that the secret is in the log.
+        $linkPath = (string) config(
+            'aish.password_reset.link_path',
+            storage_path('app/password-reset-link.txt')
+        );
+
+        @unlink($linkPath);
 
         $this->postJson('/api/v1/auth/password-reset/request', ['identifier' => $user->email])->assertOk();
 
-        $log = $this->capturedLog();
-        $this->assertNotSame('', $log, 'Control: the reset transport must have emitted the link. Path: '.$path);
+        $this->assertFileExists(
+            $linkPath,
+            'Control: the reset transport must have delivered a link.'
+        );
 
-        preg_match('/token=([A-Za-z0-9]+)/', $log, $matches);
+        $link = (string) file_get_contents($linkPath);
+
+        preg_match('/token=([A-Za-z0-9]+)/', $link, $matches);
         $this->assertNotEmpty($matches[1] ?? null, 'Could not recover the issued reset token from the transport.');
 
         // Confirm the stored value is a hash, not the token itself.
@@ -813,7 +830,7 @@ final class AuthenticationAdversarialMatrixTest extends TestCase
             ->value('token');
         $this->assertNotSame($matches[1], $stored, 'The reset token is stored in plaintext.');
 
-        $this->endLogCapture();
+        @unlink($linkPath);
 
         return $matches[1];
     }
