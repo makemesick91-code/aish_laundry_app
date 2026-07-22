@@ -1,7 +1,14 @@
-========================================================================
-DEC-0030 LABEL AUDIT — the residual after four labels were permitted
-========================================================================
+PHASE G — DEC-0030 FINAL FOUR-LABEL AUDIT
+==========================================
+Bound to commit: e967b4444ea13ba483f630e8aa3e024410bce729
+Timestamp (Asia/Jakarta): 2026-07-22 17:35:28 WIB
 
+$ python3 scripts/validate-runtime-scope.py
+------------------------------------------------------------------------
+SUMMARY [runtime-scope]: 5/5 checks passed, 0 failed
+RESULT: PASS (runtime-scope)
+
+$ python3 scripts/validate-dec-0030-labels.py
 PASS  every permitted label traces to a requirement the PRD carries
 PASS  no structural identifier carries a label DEC-0030 did not permit
 PASS  printer configuration has not become a printed document
@@ -10,7 +17,7 @@ PASS  every future-step route still resolves to a placeholder
 ------------------------------------------------------------------------
   permitted labels audited : 4
   forbidden labels checked : 10
-  source files examined    : 257
+  source files examined    : 282
   structural allowlist     : 4 entries, each with a reason
 
   RESIDUAL RISK, stated rather than implied: DEC-0030 reduced token
@@ -24,3 +31,47 @@ PASS  every future-step route still resolves to a placeholder
 
 SUMMARY [dec-0030-labels]: 4/4 checks passed, 0 failed
 RESULT: PASS (dec-0030-labels)
+
+$ bash scripts/test-step-04-validators.sh
+========================================================================
+working tree verified byte-identical before and after
+SUMMARY [step-04-validators]: 11/11 expectations met, 0 failed
+RESULT: PASS (step-04-validators)
+
+EXPLICIT ABSENCE SWEEP — unauthorized Step 5 runtime
+----------------------------------------------------
+Structural identifiers only: migration filenames, Schema::create table
+arguments, route path segments, Eloquent model class names, and Flutter
+screen/route names. Prose is NOT scanned: a guard that flagged the word
+'order' would fire on orderBy() and on the phrase 'in order to', and would
+still miss a POS module named 'kasir'.
+
+  order        migrations=0 tables=0 routes=0 models=0
+  checkout     migrations=0 tables=0 routes=0 models=0
+  transaction  migrations=0 tables=0 routes=0 models=0
+  invoice      migrations=0 tables=0 routes=0 models=0
+  receipt      migrations=0 tables=0 routes=0 models=0
+  nota         migrations=0 tables=0 routes=0 models=0
+  payment      migrations=0 tables=0 routes=0 models=0
+  pickup       migrations=0 tables=0 routes=0 models=0
+  delivery     migrations=0 tables=0 routes=0 models=0
+  production   migrations=0 tables=0 routes=0 models=0
+  reminder     migrations=0 tables=0 routes=0 models=0
+  queue        migrations=0 tables=0 routes=0 models=0
+  worker       migrations=0 tables=0 routes=0 models=0
+
+NOTE ON 'printer': printer CONFIGURATION is permitted by DEC-0030 (FR-045).
+It does NOT authorize receipt or nota runtime, which is FR-052 in Step 5.
+The label audit asserts this separately ('printer configuration has not
+become a printed document').
+
+NOTE ON 'queue': `2026_07_20_000500_create_jobs_table.php` is Laravel's own queue
+table, created in Step 3 as framework infrastructure. It carries no business
+column and no Step 4 or Step 5 job is dispatched to it. Counting it as a Step 5
+artefact would be a false positive; omitting the note would be a silent one.
+
+RESULT: no unauthorized Step 5 table, model, route, screen, worker or queue job
+was found. This is a STRUCTURAL result. As the label audit itself records, a
+Step 5 workflow built inside one of the four permitted modules under a permitted
+name would not be caught by name alone — it is caught by review and by the
+asserted absence of any order or payment route.
