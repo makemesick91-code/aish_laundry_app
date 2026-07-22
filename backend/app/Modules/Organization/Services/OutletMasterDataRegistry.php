@@ -207,6 +207,24 @@ final class OutletMasterDataRegistry
      * tenant that has never opened this screen must still be covered by a policy
      * that means something.
      */
+    /**
+     * The tenant's proof policy — READ ONLY. Never writes (SEC-11).
+     *
+     * This used to lazily `save()` a row when none existed, which made
+     * `GET /api/v1/proof-policy` a state-changing request. An HTTP GET is
+     * required to be safe, and everything downstream assumes it: a caller may
+     * retry it, a proxy may repeat it, a link-checker may follow it, and none of
+     * those actors expect to have written to another party's database. It also
+     * meant a read-only role could create tenant rows, and that the row's
+     * `created_at` recorded when somebody first LOOKED rather than when the
+     * policy was set.
+     *
+     * A tenant with no row still HAS a policy: the canonical default. That is
+     * returned as an unsaved model, which renders identically to a saved one
+     * because the defaults live on the model (see TenantProofPolicy). The
+     * absence of a row is not the absence of a policy, and the API must not
+     * conflate them.
+     */
     public function proofPolicy(TenantContext $context): TenantProofPolicy
     {
         $policy = TenantProofPolicy::query()
@@ -217,17 +235,37 @@ final class OutletMasterDataRegistry
             return $policy;
         }
 
-        $policy = new TenantProofPolicy;
-        $policy->tenant_id = $context->tenantId();
-        $policy->save();
+        $default = new TenantProofPolicy;
+        $default->tenant_id = $context->tenantId();
 
-        return $policy->refresh();
+        return $default;
+    }
+
+    /**
+     * The same policy, persisted — for WRITERS only.
+     *
+     * Materialising the row on first write is correct: a PATCH is a
+     * state-changing request and is allowed to create the record it configures.
+     * Keeping this separate from `proofPolicy()` is what stops a read from
+     * doing it.
+     */
+    public function ensureProofPolicy(TenantContext $context): TenantProofPolicy
+    {
+        $policy = $this->proofPolicy($context);
+
+        if (! $policy->exists) {
+            $policy->save();
+            $policy->refresh();
+        }
+
+        return $policy;
     }
 
     /** @param array<string, mixed> $attributes */
     public function updateProofPolicy(TenantContext $context, array $attributes): TenantProofPolicy
     {
-        $policy = $this->proofPolicy($context);
+        // The writer materialises the row; the reader must not (SEC-11).
+        $policy = $this->ensureProofPolicy($context);
 
         $policy->fill($this->only(
             $attributes,

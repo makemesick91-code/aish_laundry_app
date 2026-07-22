@@ -6,6 +6,7 @@ namespace Tests\Feature;
 
 use App\Modules\Authorization\PermissionRegistry;
 use App\Modules\Organization\Http\Controllers\OutletMasterDataController;
+use App\Modules\Organization\Http\OutletProjection;
 use App\Modules\Organization\Models\Outlet;
 use App\Modules\Organization\Models\OutletPrinter;
 use App\Modules\Organization\Models\OutletServiceZone;
@@ -573,8 +574,14 @@ final class OutletMasterDataTest extends TestCase
 
         $headers = $this->bearer($token, $tenant->id);
 
-        $this->withHeaders($headers)->getJson('/api/v1/proof-policy')->assertOk();
-        $this->withHeaders($headers)->getJson('/api/v1/proof-policy')->assertOk();
+        // WRITES, not reads. This previously called GET twice, which only
+        // materialised a row because the read was creating one — the behaviour
+        // SEC-11 removed. Uniqueness is a property of the write path and of the
+        // unique index, so it is exercised through the write path.
+        $this->withHeaders($headers)
+            ->patchJson('/api/v1/proof-policy', ['pickup_requires_photo' => true])->assertOk();
+        $this->withHeaders($headers)
+            ->patchJson('/api/v1/proof-policy', ['pickup_requires_photo' => false])->assertOk();
 
         // Two rows would mean two answers to one question.
         $this->assertSame(
@@ -640,6 +647,92 @@ final class OutletMasterDataTest extends TestCase
         $this->withHeaders($this->bearer($token, $tenant->id))
             ->getJson("/api/v1/outlets/{$outlet->id}/service-zones?sort=tenant_id")
             ->assertStatus(422);
+    }
+
+    /**
+     * SEC-11 — reading the proof policy must not write one.
+     *
+     * `GET /api/v1/proof-policy` used to lazily persist a default row when the
+     * tenant had none. HTTP requires GET to be safe, and everything downstream
+     * relies on it: a client may retry, a proxy may repeat, a link-checker may
+     * follow. None of them expect to have written to a tenant's database. It
+     * also let a read-only actor create rows, and stamped `created_at` with when
+     * somebody first LOOKED rather than when the policy was set.
+     */
+    public function test_reading_the_proof_policy_does_not_create_a_row(): void
+    {
+        ['token' => $token, 'tenant' => $tenant] = $this->ownerScenario();
+
+        $this->assertSame(0, TenantProofPolicy::query()->forTenant($tenant->id)->count());
+
+        $before = DB::table('tenant_proof_policies')->count();
+
+        $response = $this->withHeaders($this->bearer($token, $tenant->id))
+            ->getJson('/api/v1/proof-policy')
+            ->assertOk();
+
+        // Not one row anywhere — not merely none for this tenant.
+        $this->assertSame($before, DB::table('tenant_proof_policies')->count());
+        $this->assertSame(0, TenantProofPolicy::query()->forTenant($tenant->id)->count());
+
+        // Repeating it is still safe. Once-only laziness would have passed the
+        // assertion above on a second call while still having written on the
+        // first.
+        $this->withHeaders($this->bearer($token, $tenant->id))->getJson('/api/v1/proof-policy')->assertOk();
+        $this->assertSame($before, DB::table('tenant_proof_policies')->count());
+
+        // AND it still answers with the canonical default, rather than nulls or
+        // a 404. A tenant with no row HAS a policy; it just has not changed it.
+        $this->assertTrue($response->json('data.proof_policy.pickup.pickup_requires_recipient_name'));
+        $this->assertFalse($response->json('data.proof_policy.pickup.pickup_requires_otp'));
+        $this->assertTrue($response->json('data.proof_policy.delivery.delivery_requires_recipient_name'));
+    }
+
+    public function test_writing_the_proof_policy_materialises_the_row(): void
+    {
+        // The control for the test above: "no row is created" must not be
+        // satisfiable by the policy having become unwritable.
+        ['token' => $token, 'tenant' => $tenant] = $this->ownerScenario();
+
+        $this->withHeaders($this->bearer($token, $tenant->id))
+            ->patchJson('/api/v1/proof-policy', ['delivery_requires_photo' => true])
+            ->assertOk()
+            ->assertJsonPath('data.proof_policy.delivery.delivery_requires_photo', true);
+
+        $this->assertSame(1, TenantProofPolicy::query()->forTenant($tenant->id)->count());
+
+        // And the read now reflects the stored row, not the default.
+        $this->withHeaders($this->bearer($token, $tenant->id))
+            ->getJson('/api/v1/proof-policy')
+            ->assertOk()
+            ->assertJsonPath('data.proof_policy.delivery.delivery_requires_photo', true);
+    }
+
+    /**
+     * The unsaved default must render exactly what a saved row would.
+     *
+     * Otherwise SEC-11's fix would trade a write on read for a WRONG ANSWER on
+     * read, which is worse: `pickup_requires_recipient_name` arriving as null
+     * reads as "no proof required" when the canonical answer is the opposite,
+     * and proof requirements are a custody control (Rule 09 hard rule 2).
+     */
+    public function test_the_default_policy_matches_the_column_defaults(): void
+    {
+        $tenant = $this->makeTenant();
+
+        $unsaved = new TenantProofPolicy;
+        $unsaved->tenant_id = $tenant->id;
+
+        $saved = new TenantProofPolicy;
+        $saved->tenant_id = $tenant->id;
+        $saved->save();
+        $saved->refresh();
+
+        $this->assertSame(
+            OutletProjection::proofPolicy($saved),
+            [...OutletProjection::proofPolicy($unsaved), 'id' => $saved->id],
+            'the in-memory default and the database default have drifted apart'
+        );
     }
 
     /**

@@ -52,6 +52,35 @@ class TenantProofPolicy extends Model
         'delivery_requires_otp',
     ];
 
+    /**
+     * The canonical default policy, as attribute defaults rather than only as
+     * column defaults.
+     *
+     * A tenant that has never configured proof requirements HAS a policy — the
+     * default one — it simply has no row yet. Reading that policy must not
+     * create the row (SEC-11), so an unsaved instance has to render exactly what
+     * a saved one would; without these defaults it would render nulls, and a
+     * null `pickup_requires_recipient_name` reads as "no proof required" when the
+     * canonical answer is the opposite.
+     *
+     * These MUST stay identical to the column defaults in
+     * `2026_07_21_030000_create_outlet_master_data_tables.php`. A test asserts
+     * that rather than trusting it.
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'pickup_requires_photo' => false,
+        'pickup_requires_signature' => false,
+        'pickup_requires_recipient_name' => true,
+        'pickup_requires_otp' => false,
+        'delivery_requires_photo' => false,
+        'delivery_requires_signature' => false,
+        'delivery_requires_recipient_name' => true,
+        'delivery_requires_otp' => false,
+        'version' => 1,
+    ];
+
     protected function casts(): array
     {
         return [

@@ -343,7 +343,10 @@ final class OutletMasterDataController
 
         $context = app(TenantContext::class);
 
-        OptimisticConcurrency::assertFresh($request, $this->registry->proofPolicy($context));
+        // `ensure` rather than the read accessor: this is the write path, and
+        // the concurrency check needs the row it is about to update. The read
+        // accessor deliberately no longer creates it (SEC-11).
+        OptimisticConcurrency::assertFresh($request, $this->registry->ensureProofPolicy($context));
 
         $rules = [];
 
