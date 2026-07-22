@@ -64,16 +64,7 @@ final class StaffAssignmentRegistry
         $this->assertSameTenant($context, $membership->tenant_id);
         $this->assertSameTenant($context, $outlet->tenant_id);
 
-        // A revoked membership is not staff. Assigning one to an outlet would
-        // create a roster entry that grants nothing and reads as if it does.
-        if ($membership->status === Membership::STATUS_REVOKED) {
-            throw ApiException::of(
-                ErrorCode::VALIDATION_FAILED,
-                'Keanggotaan yang sudah dicabut tidak dapat ditugaskan ke outlet. '
-                .'Aktifkan kembali keanggotaan tersebut lebih dahulu.',
-                ['membership' => ['revoked']]
-            );
-        }
+        $this->assertAssignable($membership, 'outlet');
 
         $assignment = new MembershipOutlet;
         $assignment->tenant_id = $context->tenantId();
@@ -173,6 +164,7 @@ final class StaffAssignmentRegistry
         }
 
         $this->assertNoEscalation($context, $roleKey);
+        $this->assertAssignable($membership, 'role');
 
         $role = Role::query()->where('key', $roleKey)->first();
 
@@ -300,6 +292,62 @@ final class StaffAssignmentRegistry
      * tenant-scoped, so a foreign record should never arrive — but if one does
      * it fails closed, as a 404 that discloses nothing (Rule 48 hard rule 5).
      */
+    /**
+     * A membership must be in a lifecycle state that can receive an assignment
+     * (SEC-08).
+     *
+     * `assignToOutlet` refused a REVOKED membership and nothing else, and
+     * `assignRole` refused nothing at all. So a suspended member could be
+     * granted `tenant_admin` while suspended, and the grant would sit there
+     * waiting: the moment the suspension was lifted — a routine administrative
+     * act, typically performed by somebody who never saw the grant — it would
+     * take effect. That is a privilege change that never appeared on the screen
+     * of the person who approved its consequence.
+     *
+     * The state is checked, not the effect. Suspension is already honoured at
+     * request time by `TenantContextResolver`, which refuses the whole request
+     * with MEMBERSHIP_SUSPENDED before any tenant row loads — so a suspended
+     * member has no live access either way. That is precisely why this was easy
+     * to miss and worth closing anyway: "the grant is inert today" is a
+     * statement about today, and the row outlives it.
+     *
+     * WHAT IS DELIBERATELY STILL ALLOWED:
+     *
+     *   * `invited` — a membership that has not yet accepted. Rostering someone
+     *     you have just invited is ordinary onboarding, and blocking it would
+     *     invent a product restriction nobody asked for. An invited membership
+     *     grants nothing until it is accepted, so a pre-set role takes effect
+     *     only through the acceptance the invitee performs themselves.
+     *   * REVOCATION and REMOVAL on any status. Being unable to strip access
+     *     from a suspended member would be the wrong failure direction — a
+     *     lifecycle guard must never make a membership harder to lock down.
+     *
+     * Existing assignments are NOT deleted by suspension. History stays; only
+     * new grants are refused. A guard that quietly deleted a roster would
+     * destroy the record of who worked where.
+     */
+    private function assertAssignable(Membership $membership, string $kind): void
+    {
+        if (in_array($membership->status, [Membership::STATUS_ACTIVE, Membership::STATUS_INVITED], true)) {
+            return;
+        }
+
+        $message = $membership->status === Membership::STATUS_SUSPENDED
+            ? 'Keanggotaan yang sedang ditangguhkan tidak dapat menerima penugasan baru. '
+                .'Aktifkan kembali keanggotaan tersebut lebih dahulu.'
+            : 'Keanggotaan yang sudah dicabut tidak dapat menerima penugasan baru. '
+                .'Aktifkan kembali keanggotaan tersebut lebih dahulu.';
+
+        throw ApiException::of(
+            ErrorCode::VALIDATION_FAILED,
+            $message,
+            // The status is named so an operator can act on it, and the kind so
+            // the client knows which control to disable. Neither discloses
+            // anything the caller could not already read from the roster.
+            ['membership' => [$membership->status], 'assignment' => [$kind]]
+        );
+    }
+
     private function assertSameTenant(TenantContext $context, ?string $tenantId): void
     {
         if ($tenantId === null || ! hash_equals($context->tenantId(), $tenantId)) {

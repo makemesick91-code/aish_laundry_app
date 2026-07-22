@@ -211,6 +211,244 @@ final class StaffAssignmentTest extends TestCase
     }
 
     // ==================================================================
+    // SEC-08 — membership lifecycle and assignment
+    //
+    // `assignToOutlet` refused a REVOKED membership and nothing else;
+    // `assignRole` refused nothing at all. A suspended member could therefore be
+    // granted `tenant_admin` while suspended, and the grant would wait: lifting
+    // the suspension — an ordinary administrative act, usually by somebody who
+    // never saw the grant — would activate it. The privilege change never
+    // appeared on the screen of the person who approved its consequence.
+    // ==================================================================
+
+    public function test_a_suspended_membership_cannot_receive_a_role(): void
+    {
+        ['tenant' => $tenant, 'token' => $token] = $this->scenario();
+        $staff = $this->staffMember($tenant);
+        $staff->markSuspended();
+
+        $this->withHeaders($this->bearer($token, $tenant->id))
+            ->postJson("/api/v1/staff/{$staff->id}/roles", ['role' => PermissionRegistry::ROLE_CASHIER])
+            ->assertStatus(422)
+            ->assertJsonPath('error.details.membership.0', Membership::STATUS_SUSPENDED)
+            ->assertJsonPath('error.details.assignment.0', 'role');
+
+        // Refused, not merely reported as refused. Nothing was written.
+        $this->assertSame([], $staff->fresh()->roles->pluck('key')->all());
+    }
+
+    public function test_an_active_membership_still_receives_a_role(): void
+    {
+        // The control. Without it, "suspended is refused" would also be
+        // satisfied by role assignment having broken entirely.
+        ['tenant' => $tenant, 'token' => $token] = $this->scenario();
+        $staff = $this->staffMember($tenant);
+
+        $this->withHeaders($this->bearer($token, $tenant->id))
+            ->postJson("/api/v1/staff/{$staff->id}/roles", ['role' => PermissionRegistry::ROLE_CASHIER])
+            ->assertOk();
+
+        $this->assertSame([PermissionRegistry::ROLE_CASHIER], $staff->fresh()->roles->pluck('key')->all());
+    }
+
+    public function test_a_suspended_membership_cannot_receive_an_outlet_assignment(): void
+    {
+        ['tenant' => $tenant, 'outlet' => $outlet, 'token' => $token] = $this->scenario();
+        $staff = $this->staffMember($tenant);
+        $staff->markSuspended();
+
+        $this->withHeaders($this->bearer($token, $tenant->id))
+            ->postJson("/api/v1/staff/{$staff->id}/outlets", ['assigned_outlet_id' => $outlet->id])
+            ->assertStatus(422)
+            ->assertJsonPath('error.details.membership.0', Membership::STATUS_SUSPENDED);
+
+        $this->assertSame(0, MembershipOutlet::query()->where('membership_id', $staff->id)->count());
+    }
+
+    /**
+     * An INVITED membership may still be rostered.
+     *
+     * Deliberate, and worth stating: blocking it would invent a product
+     * restriction nobody asked for. Inviting somebody and pre-setting their role
+     * is ordinary onboarding, and an invited membership grants nothing until the
+     * invitee accepts — so the grant takes effect only through an act the
+     * invitee performs themselves, not through an administrator's later
+     * reactivation.
+     */
+    public function test_an_invited_membership_may_still_be_rostered(): void
+    {
+        ['tenant' => $tenant, 'outlet' => $outlet, 'token' => $token] = $this->scenario();
+        $staff = $this->staffMember($tenant);
+        $staff->status = Membership::STATUS_INVITED;
+        $staff->save();
+
+        $this->withHeaders($this->bearer($token, $tenant->id))
+            ->postJson("/api/v1/staff/{$staff->id}/outlets", ['assigned_outlet_id' => $outlet->id])
+            ->assertCreated();
+    }
+
+    /**
+     * Suspension does not delete history, and it does not need to: the roles
+     * remain STORED and become INEFFECTIVE, because effectiveness is decided at
+     * request time from live membership state.
+     */
+    public function test_suspension_makes_an_existing_role_ineffective_without_deleting_it(): void
+    {
+        ['tenant' => $tenant] = $this->scenario();
+        $staffUser = $this->makeUser(self::PASSWORD);
+        $staff = $this->makeMembership($tenant, $staffUser, [PermissionRegistry::ROLE_TENANT_OWNER]);
+        $staffToken = $this->loginToken($staffUser, self::PASSWORD);
+
+        // Works while active — the premise, asserted rather than assumed.
+        $this->withHeaders($this->bearer($staffToken, $tenant->id))
+            ->getJson('/api/v1/customers')
+            ->assertOk();
+
+        $staff->markSuspended();
+
+        // The SAME token, the SAME endpoint. Only the membership state changed.
+        $this->withHeaders($this->bearer($staffToken, $tenant->id))
+            ->getJson('/api/v1/customers')
+            ->assertStatus(403)
+            ->assertJsonPath('error.code', 'MEMBERSHIP_SUSPENDED');
+
+        // History intact. A lifecycle guard that quietly deleted the roster
+        // would destroy the record of who held what.
+        $this->assertSame(
+            [PermissionRegistry::ROLE_TENANT_OWNER],
+            $staff->fresh()->roles->pluck('key')->all()
+        );
+    }
+
+    public function test_reactivation_restores_the_surviving_assignment_and_not_a_revoked_one(): void
+    {
+        ['tenant' => $tenant, 'outlet' => $outlet, 'token' => $token] = $this->scenario();
+        $headers = $this->bearer($token, $tenant->id);
+
+        $second = $this->makeOutlet($tenant, null, 'Outlet Kedua Fiktif');
+        $staffUser = $this->makeUser(self::PASSWORD);
+        $staff = $this->makeMembership($tenant, $staffUser, [PermissionRegistry::ROLE_CASHIER]);
+
+        $keep = $this->withHeaders($headers)
+            ->postJson("/api/v1/staff/{$staff->id}/outlets", ['assigned_outlet_id' => $outlet->id])
+            ->assertCreated()->json('data.assignment.id');
+
+        $drop = $this->withHeaders($headers)
+            ->postJson("/api/v1/staff/{$staff->id}/outlets", ['assigned_outlet_id' => $second->id])
+            ->assertCreated()->json('data.assignment.id');
+
+        $this->withHeaders($headers)
+            ->postJson("/api/v1/staff/{$staff->id}/outlets/{$drop}/revoke")
+            ->assertOk();
+
+        $staff->markSuspended();
+        $staff->markActive();
+
+        // The revoked assignment stays revoked. Reactivation restores the
+        // membership, never a decision somebody deliberately reversed.
+        $this->assertTrue(MembershipOutlet::query()->findOrFail($keep)->isActive());
+        $this->assertFalse(MembershipOutlet::query()->findOrFail($drop)->isActive());
+
+        // And the member works again — otherwise "revoked stays revoked" would
+        // also be satisfied by reactivation restoring nothing at all.
+        $this->withHeaders($this->bearer($this->loginToken($staffUser, self::PASSWORD), $tenant->id))
+            ->getJson('/api/v1/customers')
+            ->assertOk();
+    }
+
+    public function test_another_tenants_suspended_membership_stays_concealed(): void
+    {
+        // Denial and absence must be indistinguishable across a tenant boundary,
+        // and a suspended foreign membership must not become a 422 that confirms
+        // it exists (Rule 48 hard rule 5).
+        ['tenant' => $tenantA, 'token' => $token] = $this->scenario();
+        $tenantB = $this->makeTenant('tenant-b');
+        $foreign = $this->staffMember($tenantB);
+        $foreign->markSuspended();
+
+        $this->withHeaders($this->bearer($token, $tenantA->id))
+            ->postJson("/api/v1/staff/{$foreign->id}/roles", ['role' => PermissionRegistry::ROLE_CASHIER])
+            ->assertNotFound();
+
+        $this->withHeaders($this->bearer($token, $tenantA->id))
+            ->postJson("/api/v1/staff/".Str::uuid()."/roles", ['role' => PermissionRegistry::ROLE_CASHIER])
+            ->assertNotFound();
+    }
+
+    public function test_a_role_may_still_be_removed_from_a_suspended_membership(): void
+    {
+        // The guard must never make a membership HARDER to lock down. Refusing
+        // removal on a suspended membership would be the wrong failure
+        // direction: an administrator responding to an incident could not strip
+        // the access they had just suspended.
+        ['tenant' => $tenant, 'token' => $token] = $this->scenario();
+        $staff = $this->staffMember($tenant, [PermissionRegistry::ROLE_CASHIER]);
+        $staff->markSuspended();
+
+        $this->withHeaders($this->bearer($token, $tenant->id))
+            ->deleteJson("/api/v1/staff/{$staff->id}/roles/".PermissionRegistry::ROLE_CASHIER)
+            ->assertOk();
+
+        $this->assertSame([], $staff->fresh()->roles->pluck('key')->all());
+    }
+
+    /**
+     * What IS audited today, and what is not — stated rather than assumed.
+     *
+     * A granted role is audited. A REFUSED assignment is not, and MEMBERSHIP
+     * SUSPENSION HAS NO COMMAND SURFACE AT ALL: `AuditAction::MEMBERSHIP_SUSPENDED`
+     * and `MembershipPolicy::suspend()` both exist, and nothing writes either,
+     * because no endpoint suspends a membership. `markSuspended()` is a domain
+     * method reachable only from a seeder or a test.
+     *
+     * That is recorded here instead of being papered over with an assertion
+     * against an audit row a test wrote by hand. An audit test that passes
+     * because the test itself produced the event proves nothing about the
+     * product. Closing the gap means adding the lifecycle command surface and
+     * auditing it, which belongs to the write-audit inventory (SEC-10), not to
+     * this finding.
+     */
+    public function test_a_granted_role_is_audited_and_a_refused_one_writes_nothing(): void
+    {
+        ['tenant' => $tenant, 'token' => $token] = $this->scenario();
+        $granted = $this->staffMember($tenant);
+        $refused = $this->staffMember($tenant);
+        $refused->markSuspended();
+
+        $this->withHeaders($this->bearer($token, $tenant->id))
+            ->postJson("/api/v1/staff/{$granted->id}/roles", ['role' => PermissionRegistry::ROLE_CASHIER])
+            ->assertOk();
+
+        $this->withHeaders($this->bearer($token, $tenant->id))
+            ->postJson("/api/v1/staff/{$refused->id}/roles", ['role' => PermissionRegistry::ROLE_CASHIER])
+            ->assertStatus(422);
+
+        $entries = AuditEntry::query()
+            ->where('tenant_id', $tenant->id)
+            ->where('action', AuditAction::MEMBERSHIP_ROLE_ASSIGNED)
+            ->get();
+
+        $this->assertCount(1, $entries, 'the refused assignment must not produce an audit row');
+
+        $serialized = json_encode($entries->first()->toArray(), JSON_THROW_ON_ERROR);
+        foreach (['password', 'authorization', 'bearer', 'secret'] as $forbidden) {
+            $this->assertStringNotContainsStringIgnoringCase($forbidden, $serialized);
+        }
+    }
+
+    /** No endpoint suspends a membership. Asserted, so it cannot be assumed either way. */
+    public function test_no_membership_suspension_endpoint_exists_yet(): void
+    {
+        $routes = collect(\Illuminate\Support\Facades\Route::getRoutes()->getRoutes())
+            ->map(static fn ($r): string => $r->uri())
+            ->filter(static fn (string $u): bool => str_contains($u, 'suspend'))
+            ->values()
+            ->all();
+
+        $this->assertSame([], $routes);
+    }
+
+    // ==================================================================
     // Cross-tenant assignment (invariant A1, threat T-13)
     // ==================================================================
 

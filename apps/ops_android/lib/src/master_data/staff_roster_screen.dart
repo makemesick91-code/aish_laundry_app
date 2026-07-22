@@ -142,11 +142,20 @@ class _StaffCardState extends ConsumerState<_StaffCard> {
     final textTheme = Theme.of(context).textTheme;
     final outcome = _outcome;
 
-    // Assignment controls are offered only for a LIVE membership. Rostering a
-    // revoked member, or granting a role to a suspended one, is an action whose
-    // effect would be invisible until they were reinstated — and the server
-    // would refuse it anyway.
-    final bool actionable = widget.canAssign && member.isActive;
+    // GRANTING and REVOKING are gated differently, and the difference matters.
+    //
+    // A new grant is offered only for a LIVE membership: granting a role to a
+    // suspended member is an action whose effect would be invisible until they
+    // were reinstated, and the server refuses it (SEC-08).
+    //
+    // REVOCATION stays available whatever the status. Hiding it when somebody is
+    // suspended is the wrong failure direction — an administrator responding to
+    // an incident would be able to suspend a member and then find themselves
+    // unable to strip the roles they had just suspended, with the controls
+    // disappearing exactly when they were most needed. A lifecycle state must
+    // never make a membership HARDER to lock down.
+    final bool canGrant = widget.canAssign && member.isActive;
+    final bool canRevoke = widget.canAssign;
 
     return Card(
       margin: EdgeInsets.symmetric(
@@ -239,7 +248,7 @@ class _StaffCardState extends ConsumerState<_StaffCard> {
                         // A role key this build does not recognise is DISPLAYED and
                         // left alone. Offering to revoke a key we cannot interpret
                         // would be acting on something we do not understand.
-                        onDeleted: actionable && assigned.isRecognised && !_busy
+                        onDeleted: canRevoke && assigned.isRecognised && !_busy
                             ? () => _confirmRemoveRole(assigned.role!)
                             : null,
                         deleteButtonTooltipMessage:
@@ -249,7 +258,7 @@ class _StaffCardState extends ConsumerState<_StaffCard> {
                     .toList(growable: false),
               ),
 
-            if (actionable) ...<Widget>[
+            if (canGrant) ...<Widget>[
               SizedBox(height: AishSpacing.space2),
               TextButton.icon(
                 onPressed: _busy ? null : () => _pickRole(member),
@@ -288,7 +297,7 @@ class _StaffCardState extends ConsumerState<_StaffCard> {
                         style: textTheme.bodyMedium,
                       ),
                     ),
-                    if (actionable)
+                    if (canRevoke)
                       ConstrainedBox(
                         constraints: BoxConstraints(
                           minHeight: AishSizing.sizeTouchMin,
@@ -305,7 +314,7 @@ class _StaffCardState extends ConsumerState<_StaffCard> {
                 ),
               ),
 
-            if (actionable) ...<Widget>[
+            if (canGrant) ...<Widget>[
               SizedBox(height: AishSpacing.space2),
               TextButton.icon(
                 onPressed: _busy ? null : () => _pickOutlet(member),

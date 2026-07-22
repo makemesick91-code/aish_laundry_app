@@ -1108,6 +1108,34 @@ void main() {
       expect(find.text('Tugaskan ke outlet'), findsNothing);
     });
 
+    testWidgets('a suspended membership can still have a role revoked', (
+      tester,
+    ) async {
+      // The counterpart to the test above, and the reason the two gates were
+      // separated (SEC-08). Hiding the REVOKE control when somebody is suspended
+      // is the wrong failure direction: an administrator responding to an
+      // incident would suspend a member and then find the controls for stripping
+      // their access had disappeared, exactly when they were most needed.
+      //
+      // The screen previously drove both from one `actionable` flag, so
+      // suspending somebody quietly removed the ability to un-grant what they
+      // held.
+      final harness = scriptedOne(200, suspendedStaffEnvelope);
+      await pumpScreen(
+        tester,
+        const StaffRosterScreen(),
+        harness.repository,
+        auth,
+      );
+
+      final chip = tester.widget<InputChip>(find.byType(InputChip).first);
+      expect(
+        chip.onDeleted,
+        isNotNull,
+        reason: 'revoking a role from a suspended member must remain available',
+      );
+    });
+
     testWidgets('the role picker never offers a platform role', (tester) async {
       final harness = scriptedOne(200, staffEnvelope);
       await pumpScreen(
