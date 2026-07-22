@@ -2,7 +2,9 @@ import 'package:aish_auth/aish_auth.dart';
 import 'package:aish_core/aish_core.dart';
 import 'package:aish_networking/aish_networking.dart';
 import 'package:aish_admin_web/src/app.dart';
+import 'package:aish_admin_web/src/master_data/master_data_screens.dart';
 import 'package:aish_testing/aish_testing.dart';
+import 'package:aish_admin_web/src/routing/console_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -76,6 +78,69 @@ void main() {
         container.read(apiClientProvider).transport,
         CredentialTransport.sessionCookie,
       );
+    });
+
+    test('resolves a CONCRETE MasterDataRepository without throwing', () {
+      final container = productionContainer();
+
+      // The same defect as authServiceProvider, one layer up: this provider
+      // threw UnimplementedError and was overridden only in widget tests, so
+      // every production master-data screen threw the moment it opened while
+      // the suite stayed green.
+      final repository = container.read(masterDataRepositoryProvider);
+
+      expect(repository, isA<MasterDataRepository>());
+    });
+
+    test('the repository shares the authenticated ApiClient', () {
+      final container = productionContainer();
+
+      // Built from apiClientProvider, so master-data requests carry the same
+      // credential and the same X-Tenant-Id as everything else. A repository
+      // over its own client would authenticate as nobody.
+      expect(
+        () => container.read(masterDataRepositoryProvider),
+        returnsNormally,
+      );
+      expect(
+        identical(
+          container.read(apiClientProvider),
+          container.read(authRuntimeProvider).client,
+        ),
+        isTrue,
+      );
+    });
+
+    test('EVERY provider a production screen depends on resolves', () {
+      // The structural guard (scripts/validate-production-composition.py) proves
+      // no throwing provider is left unwired. This proves the graph actually
+      // CONSTRUCTS: a provider can be wired and still fail because something it
+      // depends on is missing, and that failure would otherwise surface when a
+      // user navigates rather than when validation runs.
+      //
+      // Only environmentProvider is overridden, because that is the only thing
+      // main overrides. Everything else must stand up on its own.
+      final container = productionContainer();
+
+      final resolved = <String, Object?>{
+        'environmentProvider': container.read(environmentProvider),
+        'authRuntimeProvider': container.read(authRuntimeProvider),
+        'apiClientProvider': container.read(apiClientProvider),
+        'authServiceProvider': container.read(authServiceProvider),
+        'startupGateProvider': container.read(startupGateProvider),
+        'masterDataRepositoryProvider': container.read(
+          masterDataRepositoryProvider,
+        ),
+        'consoleRouterProvider': container.read(consoleRouterProvider),
+      };
+
+      for (final entry in resolved.entries) {
+        expect(
+          entry.value,
+          isNotNull,
+          reason: '${entry.key} did not resolve in the production graph',
+        );
+      }
     });
 
     test('starts with no credential and no tenant context', () {

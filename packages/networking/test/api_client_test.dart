@@ -268,6 +268,55 @@ void main() {
     );
   });
 
+  group('ApiClient optimistic concurrency', () {
+    // Parameterised over EVERY verb that accepts `expectedVersion`, so a new
+    // verb cannot be added without being covered.
+    //
+    // `put` accepted the argument and silently discarded it. Every existing
+    // header assertion in the workspace exercised `patch` only, so nothing
+    // caught it — the server's assertFresh returns early on a missing header,
+    // which turns a refused stale write into an accepted one.
+    final verbs =
+        <String, Future<Result<ApiSuccess>> Function(ApiClient, String)>{
+          'post': (c, v) => c.post('service-packages', expectedVersion: v),
+          'patch': (c, v) => c.patch('service-packages/x', expectedVersion: v),
+          'put': (c, v) =>
+              c.put('service-packages/x/items', expectedVersion: v),
+        };
+
+    verbs.forEach((name, call) {
+      test('$name forwards expectedVersion as the precondition header', () async {
+        final adapter = _ScriptedAdapter(200, '{"data":{},"meta":{}}');
+        await call(clientWith(adapter), 'v-fiktif-7');
+
+        expect(
+          adapter.lastRequest!.headers[ApiClient.versionHeaderName],
+          'v-fiktif-7',
+          reason:
+              '$name dropped expectedVersion; the server would treat the write '
+              'as unconditioned and accept a stale edit',
+        );
+      });
+
+      test(
+        '$name sends no precondition header when none was supplied',
+        () async {
+          final adapter = _ScriptedAdapter(200, '{"data":{},"meta":{}}');
+          await call(clientWith(adapter), '');
+
+          // An empty value must contribute NO header rather than an empty one,
+          // which the server would read as a supplied-but-blank precondition.
+          expect(
+            adapter.lastRequest!.headers.containsKey(
+              ApiClient.versionHeaderName,
+            ),
+            isFalse,
+          );
+        },
+      );
+    });
+  });
+
   group('ApiClient transport failure', () {
     test('a transport error message carries no request detail', () async {
       final dio = Dio();

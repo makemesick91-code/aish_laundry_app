@@ -1,0 +1,37 @@
+STEP 4 — LIVE SCHEMA INVARIANTS
+===============================
+
+Bound to commit: 6abd3fdc918a740ea400819a23e9b0cc371778f5
+Timestamp (Asia/Jakarta): 2026-07-22 23:34:32 WIB
+Environment: PHP 8.5.4, PostgreSQL 18.4, Redis 8.2 (loopback-bound dev services)
+
+Queried from the RUNNING database, not read from migration source. A
+migration can say one thing and the column end up another — through a
+later ALTER, a half-applied rollback, or an engine substituting a type.
+
+--- money columns (Rule 04 hard rule 2: integer Rupiah, never floating point)
+  price_list_items       amount_rupiah      bigint
+
+--- consent append-only triggers (SEC-12; A = ENABLE ALWAYS, fires under replica mode)
+  customer_consents_refuse_delete          tgenabled=A
+  customer_consents_refuse_truncate        tgenabled=A
+  customer_consents_refuse_update          tgenabled=A
+
+--- price-list removal guard (NEW-01; engine-level, not a model event)
+  price_lists_refuse_published_delete      tgenabled=A
+  price_lists_refuse_published_soft_delete tgenabled=A
+
+--- price_lists unique constraints (NEW-05; no equivalent duplicate)
+  price_lists_tenant_code_unique           UNIQUE (tenant_id, code)
+  price_lists_tenant_id_id_unique          UNIQUE (tenant_id, id)
+
+--- supersession composite foreign key (NEW/N3; carries tenant_id)
+  price_lists_supersedes_same_tenant_foreign FOREIGN KEY (tenant_id, supersedes_price_list_id) REFERENCES price_lists(tenant_id, id) ON UPDATE CASCADE ON DELETE RESTRICT
+
+--- every business table carries tenant_id (Rule 02 hard rule 7)
+  MISSING tenant_id: failed_jobs
+  MISSING tenant_id: job_batches
+  MISSING tenant_id: permissions
+  MISSING tenant_id: role_permission
+  MISSING tenant_id: roles
+  MISSING tenant_id: sessions

@@ -86,7 +86,7 @@ uses the names only.
 | `FR-015` | Tenant and Organization | 3 | AC-006 |
 | `FR-016` | Tenant and Organization | 3 | AC-006 |
 | `FR-017` | Tenant and Organization | 3 | AC-006 |
-| `FR-018` | Tenant and Organization | 3 | Step 3 DoD |
+| `FR-018` | Tenant and Organization | 3 | Step 3 DoD · staff and role assignment delivered in Step 4 under [DEC-0031](../decisions/DEC-0031-step-04-traceability-boundaries.md); see [STEP_04_TRACEABILITY §4](../quality/STEP_04_TRACEABILITY.md) |
 | `FR-019` | Tenant and Organization | 3 | AC-005, AC-007 |
 | `FR-020` | Audit and Compliance | 3 | Step 3 DoD |
 
@@ -97,19 +97,19 @@ uses the names only.
 | `FR-021` | Customer Management | 4 | AC-007 |
 | `FR-022` | Customer Management | 4 | AC-007 |
 | `FR-023` | Customer Management | 4 | Step 4 DoD |
-| `FR-024` | Customer Management | 4 | Step 4 DoD |
-| `FR-025` | Customer Management | 4 | AC-025 |
+| `FR-024` | Customer Management | 4 | Step 4 DoD · [STEP_04_TRACEABILITY §2](../quality/STEP_04_TRACEABILITY.md) — `COMPLETE_AND_VERIFIED` |
+| `FR-025` | Customer Management | 4 | AC-025 · [STEP_04_TRACEABILITY §3](../quality/STEP_04_TRACEABILITY.md) — `COMPLETE_AND_VERIFIED`; AREA context dormant, portal clause is Step 7 |
 | `FR-026` | Customer Management | 4 | AC-025 |
 | `FR-027` | Customer Management | 4 | AC-008 |
 | `FR-028` | Customer Management | 4 | AC-008 |
-| `FR-029` | Customer Management | 4 | AC-005 |
+| `FR-029` | Customer Management | 4 | AC-005 · [Step 5 handoff](../quality/STEP_04_TRACEABILITY.md#5-step-5-handoff--the-seven-requirements-step-4-cannot-close) — `PARTIAL_STEP_4_FOUNDATION_COMPLETE / STEP_5_E2E_PENDING` |
 | `FR-030` | Customer Management | 4 | AC-025 |
 | `FR-031` | Service Catalog and Pricing | 4 | Step 4 DoD |
 | `FR-032` | Service Catalog and Pricing | 4 | Step 4 DoD |
 | `FR-033` | Service Catalog and Pricing | 4 | Step 4 DoD |
 | `FR-034` | Service Catalog and Pricing | 4 | Step 4 DoD |
 | `FR-035` | Service Catalog and Pricing | 4 | AC-009 |
-| `FR-036` | Service Catalog and Pricing | 4 | AC-009 |
+| `FR-036` | Service Catalog and Pricing | 4 | AC-009 · [Step 5 handoff](../quality/STEP_04_TRACEABILITY.md#5-step-5-handoff--the-seven-requirements-step-4-cannot-close) — `PARTIAL_STEP_4_FOUNDATION_COMPLETE / STEP_5_E2E_PENDING`; **mandatory financial-integrity obligation** |
 | `FR-037` | Service Catalog and Pricing | 4 | AC-010 |
 | `FR-038` | Service Catalog and Pricing | 4 | AC-010 |
 | `FR-039` | Service Catalog and Pricing | 4 | AC-011 |

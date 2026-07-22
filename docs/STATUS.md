@@ -2,7 +2,7 @@
 
 **This file is machine-validated. The status words below are exact and must not be paraphrased.**
 
-Baseline date: 19 July 2026 · Master Source version: 1.4.0
+Baseline date: 19 July 2026 · Master Source version: 1.4.1
 Status vocabulary: [`governance/STATUS_MODEL.md`](governance/STATUS_MODEL.md)
 Canonical source: [`MASTER_SOURCE.md`](MASTER_SOURCE.md)
 
@@ -16,7 +16,7 @@ Canonical source: [`MASTER_SOURCE.md`](MASTER_SOURCE.md)
 | Step 1 | Product Requirement and Domain Model | GO WITH ACCEPTED DEVIATION |
 | Step 2 | Design System and UX Foundation | GO WITH ACCEPTED DEVIATION |
 | Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | GO WITH ACCEPTED DEVIATION |
-| Step 4 | Laundry Master Data | PLANNED |
+| Step 4 | Laundry Master Data | IN PROGRESS |
 | Step 5 | POS, Order, and Payment Foundation | PLANNED |
 | Step 6 | Production Operations | PLANNED |
 | Step 7 | Customer Tracking and WhatsApp | PLANNED |
@@ -185,10 +185,17 @@ signing, no device execution, no performance or accessibility audit, no UAT, and
 no deployment. Runtime existing and passing its gates is not runtime deployed:
 see §2 for exactly what is verified and what is not.
 
-**Step 3 GO does not start Step 4 and does not authorise deployment.** Step 4
-remains `PLANNED / NOT STARTED`; deployment remains `ABSENT`. Any Step 4 work
-begins only through a separately authorised canonical Step 4 process, and the
+**Step 3 GO did not start Step 4 and does not authorise deployment.** Step 4
+began only through the separately authorised canonical process Step 3 required,
+recorded as
+[DEC-0028](decisions/DEC-0028-step-04-scope-resolution-and-canonical-authorization.md)
+on 21 July 2026. Step 4 is `IN PROGRESS`; deployment remains `ABSENT`, and the
 Step 3 tag never moves.
+
+This paragraph previously read "Step 4 remains `PLANNED / NOT STARTED`". That
+was true when written and stopped being true at DEC-0028. It contradicted the
+roadmap table in §1 of this same file, and a status file that contradicts itself
+is a false claim rather than a conservative one (Rule 01, DEC-0029).
 
 ---
 
@@ -207,11 +214,101 @@ Step 3 tag never moves.
 | Deployment | ABSENT |
 | Application CI | ACTIVE — THREE STEP 3 RUNTIME CONTEXTS VERIFIED |
 | UAT | NOT STARTED |
+| Client↔API end-to-end session | **PRESENT — VERIFIED ON A REAL DEVICE AND IN A REAL BROWSER** |
 
-**Runtime existing is not runtime working.** The backend boots, migrates against
-authoritative PostgreSQL 18.4, and passes 202 tests; the Dart workspace analyses
-clean and passes 187 tests. No Android or Web artefact has been built, so no build
-result is claimed.
+### Client↔API authentication: the defect, and its correction
+
+**Current state:** all three canonical Flutter surfaces resolve a concrete
+`BackendAuthService` in their production composition and have authenticated
+against a running backend. The paragraphs below record the defect that made this
+section necessary, because deleting that history would leave the correction
+looking like something that was always true.
+
+#### What was wrong (historical, corrected)
+
+Recorded 21 July 2026. `AuthService` was an interface in `packages/auth` whose
+only implementation in the workspace was `FakeAuthService` in
+`packages/testing`. No `main.dart` overrode `authServiceProvider` — each entry
+point overrode `environmentProvider` and nothing else — so every authenticated
+screen read a provider that threw `UnimplementedError` on the startup frame. No
+build of any surface could sign in. Widget suites stayed green throughout,
+because each test supplied the missing dependency through the same provider the
+production code read.
+
+The same defect then recurred one layer up in Step 4:
+`masterDataRepositoryProvider` threw identically in Ops Android and Console Web,
+so every master-data screen died the moment it was opened.
+
+#### What is true now
+
+Both are fixed and the fixes are verified, not asserted:
+
+- `BackendAuthService` is a concrete production implementation in
+  `packages/auth`. `authServiceProvider` resolves to it in all three
+  applications; no `main.dart` override is needed because the production default
+  IS the real implementation and a test overrides it.
+- `masterDataRepositoryProvider` is built from the surface's authenticated
+  `ApiClient` in Ops Android and Console Web, so master-data requests carry the
+  same credential and `X-Tenant-Id`. Customer Android deliberately has none.
+- A real device run against a running backend has executed sign-in, session
+  restoration from the Android Keystore, tenant and outlet selection, customer
+  search, a customer write with a server-confirmed reload, catalogue, outlet
+  detail and staff roster.
+- Console Web boots and authenticates in real Chrome with `localStorage` and
+  `sessionStorage` empty after authentication.
+- `scripts/validate-production-composition.py` and its adversarial harness make
+  a recurrence fail at validation time rather than at first user navigation.
+
+The correction was made on a separate branch after Step 3 `GO`, merged through
+PR #19 (merge `0f065a330e085228aaeed086f620d8752291e0af`), and recorded as
+**DEC-0032**. Threat **T-51** records the failure mode.
+
+#### What the correction does NOT change
+
+**The Step 3 `GO` tag was not moved and does not cover this fix.**
+`aish-laundry-step-03-runtime-auth-multitenancy-rbac-v1.4.0-go` still resolves to
+tag object `8b37230ed8df8da343a1546fd949d8a41329fbdf`, peeling to
+`0e2554338812b05eba8411afeb099212b05f9761`. Step 3 remains
+`GO WITH ACCEPTED DEVIATION`. The tag records what was true at closure —
+including that this defect was present and undetected — and rewriting it would
+erase the evidence that the gate missed something.
+
+**Runtime existing is still not runtime working.** Every claim above is bound to
+captured output at an exact SHA in
+[`../evidence/step-03-corrective-auth-runtime/`](../evidence/step-03-corrective-auth-runtime/)
+and [`../evidence/step-04/`](../evidence/step-04/). Step 4 remains `IN PROGRESS`;
+PR #18 is unmerged.
+
+### Step 4 pre-merge state
+
+**Classification: `NO-GO — STEP 4 IN PROGRESS / MERGE-READY HANDOFF`.**
+
+This is not a product failure and not an external blocker. It records that the
+two remaining actions — merging PR #18 and conferring a `GO` tag — are the
+repository owner's and are deliberately reserved (Rule 01, Rule 12).
+
+Three independent review rounds produced twenty-three findings. **Three first
+remediations were refuted by a later round**, each failing the same way: a
+control documented as absolute, an unenumerated bypass, and a green test proving
+only the narrower case. The chronology is preserved in
+[`../evidence/step-04/INDEPENDENT-REVIEW-CLOSURE.md`](../evidence/step-04/INDEPENDENT-REVIEW-CLOSURE.md).
+
+All findings are `FIXED_AND_VERIFIED` except **NEW-04**, an
+`ACCEPTED_OPERATIONAL_RESIDUAL` covering local developer and reviewer
+reliability, accepted only after CI database isolation was proven across six
+conditions.
+
+**FR-024 and FR-025 are `COMPLETE_AND_VERIFIED`.** Seven requirements remain
+`PARTIAL_STEP_4_FOUNDATION_COMPLETE / STEP_5_E2E_PENDING`, each with a handoff
+entry naming the proof Step 5 must produce — FR-036 among them, and it is a
+mandatory financial-integrity obligation.
+
+**A deployment prerequisite is recorded and is not a current control.** The
+consent and price-list guarantees hold at the application database connection
+boundary and do not bind a principal that may rewrite the schema; in development
+the application role *is* the superuser and table owner. A non-owner,
+non-superuser role is
+[`REQUIRED_FOR_FUTURE_DEPLOYMENT` / `NOT_YET_PROVISIONED` / `NOT_CLAIMED_AS_CURRENT_CONTROL`](../docs/deployment/DATABASE_ROLE_PREREQUISITE.md).
 
 <!-- CANONICAL_STEP_STATE_BEGIN -->
 <!--
@@ -228,7 +325,7 @@ STEP_00_STATUS=GO
 STEP_01_STATUS=GO
 STEP_02_STATUS=GO
 STEP_03_STATUS=GO
-STEP_04_STATUS=PLANNED
+STEP_04_STATUS=IN_PROGRESS
 STEP_05_STATUS=PLANNED
 STEP_06_STATUS=PLANNED
 STEP_07_STATUS=PLANNED
@@ -257,7 +354,7 @@ STEP_03_EVIDENCE_MERGE_SHA=ad31473da8376e91b67449bf7820ab9877ea8a4a
 STEP_03_GO_TAG=aish-laundry-step-03-runtime-auth-multitenancy-rbac-v1.4.0-go
 STEP_03_GO_TAG_OBJECT=8b37230ed8df8da343a1546fd949d8a41329fbdf
 STEP_03_GO_TAG_PEELED=0e2554338812b05eba8411afeb099212b05f9761
-STEP_04_STATUS_NOTE=PLANNED_NOT_STARTED
+STEP_04_STATUS_NOTE=IN_PROGRESS_AUTHORIZED_BY_DEC_0028
 DEPLOYMENT=ABSENT
 <!-- STEP_03_CLOSURE_END -->
 
@@ -297,10 +394,10 @@ records what has actually been executed, not what exists.
 
 | Path | Runtime | Verified |
 | --- | --- | --- |
-| `backend` | PRESENT | Laravel 13.20.0 boots; migrate fresh/rollback/re-apply on PostgreSQL 18.4; 202 tests, 1292 assertions |
+| `backend` | PRESENT | Laravel 13.20.0 boots; migrate fresh/rollback/re-apply on PostgreSQL 18.4; 385 tests, 3562 assertions |
 | `apps/customer_android` | PRESENT | analyse clean, 20 widget tests; **debug APK built, exit 0** |
-| `apps/ops_android` | PRESENT | analyse clean, 28 widget tests; **debug APK built, exit 0** |
-| `apps/admin_web` | PRESENT | analyse clean, 20 widget tests; **release web build, exit 0** |
+| `apps/ops_android` | PRESENT | analyse clean, 78 widget tests; **debug APK built, exit 0** (Step 3 build; the Step 4 master-data surface is test-verified, not re-built) |
+| `apps/admin_web` | PRESENT | analyse clean, 34 widget tests; **release web build, exit 0** |
 | `packages/design_system` | PRESENT | deterministic token generation, drift test |
 | `packages/core` | PRESENT | pure Dart, unit tests |
 | `packages/domain` | PRESENT | pure Dart, unit tests |
@@ -361,15 +458,43 @@ none of them, because there is nothing to execute them against.
 
 ## 6. Environment status
 
+Every row names the environment it describes. A service verified locally is never reported as
+deployed infrastructure, and a bare status word is never used where two environments would read the
+same (DEC-0029).
+
 | Environment | Status |
 | --- | --- |
-| Local development runtime | ABSENT |
+| Local development runtime | PRESENT — VERIFIED LOCALLY ONLY |
+| Local development PostgreSQL | PRESENT — VERIFIED LOCALLY ONLY |
+| Local development Redis | PRESENT — VERIFIED LOCALLY ONLY |
+| CI runtime | PRESENT — EPHEMERAL, PER-RUN |
 | Staging | ABSENT |
 | Production | ABSENT |
-| Database | ABSENT |
-| Redis | ABSENT |
-| Object storage | ABSENT |
+| Staging or production database | ABSENT |
+| Staging or production Redis | ABSENT |
+| Object storage | NOT CONFIGURED |
 | Deployment pipeline | ABSENT |
+
+**Four rows in this table were stale and self-contradictory, and are corrected under
+[DEC-0029](decisions/DEC-0029-canonical-status-drift-remediation-and-cross-document-validation.md).**
+This table previously declared `Local development runtime | ABSENT`, `Database | ABSENT`, and
+`Redis | ABSENT` while §2 of this same document declared PostgreSQL and Redis runtime foundations
+`PRESENT`, `infrastructure/docker-compose.dev.yml` defined both services, and
+`scripts/verify-step-03.sh` reported them reachable with `migrate:fresh --seed`, `migrate:rollback`,
+and `migrate` re-apply all passing. Two tables four sections apart contradicted each other on the same
+screen, and a reader could not tell which was true.
+
+The rows were not simply wrong: they were **unqualified**. §2 describes runtime foundations and §6
+describes environments, but neither said so, so `PRESENT` and `ABSENT` collided on the same subject.
+Naming the environment in the row is what makes both statements true at once.
+
+`scripts/validate-status.py` now cross-checks these declarations for contradiction and against
+`infrastructure/docker-compose.dev.yml` in both directions, so the same drift cannot recur silently.
+
+**Local and CI verification is never production evidence.** `PRESENT — VERIFIED LOCALLY ONLY` means a
+loopback-bound development service with fictional seed data was reached from a developer machine. It
+is not a staging service, not a production service, and not a claim that anything is deployed.
+**Deployment remains `ABSENT`**, and no Step 3 or Step 4 result upgrades that.
 
 ---
 

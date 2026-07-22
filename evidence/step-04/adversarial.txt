@@ -1,0 +1,26 @@
+STEP 4 — ADVERSARIAL VALIDATOR HARNESSES (Rule 47)
+==================================================
+
+Bound to commit: 6abd3fdc918a740ea400819a23e9b0cc371778f5
+Timestamp (Asia/Jakarta): 2026-07-22 23:34:32 WIB
+Environment: PHP 8.5.4, PostgreSQL 18.4, Redis 8.2 (loopback-bound dev services)
+
+A validator that has only run against correct input is an untested
+validator. Each harness mutates a DISPOSABLE COPY and verifies the working
+tree is byte-identical afterwards.
+
+$ bash scripts/test-step-04-validators.sh
+working tree verified byte-identical before and after
+SUMMARY [step-04-validators]: 11/11 expectations met, 0 failed
+RESULT: PASS (step-04-validators)
+
+$ bash scripts/test-production-composition-guard.sh
+PASS  the working tree is unchanged by this harness
+SUMMARY [production-composition-guard]: 9/9 expectations met, 0 failed
+RESULT: PASS (production-composition-guard)
+
+$ bash scripts/test-auth-runtime-truth.sh
+PASS  the working tree is unchanged by this harness
+SUMMARY [auth-runtime-truth]: 10/10 expectations met, 0 failed
+RESULT: PASS (auth-runtime-truth)
+

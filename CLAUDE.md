@@ -35,7 +35,8 @@ date **19 July 2026**).
 | Step 1 — Product Requirement and Domain Model | **GO** (owner-conferred 19 July 2026, with a recorded deviation) |
 | Step 2 — Design System and UX Foundation | **GO** (owner-conferred 20 July 2026, with four recorded deviations) |
 | Step 3 — Runtime, Authentication, Multi-Tenancy, and RBAC | **GO WITH ACCEPTED DEVIATION** (owner-conferred, GO-tagged) |
-| Step 4–14 | **PLANNED** |
+| Step 4 — Laundry Master Data | **IN PROGRESS** (started under DEC-0028) |
+| Step 5–14 | **PLANNED** |
 | All product business features | **NOT IMPLEMENTED** |
 | Backend runtime | **PRESENT — STEP 3 FOUNDATION ONLY** |
 | PostgreSQL runtime foundation | **PRESENT** |
@@ -286,6 +287,7 @@ Each file below is binding. Read the relevant one before working in its area.
 | [`.claude/rules/47-runtime-testing-and-adversarial-gates.md`](.claude/rules/47-runtime-testing-and-adversarial-gates.md) | Exact-SHA CI, fresh-clone verification, adversarial validator testing |
 | [`.claude/rules/48-tenant-isolation-hard-gate.md`](.claude/rules/48-tenant-isolation-hard-gate.md) | Runtime tenant-isolation hard gate and required negative-test coverage |
 | [`.claude/rules/49-current-step-03-status.md`](.claude/rules/49-current-step-03-status.md) | Step 3 status snapshot, adversarial scope-guard evidence, Step 4 boundary |
+| [`.claude/rules/50-current-step-04-status.md`](.claude/rules/50-current-step-04-status.md) | Step 4 status snapshot, DEC-0028 authorization, master-data-is-not-workflow boundary |
 
 ## 16. Violation handling
 

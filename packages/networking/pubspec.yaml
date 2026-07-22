@@ -12,6 +12,11 @@ environment:
 
 dependencies:
   aish_core: 0.1.0
+  # The master-data repository returns DOMAIN types rather than raw maps, so a
+  # surface cannot decode an envelope its own way. First-party workspace
+  # package; the dependency runs one direction only (domain never imports
+  # networking), so the graph stays acyclic.
+  aish_domain: 0.1.0
   dio: 5.10.0
   meta: 1.18.0
 

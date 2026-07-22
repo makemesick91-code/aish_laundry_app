@@ -1,0 +1,712 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Feature;
+
+use App\Modules\Authorization\PermissionRegistry;
+use App\Modules\CustomerManagement\Models\Customer;
+use App\Modules\CustomerManagement\Models\CustomerConsent;
+use App\Modules\CustomerManagement\Support\PhoneNumber;
+use Illuminate\Database\QueryException;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
+use RuntimeException;
+use Tests\Concerns\BuildsTenantScenario;
+use Tests\TestCase;
+
+/**
+ * Customer master data — FR-021 … FR-030.
+ *
+ * Runs against PostgreSQL, which is the only engine whose result counts as
+ * tenant-isolation evidence (Rule 43, hard rules 1-2). Several assertions here
+ * depend on PostgreSQL-specific behaviour — partial unique indexes, check
+ * constraints, and the append-only triggers on `customer_consents` — and would
+ * silently pass on a substitute engine that ignores them.
+ *
+ * Every value is fictional and recognisably so (Rule 23, Rule 45).
+ */
+final class CustomerMasterDataTest extends TestCase
+{
+    use BuildsTenantScenario;
+    use RefreshDatabase;
+
+    // -----------------------------------------------------------------------
+    // FR-021 / FR-023 — profile and search
+    // -----------------------------------------------------------------------
+
+    public function test_a_customer_is_created_and_scoped_to_the_active_tenant(): void
+    {
+        $this->seedCatalogue();
+        $tenant = $this->makeTenant();
+        $user = $this->makeUser();
+        $this->makeMembership($tenant, $user, [PermissionRegistry::ROLE_TENANT_OWNER]);
+        $token = $this->loginToken($user);
+
+        $response = $this->postJson('/api/v1/customers', [
+            'name' => 'Pelanggan Uji Fiktif',
+            'phone' => '081200000001',
+        ], $this->bearer($token, $tenant->id));
+
+        $response->assertCreated();
+
+        $id = $response->json('data.customer.id');
+        $this->assertNotNull($id);
+
+        $customer = Customer::query()->findOrFail($id);
+        $this->assertSame($tenant->id, $customer->tenant_id);
+        $this->assertSame('6281200000001', $customer->phone_normalized);
+        $this->assertSame(Customer::STATUS_ACTIVE, $customer->status);
+    }
+
+    public function test_phone_is_normalized_server_side_so_different_renderings_are_one_customer(): void
+    {
+        $this->assertSame('6281200000001', PhoneNumber::normalize('081200000001'));
+        $this->assertSame('6281200000001', PhoneNumber::normalize('+62 812-0000-0001'));
+        $this->assertSame('6281200000001', PhoneNumber::normalize('62 812 0000 0001'));
+        $this->assertSame('6281200000001', PhoneNumber::normalize('812 0000 0001'));
+    }
+
+    public function test_a_duplicate_phone_within_one_tenant_is_rejected_and_never_merged(): void
+    {
+        $this->seedCatalogue();
+        $tenant = $this->makeTenant();
+        $user = $this->makeUser();
+        $this->makeMembership($tenant, $user, [PermissionRegistry::ROLE_TENANT_OWNER]);
+        $token = $this->loginToken($user);
+
+        $first = $this->postJson('/api/v1/customers', [
+            'name' => 'Pelanggan Satu Fiktif',
+            'phone' => '081200000002',
+        ], $this->bearer($token, $tenant->id))->assertCreated();
+
+        // Same person, typed differently.
+        $second = $this->postJson('/api/v1/customers', [
+            'name' => 'Pelanggan Satu Fiktif',
+            'phone' => '+62 812 0000 0002',
+        ], $this->bearer($token, $tenant->id));
+
+        $second->assertStatus(422);
+        $this->assertSame(
+            $first->json('data.customer.id'),
+            $second->json('error.details.existing_customer_id'),
+            'the conflict must name the existing customer so an operator can act on it'
+        );
+
+        // DETECTED, NOT MERGED: still exactly one row.
+        $this->assertSame(1, Customer::query()->forTenant($tenant->id)->count());
+    }
+
+    /**
+     * FR-022 — the requirement this whole aggregate exists to protect.
+     */
+    public function test_the_same_phone_in_two_tenants_is_two_unrelated_customers(): void
+    {
+        $this->seedCatalogue();
+
+        $tenantA = $this->makeTenant('tenant-a');
+        $tenantB = $this->makeTenant('tenant-b');
+
+        $userA = $this->makeUser();
+        $userB = $this->makeUser();
+        $this->makeMembership($tenantA, $userA, [PermissionRegistry::ROLE_TENANT_OWNER]);
+        $this->makeMembership($tenantB, $userB, [PermissionRegistry::ROLE_TENANT_OWNER]);
+
+        $tokenA = $this->loginToken($userA);
+        $tokenB = $this->loginToken($userB);
+
+        $sharedPhone = '081200000003';
+
+        $a = $this->postJson('/api/v1/customers', [
+            'name' => 'Pelanggan Bersama Fiktif',
+            'phone' => $sharedPhone,
+        ], $this->bearer($tokenA, $tenantA->id))->assertCreated();
+
+        // The SAME number in another tenant must succeed, not conflict.
+        $b = $this->postJson('/api/v1/customers', [
+            'name' => 'Pelanggan Bersama Fiktif',
+            'phone' => $sharedPhone,
+        ], $this->bearer($tokenB, $tenantB->id))->assertCreated();
+
+        $this->assertNotSame($a->json('data.customer.id'), $b->json('data.customer.id'));
+
+        $rows = Customer::query()->where('phone_normalized', PhoneNumber::normalize($sharedPhone))->get();
+        $this->assertCount(2, $rows, 'two unrelated profiles, never merged');
+        $this->assertEqualsCanonicalizing(
+            [$tenantA->id, $tenantB->id],
+            $rows->pluck('tenant_id')->all()
+        );
+    }
+
+    // -----------------------------------------------------------------------
+    // Tenant isolation — every access path (Rule 48, hard rule 3)
+    // -----------------------------------------------------------------------
+
+    public function test_tenant_isolation_across_every_access_path(): void
+    {
+        $this->seedCatalogue();
+
+        $tenantA = $this->makeTenant('tenant-a');
+        $tenantB = $this->makeTenant('tenant-b');
+
+        $userA = $this->makeUser();
+        $userB = $this->makeUser();
+        $this->makeMembership($tenantA, $userA, [PermissionRegistry::ROLE_TENANT_OWNER]);
+        $this->makeMembership($tenantB, $userB, [PermissionRegistry::ROLE_TENANT_OWNER]);
+
+        $tokenA = $this->loginToken($userA);
+        $tokenB = $this->loginToken($userB);
+
+        // A record that belongs to tenant B only.
+        $bCustomerId = $this->postJson('/api/v1/customers', [
+            'name' => 'Rahasia Tenant B Fiktif',
+            'phone' => '081200000004',
+        ], $this->bearer($tokenB, $tenantB->id))->assertCreated()->json('data.customer.id');
+
+        $headersA = $this->bearer($tokenA, $tenantA->id);
+
+        // (1) DIRECT ID
+        $this->getJson("/api/v1/customers/{$bCustomerId}", $headersA)->assertNotFound();
+
+        // (2) LIST
+        $list = $this->getJson('/api/v1/customers', $headersA)->assertOk();
+        $this->assertSame([], $list->json('data.customers'));
+        $this->assertSame(0, $list->json('data.pagination.total'));
+
+        // (3) FILTER
+        $this->getJson('/api/v1/customers?status=active', $headersA)
+            ->assertOk()
+            ->assertJsonPath('data.pagination.total', 0);
+
+        // (4) FREE-TEXT SEARCH — by name AND by the other tenant's phone.
+        $this->getJson('/api/v1/customers?q=Rahasia', $headersA)
+            ->assertOk()
+            ->assertJsonPath('data.pagination.total', 0);
+        $this->getJson('/api/v1/customers?q=081200000004', $headersA)
+            ->assertOk()
+            ->assertJsonPath('data.pagination.total', 0);
+
+        // (5) MUTATION through a foreign id
+        $this->patchJson("/api/v1/customers/{$bCustomerId}", ['name' => 'Diubah'], $headersA)
+            ->assertNotFound();
+        $this->postJson("/api/v1/customers/{$bCustomerId}/archive", [], $headersA)
+            ->assertNotFound();
+
+        // (6) RELATED-RESOURCE traversal
+        $this->getJson("/api/v1/customers/{$bCustomerId}/consents", $headersA)->assertNotFound();
+        $this->postJson("/api/v1/customers/{$bCustomerId}/consents", [
+            'consent_type' => CustomerConsent::TYPE_MARKETING_WHATSAPP,
+            'state' => CustomerConsent::STATE_GRANTED,
+            'source' => 'counter',
+        ], $headersA)->assertNotFound();
+
+        // Tenant B's record is untouched by any of the above.
+        $this->assertSame(
+            'Rahasia Tenant B Fiktif',
+            Customer::query()->findOrFail($bCustomerId)->name
+        );
+    }
+
+    public function test_a_foreign_record_and_an_absent_record_are_indistinguishable(): void
+    {
+        $this->seedCatalogue();
+
+        $tenantA = $this->makeTenant('tenant-a');
+        $tenantB = $this->makeTenant('tenant-b');
+        $userA = $this->makeUser();
+        $userB = $this->makeUser();
+        $this->makeMembership($tenantA, $userA, [PermissionRegistry::ROLE_TENANT_OWNER]);
+        $this->makeMembership($tenantB, $userB, [PermissionRegistry::ROLE_TENANT_OWNER]);
+
+        $tokenA = $this->loginToken($userA);
+        $tokenB = $this->loginToken($userB);
+
+        $foreignId = $this->postJson('/api/v1/customers', [
+            'name' => 'Milik B Fiktif',
+            'phone' => '081200000005',
+        ], $this->bearer($tokenB, $tenantB->id))->assertCreated()->json('data.customer.id');
+
+        $absentId = '00000000-0000-4000-8000-000000000000';
+        $headersA = $this->bearer($tokenA, $tenantA->id);
+
+        $foreign = $this->getJson("/api/v1/customers/{$foreignId}", $headersA)->assertNotFound();
+        $absent = $this->getJson("/api/v1/customers/{$absentId}", $headersA)->assertNotFound();
+
+        // Rule 48, hard rule 5: the two cases render identically.
+        $this->assertSame($foreign->json('error.code'), $absent->json('error.code'));
+        $this->assertSame($foreign->json('error.message'), $absent->json('error.message'));
+    }
+
+    // -----------------------------------------------------------------------
+    // Mass assignment (threat T-05)
+    // -----------------------------------------------------------------------
+
+    public function test_a_client_supplied_tenant_id_in_the_body_is_ignored(): void
+    {
+        $this->seedCatalogue();
+
+        $tenantA = $this->makeTenant('tenant-a');
+        $tenantB = $this->makeTenant('tenant-b');
+        $userA = $this->makeUser();
+        $this->makeMembership($tenantA, $userA, [PermissionRegistry::ROLE_TENANT_OWNER]);
+        $tokenA = $this->loginToken($userA);
+
+        $id = $this->postJson('/api/v1/customers', [
+            'name' => 'Pelanggan Fiktif',
+            'phone' => '081200000006',
+            // Hostile input: all three are server-derived and must be ignored.
+            'tenant_id' => $tenantB->id,
+            'code' => 'DIPILIH-SENDIRI',
+            'phone_normalized' => '629999999999',
+        ], $this->bearer($tokenA, $tenantA->id))->assertCreated()->json('data.customer.id');
+
+        $customer = Customer::query()->findOrFail($id);
+
+        $this->assertSame($tenantA->id, $customer->tenant_id);
+        $this->assertNotSame('DIPILIH-SENDIRI', $customer->code);
+        $this->assertSame(PhoneNumber::normalize('081200000006'), $customer->phone_normalized);
+    }
+
+    // -----------------------------------------------------------------------
+    // FR-025 / FR-026 / FR-030 — masking and the allow-list projection
+    // -----------------------------------------------------------------------
+
+    public function test_the_list_projection_masks_the_phone_and_omits_notes_and_address(): void
+    {
+        $this->seedCatalogue();
+        $tenant = $this->makeTenant();
+        $user = $this->makeUser();
+        $this->makeMembership($tenant, $user, [PermissionRegistry::ROLE_TENANT_OWNER]);
+        $token = $this->loginToken($user);
+
+        $this->postJson('/api/v1/customers', [
+            'name' => 'Pelanggan Fiktif',
+            'phone' => '081200000007',
+            'internal_notes' => 'Catatan internal rahasia',
+        ], $this->bearer($token, $tenant->id))->assertCreated();
+
+        $row = $this->getJson('/api/v1/customers', $this->bearer($token, $tenant->id))
+            ->assertOk()
+            ->json('data.customers.0');
+
+        $this->assertArrayHasKey('phone_masked', $row);
+        $this->assertArrayNotHasKey('phone', $row, 'a list row never carries the full phone');
+        $this->assertArrayNotHasKey('phone_normalized', $row, 'the match key is not display data');
+        $this->assertArrayNotHasKey('internal_notes', $row);
+        $this->assertArrayNotHasKey('addresses', $row, 'Rule 32 hard rule 4: no address in a list row');
+        $this->assertStringNotContainsString('81200000007', json_encode($row, JSON_THROW_ON_ERROR));
+    }
+
+    // -----------------------------------------------------------------------
+    // FR-027 / FR-028 — consent
+    // -----------------------------------------------------------------------
+
+    public function test_consent_is_recorded_with_a_server_side_timestamp_and_actor(): void
+    {
+        $this->seedCatalogue();
+        $tenant = $this->makeTenant();
+        $user = $this->makeUser();
+        $membership = $this->makeMembership($tenant, $user, [PermissionRegistry::ROLE_TENANT_OWNER]);
+        $token = $this->loginToken($user);
+        $headers = $this->bearer($token, $tenant->id);
+
+        $id = $this->postJson('/api/v1/customers', [
+            'name' => 'Pelanggan Fiktif',
+            'phone' => '081200000008',
+        ], $headers)->assertCreated()->json('data.customer.id');
+
+        $this->postJson("/api/v1/customers/{$id}/consents", [
+            'consent_type' => CustomerConsent::TYPE_MARKETING_WHATSAPP,
+            'state' => CustomerConsent::STATE_GRANTED,
+            'source' => 'counter',
+            // A hostile backdate. Must be ignored (threat T-07).
+            'recorded_at' => '1999-01-01T00:00:00+07:00',
+        ], $headers)->assertCreated();
+
+        $consent = CustomerConsent::query()->where('customer_id', $id)->firstOrFail();
+
+        $this->assertSame($membership->id, $consent->recorded_by_membership_id);
+        $this->assertTrue(
+            $consent->recorded_at->year >= 2026,
+            'recorded_at is server-side and cannot be backdated by the client'
+        );
+    }
+
+    public function test_withdrawal_appends_a_record_and_the_latest_state_governs(): void
+    {
+        $this->seedCatalogue();
+        $tenant = $this->makeTenant();
+        $user = $this->makeUser();
+        $this->makeMembership($tenant, $user, [PermissionRegistry::ROLE_TENANT_OWNER]);
+        $token = $this->loginToken($user);
+        $headers = $this->bearer($token, $tenant->id);
+
+        $id = $this->postJson('/api/v1/customers', [
+            'name' => 'Pelanggan Fiktif',
+            'phone' => '081200000009',
+        ], $headers)->assertCreated()->json('data.customer.id');
+
+        foreach ([CustomerConsent::STATE_GRANTED, CustomerConsent::STATE_WITHDRAWN] as $state) {
+            $this->postJson("/api/v1/customers/{$id}/consents", [
+                'consent_type' => CustomerConsent::TYPE_MARKETING_WHATSAPP,
+                'state' => $state,
+                'source' => 'counter',
+            ], $headers)->assertCreated();
+        }
+
+        $customer = Customer::query()->findOrFail($id);
+
+        $this->assertSame(2, CustomerConsent::query()->where('customer_id', $id)->count());
+        $this->assertFalse($customer->hasMarketingConsent(CustomerConsent::TYPE_MARKETING_WHATSAPP));
+
+        $this->assertSame(
+            CustomerConsent::STATE_WITHDRAWN,
+            $this->getJson("/api/v1/customers/{$id}/consents", $headers)
+                ->assertOk()
+                ->json('data.current.'.CustomerConsent::TYPE_MARKETING_WHATSAPP)
+        );
+    }
+
+    public function test_no_consent_record_at_all_is_not_consent(): void
+    {
+        $this->seedCatalogue();
+        $tenant = $this->makeTenant();
+        $customer = $this->makeCustomerDirectly($tenant->id, '081200000010');
+
+        $this->assertNull($customer->currentConsentState(CustomerConsent::TYPE_MARKETING_WHATSAPP));
+        $this->assertFalse($customer->hasMarketingConsent(CustomerConsent::TYPE_MARKETING_WHATSAPP));
+    }
+
+    /**
+     * FR-028 — the requirement that makes consent history evidence.
+     *
+     * Three layers are asserted separately, because each covers a path the
+     * others cannot see.
+     */
+    public function test_an_opt_out_cannot_be_reset_by_the_model(): void
+    {
+        $this->seedCatalogue();
+        $tenant = $this->makeTenant();
+        $customer = $this->makeCustomerDirectly($tenant->id, '081200000011');
+        $consent = $this->makeConsentDirectly($customer, CustomerConsent::STATE_WITHDRAWN);
+
+        $this->expectException(RuntimeException::class);
+
+        $consent->state = CustomerConsent::STATE_GRANTED;
+        $consent->save();
+    }
+
+    public function test_an_opt_out_cannot_be_reset_by_raw_sql_bypassing_the_application(): void
+    {
+        $this->seedCatalogue();
+        $tenant = $this->makeTenant();
+        $customer = $this->makeCustomerDirectly($tenant->id, '081200000012');
+        $this->makeConsentDirectly($customer, CustomerConsent::STATE_WITHDRAWN);
+
+        // The paths FR-028 actually names: a migration or an import running
+        // OUTSIDE the application.
+        //
+        // This previously asserted that the statements were SILENT NO-OPS,
+        // because the boundary was two `DO INSTEAD NOTHING` rules. That was a
+        // weaker property than the comment above it claimed, and it left the
+        // one statement rules never see — TRUNCATE — completely unguarded
+        // (SEC-12). The boundary is now a raising trigger, so each statement is
+        // asserted REFUSED rather than absorbed.
+        $this->assertStatementRefused("UPDATE customer_consents SET state = 'granted'");
+        $this->assertStatementRefused('DELETE FROM customer_consents');
+        $this->assertStatementRefused('TRUNCATE TABLE customer_consents');
+
+        // The row is still there, unchanged, after all three attempts.
+        $this->assertSame(1, CustomerConsent::query()->where('customer_id', $customer->id)->count());
+        $this->assertSame(
+            CustomerConsent::STATE_WITHDRAWN,
+            $customer->fresh()->currentConsentState(CustomerConsent::TYPE_MARKETING_WHATSAPP)
+        );
+    }
+
+    /**
+     * The regression for SEC-12 specifically.
+     *
+     * `TRUNCATE` had to be separated from the statement above rather than
+     * folded into it, because the two fail differently: an unguarded UPDATE
+     * leaves rewritten history, an unguarded TRUNCATE leaves NO history at all
+     * for EVERY tenant, and nothing afterwards can tell that consent was ever
+     * recorded. It is also the case the previous protection could not have
+     * caught by construction — PostgreSQL's rule system does not rewrite
+     * TRUNCATE — so a test that only exercised UPDATE and DELETE would have
+     * stayed green over an open hole indefinitely.
+     */
+    public function test_consent_history_cannot_be_truncated_away(): void
+    {
+        $this->seedCatalogue();
+        $tenantA = $this->makeTenant();
+        $tenantB = $this->makeTenant();
+        $customerA = $this->makeCustomerDirectly($tenantA->id, '081200000013');
+        $customerB = $this->makeCustomerDirectly($tenantB->id, '081200000014');
+        $this->makeConsentDirectly($customerA, CustomerConsent::STATE_WITHDRAWN);
+        $this->makeConsentDirectly($customerB, CustomerConsent::STATE_WITHDRAWN);
+
+        $this->assertStatementRefused('TRUNCATE TABLE customer_consents');
+        // The cascading form is a distinct statement to the planner, so it is a
+        // distinct attempt, not a rephrasing of the same one.
+        $this->assertStatementRefused('TRUNCATE TABLE customer_consents CASCADE');
+
+        // Both tenants' withdrawals survive. A control on one tenant only would
+        // not distinguish "refused" from "removed everything except the row I
+        // happened to check".
+        $this->assertSame(2, CustomerConsent::query()->count());
+        foreach ([$customerA, $customerB] as $customer) {
+            $this->assertSame(
+                CustomerConsent::STATE_WITHDRAWN,
+                $customer->fresh()->currentConsentState(CustomerConsent::TYPE_MARKETING_WHATSAPP)
+            );
+        }
+    }
+
+    /**
+     * The trigger is asserted to EXIST IN THE LIVE SCHEMA, not merely to have
+     * been written in a migration file.
+     *
+     * A migration is a statement of intent. `pg_trigger` is the database. If a
+     * later migration disabled or dropped the trigger, every behavioural test
+     * above would still pass on a database where the boundary had been removed
+     * only if the removal also removed the rows — which it would not.
+     */
+    public function test_the_append_only_boundary_exists_in_the_live_schema(): void
+    {
+        $triggers = DB::table('pg_trigger')
+            ->join('pg_class', 'pg_class.oid', '=', 'pg_trigger.tgrelid')
+            ->where('pg_class.relname', 'customer_consents')
+            // 'A' is ENABLE ALWAYS, and nothing weaker is accepted.
+            //
+            // This previously asserted `tgenabled <> 'D'`, which passes
+            // identically for 'O' (ENABLE ORIGIN) and 'A'. That is exactly how
+            // the SEC-12 bypass survived a green test: an origin-enabled trigger
+            // does not fire under `session_replication_role = 'replica'`, so the
+            // suite proved the trigger EXISTED while it could be stepped around
+            // with one `SET`. A liveness check that cannot distinguish the
+            // bypassable state from the hardened one exerts no pressure toward
+            // the safe one.
+            ->where('pg_trigger.tgenabled', 'A')
+            ->where('pg_trigger.tgisinternal', false)
+            ->pluck('pg_trigger.tgname')
+            ->all();
+
+        foreach ([
+            'customer_consents_refuse_update',
+            'customer_consents_refuse_delete',
+            'customer_consents_refuse_truncate',
+        ] as $expected) {
+            $this->assertContains($expected, $triggers);
+        }
+    }
+
+    /**
+     * SEC-12 REOPENED — the bypass an independent review found and proved.
+     *
+     * `CREATE TRIGGER` produces an ENABLE ORIGIN trigger, which does not fire
+     * when a session sets `session_replication_role = 'replica'`. All three
+     * refusals disappeared with that one statement — no privilege escalation,
+     * no schema change, from the application's own connection. FR-028 names a
+     * data IMPORT as an attack path, and `pg_restore --disable-triggers` and
+     * logical-replication apply set precisely this GUC: the mechanism the
+     * requirement names by name was the one that walked through.
+     *
+     * ENABLE ALWAYS closes it. This test is BEHAVIOURAL rather than a catalogue
+     * assertion, because the catalogue assertion is what failed to notice.
+     */
+    public function test_consent_history_survives_a_replication_role_bypass_attempt(): void
+    {
+        $this->seedCatalogue();
+        $tenant = $this->makeTenant();
+        $customer = $this->makeCustomerDirectly($tenant->id, '081200000015');
+        $this->makeConsentDirectly($customer, CustomerConsent::STATE_WITHDRAWN);
+
+        // The exact escalation-free bypass: one SET, then the same statements.
+        DB::statement("SET session_replication_role = 'replica'");
+
+        try {
+            $this->assertStatementRefused("UPDATE customer_consents SET state = 'granted'");
+            $this->assertStatementRefused('DELETE FROM customer_consents');
+            $this->assertStatementRefused('TRUNCATE TABLE customer_consents');
+        } finally {
+            // Restored even on failure. Leaking replica mode into later tests
+            // would disable every trigger in the suite and turn unrelated
+            // assertions green for the wrong reason.
+            DB::statement("SET session_replication_role = 'origin'");
+        }
+
+        $this->assertSame(1, CustomerConsent::query()->where('customer_id', $customer->id)->count());
+        $this->assertSame(
+            CustomerConsent::STATE_WITHDRAWN,
+            $customer->fresh()->currentConsentState(CustomerConsent::TYPE_MARKETING_WHATSAPP)
+        );
+    }
+
+    /**
+     * Runs one statement and requires PostgreSQL to REFUSE it.
+     *
+     * The savepoint matters. A raising trigger aborts the surrounding
+     * transaction, and `RefreshDatabase` wraps the whole test in one; without
+     * an inner transaction the first refusal would poison every later
+     * assertion and the failure would read as an unrelated cascade.
+     */
+    private function assertStatementRefused(string $sql): void
+    {
+        // THE PRECONDITION IS PART OF THE ASSERTION.
+        //
+        // A closure reviewer's fixture once failed a check constraint and left
+        // this table EMPTY. The row-level UPDATE and DELETE triggers then never
+        // fired — there was nothing to fire on — and both refusals "passed"
+        // while proving nothing. Only the statement-level truncation trigger
+        // caught anything. The reviewer noticed and redid the run; a suite has
+        // no such instinct.
+        //
+        // So a refusal test now REFUSES TO RUN against an empty table. A
+        // destructive-protocol assertion with no data is not a weaker test, it
+        // is a different test that happens to be green.
+        $before = DB::table('customer_consents')->count();
+
+        $this->assertGreaterThan(
+            0,
+            $before,
+            "PRECONDITION FAILED: customer_consents is empty, so \"{$sql}\" would "
+            .'be refused vacuously — a row-level trigger cannot fire on no rows. '
+            .'Build the fixture before asserting a refusal.'
+        );
+
+        try {
+            DB::transaction(static fn () => DB::statement($sql));
+            $this->fail("The database ACCEPTED a statement it must refuse: {$sql}");
+        } catch (QueryException $e) {
+            // 23001 restrict_violation — the SQLSTATE the trigger raises. Asserted
+            // rather than string-matching the message, which is localisable and
+            // not a contract.
+            $this->assertSame('23001', $e->getCode(), "Refused, but not by the append-only trigger: {$sql}");
+        }
+
+        // And the row count is unchanged AFTER the refusal, so a statement that
+        // was refused loudly but still deleted something cannot pass.
+        $this->assertSame(
+            $before,
+            DB::table('customer_consents')->count(),
+            "The statement was refused, but the row count changed: {$sql}"
+        );
+    }
+
+    // -----------------------------------------------------------------------
+    // Authorization (Rule 40)
+    // -----------------------------------------------------------------------
+
+    public function test_a_role_without_customer_permission_is_denied(): void
+    {
+        $this->seedCatalogue();
+        $tenant = $this->makeTenant();
+        $user = $this->makeUser();
+        // A courier holds no customer permission at all.
+        $this->makeMembership($tenant, $user, [PermissionRegistry::ROLE_COURIER]);
+        $token = $this->loginToken($user);
+
+        $this->getJson('/api/v1/customers', $this->bearer($token, $tenant->id))->assertForbidden();
+        $this->postJson('/api/v1/customers', [
+            'name' => 'Pelanggan Fiktif',
+            'phone' => '081200000013',
+        ], $this->bearer($token, $tenant->id))->assertForbidden();
+    }
+
+    public function test_a_cashier_may_manage_customers_but_not_their_consent(): void
+    {
+        $this->seedCatalogue();
+        $tenant = $this->makeTenant();
+        $user = $this->makeUser();
+        $this->makeMembership($tenant, $user, [PermissionRegistry::ROLE_CASHIER]);
+        $token = $this->loginToken($user);
+        $headers = $this->bearer($token, $tenant->id);
+
+        $id = $this->postJson('/api/v1/customers', [
+            'name' => 'Pelanggan Fiktif',
+            'phone' => '081200000014',
+        ], $headers)->assertCreated()->json('data.customer.id');
+
+        // Consent is a separate permission: a kasir records customers, not
+        // legal positions.
+        $this->postJson("/api/v1/customers/{$id}/consents", [
+            'consent_type' => CustomerConsent::TYPE_MARKETING_WHATSAPP,
+            'state' => CustomerConsent::STATE_GRANTED,
+            'source' => 'counter',
+        ], $headers)->assertForbidden();
+    }
+
+    // -----------------------------------------------------------------------
+    // Bounded query surface (threats T-17, T-19, T-20)
+    // -----------------------------------------------------------------------
+
+    public function test_an_unknown_sort_field_is_rejected_rather_than_interpolated(): void
+    {
+        $this->seedCatalogue();
+        $tenant = $this->makeTenant();
+        $user = $this->makeUser();
+        $this->makeMembership($tenant, $user, [PermissionRegistry::ROLE_TENANT_OWNER]);
+        $token = $this->loginToken($user);
+
+        $this->getJson('/api/v1/customers?sort=internal_notes', $this->bearer($token, $tenant->id))
+            ->assertStatus(422);
+    }
+
+    public function test_page_size_is_capped(): void
+    {
+        $this->seedCatalogue();
+        $tenant = $this->makeTenant();
+        $user = $this->makeUser();
+        $this->makeMembership($tenant, $user, [PermissionRegistry::ROLE_TENANT_OWNER]);
+        $token = $this->loginToken($user);
+
+        $this->getJson('/api/v1/customers?per_page=100000', $this->bearer($token, $tenant->id))
+            ->assertOk()
+            ->assertJsonPath('data.pagination.per_page', 100);
+    }
+
+    public function test_no_bulk_mutation_or_export_route_exists_in_step_4(): void
+    {
+        $names = collect(app('router')->getRoutes())
+            ->map(static fn ($r) => (string) $r->uri())
+            ->filter(static fn (string $u) => str_contains($u, 'customers'))
+            ->values();
+
+        foreach ($names as $uri) {
+            $this->assertStringNotContainsString('export', $uri);
+            $this->assertStringNotContainsString('bulk', $uri);
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Fixtures. Explicit, so the tenant binding stays visible at the call site.
+    // -----------------------------------------------------------------------
+
+    private function makeCustomerDirectly(string $tenantId, string $phone): Customer
+    {
+        $customer = new Customer(['name' => 'Pelanggan Uji Fiktif', 'phone' => $phone]);
+        $customer->tenant_id = $tenantId;
+        $customer->phone_normalized = PhoneNumber::normalize($phone);
+        $customer->code = 'PLG-'.substr($phone, -6);
+        $customer->status = Customer::STATUS_ACTIVE;
+        $customer->save();
+
+        return $customer;
+    }
+
+    private function makeConsentDirectly(Customer $customer, string $state): CustomerConsent
+    {
+        $consent = new CustomerConsent([
+            'consent_type' => CustomerConsent::TYPE_MARKETING_WHATSAPP,
+            'state' => $state,
+            'source' => 'counter',
+        ]);
+        $consent->tenant_id = $customer->tenant_id;
+        $consent->customer_id = $customer->id;
+        $consent->recorded_at = now();
+        $consent->save();
+
+        return $consent;
+    }
+}

@@ -107,6 +107,70 @@ final class PermissionRegistry
     /** Read the audit trail of the active tenant. */
     public const AUDIT_VIEW = 'audit.view';
 
+    // ---------------------------------------------------------------------
+    // STEP 4 — LAUNDRY MASTER DATA (DEC-0028, DEC-0030).
+    //
+    // These extend this registry; they do NOT create a second one. DEC-0031 A
+    // is explicit that Step 4 consumes the existing authorization source of
+    // truth rather than introducing a parallel RBAC system.
+    //
+    // Still deliberately absent: any permission for an order, a payment, a
+    // receipt, production, tracking, a delivery, a reminder, or a subscription.
+    // Those are Step 5+ and adding them early is scope leakage (Rule 36).
+    // ---------------------------------------------------------------------
+
+    /** Read customer master data within the active tenant. */
+    public const CUSTOMER_VIEW = 'customer.view';
+
+    /** Create, update, and archive customers, contacts, and addresses. */
+    public const CUSTOMER_MANAGE = 'customer.manage';
+
+    /**
+     * Record or withdraw marketing consent for a customer.
+     *
+     * Separate from CUSTOMER_MANAGE on purpose. Consent is a legal obligation
+     * with its own audit trail (Rule 08, FR-027); editing a customer's name and
+     * changing what they agreed to receive are not the same act.
+     */
+    public const CUSTOMER_CONSENT_MANAGE = 'customer.consent.manage';
+
+    /** Read the service catalogue of the active tenant. */
+    public const SERVICE_VIEW = 'service.view';
+
+    /** Create, update, and deactivate services, packages, and add-ons. */
+    public const SERVICE_MANAGE = 'service.manage';
+
+    /** Read price lists of the active tenant. */
+    public const PRICE_LIST_VIEW = 'price_list.view';
+
+    /** Create and edit DRAFT price lists. Never edits a published one. */
+    public const PRICE_LIST_MANAGE = 'price_list.manage';
+
+    /**
+     * Publish a price list, freezing it permanently.
+     *
+     * Separate from PRICE_LIST_MANAGE because publishing is a commercial act
+     * with an irreversible effect: a published version is immutable and becomes
+     * the price customers are charged (FR-035, Rule 04).
+     */
+    public const PRICE_LIST_PUBLISH = 'price_list.publish';
+
+    /**
+     * Override a price on an order, with a recorded reason (FR-039).
+     *
+     * REGISTERED AS A CONTRACT ONLY. The override flow acts on an order, and
+     * orders are Step 5. Step 4 defines the permission and the mandatory-reason
+     * obligation so Step 5 inherits them rather than retrofitting them after a
+     * financial control point has already shipped (DEC-0031 B).
+     */
+    public const PRICE_OVERRIDE = 'price.override';
+
+    /** Manage outlet master data: hours, capacity, zones, shifts, printers. */
+    public const OUTLET_MASTER_DATA_MANAGE = 'outlet.master_data.manage';
+
+    /** Assign a membership to an outlet within the active tenant. */
+    public const STAFF_ASSIGNMENT_MANAGE = 'staff.assignment.manage';
+
     // --- Platform-category permissions. Never reachable through a tenant role. ---
 
     /** Read the platform-managed role/permission catalogue. Carries no tenant data. */
@@ -176,6 +240,19 @@ final class PermissionRegistry
             self::PERMISSION_INSPECT => ['description' => 'Melihat izin efektif milik sendiri pada tenant aktif', 'category' => self::CATEGORY_TENANT],
             self::AUDIT_VIEW => ['description' => 'Membaca jejak audit tenant aktif', 'category' => self::CATEGORY_TENANT],
 
+            // --- Step 4 master data (DEC-0028, DEC-0030) ---
+            self::CUSTOMER_VIEW => ['description' => 'Melihat data pelanggan pada tenant aktif', 'category' => self::CATEGORY_TENANT],
+            self::CUSTOMER_MANAGE => ['description' => 'Mengelola pelanggan, kontak, dan alamat pada tenant aktif', 'category' => self::CATEGORY_TENANT],
+            self::CUSTOMER_CONSENT_MANAGE => ['description' => 'Mencatat atau menarik persetujuan pemasaran pelanggan', 'category' => self::CATEGORY_TENANT],
+            self::SERVICE_VIEW => ['description' => 'Melihat katalog layanan tenant aktif', 'category' => self::CATEGORY_TENANT],
+            self::SERVICE_MANAGE => ['description' => 'Mengelola layanan, paket, dan tambahan pada tenant aktif', 'category' => self::CATEGORY_TENANT],
+            self::PRICE_LIST_VIEW => ['description' => 'Melihat daftar harga tenant aktif', 'category' => self::CATEGORY_TENANT],
+            self::PRICE_LIST_MANAGE => ['description' => 'Mengelola daftar harga berstatus draf', 'category' => self::CATEGORY_TENANT],
+            self::PRICE_LIST_PUBLISH => ['description' => 'Menerbitkan daftar harga sehingga menjadi permanen', 'category' => self::CATEGORY_TENANT],
+            self::PRICE_OVERRIDE => ['description' => 'Mengubah harga pada pesanan dengan alasan tercatat', 'category' => self::CATEGORY_TENANT],
+            self::OUTLET_MASTER_DATA_MANAGE => ['description' => 'Mengelola data induk outlet: jam, kapasitas, zona, shift, printer', 'category' => self::CATEGORY_TENANT],
+            self::STAFF_ASSIGNMENT_MANAGE => ['description' => 'Menugaskan keanggotaan ke outlet pada tenant aktif', 'category' => self::CATEGORY_TENANT],
+
             self::PLATFORM_ROLE_CATALOGUE_VIEW => ['description' => 'Membaca katalog peran dan izin platform', 'category' => self::CATEGORY_PLATFORM],
             self::PLATFORM_TENANT_VIEW => ['description' => 'Membaca daftar tenant pada tingkat platform', 'category' => self::CATEGORY_PLATFORM],
             self::PLATFORM_AUDIT_VIEW => ['description' => 'Membaca jejak audit lingkup platform', 'category' => self::CATEGORY_PLATFORM],
@@ -229,14 +306,32 @@ final class PermissionRegistry
             self::DEVICE_SESSION_VIEW,
             self::DEVICE_SESSION_REVOKE,
             self::AUDIT_VIEW,
+
+            // Step 4 master data.
+            self::CUSTOMER_VIEW,
+            self::CUSTOMER_MANAGE,
+            self::CUSTOMER_CONSENT_MANAGE,
+            self::SERVICE_VIEW,
+            self::SERVICE_MANAGE,
+            self::PRICE_LIST_VIEW,
+            self::PRICE_LIST_MANAGE,
+            self::PRICE_LIST_PUBLISH,
+            self::PRICE_OVERRIDE,
+            self::OUTLET_MASTER_DATA_MANAGE,
+            self::STAFF_ASSIGNMENT_MANAGE,
         ];
 
         // The admin is an operational deputy, not a co-owner. Two capabilities
         // are deliberately withheld: revoking a membership outright, and
         // managing brands (a commercial-identity change). Both are owner acts.
+        //
+        // Step 4 adds a third withheld capability: PRICE_OVERRIDE. Overriding a
+        // price is a financial control point (FR-039, Rule 04), and the same
+        // reasoning that keeps BRAND_MANAGE with the owner applies to it.
         $adminPermissions = array_values(array_diff($ownerPermissions, [
             self::MEMBERSHIP_REVOKE,
             self::BRAND_MANAGE,
+            self::PRICE_OVERRIDE,
         ]));
 
         return [
@@ -261,6 +356,17 @@ final class PermissionRegistry
                     self::DEVICE_SESSION_VIEW,
                     self::DEVICE_SESSION_REVOKE,
                     self::AUDIT_VIEW,
+
+                    // Step 4. An outlet manager runs an outlet: they maintain
+                    // its master data and its customers, and they read the
+                    // catalogue and prices they operate under. They do NOT
+                    // author the catalogue or publish prices — those are
+                    // tenant-wide commercial acts (FR-034, FR-035).
+                    self::CUSTOMER_VIEW,
+                    self::CUSTOMER_MANAGE,
+                    self::SERVICE_VIEW,
+                    self::PRICE_LIST_VIEW,
+                    self::OUTLET_MASTER_DATA_MANAGE,
                 ]),
             ],
             self::ROLE_CASHIER => [
@@ -269,6 +375,16 @@ final class PermissionRegistry
                 'permissions' => self::merge($baseline, [
                     self::OUTLET_VIEW,
                     self::OUTLET_SWITCH,
+
+                    // Step 4. The counter needs to find and register a customer
+                    // and to read the prices it quotes (FR-023, FR-040). It
+                    // does not manage consent, author the catalogue, or change
+                    // a price — a kasir changing prices is the financial
+                    // control point FR-039 exists to guard.
+                    self::CUSTOMER_VIEW,
+                    self::CUSTOMER_MANAGE,
+                    self::SERVICE_VIEW,
+                    self::PRICE_LIST_VIEW,
                 ]),
             ],
             self::ROLE_PRODUCTION_OPERATOR => [
@@ -305,6 +421,13 @@ final class PermissionRegistry
                     self::OUTLET_VIEW,
                     self::OUTLET_SWITCH,
                     self::AUDIT_VIEW,
+
+                    // Step 4. Finance reads prices and the catalogue they are
+                    // attached to. Read only: authoring and publishing prices
+                    // are separated from reading them so the role that reports
+                    // on revenue is not the role that sets it.
+                    self::SERVICE_VIEW,
+                    self::PRICE_LIST_VIEW,
                 ]),
             ],
             self::ROLE_CUSTOMER => [

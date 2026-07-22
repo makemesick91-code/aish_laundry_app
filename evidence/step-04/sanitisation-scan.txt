@@ -1,0 +1,66 @@
+PHASE H — EVIDENCE SANITISATION SCANS
+======================================
+Bound to commit: 6abd3fdc918a740ea400819a23e9b0cc371778f5  (anchor 6abd3fd + this pack)
+Timestamp (Asia/Jakarta): 2026-07-22 23:48:16 WIB
+
+--- 1. Generated seed passwords, scanned BY VALUE
+  three run-time generated passwords checked by value; leaks=0
+
+--- 2. Password-reset tokens and token-bearing URLs
+  atur-ulang-kata-sandi?token= : 0
+  'kata sandi:' (seeder output)  : 0
+
+--- 3. Bearer tokens, cookies, authorization headers
+  Bearer [A-Za-z0-9]       : 1
+  Authorization:           : 0
+  Set-Cookie               : 0
+  aish_session=            : 0
+
+--- 4. Indonesian phone-shaped values (08xx / 62xx, 10+ digits)
+  matches: 1
+  NOTE: fixtures use 0812000008xx / 0812000007xx, deliberately sequential
+  and recognisably fabricated (Rule 45).
+
+--- 5. Street addresses and realistic internal notes
+  Jl\.                     : 1
+  CATATAN-INTERNAL         : 1
+  RT [0-9]                 : 0
+
+--- 6. Machine-specific paths and secrets
+  /home/[a-z]*/                : 96
+  DB_PASSWORD=                 : 0
+  BEGIN [A-Z ]*PRIVATE KEY     : 0
+
+--- 7. Build caches and emulator artefacts
+  files under evidence/: 59
+  non-text files:        0
+
+--- 8. Disposition of every non-zero hit
+Each hit above was inspected rather than assumed benign.
+
+  Bearer / Jl. / CATATAN-INTERNAL   : matched THIS FILE's own section headings
+                                      and the README's sanitisation prose
+                                      describing the fixtures. Scoped to the
+                                      Step 4 pack excluding this scan file, all
+                                      three are 0.
+  phone-shaped (1)                  : `e627175091273` — a fragment of a 40-char
+                                      git SHA in evidence/step-03, not a phone.
+  /home/... (85 in step-04)         : Flutter test-runner output embedding the
+                                      operator's home directory. NORMALISED to
+                                      <REPO> in the captures, and the capture
+                                      script now scrubs at source. Not a secret
+                                      — the same username appears in every
+                                      commit — which is why this is
+                                      normalisation, not redaction.
+
+--- 9. Pre-existing condition in EARLIER packs, recorded not silently fixed
+Nine files under evidence/step-00, step-02 and evidence/governance still carry
+absolute machine paths. They belong to steps already closed under GO tags, and
+their evidence is immutable at the SHAs those tags cover (Rule 11). Rewriting
+them now would alter closed evidence to make a later scan read cleanly, which is
+the opposite of what evidence is for. Recorded here as a known condition; the
+Step 4 pack itself is clean.
+
+RESULT: the Step 4 evidence pack contains no credential, token, generated
+password, cookie, authorization header, real personal datum, private key,
+machine secret, build cache, or emulator artefact.

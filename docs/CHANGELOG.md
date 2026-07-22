@@ -10,6 +10,44 @@ Version numbers in this file track the **Master Source** document version
 
 ---
 
+## [1.4.4] — 22 July 2026
+
+### Added
+- **DEC-0034** — a Step 3 password-reset token-disclosure correction co-delivered
+  in PR #18, classified
+  `STEP_3_POST_GO_SECURITY_CORRECTION_DISCOVERED_DURING_STEP_4`. The Step 3 `GO`
+  tag is not moved and Step 3's original evidence is not rewritten.
+- `docs/deployment/DATABASE_ROLE_PREREQUISITE.md` — the non-superuser, non-owner
+  application database role the consent and price-list guarantees require at
+  deployment time. Marked `REQUIRED_FOR_FUTURE_DEPLOYMENT` /
+  `NOT_YET_PROVISIONED` / `NOT_CLAIMED_AS_CURRENT_CONTROL`.
+- `scripts/capture-step-04-evidence.sh` — one-command evidence recapture that
+  refuses to run on a dirty tree.
+
+### Changed
+- Master Source **1.4.3 → 1.4.4**; checksum regenerated through tooling. All
+  three derived validators moved with the bump **and were re-run at the same
+  SHA** — the omission of that second half is what made `verify-step-04` fail at
+  HEAD after the 1.4.3 bump (finding N1).
+
+### Fixed
+- Consent append-only triggers were `ENABLE ORIGIN` and therefore bypassable
+  under `session_replication_role='replica'`; now `ENABLE ALWAYS`, with a
+  behavioural bypass test and a live-schema assertion on `tgenabled='A'`.
+- A published price list could be soft-deleted through a query-builder delete,
+  which fires no Eloquent model event; the guard moved to engine-level triggers.
+- A plaintext password-reset token was written to a log, and its first
+  replacement wrote it to a production-reachable file; production now refuses
+  outright.
+- `internal_notes` was emitted at every masking context including `NONE`; now
+  context-gated server-side, with the key absent rather than null.
+
+### Security
+- 946 token-bearing lines purged from an untracked local log (never a
+  public-repository disclosure).
+
+---
+
 ## [Unreleased]
 
 Nothing yet.

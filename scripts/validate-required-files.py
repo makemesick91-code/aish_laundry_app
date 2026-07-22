@@ -59,11 +59,28 @@ GITHUB_FILES = [
     ".github/ISSUE_TEMPLATE/config.yml",
 ]
 
-EXPECTED_RULE_COUNT = 50  # rules 00-49; 36-49 added at Master Source 1.4.0 (DEC-0024, Step 3 runtime)
+# rules 00-50; 36-49 added at Master Source 1.4.0 (DEC-0024, Step 3 runtime);
+# 50 added at 1.4.1 (DEC-0028, Step 4 status snapshot).
+EXPECTED_RULE_COUNT = 51
 # DEC-0024 (Step 3 runtime introduction and runtime scope guard transition) added at
 # Master Source 1.4.0. Raising this count WIDENS coverage — every record up to the
 # count must exist — so it can never be used to skip a record.
-EXPECTED_DECISION_COUNT = 27
+#
+# Raised 27 -> 30 at Master Source 1.4.1 for DEC-0028, DEC-0029, and DEC-0030.
+# Raised 31 -> 32 at Master Source 1.4.2 for DEC-0032 (Step 3 post-GO corrective
+# remediation: runtime authentication wiring).
+# Raised 32 -> 33 at Master Source 1.4.3 for DEC-0033 (Step 4 independent review
+# findings and closure conditions).
+#
+# THIS CONSTANT AND `validate-master-source.py`'s VERSION ARE DERIVED FROM THE
+# MASTER SOURCE and must move with it. They did not when 1.4.3 landed, and the
+# result was `verify-step-04.sh` failing at HEAD while a status report claimed it
+# passed — the report was accurate at the SHA it ran against and was never
+# re-run after the bump. A Master Source version change is not complete until
+# every derived validator has been re-run, not merely edited.
+# Raised 33 -> 34 at Master Source 1.4.4 for DEC-0034 (Step 3 post-GO
+# token-logging correction co-delivered in PR #18).
+EXPECTED_DECISION_COUNT = 34
 
 
 def main() -> int:

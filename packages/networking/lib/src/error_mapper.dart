@@ -38,6 +38,15 @@ enum ClientErrorConsequence {
   /// The submitted data was rejected.
   validationFailed,
 
+  /// The record changed underneath the caller since they read it.
+  ///
+  /// Distinct from [validationFailed] because the recovery differs and the
+  /// interface must differ with it: nothing the caller typed is wrong, so no
+  /// field is highlighted, and the action offered is RELOAD — never retry.
+  /// Retrying the same payload is exactly what would overwrite the other
+  /// person's edit (threat T-12).
+  staleWrite,
+
   /// Too many requests. Back off.
   rateLimited,
 
@@ -220,6 +229,17 @@ abstract final class ApiErrorMapper {
     ApiErrorCode.validationFailed => (
       FailureKind.validation,
       ClientErrorConsequence.validationFailed,
+    ),
+    // A STALE WRITE, AND DELIBERATELY NOT RETRYABLE (threat T-12).
+    //
+    // Mapped to FailureKind.validation because that kind is non-retryable — see
+    // `Failure.isRetryable`. Falling through to `unexpected` would mark it
+    // RETRYABLE, and a surface offering "coba lagi" would resend the same
+    // payload and silently overwrite the edit that caused the conflict. The
+    // recovery is to reload and re-apply, never to retry.
+    ApiErrorCode.conflict => (
+      FailureKind.validation,
+      ClientErrorConsequence.staleWrite,
     ),
     ApiErrorCode.rateLimited => (
       FailureKind.rateLimited,

@@ -152,6 +152,10 @@ final class BackendAuthService implements AuthService {
         ClientErrorConsequence.csrfFailed => true,
         ClientErrorConsequence.membershipSuspended ||
         ClientErrorConsequence.membershipRevoked ||
+        // A stale write says something about ONE RECORD — that somebody else
+        // edited it first. It says nothing about the caller's session or their
+        // right to be in this tenant, so it must never discard a credential.
+        ClientErrorConsequence.staleWrite ||
         ClientErrorConsequence.contextAccessDenied ||
         ClientErrorConsequence.accessDenied ||
         ClientErrorConsequence.validationFailed ||

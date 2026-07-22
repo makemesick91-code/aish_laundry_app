@@ -1,0 +1,60 @@
+NEW-04 — CI DATABASE ISOLATION PROOF
+====================================
+Bound to commit: 6abd3fdc918a740ea400819a23e9b0cc371778f5
+Timestamp (Asia/Jakarta): 2026-07-22 22:57:03 WIB
+
+NEW-04 is: the LOCAL test suite shares the developer database, so
+`php artisan test` wipes dev seed data. It cost the closure reviewer two
+runs and cost this agent one.
+
+It may be accepted as an operational residual ONLY if authoritative CI is
+isolated. Otherwise the same footgun would corrupt the run that closure
+actually depends on. Each condition is checked against the workflow files.
+
+--- 1. Each run provisions a deterministic disposable database
+tenant-isolation.yml:44:        image: "postgres:18.4@sha256:3a82e1f56c8f0f5616a11103ac3d47e632c3938698946a7ad26da0df1334744a"
+authentication-rbac.yml:42:        image: "postgres:18.4@sha256:3a82e1f56c8f0f5616a11103ac3d47e632c3938698946a7ad26da0df1334744a"
+  GitHub Actions `services:` containers are created per JOB and destroyed
+  when the job ends. The image is digest-pinned (Rule 37 hard rule 5), so
+  the engine version cannot drift between runs.
+
+--- 2. No developer database is used
+  PASS: no workflow references aish_laundry_dev.
+  POSTGRES_DB: aish_laundry_ci
+  DB_DATABASE: aish_laundry_ci
+
+--- 3. No run reads data from a previous run
+  A service container has no volume mount and no cache key, so its storage
+  does not survive the job. There is no restore step for database state in
+  any workflow:
+  database-cache steps: 0
+
+--- 4. Parallel jobs do not share a database
+  Each workflow that needs PostgreSQL declares its OWN services block, and
+  a services block is scoped to the job that declares it. Two jobs cannot
+  address one another's container: the hostname resolves within the job.
+  authentication-rbac.yml      services-blocks=1
+  tenant-isolation.yml         services-blocks=1
+
+--- 5. migrate fresh + deterministic seed before verification
+  authentication-rbac.yml:104:          php artisan migrate:fresh --seed
+  tenant-isolation.yml:133:          echo "== fresh + seed =="   && php artisan migrate:fresh --seed
+  tenant-isolation.yml:147:          php artisan migrate:fresh --seed
+
+--- 6. Disposed after execution
+  Implicit in the services-container lifecycle: the runner removes the
+  container when the job completes, pass or fail. No teardown step is
+  required and none can be forgotten.
+
+RESULT: all six conditions hold. Authoritative CI does NOT share database
+state with a developer machine or with a previous run.
+
+THEREFORE NEW-04 is accepted as:
+  ACCEPTED_OPERATIONAL_RESIDUAL — local developer/reviewer reliability only.
+
+It is NOT a correctness or security defect, and it does not affect any
+result CI produces. The follow-up is a .env.testing pointing at a separate
+local database, recorded as tooling governance rather than done immediately:
+retargeting the test database in the same change as the final authoritative
+CI run would risk invalidating that run for a reason unrelated to the
+product.

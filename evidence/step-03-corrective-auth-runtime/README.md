@@ -15,10 +15,13 @@ which lists nothing under `apps/`, `packages/`, `backend/` or `scripts/`. The
 pull-request head is separately verified in its own right by authoritative CI,
 whose run identifiers are recorded on the pull request.
 
-Companion documents: [`CORRECTIVE-CLASSIFICATION.md`](CORRECTIVE-CLASSIFICATION.md)
-(defect classification and rationale) and
-[`GOVERNANCE-FOLLOW-UP.md`](GOVERNANCE-FOLLOW-UP.md) (an unrelated guard-scope issue
-found while doing this work).
+Companion documents:
+[`DEC-0032`](../../docs/decisions/DEC-0032-step-03-post-go-corrective-auth-runtime-wiring.md)
+(the defect classification and rationale — carried here as an unnumbered evidence
+artefact while decision IDs 28–31 were still unmerged, and formalised once they
+landed), [`POST-MERGE-CLOSURE.md`](POST-MERGE-CLOSURE.md) (merge SHA and
+fresh-clone verification), and [`GOVERNANCE-FOLLOW-UP.md`](GOVERNANCE-FOLLOW-UP.md)
+(an unrelated guard-scope issue found while doing this work).
 
 ---
 

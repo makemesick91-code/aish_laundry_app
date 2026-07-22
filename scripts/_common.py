@@ -89,6 +89,33 @@ def tracked_files(root: Path) -> list[Path]:
         return result
 
 
+#: The highest canonical roadmap step that has STARTED.
+#:
+#: It may carry any working status through GO — GO is the terminal status of the
+#: current step, not a signal to advance this constant. Bump it only when the NEXT
+#: step actually starts, in the same pull request that moves the status in
+#: MASTER_SOURCE.md §24, ROADMAP.md, and STATUS.md, and only under the separate
+#: canonical authorization the step requires (Rule 49's precedent, DEC-0028).
+#:
+#: This lives here, once, deliberately. It was previously duplicated as a private
+#: CURRENT_STEP in validate-roadmap.py, validate-status.py, and (as a hardcoded
+#: literal) in validate-runtime-scope.py and test-status-advancement.sh. Bumping
+#: one and not the others is not a hypothetical: it happened when Step 4 started,
+#: and it produced four failures whose real cause was that a single fact was
+#: recorded in four places. One source, imported everywhere, is the fix.
+#:
+#: History: 2 through Step 2. Raised to 3 for Step 3 (DEC-0024), LATE — runtime was
+#: already committed while it still read 2 (DEC-0027). Raised to 4 for Step 4
+#: (DEC-0028), in the same change that moved the status everywhere.
+CANONICAL_CURRENT_STEP = 4
+
+#: Statuses the current step may legitimately carry.
+CURRENT_STEP_ALLOWED = ["IN PROGRESS", "TESTED", "WATCH", "GO"]
+
+#: Statuses that must never appear against a step LATER than the current step.
+#: Work leaking forward out of its declared scope is a roadmap-lock violation.
+FORWARD_LEAK_STATUSES = ["IN PROGRESS", "TESTED", "WATCH", "GO", "NO-GO"]
+
 #: The complete canonical status vocabulary. Nothing else is a status.
 STATUS_VOCABULARY = [
     "NOT IMPLEMENTED",

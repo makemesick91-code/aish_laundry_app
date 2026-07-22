@@ -1,6 +1,6 @@
 # Aish Laundry App — Master Source
 
-**Document version: 1.4.0**
+**Document version: 1.4.4**
 **Baseline date: 19 July 2026**
 
 Owner: Aish Tech Solution
@@ -1239,9 +1239,9 @@ The roadmap is **locked**. Step numbers are never reused or swapped without a de
 | --- | --- | --- |
 | Step 0 | Master Source and Governance | GO |
 | Step 1 | Product Requirement and Domain Model | GO |
-| Step 2 | Design System and UX Foundation | IN PROGRESS |
-| Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | PLANNED |
-| Step 4 | Laundry Master Data | PLANNED |
+| Step 2 | Design System and UX Foundation | GO WITH ACCEPTED DEVIATION |
+| Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | GO WITH ACCEPTED DEVIATION |
+| Step 4 | Laundry Master Data | IN PROGRESS |
 | Step 5 | POS, Order, and Payment Foundation | PLANNED |
 | Step 6 | Production Operations | PLANNED |
 | Step 7 | Customer Tracking and WhatsApp | PLANNED |
@@ -1558,11 +1558,20 @@ must be claims the software can substantiate — the honesty rule (§3.1) applie
 
 ## 31. Decision records
 
-Twenty-four decisions are locked. Fifteen were locked at the 1.0.0 baseline; DEC-0016 was added at
-version 1.0.1, DEC-0017 at version 1.2.0, DEC-0018 … DEC-0023 at version 1.3.0, and DEC-0024 at
-version 1.4.0. DEC-0001 … DEC-0023 carry date **19 July 2026**; DEC-0024 carries date
-**20 July 2026**. All carry status **ACCEPTED**. Each has a full record in
+Thirty-four decisions are locked. Fifteen were locked at the 1.0.0 baseline; DEC-0016 was added at
+version 1.0.1, DEC-0017 at version 1.2.0, DEC-0018 … DEC-0023 at version 1.3.0, DEC-0024 … DEC-0027 at
+version 1.4.0, DEC-0028 … DEC-0031 at version 1.4.1, DEC-0032 at version 1.4.2, DEC-0033 at version 1.4.3, and DEC-0034 at version 1.4.4. DEC-0001 … DEC-0023 carry date
+**19 July 2026**; DEC-0024 … DEC-0027 carry **20 July 2026**; DEC-0028 … DEC-0031 carry
+**21 July 2026**. All carry status **ACCEPTED**. Each has a full record in
 [`decisions/`](decisions/).
+
+**This section was stale and is corrected under
+[DEC-0029](decisions/DEC-0029-canonical-status-drift-remediation-and-cross-document-validation.md).**
+It read "Twenty-four decisions are locked" and listed DEC-0001 … DEC-0024 while DEC-0025, DEC-0026, and
+DEC-0027 already existed as accepted records in [`decisions/`](decisions/) — the same drift class as the
+§24 roadmap table, and undetected for the same reason: no validator compared this table against the
+directory it describes. `scripts/validate-decisions.py` now does, in both directions, so a record added
+without being listed here — or listed here without existing — fails closed.
 
 | ID | Title | Status | Record |
 | --- | --- | --- | --- |
@@ -1590,6 +1599,16 @@ version 1.4.0. DEC-0001 … DEC-0023 carry date **19 July 2026**; DEC-0024 carri
 | DEC-0022 | Canonical UX State Taxonomy and Role-Adaptive Navigation | ACCEPTED | [DEC-0022](decisions/DEC-0022-canonical-ux-state-taxonomy-and-role-adaptive-navigation.md) |
 | DEC-0023 | Low-Fidelity SVG Wireframes; No Final-Logo Fabrication | ACCEPTED | [DEC-0023](decisions/DEC-0023-low-fidelity-wireframes-and-no-final-logo-fabrication.md) |
 | DEC-0024 | Step 3 Runtime Introduction and Runtime Scope Guard Transition | ACCEPTED | [DEC-0024](decisions/DEC-0024-step-3-runtime-introduction-and-runtime-scope-guard-transition.md) |
+| DEC-0025 | Platform-Managed Role Catalogues and Tenant-Scoped Authorization | ACCEPTED | [DEC-0025](decisions/DEC-0025-platform-managed-role-catalogues-and-tenant-scoped-authorization.md) |
+| DEC-0026 | Step 3 Flutter Platform Scaffolding Guard Transition | ACCEPTED | [DEC-0026](decisions/DEC-0026-step-3-flutter-platform-scaffolding-guard-transition.md) |
+| DEC-0027 | Local Development Environment Bootstrap and Template Contract | ACCEPTED | [DEC-0027](decisions/DEC-0027-local-development-environment-bootstrap-and-template-contract.md) |
+| DEC-0028 | Step 4 Scope Resolution and Canonical Authorization | ACCEPTED | [DEC-0028](decisions/DEC-0028-step-04-scope-resolution-and-canonical-authorization.md) |
+| DEC-0029 | Canonical Status Drift Remediation and Cross-Document Validation | ACCEPTED | [DEC-0029](decisions/DEC-0029-canonical-status-drift-remediation-and-cross-document-validation.md) |
+| DEC-0030 | Step 4 Runtime Scope Transition | ACCEPTED | [DEC-0030](decisions/DEC-0030-step-04-runtime-scope-transition.md) |
+| DEC-0031 | Step 4 Traceability Boundaries | ACCEPTED | [DEC-0031](decisions/DEC-0031-step-04-traceability-boundaries.md) |
+| DEC-0032 | Step 3 Post-GO Corrective Remediation: Runtime Authentication Wiring | ACCEPTED | [DEC-0032](decisions/DEC-0032-step-03-post-go-corrective-auth-runtime-wiring.md) |
+| DEC-0033 | Step 4 Independent Review Findings SEC-01 … SEC-12, and the Conditions Under Which Each Closes | ACCEPTED | [DEC-0033](decisions/DEC-0033-step-04-independent-review-closure.md) |
+| DEC-0034 | Password-Reset Token Disclosure: a Step 3 Post-GO Security Correction Co-Delivered in PR #18 | ACCEPTED | [DEC-0034](decisions/DEC-0034-step-03-token-logging-correction-carried-in-step-04.md) |
 
 ### 31.1 Decision record rules
 
@@ -1612,6 +1631,73 @@ Mapping from foundation area to rule file, decision record, and validator:
 
 The canonical changelog is [`CHANGELOG.md`](CHANGELOG.md), maintained in Keep a Changelog format with
 semantic versioning.
+
+### 32.00000 Version 1.4.2
+
+**1.4.2 — 22 July 2026 — Step 3 post-GO corrective remediation recorded.**
+
+Added DEC-0032 (Step 3 post-GO corrective remediation: runtime authentication wiring). Classified
+**PATCH** under §1.2: no product decision, pricing figure, roadmap number, hierarchy level, reminder
+stage, or architectural lock changes. The only edit is the §31 index entry that
+`scripts/validate-decisions.py` requires for every decision record on disk, plus this changelog note.
+
+**What DEC-0032 records.** `AuthService` had exactly one implementation in the tree — the test double
+in `packages/testing` — and all three Flutter applications declared their production provider as a
+throwing stub with no production override. Every real launch threw on the first frame that read it, so
+no surface could authenticate against a real backend. The defect is classified as an internal
+pre-existing Step 3 runtime defect at `HIGH — REAL RUNTIME PATH UNAVAILABLE`, remediated after `GO` on
+a separate branch and merged through PR #19.
+
+**The Step 3 `GO` determination and its tag are unchanged.** The immutable tag
+`aish-laundry-step-03-runtime-auth-multitenancy-rbac-v1.4.0-go` was not moved, deleted, recreated, or
+retargeted; it still peels to `0e2554338812b05eba8411afeb099212b05f9761` and it does **not** cover the
+correction. Step 3 remains `GO WITH ACCEPTED DEVIATION`. Nothing here advances a step status,
+authorises deployment, or starts Step 4.
+
+### 32.00000 Version 1.4.1
+
+**1.4.1 — 21 July 2026 — canonical status drift remediation and Step 4 start.**
+
+Added DEC-0028 (Step 4 scope resolution and canonical authorization), DEC-0029 (canonical status drift
+remediation and cross-document validation), DEC-0030 (Step 4 runtime scope transition), and DEC-0031
+(Step 4 traceability boundaries). Classified
+**PATCH** under §1.2: no product decision, pricing figure, roadmap number, hierarchy level, reminder
+stage, or architectural lock changes. Statements of fact are corrected to match evidence that already
+existed, and one step status advances through the ordinary canonical process.
+
+**Three stale-truth corrections.** §24 declared Step 2 `IN PROGRESS` and Step 3 `PLANNED` while
+`ROADMAP.md`, `STATUS.md`, and two immutable annotated `GO` tags all recorded both steps as
+`GO WITH ACCEPTED DEVIATION`. §24 also contradicted §32's own 1.4.0 entry, which describes Step 3
+runtime as delivered. Both rows are corrected. Separately, `STATUS.md` §6 declared the database and
+Redis `ABSENT` while §2 of the same document declared both `PRESENT` and `verify-step-03.sh` reported
+them reachable with migrations applied; §6 now states the environment each row describes rather than a
+bare word that contradicts §2. **Understatement is corrected with the same seriousness as
+overstatement** — a canonical document that disagrees with an immutable tag is wrong in either
+direction (Rule 01).
+
+Separately again, §31 declared "Twenty-four decisions are locked" and listed DEC-0001 … DEC-0024 while
+DEC-0025, DEC-0026, and DEC-0027 already existed as accepted records. §31 now lists all thirty.
+
+**Three validator gaps closed.** No validator had ever parsed this document's own §24 roadmap table —
+`validate-roadmap.py` read only `ROADMAP.md`; `validate-status.py` had no check that two tables inside
+`STATUS.md` agree; and nothing compared §31 against `decisions/`. All three gaps are now covered by
+fail-closed, adversarially tested checks, each verified in both directions (DEC-0029).
+
+**Step 4 runtime scope.** DEC-0030 moves exactly four feature labels — service catalog, price list,
+customer management, and printer configuration — from forbidden to permitted in
+`scripts/validate-runtime-scope.py`, effective from canonical step 4. Every other label stays
+forbidden, now named `STEP5_PLUS_FEATURE_TOKENS`: orders, payments, QRIS, production, quality control,
+tracking, WhatsApp, pickup, delivery, courier settlement, the reminder ladder, receivables, finance,
+loyalty, and subscription billing among them. `receipt` stays forbidden while `printer` is permitted,
+because FR-045 authorises printer *configuration* as outlet master data while the nota itself is FR-052
+in Step 5. **A permitted label is not an implemented feature**, and `classify` still reports scope
+classification only (§Rule 36 hard rule 6).
+
+**Step 4 begins.** §24 moves Step 4 from `PLANNED` to `IN PROGRESS` under the separate canonical
+authorization DEC-0028 records, as Rule 49 requires. `IN PROGRESS` is the only status this confers:
+Step 4 delivers no feature by starting, and `GO` remains owner-conferred against exact-SHA evidence.
+Steps 5–14 remain `PLANNED`, all Step 5+ business features remain `NOT IMPLEMENTED`, and deployment
+remains `ABSENT`.
 
 ### 32.0000 Version 1.4.0
 
@@ -1975,4 +2061,4 @@ was met.
 
 ---
 
-*End of Master Source, version 1.4.0, baseline date 19 July 2026.*
+*End of Master Source, version 1.4.4, baseline date 19 July 2026.*

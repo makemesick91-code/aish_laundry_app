@@ -73,6 +73,17 @@ enum ErrorCode: string
     /** The requested resource does not exist within the caller's visible scope. */
     case NOT_FOUND = 'NOT_FOUND';
 
+    /**
+     * The caller is editing a version of the record that is no longer current.
+     *
+     * Distinct from VALIDATION_FAILED on purpose: nothing the caller SENT is
+     * wrong, so an interface must not highlight a field. What changed is the
+     * record underneath them, and the recovery action is to reload and re-apply —
+     * never to retry the same payload, which would silently overwrite somebody
+     * else's edit (threat T-12, Rule 07 hard rule 5's principle).
+     */
+    case CONFLICT = 'CONFLICT';
+
     /** The HTTP method is not allowed for this route. */
     case METHOD_NOT_ALLOWED = 'METHOD_NOT_ALLOWED';
 
@@ -96,6 +107,7 @@ enum ErrorCode: string
 
             self::NOT_FOUND => 404,
             self::METHOD_NOT_ALLOWED => 405,
+            self::CONFLICT => 409,
             self::VALIDATION_FAILED => 422,
             self::RATE_LIMITED => 429,
             self::SERVICE_UNAVAILABLE => 503,
@@ -126,6 +138,7 @@ enum ErrorCode: string
             self::CSRF_FAILED => 'Sesi keamanan tidak valid. Muat ulang halaman lalu coba lagi.',
             self::SERVICE_UNAVAILABLE => 'Layanan sedang tidak tersedia. Coba lagi beberapa saat lagi.',
             self::NOT_FOUND => 'Data yang Anda cari tidak ditemukan.',
+            self::CONFLICT => 'Data ini sudah diubah oleh orang lain sejak Anda membukanya. Muat ulang untuk melihat perubahan terbaru, lalu ulangi penyuntingan Anda.',
             self::METHOD_NOT_ALLOWED => 'Metode permintaan tidak didukung untuk alamat ini.',
             self::INTERNAL_ERROR => 'Terjadi kesalahan pada sistem. Coba lagi beberapa saat lagi.',
         };

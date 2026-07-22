@@ -14,8 +14,10 @@ abstract final class ConsoleRoutes {
   static const String membershipRevoked = '/keanggotaan-dicabut';
   static const String tenantAccessDenied = '/akses-tenant-ditolak';
 
+  /// Step 4 master data — BUILT under DEC-0028. No longer a placeholder.
+  static const String masterData = '/portofolio/data-induk';
+
   // Future canonical Steps — placeholder only.
-  static const String futureMasterData = '/portofolio/data-induk';
   static const String futureFinance = '/portofolio/keuangan';
   static const String futureSubscription = '/portofolio/langganan';
   static const String futureAudit = '/portofolio/audit';

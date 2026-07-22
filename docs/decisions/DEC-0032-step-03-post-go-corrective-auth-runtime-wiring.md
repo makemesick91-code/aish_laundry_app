@@ -1,35 +1,26 @@
-# Step 3 Post-GO Corrective Remediation: Runtime Authentication Wiring
+# DEC-0032 — Step 3 Post-GO Corrective Remediation: Runtime Authentication Wiring
 
-**Type:** Corrective classification and rationale (evidence artefact)
-**Status:** RECORDED — decision record DEFERRED, see "Decision-record numbering" below
-**Date:** 21 July 2026
+**ID:** DEC-0032
+**Title:** Step 3 Post-GO Corrective Remediation: Runtime Authentication Wiring
+**Status:** ACCEPTED
+**Date:** 22 July 2026
 
-> **This is not a decision record.** It carries the classification, rationale and
-> verification for a corrective bug fix so that none of it is lost, and so the
-> reasoning is reviewable at the SHA it was produced from. It introduces no
-> product decision and changes no product decision.
+---
 
-## Decision-record numbering
+## Numbering history
 
-A decision record for this remediation is **deferred deliberately**, not omitted.
+This content was first recorded as an evidence artefact on
+`fix/step-03-auth-runtime-wiring`, deliberately WITHOUT a decision-record
+identifier. `scripts/validate-decisions.py` requires a contiguous range of IDs
+and pinned `LAST_DEC = 27` on `main` at the time; DEC-0028 through DEC-0031
+existed only on the Step 4 branch. Taking 0028 would have forced four accepted
+records to be renumbered when PR #18 landed, taking 0032 would have left `main`
+red on a gap, and editing the validator to tolerate a gap would have weakened a
+governance gate to unblock work.
 
-`scripts/validate-decisions.py` requires a CONTIGUOUS range of decision IDs and
-pins `LAST_DEC = 27` on `main`. DEC-0028 through DEC-0031 are accepted records
-that exist only on `feature/step-04-laundry-master-data` and have not yet
-merged. That leaves no ID this branch can use without one of three costs:
-
-  * taking DEC-0028 here would collide when PR #18 lands, forcing four already
-    accepted records to be renumbered and every citation in Rule 49, Rule 50,
-    `STATUS.md` and `ROADMAP.md` to be rewritten — and a decision ID is meant to
-    be permanent;
-  * taking DEC-0032 here would leave IDs 28–31 absent, which the validator
-    treats as a hard failure, so `main` would go red until PR #18 merged;
-  * editing the validator to tolerate a gap would weaken a governance gate to
-    unblock work, which is a breach in itself.
-
-The owner elected to defer. Once PR #18 has landed its records, this content is
-promoted to **DEC-0032** with no ID reused, no accepted record renumbered, and
-no validator weakened.
+The owner elected to defer. With the Step 4 branch now carrying 0028–0031, the
+identifier is contiguous and the content is promoted here unchanged in
+substance. **No identifier was reused and no accepted record was renumbered.**
 
 ---
 
@@ -202,7 +193,7 @@ introduces **no new product requirement** and no new product decision.
 - Rule 47 — validators tested adversarially before being relied upon as gates.
 - Rule 49 — Step 3 status snapshot; this record adds the post-GO corrective state.
 
-## Promotion and supersession policy
+## Supersession policy
 
 This artefact is promoted to DEC-0032 once decision IDs 28–31 have merged to `main`. Until then it
 carries no decision-record authority and must not be cited as one. It does **not** supersede DEC-0024,

@@ -21,6 +21,16 @@ enum ApiErrorCode {
   serviceUnavailable('SERVICE_UNAVAILABLE'),
   notFound('NOT_FOUND'),
   methodNotAllowed('METHOD_NOT_ALLOWED'),
+
+  /// The caller is editing a version of a record that is no longer current
+  /// (threat T-12).
+  ///
+  /// Distinct from [validationFailed] on purpose: nothing the caller SENT is
+  /// wrong, so a surface must not highlight a field. What changed is the record
+  /// underneath them. Critically, it is also NOT retryable — resending the same
+  /// payload is precisely what would silently overwrite somebody else's edit.
+  conflict('CONFLICT'),
+
   internalError('INTERNAL_ERROR');
 
   const ApiErrorCode(this.wireValue);

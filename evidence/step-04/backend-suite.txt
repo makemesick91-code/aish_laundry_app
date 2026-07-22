@@ -1,0 +1,34 @@
+STEP 4 — BACKEND SUITE
+======================
+
+Bound to commit: 6abd3fdc918a740ea400819a23e9b0cc371778f5
+Timestamp (Asia/Jakarta): 2026-07-22 23:34:32 WIB
+Environment: PHP 8.5.4, PostgreSQL 18.4, Redis 8.2 (loopback-bound dev services)
+
+$ cd backend && php artisan test
+
+  ✓ a member without the staff permission cannot roster                  0.14s  
+  ✓ an outlet manager cannot assign roles                                0.13s  
+  ✓ the staff list is tenant scoped                                      0.14s  
+  ✓ the staff projection does not expose a phone number                  0.14s  
+  ✓ the phone shape assertion actually catches a phone number            0.02s  
+  ✓ assignment and revocation are audited with tenant and actor          0.14s  
+  ✓ role assignment is audited                                           0.13s  
+  ✓ membership outlet is bound to both sides by composite key            0.02s  
+  ✓ step 4 introduces no new role or permission model                    0.02s  
+
+   PASS  Tests\Feature\TenantContextTest
+  ✓ a user lists only the tenants they belong to                         0.14s  
+  ✓ selecting a tenant returns the context with recomputed permissions   0.13s  
+  ✓ selecting a tenant the user does not belong to is denied             0.13s  
+  ✓ a suspended membership cannot select its tenant                      0.12s  
+  ✓ outlets of the active tenant are listed                              0.13s  
+  ✓ an outlet of the active tenant is selected                           0.13s  
+  ✓ an outlet belonging to another tenant cannot be selected             0.13s  
+  ✓ a tenant scoped endpoint requires a tenant                           0.12s  
+  ✓ current membership reports the callers own context                   0.13s  
+  ✓ the same identity gets different permissions in each tenant          0.14s  
+
+  Tests:    466 passed (4212 assertions)
+  Duration: 47.55s
+

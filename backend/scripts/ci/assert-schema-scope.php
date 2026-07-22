@@ -1,12 +1,20 @@
 <?php
 
 /**
- * Assert the live schema contains NO Step 4+ business table, and that seeded
- * credentials are distinct and hashed.
+ * Assert the live schema contains NO business table beyond the current step,
+ * and that seeded credentials are distinct and hashed.
  *
  * Read from pg_tables, not from migration filenames: a table is what actually
  * exists, and a migration could create one under any name. Extracted from the
  * workflow so it is shellcheck-clean and runnable locally.
+ *
+ * THE DATABASE-LEVEL TWIN OF scripts/validate-runtime-scope.py.
+ * ------------------------------------------------------------
+ * That guard reads source; this one reads the live schema, so a table created
+ * by any path — a migration, an import, a manual DDL — is caught even if no
+ * source file names it. Both moved together under DEC-0030 when Step 4 was
+ * authorised: leaving this one pinned to "no Step 4 table" would have blocked
+ * the very tables DEC-0028 authorised while claiming to guard Step 5.
  *
  * Usage: php scripts/ci/assert-schema-scope.php [--check-seeded-passwords]
  * Exit 0 = in scope, 1 = violation.
@@ -14,12 +22,34 @@
 
 declare(strict_types=1);
 
-// Step 4 and later own these. Their presence means scope leaked, however the
+/**
+ * Tables Step 4 is authorised to create (DEC-0028, DEC-0030), matching the four
+ * permitted feature labels: customer management, service catalog, price list,
+ * and printer configuration.
+ *
+ * Listed EXPLICITLY rather than by prefix. A prefix rule such as "anything
+ * starting with customer_" would silently admit a Step 5 table that happened to
+ * be named `customer_orders`.
+ */
+const STEP4_ALLOWED_TABLES = [
+    'customers', 'customer_addresses', 'customer_consents',
+    'service_categories', 'service_catalog', 'service_packages',
+    'service_package_items', 'service_addons',
+    'price_lists', 'price_list_items',
+    'outlet_service_zones', 'outlet_shifts', 'outlet_printers', 'printers',
+    'membership_outlet', 'tenant_proof_policies',
+];
+
+// Step 5 and later own these. Their presence means scope leaked, however the
 // migration that created them was named (Rule 36 hard rule 4, Rule 42).
+//
+// `services` stays forbidden while `service_catalog` is allowed: the Step 4
+// catalogue table is `service_catalog`, and a bare `services` table is not one
+// this step created.
 const FORBIDDEN_TABLES = [
-    'customers', 'services', 'service_catalog', 'price_lists',
+    'services',
     'orders', 'order_items', 'order_lines', 'payments', 'refunds',
-    'receipts', 'production_jobs', 'quality_controls', 'reworks',
+    'receipts', 'nota', 'production_jobs', 'quality_controls', 'reworks',
     'tracking_tokens', 'deliveries', 'pickups', 'courier_routes',
     'delivery_proofs', 'reminders', 'reminder_stages', 'storage_fees',
     'receivables', 'finance_reports', 'loyalty', 'loyalty_points',
@@ -63,11 +93,14 @@ $tables = $pdo
 echo "  tables present: " . count($tables) . "\n";
 
 $violations = array_values(array_intersect(FORBIDDEN_TABLES, $tables));
-echo "  forbidden Step 4+ tables: " . count($violations) . "\n";
+echo "  forbidden Step 5+ tables: " . count($violations) . "\n";
+
+$step4Present = array_values(array_intersect(STEP4_ALLOWED_TABLES, $tables));
+echo "  authorised Step 4 tables present: " . count($step4Present) . "\n";
 
 if ($violations !== []) {
     fwrite(STDERR, "  SCOPE LEAK: " . implode(', ', $violations) . "\n");
-    fwrite(STDERR, "  These belong to Step 4 or later. Remove them; renaming to\n");
+    fwrite(STDERR, "  These belong to Step 5 or later. Remove them; renaming to\n");
     fwrite(STDERR, "  evade detection is the same violation (Rule 36).\n");
     exit(1);
 }
@@ -94,5 +127,5 @@ if (in_array('--check-seeded-passwords', $argv, true)) {
     echo "  every seeded credential is distinct and hashed\n";
 }
 
-echo "schema is within Step 3 scope\n";
+echo "schema is within Step 4 scope\n";
 exit(0);

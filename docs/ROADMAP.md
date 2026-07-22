@@ -134,7 +134,10 @@ The first Step permitted to create a runtime.
 
 ## Step 4 — Laundry Master Data
 
-**Status: PLANNED**
+**Status: IN PROGRESS** — started under the separate canonical authorization recorded in
+[`DEC-0028`](decisions/DEC-0028-step-04-scope-resolution-and-canonical-authorization.md), as Rule 49
+requires. `IN PROGRESS` is the only status starting confers: no scope item below is delivered,
+tested, or `GO` by virtue of the step having begun.
 
 - Customers, contacts, addresses, and consent state.
 - Services: kiloan, satuan, packages, add-ons.

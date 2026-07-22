@@ -257,7 +257,20 @@ void main() {
       auth.nextRestoreState = AuthState.authenticated(session);
       await pumpApp(tester, auth);
 
-      // outlet.view is granted; audit.view is not.
+      // A cashier holds customer.view, service.view and price_list.view, so the
+      // master-data entries those gate are offered.
+      expect(find.text('Pelanggan'), findsOneWidget);
+      expect(find.text('Layanan dan harga'), findsOneWidget);
+
+      // It does NOT hold membership.view, so the roster is not offered. Hiding
+      // is a courtesy, not a control — but a control that would be refused must
+      // not be offered.
+      expect(find.text('Staf dan peran'), findsNothing);
+
+      // outlet.view is granted; audit.view is not. The list is longer than the
+      // viewport now that Step 4 added real destinations, so the assertion
+      // scrolls rather than assuming the entry is above the fold.
+      await tester.scrollUntilVisible(find.text('Kasir'), 200);
       expect(find.text('Kasir'), findsOneWidget);
       expect(find.text('Laporan'), findsNothing);
     });
@@ -269,8 +282,43 @@ void main() {
         ApiFixtures.fullContext(),
       );
       await pumpApp(tester, auth);
+
+      // Every Step 4 master-data entry, because a tenant owner holds all four
+      // gating permissions.
+      expect(find.text('Pelanggan'), findsOneWidget);
+      expect(find.text('Layanan dan harga'), findsOneWidget);
+      expect(find.text('Data outlet'), findsOneWidget);
+      expect(find.text('Staf dan peran'), findsOneWidget);
+
+      await tester.scrollUntilVisible(find.text('Laporan'), 200);
       expect(find.text('Kasir'), findsOneWidget);
       expect(find.text('Laporan'), findsOneWidget);
+    });
+
+    testWidgets('a built destination is not announced as unavailable', (
+      tester,
+    ) async {
+      // The Step 4 entries reach REAL screens; the Step 5+ entries do not. What
+      // assistive technology announces must stay truthful about which is which
+      // (Rule 01) — announcing a built screen as "belum tersedia" would be as
+      // wrong as announcing a placeholder as available.
+      auth.nextRestoreState = AuthState.authenticated(
+        ApiFixtures.fullContext(),
+      );
+      await pumpApp(tester, auth);
+
+      expect(
+        find.bySemanticsLabel('Pelanggan'),
+        findsOneWidget,
+        reason: 'A built destination announces its plain label.',
+      );
+
+      await tester.scrollUntilVisible(find.text('Kasir'), 200);
+      expect(
+        find.bySemanticsLabel('Kasir. Belum tersedia.'),
+        findsOneWidget,
+        reason: 'A Step 5 placeholder still announces that it is unavailable.',
+      );
     });
   });
 
@@ -385,6 +433,7 @@ void main() {
         ApiFixtures.fullContext(),
       );
       await pumpApp(tester, auth);
+      await tester.scrollUntilVisible(find.text('Kasir'), 200);
       await tester.tap(find.text('Kasir'));
       await tester.pumpAndSettle();
       expect(find.text(kFutureStepNotice), findsOneWidget);

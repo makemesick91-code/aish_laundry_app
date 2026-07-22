@@ -16,7 +16,8 @@ Canonical status: [`../../docs/STATUS.md`](../../docs/STATUS.md). Master Source 
 | Step 1 — Product Requirement and Domain Model | **GO WITH ACCEPTED DEVIATION** |
 | Step 2 — Design System and UX Foundation | **GO WITH ACCEPTED DEVIATION** |
 | Step 3 — Runtime, Authentication, Multi-Tenancy, and RBAC | **GO WITH ACCEPTED DEVIATION** |
-| Steps 4–14 | **PLANNED** |
+| Step 4 — Laundry Master Data | **IN PROGRESS** (started under DEC-0028; see [Rule 50](50-current-step-04-status.md)) |
+| Steps 5–14 | **PLANNED** |
 | PostgreSQL runtime foundation | **PRESENT** |
 | Redis runtime foundation | **PRESENT** |
 | Backend runtime | **PRESENT — STEP 3 FOUNDATION ONLY** |
@@ -53,9 +54,16 @@ review) and DEC-0026 (the scaffold-authorization suite runs 38/38 only on a Step
 `main` and in a fresh clone it is a visible exit-78 SKIP by owner-approved branch/path pin, never
 represented as PASS), together with the debug-only runtime limitations.
 
-**Step 3 `GO` does not start Step 4 and does not authorise deployment.** Step 4 remains
-`PLANNED / NOT STARTED` and its business features remain `NOT IMPLEMENTED`; deployment remains
-`ABSENT`. Any Step 4 work begins only through a separately authorised canonical Step 4 process.
+**Step 3 `GO` did not start Step 4 and does not authorise deployment.** Step 4 began only when the
+repository owner conferred the separate canonical authorization this rule required, recorded as
+[DEC-0028](../../docs/decisions/DEC-0028-step-04-scope-resolution-and-canonical-authorization.md) on
+21 July 2026. Step 4 is now `IN PROGRESS`; its business features remain `NOT IMPLEMENTED` until built
+and evidenced, and deployment remains `ABSENT`. Step 4 starting does not authorise Step 5, and it does
+not authorise deployment.
+
+This paragraph previously read "Step 4 remains `PLANNED / NOT STARTED`". That was true when written
+and stopped being true at DEC-0028; it is corrected here rather than left to contradict the roadmap
+(Rule 01, DEC-0029).
 
 ## The permitted accessibility wording for Step 3
 
@@ -122,11 +130,15 @@ sounded.
 
 ## Step boundary
 
-**Step 3 has `GO`, so Step 4 is now the next step in sequence — but it remains `PLANNED / NOT STARTED`
-and begins only through a separately authorised canonical Step 4 process.** Step 3 `GO` is not Step 4
-authorization. Laundry master data, service catalog, and pricing implementation belong to Step 4 and
-are not pulled forward on the strength of the Step 3 tag. Step numbers are locked and are never reused,
-renumbered, swapped, merged, or split without an accepted decision record (Master Source §24).
+**Step 3 has `GO`, and Step 4 has since started under its own separate canonical authorization
+([DEC-0028](../../docs/decisions/DEC-0028-step-04-scope-resolution-and-canonical-authorization.md)).**
+Step 3 `GO` was never Step 4 authorization and did not become it; the two are independent, and the
+Step 4 status snapshot is [Rule 50](50-current-step-04-status.md). Laundry master data, service
+catalog, and pricing implementation belong to Step 4 and are built there — not pulled forward on the
+strength of the Step 3 tag, and not deferred out of it. Step 5+ work is not pulled forward on the
+strength of DEC-0028. Step numbers are locked and are never reused, renumbered, swapped, merged, or
+split without an accepted decision record (Master Source §24) — a constraint DEC-0028 applied when it
+rejected a brief that would have redefined Step 4.
 
 ## Maintenance
 

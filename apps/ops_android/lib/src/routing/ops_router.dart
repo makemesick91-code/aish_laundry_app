@@ -7,6 +7,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../app.dart';
+import '../master_data/catalogue_screen.dart';
+import '../master_data/customer_counter_screen.dart';
+import '../master_data/customer_detail_screen.dart';
+import '../master_data/outlet_master_data_screen.dart';
+import '../master_data/staff_roster_screen.dart';
 import '../screens/ops_home_screen.dart';
 import '../screens/ops_session_screens.dart';
 import '../screens/select_outlet_screen.dart';
@@ -82,6 +87,41 @@ final Provider<GoRouter> opsRouterProvider = Provider<GoRouter>((ref) {
         path: OpsRoutes.home,
         builder: (_, _) => const OpsHomeScreen(),
         routes: <RouteBase>[
+          // -----------------------------------------------------------------
+          // STEP 4 — LAUNDRY MASTER DATA. Real screens, backed by real routes.
+          //
+          // Every one is nested under `home`, so the redirect above has already
+          // established an authenticated identity, a chosen tenant AND a chosen
+          // outlet before any of them can build. That ordering is what stops a
+          // master-data screen from ever rendering without tenant context.
+          // -----------------------------------------------------------------
+          GoRoute(
+            path: 'pelanggan',
+            builder: (_, _) => const CustomerCounterScreen(),
+            routes: <RouteBase>[
+              // DECLARED BEFORE the `:customerId` pattern. go_router matches in
+              // order, so a literal segment registered after a parameter would
+              // be swallowed by it and `/pelanggan/baru` would try to open a
+              // customer whose id is the word "baru".
+              GoRoute(
+                path: 'baru',
+                builder: (_, _) => const CustomerCreateScreen(),
+              ),
+              GoRoute(
+                path: ':customerId',
+                builder: (_, state) => CustomerDetailScreen(
+                  customerId: state.pathParameters['customerId']!,
+                ),
+              ),
+            ],
+          ),
+          GoRoute(path: 'layanan', builder: (_, _) => const CatalogueScreen()),
+          GoRoute(
+            path: 'outlet',
+            builder: (_, _) => const OutletMasterDataScreen(),
+          ),
+          GoRoute(path: 'staf', builder: (_, _) => const StaffRosterScreen()),
+
           GoRoute(
             path: 'kasir',
             builder: (_, _) => const _FuturePage(

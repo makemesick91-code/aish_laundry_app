@@ -979,3 +979,29 @@ this document, not a claim that any control exists.
 
 Domain and product detail authored elsewhere in Step 1: `docs/domain/ORDER_DOMAIN.md`,
 `docs/state-machines/ORDER_STATUS_MACHINE.md`, `docs/product/FUNCTIONAL_REQUIREMENTS.md`.
+
+### T-51 — A production dependency is unresolved despite a green widget suite
+
+| Field | Value |
+| --- | --- |
+| Threat ID | `T-51` |
+| Category | STRIDE — Denial of Service (availability of the surface to its legitimate user) |
+| Actor | None. This is a self-inflicted defect, not an adversary action. |
+| Asset | Every authenticated surface, and every screen behind it |
+| Precondition | A dependency is published through a provider whose default body throws, and the only thing that ever supplies it is a test override |
+| Scenario | A widget test injects the dependency THROUGH THE SAME PROVIDER the production code reads. The test proves the screen works when something provides the dependency, and proves nothing about whether anything does. The build compiles, the suite is green, the scope guard passes — and the first real launch, or the first navigation to the screen, throws `UnimplementedError`. |
+| Impact | Total loss of the affected surface for every user. Observed TWICE in this repository: `authServiceProvider` in all three applications (no build could authenticate at all), and `masterDataRepositoryProvider` in Ops Android and Console Web (no Step 4 master-data screen could open). |
+| Likelihood | High. The defect is invisible to the test strategy that is otherwise correct, and it recurs whenever a new dependency is introduced the same way. |
+| Severity | **HIGH** |
+| Root cause | **Test-only overrides masking an incomplete production composition root.** |
+| Prevention | The production default IS the real implementation; a test overrides it. A throwing default is permitted ONLY where the production entry point supplies the value — `environmentProvider` is the sole legitimate case, because the validated `Environment` cannot exist before `main` computes it. |
+| Detection | `scripts/validate-production-composition.py` fails closed when any throwing provider is not overridden in that application's `main.dart`. Per-application composition tests resolve the entire critical graph with only the overrides `main` performs. Both run in `verify-step-04.sh` and in CI. |
+| Response | Wire the dependency from the surface's authenticated `ApiClient`, extend the composition test, and prove the guard discriminates by reverting the wiring. |
+| Residual risk | A dependency that resolves but is misconfigured — wired to the wrong client, for example — is not caught structurally. The composition test asserts the repository shares the authenticated `ApiClient` for exactly that reason. |
+| Mitigation step | Step 3 corrective (DEC-0032) and Step 4 |
+
+**Explicitly NOT an accepted mitigation:** giving a throwing provider a harmless
+no-op production default. That converts a loud wiring failure into a screen that
+renders empty forever, moving the failure from validation time to user-navigation
+time and removing the only signal. Production wiring stays explicit and fails
+closed.

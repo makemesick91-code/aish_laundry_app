@@ -17,7 +17,11 @@ FIRST_DEC = 1
 # DEC-0024 (Step 3 runtime introduction and runtime scope guard transition) added
 # at Master Source 1.4.0. Raising this bound WIDENS coverage — every record up to
 # LAST_DEC must exist and be well-formed — so it can never be used to skip a record.
-LAST_DEC = 27
+#
+# Raised 27 -> 30 at Master Source 1.4.1 for DEC-0028 (Step 4 scope resolution and
+# canonical authorization), DEC-0029 (canonical status drift remediation and
+# cross-document validation), and DEC-0030 (Step 4 runtime scope transition).
+LAST_DEC = 34
 
 # label -> list of accepted heading keywords (lowercase, substring match)
 REQUIRED_HEADINGS: list[tuple[str, list[str]]] = [
@@ -135,7 +139,86 @@ def main() -> int:
         else:
             rep.ok(f"DEC-{n:04d} has all {len(REQUIRED_HEADINGS)} required headings")
 
+    check_master_source_index(root, rep, set(found))
+
     return rep.finish()
+
+
+# ---------------------------------------------------------------------------
+# Master Source §31 index agreement (DEC-0029).
+#
+# THE GAP THIS CLOSES: nothing compared MASTER_SOURCE.md §31 against the directory
+# it describes. §31 accordingly declared "Twenty-four decisions are locked" and
+# listed DEC-0001 … DEC-0024 while DEC-0025, DEC-0026, and DEC-0027 already existed
+# as accepted records — the third instance of the same drift class as the stale §24
+# roadmap table and the self-contradicting STATUS.md infrastructure rows.
+#
+# Checked in BOTH directions. A record on disk but absent from §31 is an
+# understated canonical index; a row in §31 with no record is a fabricated one.
+# ---------------------------------------------------------------------------
+MASTER = "docs/MASTER_SOURCE.md"
+INDEX_ROW = re.compile(r"^\|\s*DEC-(\d{4})\s*\|")
+
+
+def check_master_source_index(root, rep, on_disk: set[int]) -> None:
+    """MASTER_SOURCE §31 must list exactly the decision records that exist."""
+    rep.info("--- Master Source §31 decision index (DEC-0029) ---")
+    path = root / MASTER
+    if not rep.check(path.is_file(), f"{MASTER} exists"):
+        return
+
+    listed: set[int] = set()
+    duplicates: list[int] = []
+    for line in read_text(path).splitlines():
+        m = INDEX_ROW.match(line.strip())
+        if not m:
+            continue
+        n = int(m.group(1))
+        if n in listed:
+            duplicates.append(n)
+        listed.add(n)
+
+    rep.check(not duplicates,
+              f"{MASTER} §31 lists no decision twice (duplicates: {sorted(duplicates)})")
+
+    unlisted = sorted(on_disk - listed)
+    rep.check(
+        not unlisted,
+        f"every decision record on disk is listed in {MASTER} §31 "
+        f"(unlisted: {[f'DEC-{n:04d}' for n in unlisted]})",
+    )
+
+    phantom = sorted(listed - on_disk)
+    rep.check(
+        not phantom,
+        f"every decision listed in {MASTER} §31 has a record on disk "
+        f"(phantom: {[f'DEC-{n:04d}' for n in phantom]})",
+    )
+
+    # The prose count must match the table. A table extended without updating the
+    # sentence above it is how "Twenty-four decisions are locked" outlived DEC-0027.
+    text = read_text(path)
+    words = {
+        "fifteen": 15, "sixteen": 16, "seventeen": 17, "eighteen": 18,
+        "nineteen": 19, "twenty": 20, "twenty-one": 21, "twenty-two": 22,
+        "twenty-three": 23, "twenty-four": 24, "twenty-five": 25,
+        "twenty-six": 26, "twenty-seven": 27, "twenty-eight": 28,
+        "twenty-nine": 29, "thirty": 30, "thirty-one": 31, "thirty-two": 32,
+        "thirty-three": 33, "thirty-four": 34, "thirty-five": 35,
+    }
+    m = re.search(r"^([A-Za-z-]+) decisions are locked\b", text, re.MULTILINE)
+    if m is None:
+        rep.fail(f"{MASTER} §31 states how many decisions are locked")
+        return
+    claimed = words.get(m.group(1).lower())
+    if claimed is None:
+        rep.fail(f"{MASTER} §31 count word not recognised: {m.group(1)!r}")
+        return
+    rep.check(
+        claimed == len(listed),
+        f"{MASTER} §31 prose count ({m.group(1)} = {claimed}) matches the "
+        f"{len(listed)} rows in its table",
+    )
 
 
 if __name__ == "__main__":

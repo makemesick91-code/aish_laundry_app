@@ -35,11 +35,16 @@ class PortfolioShell extends ConsumerWidget {
         route: ConsoleRoutes.portfolio,
         requiredPermission: Permission.tenantView,
       ),
+      // Step 4 master data. Gated on `customer.view` rather than `brand.view`:
+      // the destination now leads to a real management screen, so the
+      // permission that decides whether to draw it should be one the screen
+      // actually needs. Drawing a link to a section every tab of which would
+      // deny is a dead end (Rule 28 hard rule 5, Rule 29).
       const _ConsoleDestination(
         label: 'Data induk',
         icon: Icons.inventory_2_outlined,
-        route: ConsoleRoutes.futureMasterData,
-        requiredPermission: Permission.brandView,
+        route: ConsoleRoutes.masterData,
+        requiredPermission: Permission.customerView,
       ),
       const _ConsoleDestination(
         label: 'Keuangan',

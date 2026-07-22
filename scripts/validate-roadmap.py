@@ -12,6 +12,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _common import (  # noqa: E402
+    CANONICAL_CURRENT_STEP,
+    CURRENT_STEP_ALLOWED,
+    FORWARD_LEAK_STATUSES,
     Reporter,
     declared_statuses,
     read_text,
@@ -20,23 +23,11 @@ from _common import (  # noqa: E402
 )
 
 ROADMAP = "docs/ROADMAP.md"
+MASTER = "docs/MASTER_SOURCE.md"
+STATUS = "docs/STATUS.md"
 
-# The highest step that has STARTED. It may carry any working status through GO —
-# GO is the terminal status of the current step, not a signal to advance this
-# constant. Bump it only when the NEXT step actually starts, in the same pull
-# request that moves the status in ROADMAP.md and STATUS.md.
-#
-# Raised 2 -> 3 when Step 3 reached GO WITH ACCEPTED DEVIATION and was GO-tagged
-# (aish-laundry-step-03-...-v1.4.0-go). It lagged at 2 through the whole of Step 3:
-# runtime was built, merged, and tagged while this still read 2 and forced Step 3
-# to be PLANNED — the roadmap-validator twin of the stale STATUS.md drift DEC-0027
-# recorded. Step 4 has NOT started, so this stays 3, and Steps 4-14 stay PLANNED.
-CURRENT_STEP = 3
-CURRENT_STEP_ALLOWED = ["IN PROGRESS", "TESTED", "WATCH", "GO"]
-
-# Statuses that must never appear against a step later than CURRENT_STEP. Work
-# leaking forward out of its declared scope is a roadmap-lock violation.
-FORWARD_LEAK_STATUSES = ["IN PROGRESS", "TESTED", "WATCH", "GO", "NO-GO"]
+# Single source of truth — see _common.CANONICAL_CURRENT_STEP.
+CURRENT_STEP = CANONICAL_CURRENT_STEP
 
 CANONICAL_TITLES = {
     0: "Master Source and Governance",
@@ -69,6 +60,191 @@ def normalize(text: str) -> str:
     text = re.sub(r"[|*_`:#]", " ", text)
     text = re.sub(r"[,\.]", "", text)
     return re.sub(r"\s+", " ", text).strip().lower()
+
+
+# ---------------------------------------------------------------------------
+# Cross-source roadmap agreement (DEC-0029).
+#
+# THE GAP THIS CLOSES: this validator read docs/ROADMAP.md and nothing else. The
+# Master Source's own §24 roadmap table — the single most authoritative roadmap
+# statement in the repository — had never been parsed by any validator. It drifted
+# accordingly: it declared Step 2 IN PROGRESS and Step 3 PLANNED while ROADMAP.md,
+# STATUS.md, and two immutable GO tags all recorded both as GO WITH ACCEPTED
+# DEVIATION, and while §32 of the same document described Step 3 runtime as
+# delivered. A full verify-step-03.sh run reported 38 passed / 0 failed with that
+# contradiction sitting in the canonical document, because nothing compared them.
+#
+# A SECOND GAP, found while closing the first: the status-posture checks below only
+# examine CURRENT_STEP and the steps after it. Every step BEFORE the current one was
+# entirely unvalidated, so a closed step could be silently reverted to PLANNED in
+# either document and no gate would notice. These checks deliberately cover all of
+# 0..14 for exactly that reason.
+#
+# The checks are comparative, not phrase-matching. A check that grepped for a
+# desired success string would pass on a document that says the right words and
+# means nothing, and would need rewriting every time the prose changed.
+# ---------------------------------------------------------------------------
+
+# GO WITH ACCEPTED DEVIATION is a qualified GO, not a separate status. Both
+# renderings normalise to the same base so the two documents may legitimately
+# differ in verbosity without differing in meaning.
+_STATE_LINE = re.compile(r"^STEP_(\d{2})_STATUS=([A-Z_]+)$")
+_MACHINE_TO_BASE = {
+    "PLANNED": "PLANNED",
+    "IN_PROGRESS": "IN PROGRESS",
+    "TESTED": "TESTED",
+    "WATCH": "WATCH",
+    "GO": "GO",
+    "NO_GO": "NO-GO",
+}
+
+
+def base_status(declared: list[str]) -> str | None:
+    """Reduce declared statuses to the single base status they assert.
+
+    'GO WITH ACCEPTED DEVIATION' declares GO. Longest-first matching in
+    declared_statuses() already prevents NO-GO from also reporting GO.
+    """
+    if not declared:
+        return None
+    for candidate in ("NO-GO", "GO", "WATCH", "TESTED", "IN PROGRESS", "PLANNED"):
+        if candidate in declared:
+            return candidate
+    return None
+
+
+def master_source_statuses(root) -> tuple[dict[int, str], list[str]]:
+    """Parse the Master Source §24 roadmap table. FAILS CLOSED."""
+    path = root / MASTER
+    if not path.is_file():
+        return {}, [f"{MASTER} missing"]
+    out: dict[int, str] = {}
+    errors: list[str] = []
+    for line in read_text(path).splitlines():
+        m = re.match(r"^\|\s*Step\s+(\d{1,2})\s*\|", line.strip())
+        if not m:
+            continue
+        n = int(m.group(1))
+        status = base_status(declared_statuses(line.upper()))
+        if status is None:
+            errors.append(f"{MASTER} Step {n} row declares no recognisable status")
+            continue
+        if n in out and out[n] != status:
+            errors.append(f"{MASTER} Step {n} declared twice with different statuses")
+        out[n] = status
+    return out, errors
+
+
+def machine_statuses(root) -> tuple[dict[int, str], list[str]]:
+    """Parse STATUS.md's machine-readable canonical block. FAILS CLOSED."""
+    path = root / STATUS
+    if not path.is_file():
+        return {}, [f"{STATUS} missing"]
+    text = read_text(path)
+    begin, end = "<!-- CANONICAL_STEP_STATE_BEGIN -->", "<!-- CANONICAL_STEP_STATE_END -->"
+    if text.count(begin) != 1 or text.count(end) != 1:
+        return {}, ["STATUS.md canonical state block is missing or duplicated"]
+    body = text.split(begin, 1)[1].split(end, 1)[0]
+    out: dict[int, str] = {}
+    errors: list[str] = []
+    for raw in body.splitlines():
+        line = raw.strip()
+        if not line or line.startswith("<!--") or line.startswith("-->"):
+            continue
+        m = _STATE_LINE.match(line)
+        if not m:
+            if line.upper().startswith("STEP"):
+                errors.append(f"unparseable canonical state line: {line!r}")
+            continue
+        n, machine = int(m.group(1)), m.group(2)
+        base = _MACHINE_TO_BASE.get(machine)
+        if base is None:
+            errors.append(f"unknown machine status {machine!r} for STEP_{n:02d}")
+            continue
+        out[n] = base
+    return out, errors
+
+
+def check_cross_source_agreement(root, rep, roadmap_declared: dict[int, str]) -> None:
+    """MASTER_SOURCE §24, ROADMAP.md, and STATUS.md must agree on every step."""
+    rep.info("--- cross-source roadmap agreement (DEC-0029) ---")
+
+    master, m_err = master_source_statuses(root)
+    machine, s_err = machine_statuses(root)
+    for e in m_err + s_err:
+        rep.fail(f"cross-source: {e}")
+    if m_err or s_err:
+        return
+
+    rep.check(bool(master), f"{MASTER} §24 declares a parseable roadmap table")
+
+    for n in range(0, 15):
+        want = machine.get(n)
+        if want is None:
+            rep.fail(f"STATUS.md declares no machine status for Step {n}")
+            continue
+        got_master = master.get(n)
+        rep.check(
+            got_master == want,
+            f"Step {n}: MASTER_SOURCE §24 ({got_master}) agrees with "
+            f"STATUS.md ({want})",
+        )
+        got_roadmap = roadmap_declared.get(n)
+        rep.check(
+            got_roadmap == want,
+            f"Step {n}: ROADMAP.md ({got_roadmap}) agrees with STATUS.md ({want})",
+        )
+
+
+def check_go_tags(root, rep, machine: dict[int, str]) -> None:
+    """A step declared GO must have its GO tag; a step not declared GO must not.
+
+    Checked in BOTH directions. One direction alone is half a check: it would
+    catch a fabricated GO but not a GO tag whose step was silently understated —
+    which is the exact drift DEC-0029 remediates.
+
+    Skipped entirely when tags are unavailable (a fresh clone without tags
+    fetched). Absence of tags is not evidence of anything and must not fail.
+    """
+    import subprocess
+
+    if not (root / ".git").exists():
+        rep.info("no .git in this checkout; skipping live GO-tag cross-check")
+        return
+    try:
+        out = subprocess.run(
+            ["git", "-C", str(root), "tag", "--list", "aish-laundry-step-*-go"],
+            capture_output=True, text=True, timeout=30,
+        )
+    except (OSError, subprocess.SubprocessError):
+        rep.info("git unavailable; skipping live GO-tag cross-check")
+        return
+    if out.returncode != 0:
+        rep.info("git tag listing failed; skipping live GO-tag cross-check")
+        return
+    tags = [t.strip() for t in out.stdout.splitlines() if t.strip()]
+    if not tags:
+        rep.info("no GO tags present in this checkout; skipping live GO-tag cross-check")
+        return
+
+    tagged: set[int] = set()
+    for tag in tags:
+        m = re.match(r"^aish-laundry-step-(\d{2})-", tag)
+        if m:
+            tagged.add(int(m.group(1)))
+
+    rep.info(f"GO tags present for steps: {sorted(tagged)}")
+    for n in range(0, 15):
+        declared = machine.get(n)
+        if declared is None:
+            continue
+        if declared == "GO":
+            rep.check(n in tagged, f"Step {n} is declared GO and its GO tag exists")
+        else:
+            rep.check(
+                n not in tagged,
+                f"Step {n} is declared {declared} and carries no GO tag",
+            )
 
 
 def main() -> int:
@@ -141,6 +317,14 @@ def main() -> int:
         end = following[0] if following else len(lines)
         return "\n".join(lines[start:end]).upper()
 
+    # Collected for the cross-source check: every step's base status as ROADMAP.md
+    # itself declares it, including steps BEFORE the current one.
+    roadmap_declared: dict[int, str] = {}
+    for n in range(0, 15):
+        status = base_status(declared_statuses(block_for(n)))
+        if status is not None:
+            roadmap_declared[n] = status
+
     declared = declared_statuses(block_for(CURRENT_STEP))
     if declared:
         allowed = [s for s in declared if s in CURRENT_STEP_ALLOWED]
@@ -175,6 +359,12 @@ def main() -> int:
                 f"Step {n} is marked PLANNED; declared: "
                 + ", ".join(sorted(set(declared)))
             )
+
+    # --- cross-source agreement and live GO tags (DEC-0029) ---
+    check_cross_source_agreement(root, rep, roadmap_declared)
+    machine, machine_errors = machine_statuses(root)
+    if not machine_errors:
+        check_go_tags(root, rep, machine)
 
     return rep.finish()
 

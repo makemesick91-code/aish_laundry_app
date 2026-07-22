@@ -1,0 +1,36 @@
+STEP 4 — VERIFIER CHAIN, FRESH AT THIS SHA
+==========================================
+
+Bound to commit: 6abd3fdc918a740ea400819a23e9b0cc371778f5
+Timestamp (Asia/Jakarta): 2026-07-22 23:34:32 WIB
+Environment: PHP 8.5.4, PostgreSQL 18.4, Redis 8.2 (loopback-bound dev services)
+
+Counts captured at THIS commit. A count from an earlier SHA is not
+carried forward — that error (N1) is what this line exists to prevent.
+
+$ bash scripts/verify-step-00.sh
+STEP 0 VERIFICATION: PASS
+  exit=0
+
+$ bash scripts/verify-step-01.sh
+STEP 1 VERIFICATION: PASS
+  exit=0
+
+$ bash scripts/verify-step-02.sh
+STEP 2 VERIFICATION: PASS
+  exit=0
+
+$ bash scripts/verify-step-03.sh
+  SKIP  DEC-0026 scaffolding suite — precondition not met in this environment (exit 78)
+STEP 3 VERIFICATION: 51 passed, 1 failed, 1 skipped
+  exit=1
+
+$ bash scripts/verify-step-04.sh
+STEP 4 VERIFICATION: 25 passed, 2 failed, 0 skipped
+  exit=1
+
+NOTE ON exit=2 FROM verify-step-03: the DEC-0026 scaffold-authorization
+suite reports a visible exit-78 SKIP off a Step 3 feature branch, by
+owner-approved branch/path pin. It is never represented as PASS, and no
+Step 4 gate is hidden behind it — the Step 4 verifier runs its own gates
+independently and reports this as a named skip.

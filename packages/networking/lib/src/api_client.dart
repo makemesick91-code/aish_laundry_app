@@ -104,6 +104,7 @@ final class ApiClient {
     String path, {
     Map<String, Object?>? body,
     CorrelationId? correlationId,
+    String? expectedVersion,
   }) => _send(
     correlationId,
     (headers) => _dio.post<Object?>(
@@ -111,6 +112,54 @@ final class ApiClient {
       data: body,
       options: Options(headers: headers),
     ),
+    expectedVersion: expectedVersion,
+  );
+
+  /// Partial update of an existing record.
+  ///
+  /// [expectedVersion] is the optimistic-concurrency token the caller read with
+  /// the record. Sending it means "I am editing the version I saw"; if the
+  /// record has moved on, the server answers `CONFLICT` and the edit is refused
+  /// rather than silently overwriting somebody else's work (threat T-12).
+  ///
+  /// A management screen that omits it is choosing last-write-wins, which for
+  /// master data governing prices and messaging windows is a defect rather than
+  /// a simplification.
+  Future<Result<ApiSuccess>> patch(
+    String path, {
+    Map<String, Object?>? body,
+    CorrelationId? correlationId,
+    String? expectedVersion,
+  }) => _send(
+    correlationId,
+    (headers) => _dio.patch<Object?>(
+      path,
+      data: body,
+      options: Options(headers: headers),
+    ),
+    expectedVersion: expectedVersion,
+  );
+
+  /// Wholesale replacement — used where a collection is only meaningful as a
+  /// whole, such as a service package's composition.
+  Future<Result<ApiSuccess>> put(
+    String path, {
+    Map<String, Object?>? body,
+    CorrelationId? correlationId,
+    String? expectedVersion,
+  }) => _send(
+    correlationId,
+    (headers) => _dio.put<Object?>(
+      path,
+      data: body,
+      options: Options(headers: headers),
+    ),
+    // Forwarded, like post() and patch(). It was previously accepted and then
+    // silently dropped, so a caller that passed a version got last-write-wins:
+    // the server's OptimisticConcurrency::assertFresh returns early when no
+    // header arrives, so the stale write would have been ACCEPTED rather than
+    // refused with 409. Found by independent review before any caller existed.
+    expectedVersion: expectedVersion,
   );
 
   Future<Result<ApiSuccess>> delete(
@@ -120,6 +169,13 @@ final class ApiClient {
     correlationId,
     (headers) => _dio.delete<Object?>(path, options: Options(headers: headers)),
   );
+
+  /// The optimistic-concurrency precondition header.
+  ///
+  /// Matches `SharedKernel\Http\OptimisticConcurrency::HEADER` on the server.
+  /// The value is an opaque server-issued token: the client compares it and
+  /// returns it, and never parses or generates one.
+  static const String versionHeaderName = 'If-Unmodified-Since-Version';
 
   /// Build the per-request headers, including any credential.
   ///
@@ -136,12 +192,17 @@ final class ApiClient {
   /// surface and a cookie surface share one client safely.
   Future<Map<String, Object?>> _requestHeaders(
     CorrelationId? correlationId,
+    String? expectedVersion,
   ) async {
     final headers = <String, Object?>{
       CorrelationId.headerName:
           (correlationId ?? CorrelationId.generate()).value,
       // Untrusted hints, re-verified server-side on every request (Rule 39).
       ...?_requestContext?.call().toHeaders(),
+      // Optimistic concurrency. Absent unless the caller read a version and is
+      // editing the record it saw.
+      if (expectedVersion != null && expectedVersion.isNotEmpty)
+        versionHeaderName: expectedVersion,
     };
 
     // A cookie surface never attaches a bearer token: its credential is the
@@ -159,10 +220,13 @@ final class ApiClient {
 
   Future<Result<ApiSuccess>> _send(
     CorrelationId? correlationId,
-    Future<Response<Object?>> Function(Map<String, Object?> headers) request,
-  ) async {
+    Future<Response<Object?>> Function(Map<String, Object?> headers) request, {
+    String? expectedVersion,
+  }) async {
     try {
-      final response = await request(await _requestHeaders(correlationId));
+      final response = await request(
+        await _requestHeaders(correlationId, expectedVersion),
+      );
       return _decode(response);
     } on DioException catch (error) {
       // The message is built from the exception TYPE, never from the request
