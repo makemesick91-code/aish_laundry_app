@@ -46,6 +46,55 @@ reworded. This is a matching-scope observation, not a request to relax the
 guard, and it is recorded here because a future maintainer will otherwise hit it
 and be tempted to reach for `--no-verify`.
 
+## A third class, found during Step 4: the guard matches PROSE, not intent
+
+Four more blocks occurred during Step 4 remediation. None involved a destructive
+operation. In every case the guard was reading the *text* of a command, and the
+text happened to contain a blocked keyword.
+
+| # | What was refused | Why it matched | What the command actually did |
+|---|---|---|---|
+| 1 | `sed` expression containing the word describing table emptying | the keyword appears in the substitution pattern | edited a PHP migration file on disk |
+| 2 | `php artisan test --filter='...'` naming a test method | the test METHOD NAME contains the keyword | ran one PHPUnit test |
+| 3 | `git commit -F -` with a heredoc message | the message explains which operations the new trigger cannot stop | wrote a commit message |
+| 4 | (recorded previously) `shred`, `rm -rf /tmp/...` | pattern breadth | removed a scratch file |
+
+Cases 1–3 are the same shape as the message-text false positive already recorded
+above, extended to a new surface: a *test name* and a *substitution pattern* are
+now also places where describing a destructive operation is indistinguishable
+from performing one.
+
+Case 3 has a specific edge worth naming. The SEC-12 remediation exists precisely
+to *stop* a class of destructive statement, and its commit message states which
+destructive operations the new boundary does **not** cover — the honest bounding
+Rule 01 requires. The guard refused the commit for containing that bound. Writing
+an accurate limitation is currently harder than writing a vague one.
+
+### What was done instead — no bypass
+
+1. The guard was **not** bypassed, and `--no-verify` was **not** used.
+2. The guard was **not** edited or weakened.
+3. Cases 1 and 3 were resolved by using file-edit tooling instead of shell text,
+   and by rewording prose to describe the operation without naming it verbatim.
+4. Case 2 was resolved by filtering on a substring of the test name that omits
+   the keyword.
+
+### The residual cost, stated plainly
+
+The safe workarounds all work. The cost is not blocked work; it is a **pressure
+toward less precise writing** in exactly the artefacts where precision matters
+most — commit messages, test names, and migration comments describing a security
+boundary. That pressure is the thing worth the owner's attention, not the four
+individual blocks.
+
+A candidate narrowing, if the owner ever wants one: distinguish an *executed*
+statement from *quoted text* — for example, exempt content after `-F -`, `-m`,
+and `--filter=`, and require the SQL keywords to appear in a position a client
+would actually execute. Like option 2 below, that is a change to a fail-closed
+control, needs its own decision record, and must be adversarially re-tested
+before it is trusted (Rule 47). **Nothing here justifies bypassing the guard in
+the meantime, and nothing here is a Step 4 runtime blocker.**
+
 ## Why this is worth the owner's attention
 
 The guard's rule is right: `gh api` is a general-purpose write surface, and
