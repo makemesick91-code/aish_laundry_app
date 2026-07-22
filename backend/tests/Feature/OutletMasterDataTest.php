@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Modules\Authorization\PermissionRegistry;
+use App\Modules\Organization\Http\Controllers\OutletMasterDataController;
 use App\Modules\Organization\Models\Outlet;
 use App\Modules\Organization\Models\OutletPrinter;
 use App\Modules\Organization\Models\OutletServiceZone;
@@ -16,6 +17,7 @@ use App\Modules\Tenancy\Models\Tenant;
 use DateTimeImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Tests\Concerns\BuildsTenantScenario;
 use Tests\TestCase;
@@ -638,6 +640,80 @@ final class OutletMasterDataTest extends TestCase
         $this->withHeaders($this->bearer($token, $tenant->id))
             ->getJson("/api/v1/outlets/{$outlet->id}/service-zones?sort=tenant_id")
             ->assertStatus(422);
+    }
+
+    /**
+     * SEC-09 — the exact request that returned HTTP 500.
+     *
+     * `display_order` is a real column on zones and shifts and does not exist on
+     * `outlet_printers`. The allow-list was shared across all three collections,
+     * so the value passed validation and then reached the database, which
+     * refused it. The refusal surfaced as a 500.
+     *
+     * A 500 here is not merely untidy. It is an unhandled database error on a
+     * path a client controls: it carries driver-level text rather than the
+     * canonical envelope, it tells a prober which column names the engine
+     * recognises, and with debug rendering enabled it would carry the statement
+     * itself.
+     */
+    public function test_a_sort_field_from_another_collection_is_refused_rather_than_reaching_the_database(): void
+    {
+        ['outlet' => $outlet, 'token' => $token, 'tenant' => $tenant] = $this->ownerScenario();
+
+        $response = $this->withHeaders($this->bearer($token, $tenant->id))
+            ->getJson("/api/v1/outlets/{$outlet->id}/printers?sort=display_order");
+
+        $response->assertStatus(422);
+        $response->assertJsonPath('error.code', 'VALIDATION_FAILED');
+
+        // The advertised set must be the one that actually applies here.
+        // Echoing a column this table does not have is what invited the 500.
+        $this->assertNotContains('display_order', $response->json('error.details.sort'));
+
+        // The same value on a collection that DOES have the column still works.
+        // Without this control the assertion above would also pass if sorting
+        // had simply been removed.
+        $this->withHeaders($this->bearer($token, $tenant->id))
+            ->getJson("/api/v1/outlets/{$outlet->id}/service-zones?sort=display_order")
+            ->assertOk();
+    }
+
+    /**
+     * The general form of SEC-09, checked against the LIVE schema.
+     *
+     * The specific bug was one column missing from one table. The bug CLASS is
+     * an allow-list asserting a column exists when nothing verifies it — which
+     * recurs the moment a fourth collection is added or a column is dropped.
+     * Checking every entry against `information_schema` closes the class rather
+     * than the instance.
+     */
+    public function test_every_sortable_column_exists_on_its_own_table(): void
+    {
+        $tables = [
+            'zones' => 'outlet_service_zones',
+            'shifts' => 'outlet_shifts',
+            'printers' => 'outlet_printers',
+        ];
+
+        $sortable = (new \ReflectionClass(OutletMasterDataController::class))
+            ->getConstant('SORTABLE');
+
+        $this->assertSame(
+            array_keys($tables),
+            array_keys($sortable),
+            'a collection was added or renamed without extending this check'
+        );
+
+        foreach ($sortable as $collection => $columns) {
+            $this->assertNotEmpty($columns, "{$collection} allows no sort column at all");
+            foreach ($columns as $column) {
+                $this->assertTrue(
+                    Schema::hasColumn($tables[$collection], $column),
+                    "{$collection} allows sorting by `{$column}`, which does not exist on "
+                    ."`{$tables[$collection]}` — that request would reach the database and 500."
+                );
+            }
+        }
     }
 
     public function test_pagination_is_hard_bounded(): void

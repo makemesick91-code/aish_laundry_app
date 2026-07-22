@@ -49,7 +49,33 @@ use Illuminate\Validation\Rule;
  */
 final class OutletMasterDataController
 {
-    private const SORTABLE = ['code', 'name', 'display_order', 'created_at', 'updated_at'];
+    /**
+     * Sortable columns, PER COLLECTION.
+     *
+     * This was one shared list, and that was the defect (SEC-09). `display_order`
+     * is a real column on zones and shifts and does NOT exist on
+     * `outlet_printers`, so `GET .../printers?sort=display_order` passed the
+     * allow-list — the value was, after all, on the list — and then reached
+     * `orderBy('display_order')` against a table with no such column. PostgreSQL
+     * refused it, the refusal surfaced as HTTP 500, and an allow-list that
+     * cannot prevent a 500 is not doing the job it was written for. An unhandled
+     * database error is also the wrong shape to hand a client: it carries
+     * driver-level text, and with debug rendering on it would carry the SQL.
+     *
+     * An allow-list is only meaningful against ONE schema. Sharing it across
+     * three tables silently asserted that the three have the same columns, and
+     * nothing checked that assertion. `test_every_sortable_column_exists_on_its
+     * _table` now checks it against the live schema for every collection here,
+     * so adding a fourth collection or dropping a column breaks a test rather
+     * than a request.
+     *
+     * @var array<string, list<string>>
+     */
+    private const SORTABLE = [
+        'zones' => ['code', 'name', 'display_order', 'created_at', 'updated_at'],
+        'shifts' => ['code', 'name', 'display_order', 'created_at', 'updated_at'],
+        'printers' => ['code', 'name', 'created_at', 'updated_at'],
+    ];
 
     private const MAX_PER_PAGE = 100;
 
@@ -411,13 +437,20 @@ final class OutletMasterDataController
         callable $project,
         string $defaultSort,
     ): JsonResponse {
+        // Keyed by the collection, because what is sortable depends on which
+        // table is being read (SEC-09).
+        $sortable = self::SORTABLE[$key];
+
         $sort = $request->query('sort', $defaultSort);
 
-        if (! in_array($sort, self::SORTABLE, true)) {
+        if (! in_array($sort, $sortable, true)) {
             throw ApiException::of(
                 ErrorCode::VALIDATION_FAILED,
                 'Kolom pengurutan tidak dikenal.',
-                ['sort' => self::SORTABLE]
+                // The permitted set for THIS collection. Previously this told a
+                // client that `display_order` was accepted on printers, which
+                // was how the 500 got requested in the first place.
+                ['sort' => $sortable]
             );
         }
 
