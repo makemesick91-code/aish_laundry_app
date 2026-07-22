@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\CustomerManagement\Http;
 
 use App\Modules\CustomerManagement\Models\Customer;
+use App\Modules\CustomerManagement\Http\AddressProjection;
 use App\Modules\CustomerManagement\Models\CustomerAddress;
 use App\Modules\CustomerManagement\Support\PhoneNumber;
 use App\Modules\SharedKernel\Http\OptimisticConcurrency;
@@ -70,13 +71,29 @@ final class CustomerProjection
      *
      * @return array<string, mixed>
      */
-    public static function detail(Customer $customer): array
+    /**
+     * @param  string|null  $addressContext  The masking context from
+     *   `AddressProjection::contextFor()`. Required in practice; nullable only
+     *   so an existing caller cannot silently pass the WRONG context by
+     *   omission. Passing null yields NO addresses, which fails closed.
+     */
+    public static function detail(Customer $customer, ?string $addressContext = null): array
     {
         return array_merge(self::summary($customer), [
             'email' => $customer->email,
             'internal_notes' => $customer->internal_notes,
+            // Routed through the SAME masking projection as the dedicated
+            // address endpoints (FR-025). A masked address endpoint would be
+            // pointless if the customer detail endpoint embedded the full
+            // address alongside it — the relationship path is an access path
+            // like any other (Rule 48 hard rule 3).
             'addresses' => $customer->addresses
-                ->map(static fn (CustomerAddress $a): array => self::address($a))
+                ->map(static fn (CustomerAddress $a): ?array => AddressProjection::forContext(
+                    $a,
+                    $addressContext ?? AddressProjection::CONTEXT_NONE
+                ))
+                ->filter()
+                ->values()
                 ->values()
                 ->all(),
         ]);

@@ -69,6 +69,10 @@ final class Step04AuditCoverageTest extends TestCase
             'api.v1.customers.update' => AuditAction::CUSTOMER_UPDATED,
             'api.v1.customers.archive' => AuditAction::CUSTOMER_ARCHIVED,
             'api.v1.customers.consents.store' => AuditAction::CUSTOMER_CONSENT_RECORDED,
+            'api.v1.customers.addresses.store' => AuditAction::CUSTOMER_ADDRESS_CREATED,
+            'api.v1.customers.addresses.update' => AuditAction::CUSTOMER_ADDRESS_UPDATED,
+            'api.v1.customers.addresses.archive' => AuditAction::CUSTOMER_ADDRESS_ARCHIVED,
+            'api.v1.customers.addresses.reactivate' => AuditAction::CUSTOMER_ADDRESS_REACTIVATED,
 
             // --- Step 4 service catalogue ----------------------------------
             'api.v1.service-categories.store' => AuditAction::SERVICE_CATEGORY_CREATED,

@@ -83,6 +83,16 @@ final class AuditAction
     // authority on what was consented to.
     public const CUSTOMER_CONSENT_RECORDED = 'customer.consent.recorded';
 
+    // FR-024. An address is RESTRICTED data, so the action is recorded and the
+    // address itself never is.
+    public const CUSTOMER_ADDRESS_CREATED = 'customer.address.created';
+
+    public const CUSTOMER_ADDRESS_UPDATED = 'customer.address.updated';
+
+    public const CUSTOMER_ADDRESS_ARCHIVED = 'customer.address.archived';
+
+    public const CUSTOMER_ADDRESS_REACTIVATED = 'customer.address.reactivated';
+
     public const SERVICE_CREATED = 'service.created';
 
     public const SERVICE_UPDATED = 'service.updated';
@@ -173,6 +183,10 @@ final class AuditAction
             self::CUSTOMER_UPDATED,
             self::CUSTOMER_ARCHIVED,
             self::CUSTOMER_CONSENT_RECORDED,
+            self::CUSTOMER_ADDRESS_CREATED,
+            self::CUSTOMER_ADDRESS_UPDATED,
+            self::CUSTOMER_ADDRESS_ARCHIVED,
+            self::CUSTOMER_ADDRESS_REACTIVATED,
             self::SERVICE_CREATED,
             self::SERVICE_UPDATED,
             self::SERVICE_CATEGORY_CREATED,

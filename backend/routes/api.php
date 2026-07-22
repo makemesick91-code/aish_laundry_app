@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\HealthController;
 use App\Modules\Authorization\Http\Controllers\PermissionController;
+use App\Modules\CustomerManagement\Http\Controllers\CustomerAddressController;
 use App\Modules\CustomerManagement\Http\Controllers\CustomerConsentController;
 use App\Modules\CustomerManagement\Http\Controllers\CustomerController;
 use App\Modules\Identity\Http\Controllers\AuthController;
@@ -117,6 +118,23 @@ Route::middleware(['auth.api', 'tenant.context'])->group(function (): void {
     Route::get('customers/{customer}', [CustomerController::class, 'show'])->name('api.v1.customers.show');
     Route::patch('customers/{customer}', [CustomerController::class, 'update'])->name('api.v1.customers.update');
     Route::post('customers/{customer}/archive', [CustomerController::class, 'archive'])->name('api.v1.customers.archive');
+
+    // Saved addresses (FR-024, FR-025). Masking is applied server-side by
+    // AddressProjection; the list shape carries no location at any permission
+    // level. Archive and reactivate are POSTs, never DELETE: an address a past
+    // pickup went to is not removable (threat T-18).
+    Route::get('customers/{customer}/addresses', [CustomerAddressController::class, 'index'])
+        ->name('api.v1.customers.addresses.index');
+    Route::get('customers/{customer}/addresses/{address}', [CustomerAddressController::class, 'show'])
+        ->name('api.v1.customers.addresses.show');
+    Route::post('customers/{customer}/addresses', [CustomerAddressController::class, 'store'])
+        ->name('api.v1.customers.addresses.store');
+    Route::patch('customers/{customer}/addresses/{address}', [CustomerAddressController::class, 'update'])
+        ->name('api.v1.customers.addresses.update');
+    Route::post('customers/{customer}/addresses/{address}/archive', [CustomerAddressController::class, 'archive'])
+        ->name('api.v1.customers.addresses.archive');
+    Route::post('customers/{customer}/addresses/{address}/reactivate', [CustomerAddressController::class, 'reactivate'])
+        ->name('api.v1.customers.addresses.reactivate');
 
     // Consent (FR-027, FR-028). Read and APPEND only — no update, no delete.
     Route::get('customers/{customer}/consents', [CustomerConsentController::class, 'index'])

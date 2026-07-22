@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\CustomerManagement\Http\Controllers;
 
+use App\Modules\CustomerManagement\Http\AddressProjection;
 use App\Modules\CustomerManagement\Http\CustomerProjection;
 use App\Modules\CustomerManagement\Models\Customer;
 use App\Modules\CustomerManagement\Services\CustomerRegistry;
@@ -122,7 +123,7 @@ final class CustomerController
 
         $model->load('addresses');
 
-        return ApiResponse::success(['customer' => CustomerProjection::detail($model)]);
+        return ApiResponse::success(['customer' => CustomerProjection::detail($model, AddressProjection::contextFor($context))]);
     }
 
     public function store(Request $request): JsonResponse
@@ -141,7 +142,7 @@ final class CustomerController
         $customer = $this->registry->create($context, $validated);
 
         return ApiResponse::success(
-            ['customer' => CustomerProjection::detail($customer->load('addresses'))],
+            ['customer' => CustomerProjection::detail($customer->load('addresses'), AddressProjection::contextFor($context))],
             201
         );
     }
@@ -169,7 +170,7 @@ final class CustomerController
         $updated = $this->registry->update($context, $model, $validated);
 
         return ApiResponse::success(
-            ['customer' => CustomerProjection::detail($updated->load('addresses'))]
+            ['customer' => CustomerProjection::detail($updated->load('addresses'), AddressProjection::contextFor($context))]
         );
     }
 
