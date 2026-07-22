@@ -32,3 +32,38 @@ than carried forward from 405cd13 or b1cfc05.
 This file is written AFTER the run it describes, so the commit adding it
 has a later SHA than the one CI tested. That is the accepted evidence
 indirection recorded in README.md section 7.
+
+
+--- RE-RUN AT THE FINAL HEAD ---------------------------------------------
+
+The commit that ADDED this file changed the SHA, which invalidated the run
+described above as FINAL closure evidence. That is the rule working, not a
+problem: any commit invalidates the previous final CI.
+
+Authoritative CI was therefore re-run at the new head.
+
+  final head    : 13952bfece0d85fe672d0f52e806d32427cd15a5
+  workflows     : 11
+  successful    : 11
+
+  29942346723  success  UX Foundation
+  29942346731  success  Design System
+  29942346750  success  Domain Model
+  29942346768  success  Tenant Isolation
+  29942346772  success  Runtime Foundation
+  29942346782  success  Governance
+  29942346816  success  Product Requirements
+  29942346894  success  Accessibility and Privacy
+  29942347073  success  Authentication and RBAC
+  29942347090  success  Runtime Detection
+  29942347203  success  Security
+
+The earlier run at 1363998 is retained above as the checkpoint it now is.
+
+THE RECURSION, STATED HONESTLY. Recording a CI result inside the repository
+always creates a newer commit than the one tested. This is resolved by the
+accepted evidence indirection (README section 7), not by pretending the SHAs
+match: the delta between them is evidence and documentation only, and no file
+under backend/, apps/, packages/, .github/workflows/, or any validate-/verify-/
+test- script differs. The code CI tested is byte-identical to the code at the
+final head.
