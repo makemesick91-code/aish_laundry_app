@@ -1,11 +1,13 @@
 # Step 4 — Laundry Master Data: Requirement Matrix and Acceptance Criteria
 
 **Step:** 4 — Laundry Master Data
-**Status:** `IN PROGRESS`
+**Status:** `IN PROGRESS` — merge-ready handoff; `GO` is the owner's to confer
 **Authorized by:** [DEC-0028](../decisions/DEC-0028-step-04-scope-resolution-and-canonical-authorization.md)
 **Runtime scope opened by:** [DEC-0030](../decisions/DEC-0030-step-04-runtime-scope-transition.md)
-**Master Source version:** 1.4.1
+**Master Source version:** 1.4.3
 **Baseline SHA:** `1eff6f1c57e2b6032bdf54e0feef22b0fc58e95d`
+**Closure evidence:** [`evidence/step-04/`](../../evidence/step-04/) — bound to the final candidate SHA recorded in that pack's README.
+**Independent review closure:** [DEC-0033](../decisions/DEC-0033-step-04-independent-review-closure.md)
 
 ---
 
@@ -17,7 +19,15 @@ before the claim may be made.
 
 **Nothing in this document is evidence.** A row saying a requirement will be verified by a test is a
 plan, not a result. Only captured output bound to an exact 40-character commit SHA proves anything
-(Rule 01, DEC-0013). Every `Status` column entry is `NOT STARTED` until that output exists.
+(Rule 01, DEC-0013). Every `Status` entry below now cites the executed verification that moved it,
+and the evidence path is in [`evidence/step-04/`](../../evidence/step-04/).
+
+**The status vocabulary here is deliberately narrow.** `COMPLETE_AND_VERIFIED` means Step 4's
+obligation for that requirement is finished AND evidenced. `PARTIAL_STEP_4_FOUNDATION_COMPLETE /
+STEP_5_E2E_PENDING` means Step 4 built everything it was asked to and the requirement's END-TO-END
+proof needs a Step 5 surface that does not exist yet. **A generic "complete" is never used for the
+second case**, because a reader skimming for what is finished would take it as finished — and for
+FR-036 that reader would be wrong about a financial-integrity obligation.
 
 **No requirement is invented here.** Step 4's requirement set is **FR-021 … FR-047**, fixed in
 [`PRODUCT_REQUIREMENTS.md`](../product/PRODUCT_REQUIREMENTS.md) §15.3–§15.5 and confirmed by its own
@@ -40,55 +50,56 @@ recorded here rather than resolved silently, and it is not a licence to invent a
 
 ## 2. Requirement matrix
 
-Legend — **Pri**: MUST / SHOULD, as the PRD states it. **Status**: `NOT STARTED` until exact-SHA
-evidence exists.
+Legend — **Pri**: MUST / SHOULD, as the PRD states it. **Status**: one of
+`COMPLETE_AND_VERIFIED`, `PARTIAL_STEP_4_FOUNDATION_COMPLETE / STEP_5_E2E_PENDING`,
+`NOT_APPLICABLE`, `NOT_PERFORMED`, `FAILED` — never a generic "complete".
 
 ### 2.1 Customer master data — FR-021 … FR-030
 
 | ID | Requirement | Pri | Mechanism | Verification | Status |
 |---|---|---|---|---|---|
-| FR-021 | Customer profile, tenant-scoped | MUST | `customers` table with `tenant_id` from its introducing migration; Eloquent model with default tenant scope | Feature test: create, read, update; migration asserts `tenant_id` NOT NULL | NOT STARTED |
-| FR-022 | Same phone in two tenants = two unrelated profiles | MUST | Uniqueness is `(tenant_id, phone_normalized)`, never global; no cross-tenant lookup path exists | Negative test: identical phone seeded in tenant A and B; assert two distinct rows, never merged or cross-referenced | NOT STARTED |
-| FR-023 | Customer search by phone, name, or order number | MUST | Tenant-scoped, permission-gated, bounded query | Feature test + **tenant-isolation negative test on the search path specifically** (Rule 48 hard rule 3) | NOT STARTED |
-| FR-024 | Multiple saved addresses per customer | MUST | `customer_addresses` table, tenant-scoped, activate/deactivate | Feature test: multiple addresses, activation state, tenant isolation | NOT STARTED |
-| FR-025 | Address masking by context; never full on public portal | MUST | Masking applied at the serializer boundary, driven by viewer context | Unit test per masking level; assertion that no Step 4 response shape can emit a full address to an unauthenticated context | NOT STARTED |
-| FR-026 | Phone masking by context | MUST | Same serializer boundary; country code + last four by default | Unit test per masking level | NOT STARTED |
-| FR-027 | Consent state per customer per tenant, with timestamp and source | MUST | `customer_consents` append-only records: type, state, source, actor, timestamp | Feature test: grant, withdraw, history; assert no update-in-place | NOT STARTED |
-| FR-028 | Opt-out never reset by import, bulk update, or migration | MUST | Opt-out is a recorded event, not a mutable flag; no code path rewrites a withdrawal | Negative test: run a bulk update and a re-seed; assert the recorded opt-out still governs | NOT STARTED |
-| FR-029 | Customer order history, never cross-tenant | MUST | **Deferred surface, not deferred rule.** Orders are Step 5 (FR-048+); Step 4 builds the tenant-scoped customer anchor the history will hang from and asserts no cross-tenant read path exists | Tenant-isolation tests on the customer aggregate. **The history view itself is Step 5 and is not claimed here** | NOT STARTED |
-| FR-030 | Internal customer notes, never on public portal | SHOULD | `customers.internal_notes`, excluded from every public projection by allow-list | Test asserting the public projection is an allow-list, so an added field cannot leak by default (Rule 32 hard rule 7) | NOT STARTED |
+| FR-021 | Customer profile, tenant-scoped | MUST | `customers` table with `tenant_id` from its introducing migration; Eloquent model with default tenant scope | Feature test: create, read, update; migration asserts `tenant_id` NOT NULL | `COMPLETE_AND_VERIFIED` |
+| FR-022 | Same phone in two tenants = two unrelated profiles | MUST | Uniqueness is `(tenant_id, phone_normalized)`, never global; no cross-tenant lookup path exists | Negative test: identical phone seeded in tenant A and B; assert two distinct rows, never merged or cross-referenced | `COMPLETE_AND_VERIFIED` |
+| FR-023 | Customer search by phone, name, or order number | MUST | Tenant-scoped, permission-gated, bounded query | Feature test + **tenant-isolation negative test on the search path specifically** (Rule 48 hard rule 3) | `COMPLETE_AND_VERIFIED` |
+| FR-024 | Multiple saved addresses per customer | MUST | `customer_addresses` table, tenant-scoped, activate/deactivate | Feature test: multiple addresses, activation state, tenant isolation | `COMPLETE_AND_VERIFIED` |
+| FR-025 | Address masking by context; never full on public portal | MUST | Masking applied at the serializer boundary, driven by viewer context | Unit test per masking level; assertion that no Step 4 response shape can emit a full address to an unauthenticated context | `COMPLETE_AND_VERIFIED` |
+| FR-026 | Phone masking by context | MUST | Same serializer boundary; country code + last four by default | Unit test per masking level | `COMPLETE_AND_VERIFIED` |
+| FR-027 | Consent state per customer per tenant, with timestamp and source | MUST | `customer_consents` append-only records: type, state, source, actor, timestamp | Feature test: grant, withdraw, history; assert no update-in-place | `COMPLETE_AND_VERIFIED` |
+| FR-028 | Opt-out never reset by import, bulk update, or migration | MUST | Opt-out is a recorded event, not a mutable flag; no code path rewrites a withdrawal | Negative test: run a bulk update and a re-seed; assert the recorded opt-out still governs | `COMPLETE_AND_VERIFIED` |
+| FR-029 | Customer order history, never cross-tenant | MUST | **Deferred surface, not deferred rule.** Orders are Step 5 (FR-048+); Step 4 builds the tenant-scoped customer anchor the history will hang from and asserts no cross-tenant read path exists | Tenant-isolation tests on the customer aggregate. **The history view itself is Step 5 and is not claimed here** | `PARTIAL_STEP_4_FOUNDATION_COMPLETE / STEP_5_E2E_PENDING` |
+| FR-030 | Internal customer notes, never on public portal | SHOULD | `customers.internal_notes`, excluded from every public projection by allow-list | Test asserting the public projection is an allow-list, so an added field cannot leak by default (Rule 32 hard rule 7) | `COMPLETE_AND_VERIFIED` |
 
 ### 2.2 Service master data — FR-031 … FR-033, FR-040
 
 | ID | Requirement | Pri | Mechanism | Verification | Status |
 |---|---|---|---|---|---|
-| FR-031 | Kiloan (by weight) and satuan (per item) services | MUST | `service_catalog` with an explicit unit-of-measure enum; no free-text unit | Feature test per service shape; invalid-unit rejection test | NOT STARTED |
-| FR-032 | Packages combining services at a defined price | SHOULD | `service_packages` + package-item join, tenant-scoped | Feature test: composition, activation, tenant isolation | NOT STARTED |
-| FR-033 | Add-ons applied to an order or order line | SHOULD | `service_addons` as master data only. **The application of an add-on to an order is Step 5** and is not built here | Feature test on the catalogue entry; explicit absence of any order linkage | NOT STARTED |
-| FR-040 | Single canonical price source, never hard-coded in clients | MUST | Prices read from tenant configuration through one server-side source; no price literal in any client | Test asserting no client-side price literal; scope guard already forbids scattered price strings | NOT STARTED |
+| FR-031 | Kiloan (by weight) and satuan (per item) services | MUST | `service_catalog` with an explicit unit-of-measure enum; no free-text unit | Feature test per service shape; invalid-unit rejection test | `COMPLETE_AND_VERIFIED` |
+| FR-032 | Packages combining services at a defined price | SHOULD | `service_packages` + package-item join, tenant-scoped | Feature test: composition, activation, tenant isolation | `COMPLETE_AND_VERIFIED` |
+| FR-033 | Add-ons applied to an order or order line | SHOULD | `service_addons` as master data only. **The application of an add-on to an order is Step 5** and is not built here | Feature test on the catalogue entry; explicit absence of any order linkage | `PARTIAL_STEP_4_FOUNDATION_COMPLETE / STEP_5_E2E_PENDING` |
+| FR-040 | Single canonical price source, never hard-coded in clients | MUST | Prices read from tenant configuration through one server-side source; no price literal in any client | Test asserting no client-side price literal; scope guard already forbids scattered price strings | `COMPLETE_AND_VERIFIED` |
 
 ### 2.3 Per-brand price lists — FR-034 … FR-039
 
 | ID | Requirement | Pri | Mechanism | Verification | Status |
 |---|---|---|---|---|---|
-| FR-034 | Price list belongs to a brand | MUST | `price_lists.laundry_brand_id`, with the brand's tenant re-derived server-side, never client-supplied | Feature test + negative test: brand from another tenant is rejected (Rule 39 hard rule 5) | NOT STARTED |
-| FR-035 | Versioned with an effective period; publishing never alters a published version | MUST | `effective_from` / `effective_until`; published versions immutable; supersede by insert | Test: publish v2, assert v1 byte-identical; **overlap-prevention test for the same brand** | NOT STARTED |
-| FR-036 | Order captures the price that applied, immune to later change | MUST | **Step 4 prepares the capture contract; Step 5 proves it against a real order.** Step 4 delivers the immutable, addressable price version the snapshot will reference | Immutability test on published versions. **Step 4 does not claim FR-036 satisfied** — proving it needs an order, which is FR-048 (Step 5) | NOT STARTED |
-| FR-037 | Integer Rupiah everywhere; no floating point in any money path | MUST | Money columns are integer types from their first migration; no `float`/`double`/`decimal`-as-float | Migration-level assertion over the live PostgreSQL schema that no money column is a floating type; unit tests on arithmetic | NOT STARTED |
-| FR-038 | Explicit rounding at a defined point | MUST | Rounding rule stated and applied in one place, never left to language defaults | Unit tests over the rounding boundary cases | NOT STARTED |
-| FR-039 | Price override requires permission and a recorded reason | MUST | **Override applies to an order, which is Step 5.** Step 4 defines the permission and the reason-capture contract; it builds no override path | Permission registered and tested. **The override flow itself is Step 5 and is not claimed here** | NOT STARTED |
+| FR-034 | Price list belongs to a brand | MUST | `price_lists.laundry_brand_id`, with the brand's tenant re-derived server-side, never client-supplied | Feature test + negative test: brand from another tenant is rejected (Rule 39 hard rule 5) | `COMPLETE_AND_VERIFIED` |
+| FR-035 | Versioned with an effective period; publishing never alters a published version | MUST | `effective_from` / `effective_until`; published versions immutable; supersede by insert | Test: publish v2, assert v1 byte-identical; **overlap-prevention test for the same brand** | `COMPLETE_AND_VERIFIED` |
+| FR-036 | Order captures the price that applied, immune to later change | MUST | **Step 4 prepares the capture contract; Step 5 proves it against a real order.** Step 4 delivers the immutable, addressable price version the snapshot will reference | Immutability test on published versions. **Step 4 does not claim FR-036 satisfied** — proving it needs an order, which is FR-048 (Step 5) | `PARTIAL_STEP_4_FOUNDATION_COMPLETE / STEP_5_E2E_PENDING` |
+| FR-037 | Integer Rupiah everywhere; no floating point in any money path | MUST | Money columns are integer types from their first migration; no `float`/`double`/`decimal`-as-float | Migration-level assertion over the live PostgreSQL schema that no money column is a floating type; unit tests on arithmetic | `COMPLETE_AND_VERIFIED` |
+| FR-038 | Explicit rounding at a defined point | MUST | Rounding rule stated and applied in one place, never left to language defaults | Unit tests over the rounding boundary cases | `COMPLETE_AND_VERIFIED` |
+| FR-039 | Price override requires permission and a recorded reason | MUST | **Override applies to an order, which is Step 5.** Step 4 defines the permission and the reason-capture contract; it builds no override path | Permission registered and tested. **The override flow itself is Step 5 and is not claimed here** | `PARTIAL_STEP_4_FOUNDATION_COMPLETE / STEP_5_E2E_PENDING` |
 
 ### 2.4 Outlet master data — FR-041 … FR-047
 
 | ID | Requirement | Pri | Mechanism | Verification | Status |
 |---|---|---|---|---|---|
-| FR-041 | Operating hours in outlet local time | MUST | Outlet timezone stored explicitly; hours stored per outlet; UTC storage, outlet-local presentation (Rule 43) | Feature test across at least two distinct outlet timezones — a single-timezone test proves nothing about the rule | NOT STARTED |
-| FR-042 | Production capacity definition | SHOULD | Capacity fields on outlet master data | Feature test | NOT STARTED |
-| FR-043 | Service zones for pickup and delivery coverage | MUST | `outlet_service_zones`, tenant-scoped. **Coverage definition only** — routing is Step 8 | Feature test + tenant isolation | NOT STARTED |
-| FR-044 | Shift definitions anchoring shift closing | MUST | `outlet_shifts`. **Definitions only** — shift closing and cash reconciliation are Step 5 | Feature test + tenant isolation | NOT STARTED |
-| FR-045 | Printer configuration for nota output | SHOULD | `printers` / outlet printer configuration. **Configuration only** — the nota is FR-052 (Step 5), and `receipt` remains a forbidden token (DEC-0030) | Feature test; scope-guard fixture already proves `nota` is still rejected | NOT STARTED |
-| FR-046 | Tenant configures required proof mechanisms | MUST | Tenant-level proof policy configuration. **Configuration only** — proof capture is Step 8 | Feature test; assert some proof is always required by the policy shape | NOT STARTED |
-| FR-047 | Quiet hours per outlet, default 20.00–08.00 outlet local time | MUST | Outlet quiet-hours configuration with the canonical default | Feature test asserting the default is exactly 20.00–08.00 outlet local time. **Quiet-hours enforcement is Step 7** | NOT STARTED |
+| FR-041 | Operating hours in outlet local time | MUST | Outlet timezone stored explicitly; hours stored per outlet; UTC storage, outlet-local presentation (Rule 43) | Feature test across at least two distinct outlet timezones — a single-timezone test proves nothing about the rule | `COMPLETE_AND_VERIFIED` |
+| FR-042 | Production capacity definition | SHOULD | Capacity fields on outlet master data | Feature test | `COMPLETE_AND_VERIFIED` |
+| FR-043 | Service zones for pickup and delivery coverage | MUST | `outlet_service_zones`, tenant-scoped. **Coverage definition only** — routing is Step 8 | Feature test + tenant isolation | `COMPLETE_AND_VERIFIED` |
+| FR-044 | Shift definitions anchoring shift closing | MUST | `outlet_shifts`. **Definitions only** — shift closing and cash reconciliation are Step 5 | Feature test + tenant isolation | `PARTIAL_STEP_4_FOUNDATION_COMPLETE / STEP_5_E2E_PENDING` |
+| FR-045 | Printer configuration for nota output | SHOULD | `printers` / outlet printer configuration. **Configuration only** — the nota is FR-052 (Step 5), and `receipt` remains a forbidden token (DEC-0030) | Feature test; scope-guard fixture already proves `nota` is still rejected | `COMPLETE_AND_VERIFIED` |
+| FR-046 | Tenant configures required proof mechanisms | MUST | Tenant-level proof policy configuration. **Configuration only** — proof capture is Step 8 | Feature test; assert some proof is always required by the policy shape | `PARTIAL_STEP_4_FOUNDATION_COMPLETE / STEP_5_E2E_PENDING` |
+| FR-047 | Quiet hours per outlet, default 20.00–08.00 outlet local time | MUST | Outlet quiet-hours configuration with the canonical default | Feature test asserting the default is exactly 20.00–08.00 outlet local time. **Quiet-hours enforcement is Step 7** | `PARTIAL_STEP_4_FOUNDATION_COMPLETE / STEP_5_E2E_PENDING` |
 
 ---
 
