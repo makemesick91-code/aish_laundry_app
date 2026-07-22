@@ -3,6 +3,8 @@ import 'package:aish_design_system/aish_design_system.dart';
 import 'package:aish_domain/aish_domain.dart';
 import 'package:aish_networking/aish_networking.dart';
 import 'package:flutter/material.dart';
+
+import 'customer_address_panel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app.dart';
@@ -274,6 +276,27 @@ class _CustomersTab extends ConsumerWidget {
             // deliberate, per-record, permissioned, recorded server action and
             // is never a hover or a bulk reveal (Rule 32 hard rule 5).
             subtitle: Text('${customer.code} · ${customer.phoneMasked}'),
+            // Addresses open in a panel rather than inline. Rule 32 §2.2 rule 7
+            // forbids an address in a list row at all — rendering fifty of them
+            // on one screen is the tenant's customer base in a single
+            // photograph — so reaching one is always a deliberate act against
+            // ONE named customer.
+            onTap: () => showDialog<void>(
+              context: context,
+              builder: (dialogContext) => Dialog(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 720),
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.all(AishSpacing.space6),
+                    child: CustomerAddressPanel(
+                      customerId: customer.id,
+                      customerName: customer.name,
+                      canManage: canManage,
+                    ),
+                  ),
+                ),
+              ),
+            ),
             trailing: customer.isArchived
                 // Archived is visually distinct AND labelled. Status is never
                 // carried by colour alone (Rule 27 hard rule 3).

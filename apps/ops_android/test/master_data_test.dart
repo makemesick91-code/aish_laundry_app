@@ -7,7 +7,7 @@ import 'package:aish_ops_android/src/app.dart';
 import 'package:aish_ops_android/src/master_data/catalogue_screen.dart';
 import 'package:aish_ops_android/src/master_data/customer_counter_screen.dart';
 import 'package:aish_ops_android/src/master_data/customer_detail_screen.dart';
-import 'package:aish_ops_android/src/master_data/edit_outcome.dart';
+
 import 'package:aish_ops_android/src/master_data/master_data_providers.dart';
 import 'package:aish_ops_android/src/master_data/outlet_master_data_screen.dart';
 import 'package:aish_ops_android/src/master_data/staff_roster_screen.dart';

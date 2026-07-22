@@ -9,6 +9,7 @@ library;
 export 'src/api_client.dart';
 export 'src/api_endpoints.dart';
 export 'src/api_error_code.dart';
+export 'src/edit_outcome.dart';
 export 'src/api_response.dart';
 export 'src/error_mapper.dart';
 export 'src/master_data_repository.dart';

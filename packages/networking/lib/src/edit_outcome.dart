@@ -1,7 +1,12 @@
 import 'package:aish_core/aish_core.dart';
-import 'package:aish_networking/aish_networking.dart';
+import 'api_error_code.dart';
 
-/// What happened to a master-data write, in terms a counter surface can act on.
+/// What happened to a master-data write, in terms a surface can act on.
+///
+/// Lives in `networking` rather than in one application because it classifies a
+/// repository [Result], and BOTH the Ops counter and the Console share that
+/// repository. A per-app copy would drift, and the copy that drifted would be
+/// the one that stopped distinguishing a conflict from a retry.
 ///
 /// WHY THIS TAXONOMY EXISTS RATHER THAN A BOOLEAN
 /// ----------------------------------------------
