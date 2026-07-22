@@ -116,6 +116,7 @@ gate "Step 4 validator adversarial harness" bash scripts/test-step-04-validators
 # screen (DEC-0032, and again for the master-data repository). These two gates
 # make that class fail at validation time instead of user-navigation time.
 gate "production composition is wired" python3 scripts/validate-production-composition.py
+gate "STATUS.md auth claims match the repository" python3 scripts/validate-auth-runtime-truth.py
 gate "production composition guard adversarial" bash scripts/test-production-composition-guard.sh
 
 # The absence of an order/payment/document route is asserted, not assumed.
