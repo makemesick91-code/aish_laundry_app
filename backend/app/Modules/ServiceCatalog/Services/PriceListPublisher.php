@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\ServiceCatalog\Services;
 
+use App\Modules\Audit\AuditAction;
+use App\Modules\Audit\AuditRecorder;
 use App\Modules\Organization\Models\LaundryBrand;
 use App\Modules\ServiceCatalog\Models\PriceList;
 use App\Modules\SharedKernel\Http\ApiException;
@@ -35,6 +37,8 @@ use Illuminate\Support\Facades\DB;
  */
 final class PriceListPublisher
 {
+    public function __construct(private readonly AuditRecorder $audit) {}
+
     /**
      * @param  array{code: string, name: string, effective_from: string, effective_until?: ?string}  $attributes
      */
@@ -68,6 +72,20 @@ final class PriceListPublisher
         $priceList->status = PriceList::STATUS_DRAFT;
         $priceList->currency = 'IDR';
         $priceList->save();
+
+        $this->audit->record(
+            action: AuditAction::PRICE_LIST_CREATED,
+            subjectType: PriceList::class,
+            subjectId: $priceList->id,
+            tenantId: $context->tenantId(),
+            actorUserId: $context->userId(),
+            actorMembershipId: $context->membershipId(),
+            metadata: [
+                'code' => $priceList->code,
+                'laundry_brand_id' => $priceList->laundry_brand_id,
+                'effective_from' => $priceList->effective_from?->toDateString(),
+            ],
+        );
 
         return $priceList;
     }
@@ -139,6 +157,26 @@ final class PriceListPublisher
                 $priceList->published_at = now();
                 $priceList->published_by_membership_id = $context->membershipId();
                 $priceList->save();
+
+                // PUBLICATION is the moment prices become chargeable, and the
+                // moment a past order's price is frozen against later edits
+                // (FR-035, Rule 04 invariant 11). It is the single most
+                // consequential Step 4 write, and the one a financial dispute
+                // reaches for first.
+                $this->audit->record(
+                    action: AuditAction::PRICE_LIST_PUBLISHED,
+                    subjectType: PriceList::class,
+                    subjectId: $priceList->id,
+                    tenantId: $context->tenantId(),
+                    actorUserId: $context->userId(),
+                    actorMembershipId: $context->membershipId(),
+                    metadata: [
+                        'code' => $priceList->code,
+                        'laundry_brand_id' => $priceList->laundry_brand_id,
+                        'effective_from' => $priceList->effective_from?->toDateString(),
+                        'supersedes_price_list_id' => $supersedes?->id,
+                    ],
+                );
 
                 return $priceList->refresh();
             });

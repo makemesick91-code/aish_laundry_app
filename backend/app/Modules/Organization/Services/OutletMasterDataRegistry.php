@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\Organization\Services;
 
+use App\Modules\Audit\AuditAction;
+use App\Modules\Audit\AuditRecorder;
 use App\Modules\Organization\Models\Outlet;
 use App\Modules\Organization\Models\OutletPrinter;
 use App\Modules\Organization\Models\OutletServiceZone;
@@ -40,6 +42,23 @@ use InvalidArgumentException;
  */
 final class OutletMasterDataRegistry
 {
+    /**
+     * Which audit action a satellite save produces, by aggregate and by whether
+     * the row already existed (SEC-10).
+     *
+     * Keyed on the MODEL CLASS rather than on the calling method's name, so a
+     * rename cannot silently drop a write out of the trail.
+     *
+     * @var array<class-string, array{0: string, 1: string}>
+     */
+    private const SATELLITE_AUDIT_ACTIONS = [
+        OutletServiceZone::class => [AuditAction::OUTLET_ZONE_CREATED, AuditAction::OUTLET_ZONE_UPDATED],
+        OutletShift::class => [AuditAction::OUTLET_SHIFT_CREATED, AuditAction::OUTLET_SHIFT_UPDATED],
+        OutletPrinter::class => [AuditAction::OUTLET_PRINTER_CREATED, AuditAction::OUTLET_PRINTER_UPDATED],
+    ];
+
+    public function __construct(private readonly AuditRecorder $audit) {}
+
     /**
      * Update an outlet's own master-data attributes.
      *
@@ -94,7 +113,23 @@ final class OutletMasterDataRegistry
             'is_active',
         ])));
 
+        $changedFields = array_keys($outlet->getDirty());
+
         $outlet->save();
+
+        $this->audit->record(
+            action: AuditAction::OUTLET_MASTER_DATA_UPDATED,
+            subjectType: Outlet::class,
+            subjectId: $outlet->id,
+            tenantId: $context->tenantId(),
+            actorUserId: $context->userId(),
+            actorMembershipId: $context->membershipId(),
+            outletId: $outlet->id,
+            // Field names only. `contact_phone` and `address_line` are among
+            // them, and their VALUES are personal data that must not be copied
+            // into a second table (Rule 46 hard rule 2).
+            metadata: ['changed_fields' => $changedFields],
+        );
 
         return $outlet->refresh();
     }
@@ -124,7 +159,7 @@ final class OutletMasterDataRegistry
             'code', 'name', 'description', 'postal_codes', 'is_active', 'display_order',
         ]));
 
-        return $this->saveTranslatingUnique($zone, 'outlet_service_zones_outlet_code_unique');
+        return $this->saveTranslatingUnique($context, $zone, 'outlet_service_zones_outlet_code_unique');
     }
 
     // ------------------------------------------------------------------
@@ -164,7 +199,7 @@ final class OutletMasterDataRegistry
             (string) $shift->ends_at
         );
 
-        return $this->saveTranslatingUnique($shift, 'outlet_shifts_outlet_code_unique');
+        return $this->saveTranslatingUnique($context, $shift, 'outlet_shifts_outlet_code_unique');
     }
 
     // ------------------------------------------------------------------
@@ -192,7 +227,7 @@ final class OutletMasterDataRegistry
             'code', 'name', 'device_kind', 'connection_kind', 'device_identifier', 'is_default', 'is_active',
         ]));
 
-        return $this->saveTranslatingUnique($printer, 'outlet_printers_outlet_code_unique');
+        return $this->saveTranslatingUnique($context, $printer, 'outlet_printers_outlet_code_unique');
     }
 
     // ------------------------------------------------------------------
@@ -286,7 +321,22 @@ final class OutletMasterDataRegistry
             );
         }
 
+        $changedFields = array_keys($policy->getDirty());
+
         $policy->save();
+
+        $this->audit->record(
+            action: AuditAction::PROOF_POLICY_UPDATED,
+            subjectType: TenantProofPolicy::class,
+            subjectId: $policy->id,
+            tenantId: $context->tenantId(),
+            actorUserId: $context->userId(),
+            actorMembershipId: $context->membershipId(),
+            // Proof requirements govern custody transfer (Rule 09 hard rule 2).
+            // These are booleans, not personal data, so the values themselves
+            // are safe and are the audit-relevant fact.
+            metadata: ['changed_fields' => $changedFields],
+        );
 
         return $policy->refresh();
     }
@@ -331,7 +381,7 @@ final class OutletMasterDataRegistry
         $satellite->setAttribute('tenant_id', $context->tenantId());
         $satellite->setAttribute('outlet_id', $outlet->id);
 
-        return $this->saveTranslatingUnique($satellite, $codeIndex);
+        return $this->saveTranslatingUnique($context, $satellite, $codeIndex);
     }
 
     /**
@@ -342,8 +392,16 @@ final class OutletMasterDataRegistry
      * and this method turns its refusal into something an operator can act on
      * (the same discipline as the price-list exclusion constraint).
      */
-    private function saveTranslatingUnique(Model $model, string $codeIndex): Model
-    {
+    private function saveTranslatingUnique(
+        TenantContext $context,
+        Model $model,
+        string $codeIndex,
+    ): Model {
+        // Read BEFORE the save. Afterwards every model `exists` and the
+        // created/updated distinction is gone.
+        $existed = $model->exists;
+        $changedFields = array_keys($model->getDirty());
+
         try {
             $model->save();
         } catch (UniqueConstraintViolationException $exception) {
@@ -365,6 +423,33 @@ final class OutletMasterDataRegistry
 
             throw $exception;
         }
+
+        $actions = self::SATELLITE_AUDIT_ACTIONS[$model::class] ?? null;
+
+        if ($actions === null) {
+            // Loud, not silent. A satellite reaching this helper with no
+            // declared action is a write nobody could find in the trail, and a
+            // quiet skip is how audit coverage rots (Rule 46).
+            throw new \LogicException(sprintf(
+                'No audit action declared for %s. Add it to SATELLITE_AUDIT_ACTIONS '
+                .'rather than letting an outlet write go unrecorded (SEC-10).',
+                $model::class
+            ));
+        }
+
+        $this->audit->record(
+            action: $existed ? $actions[1] : $actions[0],
+            subjectType: $model::class,
+            subjectId: (string) $model->getKey(),
+            tenantId: $context->tenantId(),
+            actorUserId: $context->userId(),
+            actorMembershipId: $context->membershipId(),
+            outletId: $model->getAttribute('outlet_id'),
+            metadata: array_filter([
+                'code' => $model->getAttribute('code'),
+                'changed_fields' => $existed ? $changedFields : null,
+            ], static fn (mixed $v): bool => $v !== null),
+        );
 
         return $model->refresh();
     }

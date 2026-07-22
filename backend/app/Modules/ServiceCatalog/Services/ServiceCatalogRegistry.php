@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\ServiceCatalog\Services;
 
+use App\Modules\Audit\AuditAction;
+use App\Modules\Audit\AuditRecorder;
 use App\Modules\ServiceCatalog\Models\Service;
 use App\Modules\ServiceCatalog\Models\ServiceAddon;
 use App\Modules\ServiceCatalog\Models\ServiceCategory;
@@ -37,6 +39,26 @@ use Illuminate\Support\Str;
  */
 final class ServiceCatalogRegistry
 {
+    /**
+     * Which audit action a save produces, keyed by aggregate and by whether the
+     * row already existed (SEC-10).
+     *
+     * Derived from the MODEL CLASS and from `$model->exists`, not from the name
+     * of the calling method. A structural signal cannot drift when somebody
+     * renames `createService` to `storeService`, and it cannot be satisfied by a
+     * method that merely looks like a writer.
+     *
+     * @var array<class-string, array{0: string, 1: string}>
+     */
+    private const AUDIT_ACTIONS = [
+        ServiceCategory::class => [AuditAction::SERVICE_CATEGORY_CREATED, AuditAction::SERVICE_CATEGORY_UPDATED],
+        Service::class => [AuditAction::SERVICE_CREATED, AuditAction::SERVICE_UPDATED],
+        ServicePackage::class => [AuditAction::SERVICE_PACKAGE_CREATED, AuditAction::SERVICE_PACKAGE_UPDATED],
+        ServiceAddon::class => [AuditAction::SERVICE_ADDON_CREATED, AuditAction::SERVICE_ADDON_UPDATED],
+    ];
+
+    public function __construct(private readonly AuditRecorder $audit) {}
+
     // ------------------------------------------------------------------
     // Categories
     // ------------------------------------------------------------------
@@ -47,7 +69,7 @@ final class ServiceCatalogRegistry
         $category = new ServiceCategory($this->only($attributes, ['code', 'name', 'display_order', 'is_active']));
         $category->tenant_id = $context->tenantId();
 
-        return $this->saveTranslatingUnique($category, 'service_categories_tenant_code_unique');
+        return $this->saveTranslatingUnique($context, $category, 'service_categories_tenant_code_unique');
     }
 
     /** @param array<string, mixed> $attributes */
@@ -57,7 +79,7 @@ final class ServiceCatalogRegistry
 
         $category->fill($this->only($attributes, ['code', 'name', 'display_order', 'is_active']));
 
-        return $this->saveTranslatingUnique($category, 'service_categories_tenant_code_unique');
+        return $this->saveTranslatingUnique($context, $category, 'service_categories_tenant_code_unique');
     }
 
     // ------------------------------------------------------------------
@@ -73,7 +95,7 @@ final class ServiceCatalogRegistry
         $this->assertCategoryInTenant($context, $attributes['service_category_id'] ?? null);
         $this->assertMinimumMatchesUnitKind($service);
 
-        return $this->saveTranslatingUnique($service, 'service_catalog_tenant_code_unique');
+        return $this->saveTranslatingUnique($context, $service, 'service_catalog_tenant_code_unique');
     }
 
     /** @param array<string, mixed> $attributes */
@@ -88,7 +110,7 @@ final class ServiceCatalogRegistry
         $service->fill($this->serviceAttributes($attributes));
         $this->assertMinimumMatchesUnitKind($service);
 
-        return $this->saveTranslatingUnique($service, 'service_catalog_tenant_code_unique');
+        return $this->saveTranslatingUnique($context, $service, 'service_catalog_tenant_code_unique');
     }
 
     // ------------------------------------------------------------------
@@ -101,7 +123,7 @@ final class ServiceCatalogRegistry
         $package = new ServicePackage($this->only($attributes, ['code', 'name', 'description', 'is_active', 'display_order']));
         $package->tenant_id = $context->tenantId();
 
-        return $this->saveTranslatingUnique($package, 'service_packages_tenant_code_unique');
+        return $this->saveTranslatingUnique($context, $package, 'service_packages_tenant_code_unique');
     }
 
     /** @param array<string, mixed> $attributes */
@@ -111,7 +133,7 @@ final class ServiceCatalogRegistry
 
         $package->fill($this->only($attributes, ['code', 'name', 'description', 'is_active', 'display_order']));
 
-        return $this->saveTranslatingUnique($package, 'service_packages_tenant_code_unique');
+        return $this->saveTranslatingUnique($context, $package, 'service_packages_tenant_code_unique');
     }
 
     /**
@@ -171,6 +193,19 @@ final class ServiceCatalogRegistry
             }
         });
 
+        $this->audit->record(
+            action: AuditAction::SERVICE_PACKAGE_ITEMS_REPLACED,
+            subjectType: ServicePackage::class,
+            subjectId: $package->id,
+            tenantId: $context->tenantId(),
+            actorUserId: $context->userId(),
+            actorMembershipId: $context->membershipId(),
+            // A wholesale replacement, so the COUNT is the meaningful fact. The
+            // composition itself lives on the package and is readable by anyone
+            // already authorised to see it.
+            metadata: ['item_count' => count($items)],
+        );
+
         return $package->refresh();
     }
 
@@ -186,7 +221,7 @@ final class ServiceCatalogRegistry
         $addon = new ServiceAddon($this->only($attributes, ['code', 'name', 'description', 'is_active', 'display_order']));
         $addon->tenant_id = $context->tenantId();
 
-        return $this->saveTranslatingUnique($addon, 'service_addons_tenant_code_unique');
+        return $this->saveTranslatingUnique($context, $addon, 'service_addons_tenant_code_unique');
     }
 
     /** @param array<string, mixed> $attributes */
@@ -196,7 +231,7 @@ final class ServiceCatalogRegistry
 
         $addon->fill($this->only($attributes, ['code', 'name', 'description', 'is_active', 'display_order']));
 
-        return $this->saveTranslatingUnique($addon, 'service_addons_tenant_code_unique');
+        return $this->saveTranslatingUnique($context, $addon, 'service_addons_tenant_code_unique');
     }
 
     // ------------------------------------------------------------------
@@ -270,8 +305,16 @@ final class ServiceCatalogRegistry
      * clash and both commit. The unique index decides; this turns its refusal
      * into something an operator can act on.
      */
-    private function saveTranslatingUnique(Model $model, string $codeIndex): Model
-    {
+    private function saveTranslatingUnique(
+        TenantContext $context,
+        Model $model,
+        string $codeIndex,
+    ): Model {
+        // Read BEFORE the save. Afterwards every model `exists`, and the
+        // distinction between "created" and "updated" is gone.
+        $existed = $model->exists;
+        $changedFields = array_keys($model->getDirty());
+
         try {
             $model->save();
         } catch (UniqueConstraintViolationException $exception) {
@@ -286,7 +329,48 @@ final class ServiceCatalogRegistry
             throw $exception;
         }
 
+        $this->recordCatalogueAudit($context, $model, $existed, $changedFields);
+
         return $model->refresh();
+    }
+
+    /**
+     * @param  list<string>  $changedFields
+     */
+    private function recordCatalogueAudit(
+        TenantContext $context,
+        Model $model,
+        bool $existed,
+        array $changedFields,
+    ): void {
+        $actions = self::AUDIT_ACTIONS[$model::class] ?? null;
+
+        if ($actions === null) {
+            // Fail LOUD rather than silently skipping. An aggregate reaching
+            // this helper without a declared action is a write nobody would ever
+            // find in the trail, and a quiet `return` here is exactly how audit
+            // coverage rots (Rule 46).
+            throw new \LogicException(sprintf(
+                'No audit action declared for %s. Add it to AUDIT_ACTIONS rather than '
+                .'letting a catalogue write go unrecorded (SEC-10).',
+                $model::class
+            ));
+        }
+
+        $this->audit->record(
+            action: $existed ? $actions[1] : $actions[0],
+            subjectType: $model::class,
+            subjectId: (string) $model->getKey(),
+            tenantId: $context->tenantId(),
+            actorUserId: $context->userId(),
+            actorMembershipId: $context->membershipId(),
+            // Catalogue codes are business identifiers, not personal data, so
+            // the code is safe to carry and is what an auditor searches by.
+            metadata: array_filter([
+                'code' => $model->getAttribute('code'),
+                'changed_fields' => $existed ? $changedFields : null,
+            ], static fn (mixed $v): bool => $v !== null),
+        );
     }
 
     /**

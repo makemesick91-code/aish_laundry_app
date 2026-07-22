@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\ServiceCatalog\Services;
 
+use App\Modules\Audit\AuditAction;
+use App\Modules\Audit\AuditRecorder;
 use App\Modules\ServiceCatalog\Models\PriceList;
 use App\Modules\ServiceCatalog\Models\PriceListItem;
 use App\Modules\ServiceCatalog\Models\Service;
@@ -40,6 +42,17 @@ use InvalidArgumentException;
 final class PriceListItemRegistry
 {
     /**
+     * Every price write is audited (SEC-10).
+     *
+     * The AMOUNT is recorded here, unlike the personal-data fields elsewhere in
+     * Step 4. A price is commercial data, not personal data, and "what was it
+     * changed from and to" is the entire question a pricing dispute asks — an
+     * audit that recorded only "the price changed" would answer nothing
+     * (Rule 04, Rule 21 data classification).
+     */
+    public function __construct(private readonly AuditRecorder $audit) {}
+
+    /**
      * @param  array{service_id?: string, service_package_id?: string, service_addon_id?: string, amount_rupiah: mixed}  $attributes
      */
     public function addItem(TenantContext $context, PriceList $priceList, array $attributes): PriceListItem
@@ -59,7 +72,22 @@ final class PriceListItemRegistry
         $item->tenant_id = $context->tenantId();
         $item->price_list_id = $priceList->id;
 
-        return $this->saveTranslatingUnique($item);
+        $saved = $this->saveTranslatingUnique($item);
+
+        $this->audit->record(
+            action: AuditAction::PRICE_LIST_ITEM_ADDED,
+            subjectType: PriceListItem::class,
+            subjectId: $saved->id,
+            tenantId: $context->tenantId(),
+            actorUserId: $context->userId(),
+            actorMembershipId: $context->membershipId(),
+            metadata: [
+                'price_list_id' => $saved->price_list_id,
+                'amount_rupiah' => $saved->amount_rupiah,
+            ],
+        );
+
+        return $saved;
     }
 
     public function updateItem(TenantContext $context, PriceListItem $item, mixed $amount): PriceListItem
@@ -73,7 +101,22 @@ final class PriceListItemRegistry
         }
 
         $item->amount_rupiah = $this->money($amount);
+        $before = (int) $item->getOriginal('amount_rupiah');
+
         $item->save();
+
+        $this->audit->record(
+            action: AuditAction::PRICE_LIST_ITEM_UPDATED,
+            subjectType: PriceListItem::class,
+            subjectId: $item->id,
+            tenantId: $context->tenantId(),
+            actorUserId: $context->userId(),
+            actorMembershipId: $context->membershipId(),
+            metadata: ['price_list_id' => $item->price_list_id],
+            changes: [
+                'amount_rupiah' => ['from' => $before, 'to' => (int) $item->amount_rupiah],
+            ],
+        );
 
         return $item->refresh();
     }
@@ -95,6 +138,22 @@ final class PriceListItemRegistry
         if ($list !== null) {
             $this->assertDraft($list);
         }
+
+        $this->audit->record(
+            action: AuditAction::PRICE_LIST_ITEM_REMOVED,
+            subjectType: PriceListItem::class,
+            subjectId: $item->id,
+            tenantId: $context->tenantId(),
+            actorUserId: $context->userId(),
+            actorMembershipId: $context->membershipId(),
+            // Recorded BEFORE the delete, so the amount that was removed is
+            // still readable. Auditing afterwards would record the removal of
+            // something the trail could no longer describe.
+            metadata: [
+                'price_list_id' => $item->price_list_id,
+                'amount_rupiah' => $item->amount_rupiah,
+            ],
+        );
 
         $item->delete();
     }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\CustomerManagement\Services;
 
+use App\Modules\Audit\AuditAction;
+use App\Modules\Audit\AuditRecorder;
 use App\Modules\CustomerManagement\Models\Customer;
 use App\Modules\CustomerManagement\Models\CustomerConsent;
 use App\Modules\CustomerManagement\Support\PhoneNumber;
@@ -33,6 +35,21 @@ use InvalidArgumentException;
  */
 final class CustomerRegistry
 {
+    /**
+     * Every write below is audited (SEC-10).
+     *
+     * WHAT IS RECORDED AND WHAT IS NOT. The audit answers "who changed this
+     * customer, when, in which tenant" — it is not a second copy of the customer
+     * record. So it carries the CHANGED FIELD NAMES and never their values: a
+     * phone number or an address in an audit row is the same personal datum
+     * again, in a table with a different retention and a different audience
+     * (Rule 46 hard rule 2, Rule 21 data classification).
+     *
+     * The customer id is enough to reconstruct what changed from the record
+     * itself, by somebody already authorised to read it.
+     */
+    public function __construct(private readonly AuditRecorder $audit) {}
+
     /**
      * Bounded retry for customer-code allocation. Three is enough for an
      * ordinary race; a fourth failure means something other than concurrency is
@@ -78,6 +95,19 @@ final class CustomerRegistry
 
             try {
                 $customer->save();
+
+                $this->audit->record(
+                    action: AuditAction::CUSTOMER_CREATED,
+                    subjectType: Customer::class,
+                    subjectId: $customer->id,
+                    tenantId: $context->tenantId(),
+                    actorUserId: $context->userId(),
+                    actorMembershipId: $context->membershipId(),
+                    // The customer CODE, not the name or the phone. It is the
+                    // identifier staff actually speak at a counter, and it
+                    // discloses nothing about the person.
+                    metadata: ['customer_code' => $customer->code],
+                );
 
                 return $customer;
             } catch (UniqueConstraintViolationException $exception) {
@@ -129,7 +159,24 @@ final class CustomerRegistry
         }
 
         $customer->fill($this->fillableFrom($attributes));
+
+        // Captured BEFORE the save, while the model still knows what moved.
+        $changedFields = array_keys($customer->getDirty());
+
         $customer->save();
+
+        $this->audit->record(
+            action: AuditAction::CUSTOMER_UPDATED,
+            subjectType: Customer::class,
+            subjectId: $customer->id,
+            tenantId: $context->tenantId(),
+            actorUserId: $context->userId(),
+            actorMembershipId: $context->membershipId(),
+            // FIELD NAMES ONLY. `changes` would carry the old and new phone
+            // number, which is the personal datum this table must not
+            // accumulate.
+            metadata: ['changed_fields' => $changedFields],
+        );
 
         return $customer;
     }
@@ -143,6 +190,15 @@ final class CustomerRegistry
 
         $customer->status = Customer::STATUS_ARCHIVED;
         $customer->save();
+
+        $this->audit->record(
+            action: AuditAction::CUSTOMER_ARCHIVED,
+            subjectType: Customer::class,
+            subjectId: $customer->id,
+            tenantId: $context->tenantId(),
+            actorUserId: $context->userId(),
+            actorMembershipId: $context->membershipId(),
+        );
 
         return $customer;
     }
@@ -186,6 +242,25 @@ final class CustomerRegistry
         $consent->recorded_at = now();
 
         $consent->save();
+
+        $this->audit->record(
+            action: AuditAction::CUSTOMER_CONSENT_RECORDED,
+            subjectType: CustomerConsent::class,
+            subjectId: $consent->id,
+            tenantId: $context->tenantId(),
+            actorUserId: $context->userId(),
+            actorMembershipId: $context->membershipId(),
+            // The consent TYPE and STATE are the audit-relevant facts, and both
+            // are closed vocabularies rather than personal data. The free-text
+            // `note` is deliberately excluded: it is operator-authored and can
+            // contain anything, including the customer's own words.
+            metadata: [
+                'customer_id' => $customer->id,
+                'consent_type' => $consent->consent_type,
+                'state' => $consent->state,
+                'source' => $consent->source,
+            ],
+        );
 
         return $consent;
     }
