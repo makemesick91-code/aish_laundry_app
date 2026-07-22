@@ -241,7 +241,13 @@ final class PriceListIntegrityTest extends TestCase
     }
 
     /**
-     * A published price list cannot be deleted, softly or otherwise.
+     * The INSTANCE path: `$list->delete()` on a published list is refused.
+     *
+     * The docblock here used to say "softly or otherwise", which the test did
+     * not support — it exercised the instance path only, and a query-builder
+     * delete walked straight past the model event. The closure review proved it.
+     * The claim is narrowed to what this test actually shows; the general
+     * property is asserted by the two tests below, at the engine.
      *
      * `deleted_at` is on the SYSTEM_MANAGED list, so the immutability guard
      * permitted the write and `delete()` on an active list SUCCEEDED — after
@@ -260,6 +266,83 @@ final class PriceListIntegrityTest extends TestCase
         $this->expectException(RuntimeException::class);
 
         $list->delete();
+    }
+
+    /**
+     * NEW-01 — the bypass the model event could never have caught.
+     *
+     * Eloquent does not fire model events for QUERY-BUILDER deletes, so
+     * `PriceList::where(...)->delete()` soft-deleted a published list and it
+     * left the default scope. Reproduced against the live database before this
+     * was written: `ACCEPTED rows=1`, `still live: NO`.
+     *
+     * A model guard describes what one code path does. It never describes what
+     * the table permits. That distinction cost this step twice — SEC-12 first,
+     * then this — so the guard is now at the engine.
+     */
+    public function test_a_published_price_list_survives_a_query_builder_delete(): void
+    {
+        [$context, $brand] = $this->scenario();
+        $list = $this->publishedList($context, $brand, '2026-08-01');
+
+        // The SAVEPOINT matters. A raising trigger aborts the surrounding
+        // transaction, and RefreshDatabase wraps the whole test in one; without
+        // an inner transaction the refusal would poison every later assertion
+        // and the failure would read as an unrelated cascade.
+        try {
+            DB::transaction(static fn () => PriceList::query()->whereKey($list->id)->delete());
+            $this->fail(
+                'A query-builder delete removed a published price list. FR-036 '
+                .'resolves a historical order price through this record.'
+            );
+        } catch (\Illuminate\Database\QueryException $e) {
+            // 23001 restrict_violation — the trigger, not an incidental error.
+            $this->assertSame('23001', $e->getCode());
+        }
+
+        $this->assertTrue(
+            PriceList::query()->whereKey($list->id)->exists(),
+            'the published list must still be resolvable through the default scope'
+        );
+    }
+
+    /**
+     * The same property against a HARD delete, which soft-delete tests miss.
+     */
+    public function test_a_published_price_list_survives_a_force_delete(): void
+    {
+        [$context, $brand] = $this->scenario();
+        $list = $this->publishedList($context, $brand, '2026-08-01');
+
+        try {
+            DB::transaction(static fn () => PriceList::query()->whereKey($list->id)->forceDelete());
+            $this->fail('A force delete removed a published price list.');
+        } catch (\Illuminate\Database\QueryException $e) {
+            $this->assertSame('23001', $e->getCode());
+        }
+
+        $this->assertTrue(PriceList::withTrashed()->whereKey($list->id)->exists());
+    }
+
+    /**
+     * The guard exists in the LIVE SCHEMA and is ENABLE ALWAYS.
+     *
+     * `ENABLE ORIGIN` — what `CREATE TRIGGER` produces by default — is skipped
+     * under `session_replication_role = 'replica'`. That was the SEC-12 bypass,
+     * and asserting only presence is what let it hide behind a green test.
+     */
+    public function test_the_price_list_removal_guard_is_always_enabled(): void
+    {
+        $triggers = DB::table('pg_trigger')
+            ->join('pg_class', 'pg_class.oid', '=', 'pg_trigger.tgrelid')
+            ->where('pg_class.relname', 'price_lists')
+            ->where('pg_trigger.tgenabled', 'A')
+            ->where('pg_trigger.tgisinternal', false)
+            ->pluck('pg_trigger.tgname')
+            ->all();
+
+        $this->assertContains('price_lists_refuse_published_delete', $triggers);
+        $this->assertContains('price_lists_refuse_published_soft_delete', $triggers);
     }
 
     /** The control: a DRAFT may still be cleaned up. */

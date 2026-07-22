@@ -31,14 +31,12 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // The unique key the composite foreign key targets. `id` is already the
-        // primary key, so this adds no meaningful storage cost and is what lets
-        // the tenant travel with the reference.
-        DB::statement(<<<'SQL'
-            ALTER TABLE price_lists
-            ADD CONSTRAINT price_lists_tenant_id_unique
-            UNIQUE (tenant_id, id)
-        SQL);
+        // The composite foreign key needs a UNIQUE (tenant_id, id) to target.
+        // One ALREADY EXISTS as `price_lists_tenant_id_id_unique`, created with
+        // the table for exactly this purpose. This migration originally added a
+        // second, identical constraint — and therefore a redundant index on the
+        // financial-integrity table. Found by the closure review; the existing
+        // constraint is reused instead of duplicated.
 
         DB::statement(<<<'SQL'
             ALTER TABLE price_lists
@@ -52,6 +50,7 @@ return new class extends Migration
     public function down(): void
     {
         DB::statement('ALTER TABLE price_lists DROP CONSTRAINT IF EXISTS price_lists_supersedes_same_tenant_foreign');
-        DB::statement('ALTER TABLE price_lists DROP CONSTRAINT IF EXISTS price_lists_tenant_id_unique');
+        // The unique constraint the key targets predates this migration and
+        // is not ours to remove.
     }
 };

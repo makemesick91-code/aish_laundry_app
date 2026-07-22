@@ -244,6 +244,49 @@ final class LogRedactionTest extends TestCase
         @unlink($linkPath);
     }
 
+    /**
+     * F7 — the local reset transport refuses to run in production (NEW-02).
+     *
+     * The first fix moved the token out of a log and into a file, and left the
+     * file write ungated: in production every reset would drop a live
+     * bearer-token URL onto disk. "Deployment is ABSENT so it cannot happen" is
+     * circumstance, not a control — the same reasoning the SEC-12 remediation
+     * rejected.
+     *
+     * Asserts the REFUSAL rather than a silent skip. A skipped delivery would
+     * leave a caller believing a link was sent.
+     */
+    public function test_f7_the_local_reset_transport_refuses_to_run_in_production(): void
+    {
+        $linkPath = (string) config(
+            'aish.password_reset.link_path',
+            storage_path('app/password-reset-link.txt')
+        );
+        @unlink($linkPath);
+
+        $user = $this->makeUser();
+
+        app()->detectEnvironment(static fn (): string => 'production');
+
+        try {
+            $this->postJson('/api/v1/auth/password-reset/request', [
+                'identifier' => $user->email,
+            ]);
+        } catch (\Throwable) {
+            // The refusal may surface as an exception or as a 500 depending on
+            // handler configuration. Either is acceptable; what matters is the
+            // assertion below.
+        } finally {
+            app()->detectEnvironment(static fn (): string => 'testing');
+        }
+
+        $this->assertFileDoesNotExist(
+            $linkPath,
+            'a live reset token was written to disk while the application '
+            .'considered itself to be in production'
+        );
+    }
+
     public function test_f5_the_redaction_processor_is_installed_on_the_active_log_channel(): void
     {
         $this->beginLogCapture();

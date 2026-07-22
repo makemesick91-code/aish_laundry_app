@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
+use RuntimeException;
 use Illuminate\Validation\Rules\Password;
 
 /**
@@ -218,6 +219,28 @@ final class PasswordResetController
      */
     private function deliverResetLink(string $identifier, string $plainToken): void
     {
+        // ENVIRONMENT-GATED, and this gate is the point of the method.
+        //
+        // The first fix moved the token out of a log and into a file, and left
+        // the file write ungated — so in a production deployment every reset
+        // would drop a live bearer-token URL onto disk. Found by the closure
+        // review. "Deployment is ABSENT so it cannot happen" is circumstance,
+        // not a control, and that is precisely the reasoning the SEC-12
+        // remediation rejected; applying it here rather than accepting it.
+        //
+        // Refusing outright in production is deliberate. Silently skipping
+        // delivery would leave a caller believing a link was sent, and the
+        // honest failure is louder than a reset nobody receives. When a
+        // provider is introduced it replaces this method — an owner-approved,
+        // decision-recorded change (Rule 12), not a config flag flipped here.
+        if (app()->isProduction()) {
+            throw new RuntimeException(
+                'The local password-reset transport is not available outside '
+                .'development. Configure an approved delivery provider before '
+                .'enabling password reset in this environment (Rule 12).'
+            );
+        }
+
         $url = rtrim((string) config('app.url'), '/').'/atur-ulang-kata-sandi?token='.$plainToken;
 
         $path = (string) config(
