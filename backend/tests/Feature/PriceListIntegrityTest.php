@@ -188,6 +188,13 @@ final class PriceListIntegrityTest extends TestCase
         return [
             'status' => ['status', PriceList::STATUS_ARCHIVED],
             'is_default' => ['is_default', false],
+            // On the allow-list and previously untested. An allow-list entry
+            // nothing exercises is indistinguishable from one that does not
+            // work — which is the whole shape of this finding.
+            'supersedes_price_list_id' => [
+                'supersedes_price_list_id',
+                '019f0000-0000-7000-8000-00000000f1c7',
+            ],
         ];
     }
 
@@ -310,6 +317,25 @@ final class PriceListIntegrityTest extends TestCase
 
         $item->amount_rupiah = 99_000;
         $item->save();
+    }
+
+    /**
+     * The "or added" half of the test above, which that test never performed.
+     *
+     * Its name promised two properties and exercised one. The `creating` guard
+     * on `PriceListItem` did exist, so nothing was broken — but an unexercised
+     * guard is one refactor away from silently not existing, and the test name
+     * would still have read as covering it.
+     */
+    public function test_an_item_cannot_be_added_to_a_published_price_list(): void
+    {
+        [$context, $brand] = $this->scenario();
+        $service = $this->makeService($context->tenantId(), 'SVC-LATE');
+        $list = $this->publishedList($context, $brand, '2026-08-01');
+
+        $this->expectException(RuntimeException::class);
+
+        $this->addItem($context, $list, $service, 25_000);
     }
 
     public function test_superseding_leaves_the_prior_version_prices_byte_identical(): void

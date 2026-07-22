@@ -107,6 +107,23 @@ final class Step04AuditCoverageTest extends TestCase
             'api.v1.staff.outlets.revoke' => AuditAction::STAFF_OUTLET_REVOKED,
             'api.v1.staff.roles.assign' => AuditAction::MEMBERSHIP_ROLE_ASSIGNED,
             'api.v1.staff.roles.remove' => AuditAction::MEMBERSHIP_ROLE_REMOVED,
+
+            // --- Framework routes outside /api/v1 -------------------------
+            //
+            // DELIBERATELY NOT AUDITED, with the reason in the open.
+            //
+            // `storage.local.upload` is Laravel's own local-disk upload
+            // endpoint, registered by the framework because
+            // `config/filesystems.php` sets `'serve' => true` on the `local`
+            // disk. It is signature-guarded, it writes no business record, and
+            // it belongs to no Step 4 aggregate — so there is nothing for a
+            // tenant/actor audit row to describe.
+            //
+            // It is DECLARED rather than filtered out. The guard previously
+            // only looked at `api/v1`, which meant this route was invisible to
+            // it: not exempted, just unseen. An exemption a reader can find and
+            // argue with is a decision; an unexamined blind spot is not.
+            'storage.local.upload' => null,
         ];
     }
 
@@ -116,10 +133,12 @@ final class Step04AuditCoverageTest extends TestCase
         $names = [];
 
         foreach (Route::getRoutes()->getRoutes() as $route) {
-            if (! str_starts_with($route->uri(), 'api/v1')) {
-                continue;
-            }
-
+            // EVERY mutating route, not only `/api/v1`.
+            //
+            // Scoping this to the API prefix made the guard blind to anything
+            // the framework registers elsewhere — which is exactly where an
+            // unaudited write would hide, because nobody writing a business
+            // feature looks there.
             if (array_intersect($route->methods(), ['POST', 'PATCH', 'PUT', 'DELETE']) === []) {
                 continue;
             }
