@@ -78,7 +78,9 @@ EXPECTED_RULE_COUNT = 51
 # passed — the report was accurate at the SHA it ran against and was never
 # re-run after the bump. A Master Source version change is not complete until
 # every derived validator has been re-run, not merely edited.
-EXPECTED_DECISION_COUNT = 33
+# Raised 33 -> 34 at Master Source 1.4.4 for DEC-0034 (Step 3 post-GO
+# token-logging correction co-delivered in PR #18).
+EXPECTED_DECISION_COUNT = 34
 
 
 def main() -> int:
