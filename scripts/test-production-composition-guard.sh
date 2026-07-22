@@ -132,6 +132,24 @@ p.write_text(s)
 PY
 expect_fail "an unrelated new dependency is left test-only"
 
+# 5b. The SAME defect in the other idiomatic spelling: type inferred from the
+#     initializer rather than annotated on the variable. The first version of the
+#     validator was blind to this and passed it, found by independent review.
+#     Mutation 5 proved generality over NAMES; this proves it over DECLARATION FORM.
+reset_sandbox
+python3 - "$SANDBOX/repo" <<'PY'
+import pathlib, sys
+p = pathlib.Path(sys.argv[1]) / 'apps/ops_android/lib/src/master_data/master_data_providers.dart'
+s = p.read_text()
+s += (
+    "\n\nfinal counterPrinterProvider = Provider<Object>(\n"
+    "  (ref) => throw UnimplementedError('counterPrinterProvider must be overridden.'),\n"
+    ");\n"
+)
+p.write_text(s)
+PY
+expect_fail "a throwing provider declared with an INFERRED type"
+
 # 6. The production entry point stops overriding a throwing provider — the
 #    environment case, which is legitimate ONLY because main supplies it.
 reset_sandbox

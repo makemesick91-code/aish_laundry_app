@@ -57,8 +57,20 @@ APPS = {
     "admin_web": "apps/admin_web",
 }
 
+# Matched on the INITIALIZER, never on the type annotation.
+#
+# The first version of this pattern required an explicit `Provider<T>`
+# annotation on the variable and anchored to column 0. An independent review
+# showed it was blind to the idiomatic Dart form `final x = Provider<T>(...)`,
+# where the type is inferred: an unwired throwing provider written that way
+# passed the gate. `analysis_options.yaml` does not enable
+# `always_specify_types`, so nothing forced the annotated style the pattern
+# depended on. A guard that sees only one of two equally idiomatic spellings
+# is not a guard.
 PROVIDER_DECL = re.compile(
-    r"^final\s+\w*Provider<[^;]*?>\s+(\w+)\s*=", re.M | re.S
+    r"^\s*(?:static\s+)?(?:late\s+)?final\s+(?:[\w<>,\s?]+?\s+)?(\w+)\s*=\s*"
+    r"[\w.]*Provider\b",
+    re.M,
 )
 
 # The sentinels a "must be overridden" provider is written with. Kept explicit

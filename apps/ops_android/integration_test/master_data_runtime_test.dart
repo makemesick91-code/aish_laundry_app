@@ -55,20 +55,21 @@ const String kForeignPassword = String.fromEnvironment(
   'AISH_E2E_FOREIGN_PASSWORD',
 );
 
-/// A deliberately LOW-PRIVILEGE identity — an outlet manager, not an owner.
+/// The ESCALATION actor: holds `membership.role.assign`, but is not an owner.
 ///
-/// Needed because a tenant owner granting `tenantOwner` is not an escalation at
-/// all: the first run of this suite reported "ALLOWED-for-this-actor" and that
-/// result proved nothing. An escalation negative requires an actor who genuinely
-/// lacks the authority.
-const String kLowPrivIdentifier = String.fromEnvironment(
-  'AISH_E2E_LOWPRIV_IDENTIFIER',
+/// Two wrong actors were used before this one. A tenant OWNER made the grant
+/// legitimate, so the attempt was not an escalation. An outlet MANAGER lacks the
+/// permission entirely, so the policy gate denied before the escalation guard
+/// ran and the test would have passed with the guard deleted. A tenant_admin is
+/// the actor that actually reaches the control under test.
+const String kEscalationIdentifier = String.fromEnvironment(
+  'AISH_E2E_ESCALATION_IDENTIFIER',
 );
-const String kLowPrivPassword = String.fromEnvironment(
-  'AISH_E2E_LOWPRIV_PASSWORD',
+const String kEscalationPassword = String.fromEnvironment(
+  'AISH_E2E_ESCALATION_PASSWORD',
 );
-const String kLowPrivTenantId = String.fromEnvironment(
-  'AISH_E2E_LOWPRIV_TENANT_ID',
+const String kEscalationTenantId = String.fromEnvironment(
+  'AISH_E2E_ESCALATION_TENANT_ID',
 );
 
 /// A deterministic, recognisably fabricated fixture (Rule 45).
@@ -558,63 +559,97 @@ void main() {
     });
 
     testWidgets('a role above the caller\'s authority is refused', (_) async {
-      // An OUTLET MANAGER, not an owner. The distinction is the whole test.
+      // THE ACTOR MUST HOLD membership.role.assign.
+      //
+      // The previous version of this test ran as an outlet_manager, who does not
+      // hold that permission at all. `Gate::authorize('assignRole')` therefore
+      // denied at the controller and `StaffAssignmentRegistry::assertNoEscalation`
+      // was never entered — the test passed with code=FORBIDDEN even though the
+      // escalation guard could have been deleted entirely. An independent review
+      // found this by reading the permission registry and the authorization
+      // order. A blanket denial is not an escalation refusal.
+      //
+      // A tenant_admin DOES hold the permission, and tenant_owner carries
+      // permissions a tenant_admin lacks, so the request reaches the guard the
+      // test claims to exercise.
       final container = await authenticatedContainer(
-        identifier: kLowPrivIdentifier,
-        password: kLowPrivPassword,
-        tenantId: kLowPrivTenantId,
+        identifier: kEscalationIdentifier,
+        password: kEscalationPassword,
+        tenantId: kEscalationTenantId,
       );
       final repository = container.read(masterDataRepositoryProvider);
 
       final staff = await repository.staff();
-      expect(staff.isOk, isTrue, reason: 'roster refused for outlet manager');
+      expect(staff.isOk, isTrue, reason: 'roster refused for the actor');
       requireFixture(
         staff.valueOrNull!.isNotEmpty,
-        'a staff roster for the low-privilege actor to target',
+        'a staff roster for the escalation actor to target',
       );
 
-      // Fail-closed on the ACTOR, not just the outcome. The first run of this
-      // scenario passed while proving nothing, because the actor was a tenant
-      // owner who may legitimately grant tenantOwner. If the seeded roles ever
-      // change so that this identity becomes an owner or admin again, this
-      // assertion fails instead of the test quietly going vacuous.
       final session = container.read(authServiceProvider).current.session!;
       final actorRoles = session.activeMembership!.roles
           .map((Role r) => r.slug)
           .toList();
+      // Fail closed on BOTH sides: the actor must be able to assign roles at
+      // all, and must not already be the role it is trying to grant.
       requireFixture(
-        !actorRoles.contains(Role.tenantOwner) &&
-            !actorRoles.contains(Role.tenantAdmin),
-        'a LOW-PRIVILEGE actor. This identity holds $actorRoles, which may '
-        'legitimately grant tenantOwner, so the attempt would not be an '
-        'escalation',
+        actorRoles.contains(Role.tenantAdmin),
+        'a tenant_admin actor. This identity holds $actorRoles; an actor without '
+        'membership.role.assign is denied by policy before the escalation guard '
+        'runs, which makes the refusal meaningless',
+      );
+      requireFixture(
+        !actorRoles.contains(Role.tenantOwner),
+        'an actor that is NOT already tenantOwner, for whom the grant would be '
+        'legitimate',
       );
       debugPrint('AUTHZ: escalation-actor-roles=$actorRoles');
 
-      // Ask the server to grant the highest tenant authority.
+      final target = staff.valueOrNull!.first.membershipId;
+
+      // POSITIVE CONTROL FIRST. The same actor granting a role strictly within
+      // its own authority must SUCCEED, otherwise the refusal below could be a
+      // blanket denial once again and nothing would distinguish the two.
+      final within = await repository.assignRole(
+        membershipId: target,
+        role: TenantRole.cashier,
+      );
+      expect(
+        within.isOk,
+        isTrue,
+        reason:
+            'the actor could not grant even a role within its authority, so the '
+            'refusal below would prove nothing',
+      );
+      debugPrint('AUTHZ: escalation-positive-control=granted-cashier');
+
+      // NOW the escalation.
       final escalate = await repository.assignRole(
-        membershipId: staff.valueOrNull!.first.membershipId,
+        membershipId: target,
         role: TenantRole.tenantOwner,
       );
-
       expect(
         escalate.isErr,
         isTrue,
-        reason: 'AN OUTLET MANAGER GRANTED tenantOwner — privilege escalation',
+        reason: 'A tenant_admin GRANTED tenantOwner — privilege escalation',
+      );
+      final failure = escalate.failureOrNull!;
+      debugPrint('AUTHZ: role-escalation refused code=${failure.code}');
+
+      // The escalation guard names the permissions the caller lacks; the policy
+      // denial does not. This is what distinguishes "reached the guard" from
+      // "denied at the door".
+      expect(
+        failure.details['role'],
+        isNotNull,
+        reason:
+            'the refusal carried no escalation detail, so it came from the '
+            'policy gate rather than from assertNoEscalation',
       );
       debugPrint(
-        'AUTHZ: role-escalation refused code=${escalate.failureOrNull!.code}',
+        'AUTHZ: escalation-detail-permissions=${failure.details['role']}',
       );
 
-      // The refusal is an authorization decision, not a transport accident.
-      expect(
-        ApiErrorMapper.consequenceOf(escalate.failureOrNull!),
-        anyOf(
-          ClientErrorConsequence.accessDenied,
-          ClientErrorConsequence.contextAccessDenied,
-        ),
-      );
-      // And it does not end the session.
       expect(
         container.read(authServiceProvider).current.isAuthenticated,
         isTrue,
