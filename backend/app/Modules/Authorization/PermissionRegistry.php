@@ -180,6 +180,15 @@ final class PermissionRegistry
     // keeps PRICE_LIST_PUBLISH separate from PRICE_LIST_MANAGE.
     public const ORDER_CANCEL = 'order.cancel';
 
+    // --- Step 5: payments (FR-061 … FR-069) ------------------------------
+    public const PAYMENT_VIEW = 'payment.view';
+
+    public const PAYMENT_RECORD = 'payment.record';
+
+    // Refund/void is a financial control point (FR-065), separated from recording
+    // and withheld from the admin deputy exactly as PRICE_OVERRIDE is.
+    public const PAYMENT_REFUND = 'payment.refund';
+
     /** Manage outlet master data: hours, capacity, zones, shifts, printers. */
     public const OUTLET_MASTER_DATA_MANAGE = 'outlet.master_data.manage';
 
@@ -269,6 +278,9 @@ final class PermissionRegistry
             self::ORDER_CREATE => ['description' => 'Membuat pesanan baru pada outlet aktif', 'category' => self::CATEGORY_TENANT],
             self::ORDER_MANAGE => ['description' => 'Mengubah pesanan draf sebelum diterima', 'category' => self::CATEGORY_TENANT],
             self::ORDER_CANCEL => ['description' => 'Membatalkan pesanan dengan alasan tercatat', 'category' => self::CATEGORY_TENANT],
+            self::PAYMENT_VIEW => ['description' => 'Melihat pembayaran pada tenant aktif', 'category' => self::CATEGORY_TENANT],
+            self::PAYMENT_RECORD => ['description' => 'Mencatat pembayaran pada pesanan', 'category' => self::CATEGORY_TENANT],
+            self::PAYMENT_REFUND => ['description' => 'Membalik atau mengembalikan pembayaran dengan alasan tercatat', 'category' => self::CATEGORY_TENANT],
             self::OUTLET_MASTER_DATA_MANAGE => ['description' => 'Mengelola data induk outlet: jam, kapasitas, zona, shift, printer', 'category' => self::CATEGORY_TENANT],
             self::STAFF_ASSIGNMENT_MANAGE => ['description' => 'Menugaskan keanggotaan ke outlet pada tenant aktif', 'category' => self::CATEGORY_TENANT],
 
@@ -345,6 +357,12 @@ final class PermissionRegistry
             self::ORDER_CREATE,
             self::ORDER_MANAGE,
             self::ORDER_CANCEL,
+
+            // Step 5 payments. Recording is operational; PAYMENT_REFUND is a
+            // financial control point withheld from the admin deputy (below).
+            self::PAYMENT_VIEW,
+            self::PAYMENT_RECORD,
+            self::PAYMENT_REFUND,
         ];
 
         // The admin is an operational deputy, not a co-owner. Two capabilities
@@ -358,6 +376,10 @@ final class PermissionRegistry
             self::MEMBERSHIP_REVOKE,
             self::BRAND_MANAGE,
             self::PRICE_OVERRIDE,
+            // Refund/void is a financial control point (FR-065), the same class
+            // as PRICE_OVERRIDE. The admin records payments but does not reverse
+            // them.
+            self::PAYMENT_REFUND,
         ]));
 
         return [
@@ -399,6 +421,9 @@ final class PermissionRegistry
                     self::ORDER_CREATE,
                     self::ORDER_MANAGE,
                     self::ORDER_CANCEL,
+                    self::PAYMENT_VIEW,
+                    self::PAYMENT_RECORD,
+                    self::PAYMENT_REFUND,
                 ]),
             ],
             self::ROLE_CASHIER => [
@@ -426,6 +451,11 @@ final class PermissionRegistry
                     self::ORDER_CREATE,
                     self::ORDER_MANAGE,
                     self::ORDER_CANCEL,
+
+                    // The counter takes payment but does NOT refund — a refund is
+                    // the financial control point FR-065 guards.
+                    self::PAYMENT_VIEW,
+                    self::PAYMENT_RECORD,
                 ]),
             ],
             self::ROLE_PRODUCTION_OPERATOR => [
@@ -471,8 +501,11 @@ final class PermissionRegistry
                     self::PRICE_LIST_VIEW,
 
                     // Step 5. Finance READS orders for reconciliation; it does
-                    // not create or cancel them.
+                    // not create or cancel them. Finance owns refund/reversal
+                    // (FR-065, FR-067) but does not take payment at the counter.
                     self::ORDER_VIEW,
+                    self::PAYMENT_VIEW,
+                    self::PAYMENT_REFUND,
                 ]),
             ],
             self::ROLE_CUSTOMER => [

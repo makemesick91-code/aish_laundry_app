@@ -12,11 +12,13 @@ use App\Modules\Authorization\Policies\LaundryBrandPolicy;
 use App\Modules\Authorization\Policies\MembershipPolicy;
 use App\Modules\Authorization\Policies\OrderPolicy;
 use App\Modules\Authorization\Policies\OutletPolicy;
+use App\Modules\Authorization\Policies\PaymentPolicy;
 use App\Modules\Authorization\Policies\PriceListPolicy;
 use App\Modules\Authorization\Policies\ServicePolicy;
 use App\Modules\CustomerManagement\Models\Customer;
 use App\Modules\Identity\Models\User;
 use App\Modules\Ordering\Models\Order;
+use App\Modules\Payments\Models\Payment;
 use App\Modules\Organization\Models\LaundryBrand;
 use App\Modules\Organization\Models\Outlet;
 use App\Modules\ServiceCatalog\Models\PriceList;
@@ -70,8 +72,9 @@ final class AuthorizationServiceProvider extends ServiceProvider
 
         Gate::policy(PriceList::class, PriceListPolicy::class);
 
-        // Step 5 orders (DEC-0035, canonical roadmap authorisation).
+        // Step 5 orders and payments (DEC-0035, canonical roadmap authorisation).
         Gate::policy(Order::class, OrderPolicy::class);
+        Gate::policy(Payment::class, PaymentPolicy::class);
 
         $this->defineContextGates();
     }
