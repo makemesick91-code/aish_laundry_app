@@ -17,8 +17,9 @@ Canonical status: [`../../docs/STATUS.md`](../../docs/STATUS.md). Master Source 
 | Step 2 — Design System and UX Foundation | **GO WITH ACCEPTED DEVIATION** |
 | Step 3 — Runtime, Authentication, Multi-Tenancy, and RBAC | **GO WITH ACCEPTED DEVIATION** |
 | Step 4 — Laundry Master Data | **GO** |
-| Steps 5–14 | **PLANNED** |
-| Step 5+ product business features | **NOT IMPLEMENTED** |
+| Step 5 — POS, Order, and Payment Foundation | **GO** |
+| Steps 6–14 | **PLANNED** |
+| Step 6+ product business features | **NOT IMPLEMENTED** |
 | Deployment | **ABSENT** |
 | UAT | **NOT STARTED** |
 

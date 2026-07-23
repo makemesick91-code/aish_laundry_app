@@ -17,7 +17,7 @@ Canonical source: [`MASTER_SOURCE.md`](MASTER_SOURCE.md)
 | Step 2 | Design System and UX Foundation | GO WITH ACCEPTED DEVIATION |
 | Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | GO WITH ACCEPTED DEVIATION |
 | Step 4 | Laundry Master Data | GO |
-| Step 5 | POS, Order, and Payment Foundation | IN PROGRESS |
+| Step 5 | POS, Order, and Payment Foundation | GO |
 | Step 6 | Production Operations | PLANNED |
 | Step 7 | Customer Tracking and WhatsApp | PLANNED |
 | Step 8 | Pickup and Delivery Operations | PLANNED |
@@ -204,7 +204,7 @@ is a false claim rather than a conservative one (Rule 01, DEC-0029).
 
 | Item | Status |
 | --- | --- |
-| All product business features | NOT IMPLEMENTED |
+| Step 6+ product business features | NOT IMPLEMENTED |
 | Backend runtime | PRESENT — STEP 3 FOUNDATION ONLY |
 | PostgreSQL runtime foundation | PRESENT |
 | Redis runtime foundation | PRESENT |
@@ -354,7 +354,7 @@ STEP_01_STATUS=GO
 STEP_02_STATUS=GO
 STEP_03_STATUS=GO
 STEP_04_STATUS=GO
-STEP_05_STATUS=IN_PROGRESS
+STEP_05_STATUS=GO
 STEP_06_STATUS=PLANNED
 STEP_07_STATUS=PLANNED
 STEP_08_STATUS=PLANNED
