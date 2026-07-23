@@ -38,7 +38,7 @@ merge — exactly as the 1.4.5 bump advanced Step 4.
 - The three canonical status sources (Master Source §24, `ROADMAP.md`,
   `STATUS.md`) are kept in agreement; the checksum was regenerated and the pinned
   validator version moved with it. Closure evidence:
-  [`evidence/step-05/GO-CLOSURE.md`](evidence/step-05/GO-CLOSURE.md).
+  [`evidence/step-05/GO-CLOSURE.md`](../evidence/step-05/GO-CLOSURE.md).
 
 ## [1.4.7] — 23 July 2026 — OQ-017 resolved: order-line rounding mode is HALF_UP
 
