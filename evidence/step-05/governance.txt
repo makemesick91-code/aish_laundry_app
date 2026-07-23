@@ -122,16 +122,17 @@ PASS  decision DEC-0032 present exactly once: DEC-0032-step-03-post-go-correctiv
 PASS  decision DEC-0033 present exactly once: DEC-0033-step-04-independent-review-closure.md
 PASS  decision DEC-0034 present exactly once: DEC-0034-step-03-token-logging-correction-carried-in-step-04.md
 PASS  decision DEC-0035 present exactly once: DEC-0035-step-05-runtime-scope-transition.md
+PASS  decision DEC-0036 present exactly once: DEC-0036-oq-017-order-rounding-mode-halfup.md
 ------------------------------------------------------------------------
-SUMMARY [required-files]: 120/120 checks passed, 0 failed
+SUMMARY [required-files]: 121/121 checks passed, 0 failed
 RESULT: PASS (required-files)
 
 ========================================================================
 VALIDATOR: master-source
 ========================================================================
 PASS  docs/MASTER_SOURCE.md exists
-PASS  header declares Master Source version 1.4.6 (found 1.4.6)
-PASS  footer declares Master Source version 1.4.6 (found 1.4.6)
+PASS  header declares Master Source version 1.4.7 (found 1.4.7)
+PASS  footer declares Master Source version 1.4.7 (found 1.4.7)
 PASS  header and footer declare the same Master Source version
 PASS  declares baseline date 19 July 2026 (matched /19\s+July\s+2026/)
 PASS  contains canonical product name "Aish Laundry App"
@@ -161,11 +162,11 @@ PASS  covers topic: testing
 PASS  covers topic: metrics
 PASS  covers topic: positioning
 PASS  covers topic: changelog
-PASS  is substantial: 2065 lines (minimum 400)
+PASS  is substantial: 2066 lines (minimum 400)
 PASS  docs/MASTER_SOURCE.sha256 exists
       recorded path: MASTER_SOURCE.md
 PASS  digest line refers to MASTER_SOURCE.md (got: MASTER_SOURCE.md)
-PASS  SHA-256 of docs/MASTER_SOURCE.md matches recorded digest (b5a02b9224b5a224...)
+PASS  SHA-256 of docs/MASTER_SOURCE.md matches recorded digest (24e4886359f28d92...)
 ------------------------------------------------------------------------
 SUMMARY [master-source]: 36/36 checks passed, 0 failed
 RESULT: PASS (master-source)
@@ -209,6 +210,7 @@ PASS  DEC-0032 present exactly once (DEC-0032-step-03-post-go-corrective-auth-ru
 PASS  DEC-0033 present exactly once (DEC-0033-step-04-independent-review-closure.md)
 PASS  DEC-0034 present exactly once (DEC-0034-step-03-token-logging-correction-carried-in-step-04.md)
 PASS  DEC-0035 present exactly once (DEC-0035-step-05-runtime-scope-transition.md)
+PASS  DEC-0036 present exactly once (DEC-0036-oq-017-order-rounding-mode-halfup.md)
 PASS  DEC-0001 status is ACCEPTED
 PASS  DEC-0001 has all 12 required headings
 PASS  DEC-0002 status is ACCEPTED
@@ -279,14 +281,16 @@ PASS  DEC-0034 status is ACCEPTED
 PASS  DEC-0034 has all 12 required headings
 PASS  DEC-0035 status is ACCEPTED
 PASS  DEC-0035 has all 12 required headings
+PASS  DEC-0036 status is ACCEPTED
+PASS  DEC-0036 has all 12 required headings
       --- Master Source §31 decision index (DEC-0029) ---
 PASS  docs/MASTER_SOURCE.md exists
 PASS  docs/MASTER_SOURCE.md §31 lists no decision twice (duplicates: [])
 PASS  every decision record on disk is listed in docs/MASTER_SOURCE.md §31 (unlisted: [])
 PASS  every decision listed in docs/MASTER_SOURCE.md §31 has a record on disk (phantom: [])
-PASS  docs/MASTER_SOURCE.md §31 prose count (Thirty-five = 35) matches the 35 rows in its table
+PASS  docs/MASTER_SOURCE.md §31 prose count (Thirty-six = 36) matches the 36 rows in its table
 ------------------------------------------------------------------------
-SUMMARY [decisions]: 111/111 checks passed, 0 failed
+SUMMARY [decisions]: 114/114 checks passed, 0 failed
 RESULT: PASS (decisions)
 
 ========================================================================
@@ -459,7 +463,7 @@ RESULT: PASS (status)
 ========================================================================
 VALIDATOR: pricing
 ========================================================================
-      inspecting 219 markdown files
+      inspecting 220 markdown files
 PASS  canonical figure present somewhere: Rp79.000
 PASS  canonical figure present somewhere: Rp199.000
 PASS  canonical figure present somewhere: Rp399.000

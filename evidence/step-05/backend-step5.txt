@@ -2,6 +2,8 @@
    PASS  Tests\Unit\Ordering\OrderPricingTest
   ✓ whole kilo line is exact
   ✓ fractional result rounds half up at the single point
+  ✓ half rupiah threshold below at and above
+  ✓ half up rounds a larger exact half upward
   ✓ a piece line is a whole multiply
   ✓ line discount reduces the subtotal
   ✓ a line discount may not exceed the gross
@@ -12,39 +14,39 @@
   ✓ no money value is ever a float
 
    PASS  Tests\Feature\Ordering\OrderPaymentSurfaceTest
-  ✓ a cashier creates an order with server computed totals               0.73s  
-  ✓ order creation is idempotent over http                               0.15s  
-  ✓ a production operator cannot create an order                         0.15s  
-  ✓ a cashier records a payment but cannot reverse it                    0.18s  
-  ✓ finance may reverse a payment                                        0.20s  
-  ✓ an order of another tenant is not found                              0.23s  
-  ✓ there is no order delete route                                       0.15s  
-  ✓ the receipt shows captured prices                                    0.18s  
+  ✓ a cashier creates an order with server computed totals               0.69s  
+  ✓ order creation is idempotent over http                               0.16s  
+  ✓ a production operator cannot create an order                         0.14s  
+  ✓ a cashier records a payment but cannot reverse it                    0.16s  
+  ✓ finance may reverse a payment                                        0.18s  
+  ✓ an order of another tenant is not found                              0.24s  
+  ✓ there is no order delete route                                       0.16s  
+  ✓ the receipt shows captured prices                                    0.17s  
 
    PASS  Tests\Feature\Ordering\OrderRegistryTest
-  ✓ create computes server authoritative totals from the price list      0.04s  
-  ✓ create is idempotent on client reference                             0.04s  
-  ✓ the captured price survives a later price list change                0.05s  
+  ✓ create computes server authoritative totals from the price list      0.05s  
+  ✓ create is idempotent on client reference                             0.05s  
+  ✓ the captured price survives a later price list change                0.04s  
   ✓ create rejects a service with no active price                        0.04s  
   ✓ create rejects a cross tenant customer                               0.04s  
   ✓ create rejects a cross tenant service                                0.04s  
-  ✓ create requires at least one line                                    0.03s  
+  ✓ create requires at least one line                                    0.04s  
   ✓ place transitions draft to received                                  0.05s  
-  ✓ place rejects a non draft order                                      0.05s  
+  ✓ place rejects a non draft order                                      0.04s  
   ✓ cancel requires a reason                                             0.04s  
-  ✓ cancel sets cancelled state and reason                               0.05s  
+  ✓ cancel sets cancelled state and reason                               0.04s  
   ✓ cancel of another tenants order is not found                         0.05s  
   ✓ an order records an audit entry                                      0.04s  
 
    PASS  Tests\Feature\Ordering\OrderingSchemaTest
   ✓ a valid order and line are accepted                                  0.03s  
   ✓ total must equal subtotal minus discount                             0.03s  
-  ✓ discount may not exceed subtotal                                     0.02s  
+  ✓ discount may not exceed subtotal                                     0.03s  
   ✓ money may not be negative                                            0.02s  
-  ✓ currency must be idr                                                 0.02s  
-  ✓ status must be canonical                                             0.03s  
+  ✓ currency must be idr                                                 0.03s  
+  ✓ status must be canonical                                             0.02s  
   ✓ client reference is unique per tenant                                0.03s  
-  ✓ order number is unique per tenant                                    0.03s  
+  ✓ order number is unique per tenant                                    0.02s  
   ✓ cancelled order requires timestamp and reason                        0.03s  
   ✓ an order cannot reference another tenants customer                   0.03s  
   ✓ an order cannot reference another tenants outlet                     0.03s  
@@ -56,23 +58,23 @@
 
    PASS  Tests\Feature\Payments\PaymentRegistryTest
   ✓ a cash payment succeeds immediately and pays the order               0.05s  
-  ✓ a partial payment leaves the order partial                           0.05s  
-  ✓ recording is idempotent on client reference                          0.04s  
+  ✓ a partial payment leaves the order partial                           0.04s  
+  ✓ recording is idempotent on client reference                          0.05s  
   ✓ overpayment is rejected                                              0.04s  
-  ✓ a payment on a cancelled order is rejected                           0.03s  
+  ✓ a payment on a cancelled order is rejected                           0.04s  
   ✓ a qris payment is pending until a verified callback                  0.04s  
   ✓ gateway confirmation rejects an amount mismatch                      0.04s  
   ✓ gateway confirmation rejects a replay                                0.04s  
-  ✓ a reversal reduces the balance and never deletes                     0.04s  
+  ✓ a reversal reduces the balance and never deletes                     0.05s  
   ✓ a reversal may not exceed the reversible amount                      0.04s  
   ✓ a reversal requires a reason                                         0.04s  
   ✓ a payment cannot be reversed from another tenant                     0.05s  
   ✓ the receipt projection shows captured prices and balance             0.04s  
-  ✓ a payment records an audit entry                                     0.04s  
+  ✓ a payment records an audit entry                                     0.03s  
 
    PASS  Tests\Feature\Payments\PaymentsSchemaTest
   ✓ a valid payment is accepted                                          0.03s  
-  ✓ amount must be positive                                              0.03s  
+  ✓ amount must be positive                                              0.02s  
   ✓ method must be canonical                                             0.02s  
   ✓ kind and status and currency are constrained                         0.03s  
   ✓ client reference is unique per tenant                                0.03s  
@@ -81,6 +83,6 @@
   ✓ a reversal cannot reference another tenants payment                  0.03s  
   ✓ a payment can never be hard deleted                                  0.03s  
 
-  Tests:    70 passed (136 assertions)
-  Duration: 3.93s
+  Tests:    72 passed (141 assertions)
+  Duration: 3.87s
 

@@ -2,6 +2,8 @@
    PASS  Tests\Unit\Ordering\OrderPricingTest
   ✓ whole kilo line is exact
   ✓ fractional result rounds half up at the single point
+  ✓ half rupiah threshold below at and above
+  ✓ half up rounds a larger exact half upward
   ✓ a piece line is a whole multiply
   ✓ line discount reduces the subtotal
   ✓ a line discount may not exceed the gross
@@ -81,7 +83,7 @@
   ✓ an out of range integer string is refused
 
    PASS  Tests\Unit\TenantCacheKeyTest
-  ✓ a tenant key carries its tenant and is classified as tenant scoped   0.01s  
+  ✓ a tenant key carries its tenant and is classified as tenant scoped   0.02s  
   ✓ two tenants never produce the same key
   ✓ a null tenant throws rather than degrading
   ✓ an empty tenant throws
@@ -100,89 +102,89 @@
   ✓ every dart role is actually assignable to a membership
 
    PASS  Tests\Feature\AuthenticationTest
-  ✓ login issues a token and returns the enveloped user                  0.67s  
+  ✓ login issues a token and returns the enveloped user                  0.68s  
   ✓ login in cookie mode returns no token                                0.14s  
   ✓ login accepts the phone identifier                                   0.12s  
-  ✓ login records a success audit entry                                  0.14s  
-  ✓ login failure is generic and identical for known and unknown accoun… 0.13s  
+  ✓ login records a success audit entry                                  0.12s  
+  ✓ login failure is generic and identical for known and unknown accoun… 0.12s  
   ✓ a disabled account cannot log in                                     0.13s  
   ✓ me returns the identity and its memberships                          0.14s  
   ✓ me reports no role or permission without a tenant                    0.14s  
-  ✓ logout revokes only the current session                              0.15s  
-  ✓ an unauthenticated request is rejected                               0.14s  
-  ✓ repeated failed logins are rate limited                              0.13s  
+  ✓ logout revokes only the current session                              0.14s  
+  ✓ an unauthenticated request is rejected                               0.11s  
+  ✓ repeated failed logins are rate limited                              0.14s  
 
    PASS  Tests\Feature\AuthorizationRegistryTest
-  ✓ the seeded catalogue matches the registry exactly                    0.14s  
-  ✓ every role grant matches the registry                                0.15s  
+  ✓ the seeded catalogue matches the registry exactly                    0.11s  
+  ✓ every role grant matches the registry                                0.14s  
   ✓ the eleven canonical roles are present in their categories           0.11s  
-  ✓ a platform role is not assignable to a membership                    0.11s  
-  ✓ platform support holds no tenant data permission                     0.11s  
-  ✓ no tenant role carries a platform permission                         0.11s  
-  ✓ permissions are recomputed when a role is removed                    0.14s  
-  ✓ permissions are empty once a membership is revoked                   0.14s  
-  ✓ a role string in the request body is ignored                         0.15s  
+  ✓ a platform role is not assignable to a membership                    0.12s  
+  ✓ platform support holds no tenant data permission                     0.13s  
+  ✓ no tenant role carries a platform permission                         0.13s  
+  ✓ permissions are recomputed when a role is removed                    0.13s  
+  ✓ permissions are empty once a membership is revoked                   0.13s  
+  ✓ a role string in the request body is ignored                         0.14s  
   ✓ the permissions endpoint returns the callers own effective set       0.14s  
-  ✓ the matrix covers every role                                         0.14s  
+  ✓ the matrix covers every role                                         0.12s  
 
    PASS  Tests\Feature\CustomerAddressTest
-  ✓ an address is created and scoped to the tenant and customer          0.14s  
-  ✓ an address is updated and reloads from the server                    0.17s  
-  ✓ archiving deactivates without deleting                               0.18s  
-  ✓ reactivation restores the address but not its primary status         0.17s  
-  ✓ the first address becomes primary and a later primary displaces it   0.16s  
-  ✓ unticking the only primary is refused rather than silently accepted  0.14s  
-  ✓ archiving the primary promotes nothing                               0.17s  
-  ✓ a malformed postal code is refused                                   0.14s  
+  ✓ an address is created and scoped to the tenant and customer          0.16s  
+  ✓ an address is updated and reloads from the server                    0.16s  
+  ✓ archiving deactivates without deleting                               0.14s  
+  ✓ reactivation restores the address but not its primary status         0.18s  
+  ✓ the first address becomes primary and a later primary displaces it   0.17s  
+  ✓ unticking the only primary is refused rather than silently accepted  0.16s  
+  ✓ archiving the primary promotes nothing                               0.15s  
+  ✓ a malformed postal code is refused                                   0.13s  
   ✓ an address cannot be created against an unknown customer             0.13s  
   ✓ tenant isolation across every address access path                    0.18s  
-  ✓ a foreign address and an absent address are indistinguishable        0.19s  
+  ✓ a foreign address and an absent address are indistinguishable        0.17s  
   ✓ a manage context receives the full address                           0.15s  
-  ✓ the area projection omits the street rather than masking it          0.14s  
+  ✓ the area projection omits the street rather than masking it          0.15s  
   ✓ no shipped role reaches the area context yet                         0.02s  
   ✓ a context with no customer permission receives no address            0.17s  
   ✓ the list projection carries no location even at full precision       0.16s  
-  ✓ the customer detail projection routes through the same masking       0.13s  
-  ✓ the detail projection defaults to disclosing no address              0.13s  
+  ✓ the customer detail projection routes through the same masking       0.18s  
+  ✓ the detail projection defaults to disclosing no address              0.14s  
   ✓ a search result never carries an address                             0.17s  
   ✓ no address value is ever placed in a url                             0.02s  
-  ✓ a stale write is refused with conflict and leaves the session intac… 0.18s  
+  ✓ a stale write is refused with conflict and leaves the session intac… 0.16s  
   ✓ every address write is audited without recording the address         0.16s  
   ✓ a validation error does not echo the address back                    0.15s  
-  ✓ a client supplied tenant id in the body is ignored                   0.14s  
+  ✓ a client supplied tenant id in the body is ignored                   0.16s  
 
    PASS  Tests\Feature\CustomerMasterDataTest
-  ✓ a customer is created and scoped to the active tenant                0.16s  
+  ✓ a customer is created and scoped to the active tenant                0.15s  
   ✓ phone is normalized server side so different renderings are one cus… 0.02s  
   ✓ a duplicate phone within one tenant is rejected and never merged     0.14s  
-  ✓ the same phone in two tenants is two unrelated customers             0.16s  
+  ✓ the same phone in two tenants is two unrelated customers             0.17s  
   ✓ tenant isolation across every access path                            0.20s  
   ✓ a foreign record and an absent record are indistinguishable          0.18s  
-  ✓ a client supplied tenant id in the body is ignored                   0.16s  
+  ✓ a client supplied tenant id in the body is ignored                   0.14s  
   ✓ the list projection masks the phone and omits notes and address      0.14s  
-  ✓ consent is recorded with a server side timestamp and actor           0.15s  
-  ✓ withdrawal appends a record and the latest state governs             0.15s  
+  ✓ consent is recorded with a server side timestamp and actor           0.16s  
+  ✓ withdrawal appends a record and the latest state governs             0.18s  
   ✓ no consent record at all is not consent                              0.12s  
   ✓ an opt out cannot be reset by the model                              0.12s  
-  ✓ an opt out cannot be reset by raw sql bypassing the application      0.11s  
-  ✓ consent history cannot be truncated away                             0.13s  
+  ✓ an opt out cannot be reset by raw sql bypassing the application      0.12s  
+  ✓ consent history cannot be truncated away                             0.12s  
   ✓ the append only boundary exists in the live schema                   0.02s  
   ✓ consent history survives a replication role bypass attempt           0.12s  
-  ✓ a role without customer permission is denied                         0.14s  
+  ✓ a role without customer permission is denied                         0.15s  
   ✓ a cashier may manage customers but not their consent                 0.16s  
   ✓ an unknown sort field is rejected rather than interpolated           0.14s  
-  ✓ page size is capped                                                  0.14s  
+  ✓ page size is capped                                                  0.15s  
   ✓ no bulk mutation or export route exists in step 4                    0.02s  
 
    PASS  Tests\Feature\ErrorContractTest
-  ✓ every response carries a correlation id header                       0.14s  
+  ✓ every response carries a correlation id header                       0.13s  
   ✓ an enveloped response repeats the correlation id in its body         0.13s  
-  ✓ a client supplied request id is echoed back                          0.12s  
-  ✓ an error response uses the standard envelope                         0.13s  
+  ✓ a client supplied request id is echoed back                          0.11s  
+  ✓ an error response uses the standard envelope                         0.12s  
   ✓ a validation failure reports fields without internals                0.12s  
-  ✓ an error response leaks no internals                                 0.12s  
+  ✓ an error response leaks no internals                                 0.11s  
   ✓ debug mode does not widen the error contract                         0.11s  
-  ✓ the health and readiness probes respond                              0.12s  
+  ✓ the health and readiness probes respond                              0.11s  
 
    PASS  Tests\Feature\OperationalEndpointsTest
   ✓ health reports liveness without checking dependencies                0.01s  
@@ -190,24 +192,24 @@
   ✓ readiness fails closed when a dependency is unreachable              0.01s  
 
    PASS  Tests\Feature\Ordering\OrderPaymentSurfaceTest
-  ✓ a cashier creates an order with server computed totals               0.17s  
-  ✓ order creation is idempotent over http                               0.17s  
+  ✓ a cashier creates an order with server computed totals               0.16s  
+  ✓ order creation is idempotent over http                               0.16s  
   ✓ a production operator cannot create an order                         0.14s  
   ✓ a cashier records a payment but cannot reverse it                    0.19s  
   ✓ finance may reverse a payment                                        0.21s  
-  ✓ an order of another tenant is not found                              0.21s  
-  ✓ there is no order delete route                                       0.14s  
+  ✓ an order of another tenant is not found                              0.22s  
+  ✓ there is no order delete route                                       0.17s  
   ✓ the receipt shows captured prices                                    0.15s  
 
    PASS  Tests\Feature\Ordering\OrderRegistryTest
   ✓ create computes server authoritative totals from the price list      0.05s  
-  ✓ create is idempotent on client reference                             0.04s  
+  ✓ create is idempotent on client reference                             0.05s  
   ✓ the captured price survives a later price list change                0.04s  
   ✓ create rejects a service with no active price                        0.04s  
   ✓ create rejects a cross tenant customer                               0.04s  
   ✓ create rejects a cross tenant service                                0.04s  
-  ✓ create requires at least one line                                    0.04s  
-  ✓ place transitions draft to received                                  0.05s  
+  ✓ create requires at least one line                                    0.03s  
+  ✓ place transitions draft to received                                  0.04s  
   ✓ place rejects a non draft order                                      0.04s  
   ✓ cancel requires a reason                                             0.04s  
   ✓ cancel sets cancelled state and reason                               0.05s  
@@ -217,12 +219,12 @@
    PASS  Tests\Feature\Ordering\OrderingSchemaTest
   ✓ a valid order and line are accepted                                  0.03s  
   ✓ total must equal subtotal minus discount                             0.02s  
-  ✓ discount may not exceed subtotal                                     0.02s  
+  ✓ discount may not exceed subtotal                                     0.03s  
   ✓ money may not be negative                                            0.03s  
-  ✓ currency must be idr                                                 0.03s  
+  ✓ currency must be idr                                                 0.02s  
   ✓ status must be canonical                                             0.03s  
   ✓ client reference is unique per tenant                                0.03s  
-  ✓ order number is unique per tenant                                    0.02s  
+  ✓ order number is unique per tenant                                    0.03s  
   ✓ cancelled order requires timestamp and reason                        0.03s  
   ✓ an order cannot reference another tenants customer                   0.03s  
   ✓ an order cannot reference another tenants outlet                     0.03s  
@@ -234,74 +236,74 @@
 
    PASS  Tests\Feature\OutletMasterDataTest
   ✓ a new outlet defaults to quiet hours 2000 to 0800                    0.03s  
-  ✓ quiet hours are evaluated in the outlets own timezone                0.02s  
+  ✓ quiet hours are evaluated in the outlets own timezone                0.03s  
   ✓ the quiet window spans midnight rather than matching nothing         0.02s  
   ✓ quiet hours boundaries are start inclusive and end exclusive         0.02s  
   ✓ the database refuses a quiet hours value that is not a time          0.02s  
-  ✓ operating hours are stored and returned per weekday                  0.16s  
+  ✓ operating hours are stored and returned per weekday                  0.15s  
   ✓ operating hours across two timezones resolve to different instants   0.02s  
   ✓ an unconfigured day is not open by default                           0.02s  
   ✓ operating hours may cross midnight                                   0.02s  
   ✓ an unknown weekday is rejected by name                               0.15s  
   ✓ an open day without times is rejected                                0.15s  
-  ✓ an invalid timezone is rejected                                      0.16s  
-  ✓ capacity is recorded and may not be negative                         0.14s  
-  ✓ a service zone is created and listed                                 0.15s  
+  ✓ an invalid timezone is rejected                                      0.15s  
+  ✓ capacity is recorded and may not be negative                         0.17s  
+  ✓ a service zone is created and listed                                 0.17s  
   ✓ a zone code is unique within the outlet but not across outlets       0.17s  
-  ✓ a shift is created with a derived midnight flag                      0.16s  
+  ✓ a shift is created with a derived midnight flag                      0.14s  
   ✓ the midnight flag cannot be forced to contradict the hours           0.15s  
-  ✓ the database refuses a shift whose flag disagrees with its hours     0.16s  
-  ✓ a partial shift update keeps the derived flag correct                0.16s  
-  ✓ a printer is configured with an enumerated device kind               0.15s  
-  ✓ only one default printer per outlet is permitted                     0.16s  
+  ✓ the database refuses a shift whose flag disagrees with its hours     0.15s  
+  ✓ a partial shift update keeps the derived flag correct                0.18s  
+  ✓ a printer is configured with an enumerated device kind               0.16s  
+  ✓ only one default printer per outlet is permitted                     0.15s  
   ✓ the proof policy defaults to requiring a recipient name              0.15s  
-  ✓ a policy requiring no proof at all is refused                        0.16s  
+  ✓ a policy requiring no proof at all is refused                        0.15s  
   ✓ the database refuses a proof policy that requires nothing            0.13s  
-  ✓ a proof policy switching to a different proof is accepted            0.17s  
-  ✓ exactly one proof policy exists per tenant                           0.15s  
-  ✓ a stale write is refused rather than silently applied                0.14s  
-  ✓ a fresh version is accepted                                          0.14s  
-  ✓ an arbitrary sort field is refused                                   0.14s  
-  ✓ reading the proof policy does not create a row                       0.16s  
-  ✓ writing the proof policy materialises the row                        0.14s  
+  ✓ a proof policy switching to a different proof is accepted            0.15s  
+  ✓ exactly one proof policy exists per tenant                           0.17s  
+  ✓ a stale write is refused rather than silently applied                0.16s  
+  ✓ a fresh version is accepted                                          0.16s  
+  ✓ an arbitrary sort field is refused                                   0.15s  
+  ✓ reading the proof policy does not create a row                       0.15s  
+  ✓ writing the proof policy materialises the row                        0.17s  
   ✓ the default policy matches the column defaults                       0.02s  
-  ✓ a sort field from another collection is refused rather than reachin… 0.16s  
+  ✓ a sort field from another collection is refused rather than reachin… 0.14s  
   ✓ every sortable column exists on its own table                        0.03s  
   ✓ pagination is hard bounded                                           0.14s  
-  ✓ there is no delete export or bulk route for outlet master data       0.12s  
+  ✓ there is no delete export or bulk route for outlet master data       0.15s  
   ✓ deactivating rather than deleting keeps the record resolvable        0.16s  
   ✓ every outlet satellite table carries tenant id not null              0.03s  
   ✓ every outlet satellite is bound to its outlets tenant by composite…  0.02s  
   ✓ a satellite cannot be attached to another tenants outlet             0.02s  
 
    PASS  Tests\Feature\PasswordResetTest
-  ✓ a reset request for a known account stores only a hashed token       0.15s  
+  ✓ a reset request for a known account stores only a hashed token       0.16s  
   ✓ a reset request is identical for known and unknown accounts          0.13s  
-  ✓ a reset completes and the new password works                         0.16s  
-  ✓ completing a reset revokes every existing session                    0.17s  
+  ✓ a reset completes and the new password works                         0.14s  
+  ✓ completing a reset revokes every existing session                    0.15s  
   ✓ a wrong reset token fails generically                                0.14s  
-  ✓ repeated reset requests are rate limited                             0.15s  
+  ✓ repeated reset requests are rate limited                             0.14s  
 
    PASS  Tests\Feature\Payments\PaymentRegistryTest
   ✓ a cash payment succeeds immediately and pays the order               0.04s  
-  ✓ a partial payment leaves the order partial                           0.05s  
+  ✓ a partial payment leaves the order partial                           0.04s  
   ✓ recording is idempotent on client reference                          0.04s  
   ✓ overpayment is rejected                                              0.04s  
-  ✓ a payment on a cancelled order is rejected                           0.04s  
+  ✓ a payment on a cancelled order is rejected                           0.03s  
   ✓ a qris payment is pending until a verified callback                  0.04s  
   ✓ gateway confirmation rejects an amount mismatch                      0.04s  
   ✓ gateway confirmation rejects a replay                                0.04s  
-  ✓ a reversal reduces the balance and never deletes                     0.04s  
+  ✓ a reversal reduces the balance and never deletes                     0.05s  
   ✓ a reversal may not exceed the reversible amount                      0.04s  
   ✓ a reversal requires a reason                                         0.04s  
-  ✓ a payment cannot be reversed from another tenant                     0.05s  
+  ✓ a payment cannot be reversed from another tenant                     0.06s  
   ✓ the receipt projection shows captured prices and balance             0.04s  
   ✓ a payment records an audit entry                                     0.04s  
 
    PASS  Tests\Feature\Payments\PaymentsSchemaTest
   ✓ a valid payment is accepted                                          0.03s  
   ✓ amount must be positive                                              0.03s  
-  ✓ method must be canonical                                             0.03s  
+  ✓ method must be canonical                                             0.02s  
   ✓ kind and status and currency are constrained                         0.03s  
   ✓ client reference is unique per tenant                                0.03s  
   ✓ a payment cannot settle another tenants order                        0.03s  
@@ -312,62 +314,62 @@
    PASS  Tests\Feature\PriceListIntegrityTest
   ✓ no step 4 money column is a floating point type                      0.03s  
   ✓ the price column is specifically a 64 bit integer                    0.02s  
-  ✓ a negative price is rejected by the database                         0.15s  
-  ✓ a price of zero is allowed                                           0.13s  
+  ✓ a negative price is rejected by the database                         0.14s  
+  ✓ a price of zero is allowed                                           0.15s  
   ✓ a large amount survives a round trip without precision loss          0.14s  
-  ✓ a published price list cannot be edited                              0.15s  
-  ✓ a permitted lifecycle field may change after publication with data…  0.14s  
-  ✓ a permitted lifecycle field may change after publication with data…  0.15s  
+  ✓ a published price list cannot be edited                              0.14s  
   ✓ a permitted lifecycle field may change after publication with data…  0.13s  
-  ✓ a commercial field still cannot change after publication with data…  0.13s  
+  ✓ a permitted lifecycle field may change after publication with data…  0.14s  
+  ✓ a permitted lifecycle field may change after publication with data…  0.14s  
   ✓ a commercial field still cannot change after publication with data…  0.13s  
   ✓ a commercial field still cannot change after publication with data…  0.12s  
-  ✓ a commercial field still cannot change after publication with data…  0.13s  
-  ✓ a commercial field still cannot change after publication with data…  0.12s  
-  ✓ a published price list cannot be soft deleted                        0.15s  
-  ✓ a published price list survives a query builder delete               0.14s  
-  ✓ a published price list survives a force delete                       0.16s  
+  ✓ a commercial field still cannot change after publication with data…  0.14s  
+  ✓ a commercial field still cannot change after publication with data…  0.14s  
+  ✓ a commercial field still cannot change after publication with data…  0.14s  
+  ✓ a published price list cannot be soft deleted                        0.13s  
+  ✓ a published price list survives a query builder delete               0.12s  
+  ✓ a published price list survives a force delete                       0.15s  
   ✓ the price list removal guard is always enabled                       0.02s  
-  ✓ a draft price list may still be deleted                              0.15s  
-  ✓ a client cannot choose the version                                   0.14s  
-  ✓ superseding advances the outgoing lists version                      0.16s  
+  ✓ a draft price list may still be deleted                              0.14s  
+  ✓ a client cannot choose the version                                   0.15s  
+  ✓ superseding advances the outgoing lists version                      0.15s  
   ✓ no route exposes a post publish price list mutation                  0.02s  
   ✓ items of a published price list cannot be edited or added            0.13s  
-  ✓ an item cannot be added to a published price list                    0.13s  
+  ✓ an item cannot be added to a published price list                    0.14s  
   ✓ superseding leaves the prior version prices byte identical           0.17s  
-  ✓ two overlapping active price lists for one brand are rejected        0.16s  
-  ✓ price lists that merely touch are treated as overlapping             0.15s  
-  ✓ non overlapping price lists for one brand are allowed                0.15s  
-  ✓ different brands may hold overlapping price lists                    0.16s  
-  ✓ a price list cannot be created against another tenants brand         0.19s  
+  ✓ two overlapping active price lists for one brand are rejected        0.15s  
+  ✓ price lists that merely touch are treated as overlapping             0.14s  
+  ✓ non overlapping price lists for one brand are allowed                0.12s  
+  ✓ different brands may hold overlapping price lists                    0.14s  
+  ✓ a price list cannot be created against another tenants brand         0.18s  
   ✓ the database rejects a cross tenant brand pairing outright           0.17s  
 
    PASS  Tests\Feature\Security\AuthenticationAdversarialMatrixTest
   ✓ d01 wrong password is rejected                                       0.15s  
   ✓ d02 an unknown account is indistinguishable from a wrong password    0.14s  
-  ✓ d03 repeated failures are throttled with rate limited                0.14s  
-  ✓ d04 password reset request does not enumerate accounts               0.13s  
-  ✓ d05 an expired reset token is rejected                               0.14s  
+  ✓ d03 repeated failures are throttled with rate limited                0.15s  
+  ✓ d04 password reset request does not enumerate accounts               0.14s  
+  ✓ d05 an expired reset token is rejected                               0.15s  
   ✓ d06 a reset token cannot be reused                                   0.15s  
-  ✓ d07 an altered or forged reset token is rejected                     0.17s  
-  ✓ d08 the session id rotates on login                                  0.14s  
-  ✓ d09 a revoked session token cannot be replayed                       0.13s  
-  ✓ d10 a token cannot be replayed after logout                          0.14s  
+  ✓ d07 an altered or forged reset token is rejected                     0.18s  
+  ✓ d08 the session id rotates on login                                  0.13s  
+  ✓ d09 a revoked session token cannot be replayed                       0.15s  
+  ✓ d10 a token cannot be replayed after logout                          0.15s  
   ✓ d11 a disabled user is denied                                        0.13s  
-  ✓ d12 a revoked membership invalidates a still valid session           0.16s  
-  ✓ d13 a removed role invalidates a still valid session                 0.13s  
-  ✓ d14 a forged tenant header is never authorization proof              0.13s  
-  ✓ d15 a forged role field in the request body is ignored               0.12s  
+  ✓ d12 a revoked membership invalidates a still valid session           0.14s  
+  ✓ d13 a removed role invalidates a still valid session                 0.16s  
+  ✓ d14 a forged tenant header is never authorization proof              0.15s  
+  ✓ d15 a forged role field in the request body is ignored               0.14s  
   ✓ d16 a role cannot be mass assigned onto the user record              0.15s  
   ✓ d17 a user cannot delete another users session                       0.15s  
-  ✓ d18 session listing never crosses a tenant or user boundary          0.16s  
-  ✓ d19 a csrf token mismatch renders as csrf failed                     0.11s  
-  ✓ d20 a hostile origin is not granted credentialed cors access         0.13s  
-  ✓ d21 login and reset do not honour an attacker supplied redirect      0.14s  
+  ✓ d18 session listing never crosses a tenant or user boundary          0.15s  
+  ✓ d19 a csrf token mismatch renders as csrf failed                     0.12s  
+  ✓ d20 a hostile origin is not granted credentialed cors access         0.12s  
+  ✓ d21 login and reset do not honour an attacker supplied redirect      0.13s  
   ✓ d22 a bearer token never appears in the log                          0.15s  
-  ✓ d23 the authorization header and password never appear in the log    0.14s  
+  ✓ d23 the authorization header and password never appear in the log    0.13s  
   ✓ d24 a password never appears in audit metadata                       0.14s  
-  ✓ d25 seeded users do not share a default development password         0.27s  
+  ✓ d25 seeded users do not share a default development password         0.28s  
 
    PASS  Tests\Feature\Security\InternalNotesProjectionTest
   ✓ a full context receives internal notes                               0.03s  
@@ -377,8 +379,8 @@
   ✓ no http projection leaks the note to a list or search                0.16s  
   ✓ the address relationship path does not carry the note                0.02s  
   ✓ the serialised payload contains no hidden raw value                  0.02s  
-  ✓ a validation error and the log carry no note                         0.15s  
-  ✓ no audit row carries the note                                        0.17s  
+  ✓ a validation error and the log carry no note                         0.13s  
+  ✓ no audit row carries the note                                        0.16s  
   ✓ no customer projection is cached under a context insensitive key     0.02s  
   ✓ no shipped role reaches a context that would change note visibility  0.02s  
   ✓ no route exposes internal notes outside the gated projection         0.15s  
@@ -389,61 +391,61 @@
   ✓ f3 secrets do not reach the log file through the real logger         0.02s  
   ✓ f4 secrets do not reach the log file at debug level either           0.02s  
   ✓ f6 a password reset token never reaches the log                      0.03s  
-  ✓ f7 the local reset transport refuses to run in production            0.03s  
+  ✓ f7 the local reset transport refuses to run in production            0.02s  
   ✓ f5 the redaction processor is installed on the active log channel    0.02s  
 
    PASS  Tests\Feature\Security\PolicyAuthorizationMatrixTest
-  ✓ f1 every policy denies without a resolved tenant context             0.14s  
-  ✓ f2 a foreign tenants resource is denied even to an owner             0.14s  
-  ✓ f3 membership alone does not authorise brand or audit access         0.12s  
-  ✓ f3b a role holding the permission is allowed in its own tenant       0.13s  
-  ✓ f4 a user may always revoke their own device session                 0.14s  
+  ✓ f1 every policy denies without a resolved tenant context             0.13s  
+  ✓ f2 a foreign tenants resource is denied even to an owner             0.16s  
+  ✓ f3 membership alone does not authorise brand or audit access         0.14s  
+  ✓ f3b a role holding the permission is allowed in its own tenant       0.14s  
+  ✓ f4 a user may always revoke their own device session                 0.15s  
   ✓ f4b the carve out does not reach another users session               0.14s  
-  ✓ f4c an administrative role may act on another users session          0.12s  
-  ✓ f5 identity scoped audit entries are invisible to tenant members     0.13s  
+  ✓ f4c an administrative role may act on another users session          0.15s  
+  ✓ f5 identity scoped audit entries are invisible to tenant members     0.12s  
   ✓ f6 every permission these policies reference exists in the registry  0.13s  
 
    PASS  Tests\Feature\Security\RbacMatrixTest
+  ✓ c1 effective permissions equal the catalogue for each tenant role w… 0.16s  
   ✓ c1 effective permissions equal the catalogue for each tenant role w… 0.15s  
-  ✓ c1 effective permissions equal the catalogue for each tenant role w… 0.15s  
-  ✓ c1 effective permissions equal the catalogue for each tenant role w… 0.13s  
   ✓ c1 effective permissions equal the catalogue for each tenant role w… 0.14s  
-  ✓ c1 effective permissions equal the catalogue for each tenant role w… 0.15s  
   ✓ c1 effective permissions equal the catalogue for each tenant role w… 0.14s  
   ✓ c1 effective permissions equal the catalogue for each tenant role w… 0.13s  
-  ✓ c1 effective permissions equal the catalogue for each tenant role w… 0.15s  
   ✓ c1 effective permissions equal the catalogue for each tenant role w… 0.14s  
-  ✓ c2 outlet endpoints allow or deny in agreement with the catalogue w… 0.15s  
-  ✓ c2 outlet endpoints allow or deny in agreement with the catalogue w… 0.16s  
-  ✓ c2 outlet endpoints allow or deny in agreement with the catalogue w… 0.16s  
-  ✓ c2 outlet endpoints allow or deny in agreement with the catalogue w… 0.16s  
-  ✓ c2 outlet endpoints allow or deny in agreement with the catalogue w… 0.13s  
-  ✓ c2 outlet endpoints allow or deny in agreement with the catalogue w… 0.15s  
-  ✓ c2 outlet endpoints allow or deny in agreement with the catalogue w… 0.16s  
+  ✓ c1 effective permissions equal the catalogue for each tenant role w… 0.14s  
+  ✓ c1 effective permissions equal the catalogue for each tenant role w… 0.14s  
+  ✓ c1 effective permissions equal the catalogue for each tenant role w… 0.16s  
   ✓ c2 outlet endpoints allow or deny in agreement with the catalogue w… 0.15s  
   ✓ c2 outlet endpoints allow or deny in agreement with the catalogue w… 0.14s  
-  ✓ c3 every tenant role retains baseline self service with data set #0  0.13s  
-  ✓ c3 every tenant role retains baseline self service with data set #1  0.14s  
-  ✓ c3 every tenant role retains baseline self service with data set #2  0.13s  
-  ✓ c3 every tenant role retains baseline self service with data set #3  0.15s  
+  ✓ c2 outlet endpoints allow or deny in agreement with the catalogue w… 0.15s  
+  ✓ c2 outlet endpoints allow or deny in agreement with the catalogue w… 0.17s  
+  ✓ c2 outlet endpoints allow or deny in agreement with the catalogue w… 0.15s  
+  ✓ c2 outlet endpoints allow or deny in agreement with the catalogue w… 0.15s  
+  ✓ c2 outlet endpoints allow or deny in agreement with the catalogue w… 0.15s  
+  ✓ c2 outlet endpoints allow or deny in agreement with the catalogue w… 0.15s  
+  ✓ c2 outlet endpoints allow or deny in agreement with the catalogue w… 0.15s  
+  ✓ c3 every tenant role retains baseline self service with data set #0  0.15s  
+  ✓ c3 every tenant role retains baseline self service with data set #1  0.16s  
+  ✓ c3 every tenant role retains baseline self service with data set #2  0.15s  
+  ✓ c3 every tenant role retains baseline self service with data set #3  0.13s  
   ✓ c3 every tenant role retains baseline self service with data set #4  0.14s  
   ✓ c3 every tenant role retains baseline self service with data set #5  0.15s  
-  ✓ c3 every tenant role retains baseline self service with data set #6  0.15s  
-  ✓ c3 every tenant role retains baseline self service with data set #7  0.14s  
-  ✓ c3 every tenant role retains baseline self service with data set #8  0.15s  
-  ✓ c4 no tenant role holds any platform permission                      0.14s  
-  ✓ c5 tenant owner cannot grant platform super admin                    0.14s  
-  ✓ c6 tenant admin cannot reach another tenant                          0.13s  
-  ✓ c7 outlet manager cannot select an outlet in another tenant          0.17s  
-  ✓ c8 cashier has no role management permission                         0.12s  
-  ✓ c9 production operator has no session administration permission      0.11s  
-  ✓ c10 courier has no broad tenant administration                       0.13s  
-  ✓ c11 finance has no platform permission                               0.14s  
-  ✓ c12 customer has no staff permission                                 0.10s  
-  ✓ c13 platform support has no silent tenant data access                0.13s  
+  ✓ c3 every tenant role retains baseline self service with data set #6  0.16s  
+  ✓ c3 every tenant role retains baseline self service with data set #7  0.16s  
+  ✓ c3 every tenant role retains baseline self service with data set #8  0.16s  
+  ✓ c4 no tenant role holds any platform permission                      0.11s  
+  ✓ c5 tenant owner cannot grant platform super admin                    0.12s  
+  ✓ c6 tenant admin cannot reach another tenant                          0.14s  
+  ✓ c7 outlet manager cannot select an outlet in another tenant          0.15s  
+  ✓ c8 cashier has no role management permission                         0.13s  
+  ✓ c9 production operator has no session administration permission      0.13s  
+  ✓ c10 courier has no broad tenant administration                       0.12s  
+  ✓ c11 finance has no platform permission                               0.13s  
+  ✓ c12 customer has no staff permission                                 0.14s  
+  ✓ c13 platform support has no silent tenant data access                0.14s  
   ✓ c14 a removed role takes effect on the next request                  0.14s  
-  ✓ c15 a revoked membership yields zero effective tenant permissions    0.13s  
-  ✓ c16 the seeded role catalogue matches the registry                   0.14s  
+  ✓ c15 a revoked membership yields zero effective tenant permissions    0.14s  
+  ✓ c16 the seeded role catalogue matches the registry                   0.12s  
 
    PASS  Tests\Feature\Security\RedisTenantPartitioningTest
   ✓ e1 two tenants produce different namespaces                          0.03s  
@@ -459,148 +461,148 @@
   ✓ every mutating route declares its audit action                       0.02s  
   ✓ every declared action exists in the closed vocabulary                0.02s  
   ✓ every audit action is either emitted or declared dormant             0.02s  
-  ✓ representative writes actually produce their audit entry             0.24s  
-  ✓ a read produces no audit entry                                       0.14s  
-  ✓ no audit row carries a credential or personal datum                  0.14s  
-  ✓ audit entries are tenant scoped                                      0.15s  
+  ✓ representative writes actually produce their audit entry             0.20s  
+  ✓ a read produces no audit entry                                       0.17s  
+  ✓ no audit row carries a credential or personal datum                  0.15s  
+  ✓ audit entries are tenant scoped                                      0.17s  
 
    PASS  Tests\Feature\Security\Step04IsolationMatrixTest
-  ✓ c1 control every aggregate is reachable within its own tenant        0.34s  
-  ✓ c2 violation no aggregate is reachable across the tenant boundary b… 0.35s  
-  ✓ c3 a foreign id and an absent id are byte identical                  0.31s  
-  ✓ c4 control a list returns the callers own records                    0.36s  
-  ✓ c5 violation a list never contains another tenants record            0.34s  
-  ✓ c6 a filter parameter cannot widen the tenant scope                  0.31s  
-  ✓ c7 a foreign brand filter yields nothing rather than an error        0.30s  
-  ✓ c8 control search finds the callers own record                       0.28s  
+  ✓ c1 control every aggregate is reachable within its own tenant        0.35s  
+  ✓ c2 violation no aggregate is reachable across the tenant boundary b… 0.33s  
+  ✓ c3 a foreign id and an absent id are byte identical                  0.30s  
+  ✓ c4 control a list returns the callers own records                    0.37s  
+  ✓ c5 violation a list never contains another tenants record            0.35s  
+  ✓ c6 a filter parameter cannot widen the tenant scope                  0.32s  
+  ✓ c7 a foreign brand filter yields nothing rather than an error        0.28s  
+  ✓ c8 control search finds the callers own record                       0.30s  
   ✓ c9 violation search never reaches across the tenant boundary         0.35s  
-  ✓ c10 searching a foreign customers exact phone finds nothing          0.28s  
-  ✓ c11 no export path exists in step 4                                  0.10s  
+  ✓ c10 searching a foreign customers exact phone finds nothing          0.31s  
+  ✓ c11 no export path exists in step 4                                  0.13s  
   ✓ c12 step 4 stores no file and serves no file url                     0.13s  
-  ✓ c13 a client supplied tenant header is not authorization proof       0.27s  
+  ✓ c13 a client supplied tenant header is not authorization proof       0.29s  
   ✓ c14 a foreign brand or outlet id is rejected not silently scoped aw… 0.31s  
   ✓ c15 a forged tenant id in the body is ignored not honoured           0.31s  
 
    PASS  Tests\Feature\Security\StructuralIsolationMatrixTest
-  ✓ a1 control an outlet may reference a brand of its own tenant         0.12s  
-  ✓ a2 violation an outlet may not reference a brand of another tenant   0.13s  
+  ✓ a1 control an outlet may reference a brand of its own tenant         0.13s  
+  ✓ a2 violation an outlet may not reference a brand of another tenant   0.12s  
   ✓ a3 control a role may be attached to a membership of its own tenant  0.13s  
-  ✓ a4 violation a role may not be attached across a tenant boundary     0.12s  
-  ✓ a5 control a device session may bind to a membership of its own ten… 0.12s  
-  ✓ a6 violation a device session may not bind across a tenant boundary  0.12s  
-  ✓ a7 control an audit entry may name an actor membership of its own t… 0.12s  
-  ✓ a8 violation an audit entry may not name an actor membership of ano… 0.11s  
+  ✓ a4 violation a role may not be attached across a tenant boundary     0.15s  
+  ✓ a5 control a device session may bind to a membership of its own ten… 0.13s  
+  ✓ a6 violation a device session may not bind across a tenant boundary  0.14s  
+  ✓ a7 control an audit entry may name an actor membership of its own t… 0.13s  
+  ✓ a8 violation an audit entry may not name an actor membership of ano… 0.12s  
   ✓ a8b violation an audit entry may not name an outlet of another tena… 0.13s  
 
    PASS  Tests\Feature\Security\TenantIsolationMatrixTest
-  ✓ b1 control user a reaches tenant a                                   0.19s  
-  ✓ b2 user a cannot reach tenant b                                      0.17s  
-  ✓ b3 user b cannot reach tenant a                                      0.16s  
-  ✓ b4 owner of both tenants reaches each one explicitly                 0.18s  
+  ✓ b1 control user a reaches tenant a                                   0.16s  
+  ✓ b2 user a cannot reach tenant b                                      0.16s  
+  ✓ b3 user b cannot reach tenant a                                      0.18s  
+  ✓ b4 owner of both tenants reaches each one explicitly                 0.17s  
   ✓ b5 tenant switch changes context not identity                        0.18s  
-  ✓ b6 revoked membership blocks with membership revoked                 0.16s  
-  ✓ b7 suspended membership blocks with membership suspended             0.19s  
-  ✓ b8 cross tenant outlet is rejected                                   0.17s  
-  ✓ b9 cross tenant brand never appears in the active tenants outlet li… 0.15s  
-  ✓ b10 forged tenant header is rejected                                 0.17s  
-  ✓ b11 forged tenant route parameter is rejected                        0.19s  
-  ✓ b11b forged tenant id in the request body is rejected                0.18s  
-  ✓ b12 cross tenant resource id is rejected without an existence oracl… 0.18s  
-  ✓ b13 cross tenant role assignment is rejected                         0.15s  
-  ✓ b14 a user cannot reach another users session                        0.18s  
-  ✓ b15 audit entries written by tenant a activity never carry tenant b  0.18s  
-  ✓ b16 stale tenant context is rejected on the next request             0.17s  
-  ✓ b17 platform support gets no tenant data by default                  0.21s  
+  ✓ b6 revoked membership blocks with membership revoked                 0.18s  
+  ✓ b7 suspended membership blocks with membership suspended             0.18s  
+  ✓ b8 cross tenant outlet is rejected                                   0.19s  
+  ✓ b9 cross tenant brand never appears in the active tenants outlet li… 0.17s  
+  ✓ b10 forged tenant header is rejected                                 0.16s  
+  ✓ b11 forged tenant route parameter is rejected                        0.17s  
+  ✓ b11b forged tenant id in the request body is rejected                0.19s  
+  ✓ b12 cross tenant resource id is rejected without an existence oracl… 0.17s  
+  ✓ b13 cross tenant role assignment is rejected                         0.16s  
+  ✓ b14 a user cannot reach another users session                        0.19s  
+  ✓ b15 audit entries written by tenant a activity never carry tenant b  0.17s  
+  ✓ b16 stale tenant context is rejected on the next request             0.19s  
+  ✓ b17 platform support gets no tenant data by default                  0.20s  
 
    PASS  Tests\Feature\ServiceCatalogSurfaceTest
   ✓ a kiloan and a satuan service are created                            0.16s  
-  ✓ a free text unit kind is refused                                     0.16s  
+  ✓ a free text unit kind is refused                                     0.15s  
   ✓ the same service code is permitted in two different tenants          0.22s  
-  ✓ a duplicate service code within one tenant is refused                0.15s  
+  ✓ a duplicate service code within one tenant is refused                0.17s  
   ✓ a zero minimum quantity is refused                                   0.14s  
-  ✓ a category from another tenant does not resolve                      0.19s  
+  ✓ a category from another tenant does not resolve                      0.23s  
   ✓ a package composition is replaced wholesale                          0.18s  
-  ✓ a package cannot compose another tenants service                     0.22s  
+  ✓ a package cannot compose another tenants service                     0.23s  
   ✓ an addon is a catalogue entry with no order linkage                  0.14s  
-  ✓ a draft price list is created for a brand                            0.16s  
-  ✓ a brand from another tenant is refused                               0.22s  
+  ✓ a draft price list is created for a brand                            0.15s  
+  ✓ a brand from another tenant is refused                               0.19s  
   ✓ a published price list cannot be edited                              0.20s  
-  ✓ publishing requires its own permission                               0.18s  
+  ✓ publishing requires its own permission                               0.19s  
   ✓ a cashier may read prices and may not change them                    0.18s  
-  ✓ superseding leaves the prior version byte identical                  0.20s  
-  ✓ a fractional amount is refused at the api boundary                   0.18s  
-  ✓ an amount is emitted as an integer not a formatted string            0.18s  
-  ✓ an inactive service cannot be priced                                 0.17s  
-  ✓ a price row must reference exactly one target                        0.17s  
-  ✓ catalogue listing is tenant scoped on list filter and search         0.22s  
-  ✓ a service from another tenant is not addressable by direct id        0.20s  
-  ✓ an arbitrary sort field is refused and pagination is bounded         0.15s  
+  ✓ superseding leaves the prior version byte identical                  0.21s  
+  ✓ a fractional amount is refused at the api boundary                   0.17s  
+  ✓ an amount is emitted as an integer not a formatted string            0.16s  
+  ✓ an inactive service cannot be priced                                 0.19s  
+  ✓ a price row must reference exactly one target                        0.16s  
+  ✓ catalogue listing is tenant scoped on list filter and search         0.21s  
+  ✓ a service from another tenant is not addressable by direct id        0.23s  
+  ✓ an arbitrary sort field is refused and pagination is bounded         0.14s  
   ✓ a client supplied tenant id is never authorization proof             0.19s  
-  ✓ a stale catalogue write is refused                                   0.15s  
+  ✓ a stale catalogue write is refused                                   0.18s  
   ✓ no out of scope business route exists                                0.02s  
   ✓ there is no delete route for a service package or price list         0.02s  
 
    PASS  Tests\Feature\SessionManagementTest
   ✓ a user lists their own sessions with the current one flagged         0.16s  
-  ✓ the session listing never exposes another users session              0.13s  
+  ✓ the session listing never exposes another users session              0.15s  
   ✓ a user revokes one of their own sessions                             0.14s  
-  ✓ revoking another users session reports not found                     0.15s  
-  ✓ revoke others spares the current session                             0.14s  
+  ✓ revoking another users session reports not found                     0.13s  
+  ✓ revoke others spares the current session                             0.16s  
   ✓ an expired token is reported as expired not merely unauthenticated   0.14s  
-  ✓ a garbage token is indistinguishable from no credential              0.13s  
+  ✓ a garbage token is indistinguishable from no credential              0.12s  
 
    PASS  Tests\Feature\StaffAssignmentTest
-  ✓ a membership is assigned to an outlet                                0.17s  
-  ✓ an outlet assignment confers no permission                           0.16s  
+  ✓ a membership is assigned to an outlet                                0.16s  
+  ✓ an outlet assignment confers no permission                           0.17s  
   ✓ the same membership cannot hold two live assignments to one outlet   0.15s  
-  ✓ revocation records history rather than deleting it                   0.18s  
+  ✓ revocation records history rather than deleting it                   0.16s  
   ✓ a revoked assignment may be reissued without destroying history      0.18s  
   ✓ revoking an already revoked assignment is refused                    0.18s  
   ✓ a revoked membership cannot be rostered                              0.15s  
   ✓ a suspended membership cannot receive a role                         0.15s  
-  ✓ an active membership still receives a role                           0.14s  
-  ✓ a suspended membership cannot receive an outlet assignment           0.17s  
-  ✓ an invited membership may still be rostered                          0.15s  
-  ✓ suspension makes an existing role ineffective without deleting it    0.17s  
+  ✓ an active membership still receives a role                           0.16s  
+  ✓ a suspended membership cannot receive an outlet assignment           0.16s  
+  ✓ an invited membership may still be rostered                          0.16s  
+  ✓ suspension makes an existing role ineffective without deleting it    0.14s  
   ✓ reactivation restores the surviving assignment and not a revoked on… 0.19s  
-  ✓ another tenants suspended membership stays concealed                 0.15s  
+  ✓ another tenants suspended membership stays concealed                 0.17s  
   ✓ a role may still be removed from a suspended membership              0.15s  
-  ✓ a granted role is audited and a refused one writes nothing           0.14s  
+  ✓ a granted role is audited and a refused one writes nothing           0.16s  
   ✓ no membership suspension endpoint exists yet                         0.02s  
-  ✓ a membership cannot be assigned to another tenants outlet            0.14s  
-  ✓ another tenants membership is not addressable                        0.16s  
+  ✓ a membership cannot be assigned to another tenants outlet            0.15s  
+  ✓ another tenants membership is not addressable                        0.15s  
   ✓ the database refuses a cross tenant assignment row                   0.03s  
-  ✓ a half written revocation is refused by the database                 0.15s  
-  ✓ an owner may grant a role they hold                                  0.14s  
+  ✓ a half written revocation is refused by the database                 0.14s  
+  ✓ an owner may grant a role they hold                                  0.16s  
   ✓ an admin cannot grant a role carrying a permission they lack         0.15s  
-  ✓ an admin may grant a role strictly within their own permissions      0.18s  
-  ✓ a platform role is never assignable through a membership             0.16s  
+  ✓ an admin may grant a role strictly within their own permissions      0.15s  
+  ✓ a platform role is never assignable through a membership             0.14s  
   ✓ an unknown role key is refused                                       0.15s  
-  ✓ granting a role twice is idempotent                                  0.18s  
+  ✓ granting a role twice is idempotent                                  0.17s  
   ✓ removing a role takes effect on the very next request                0.18s  
-  ✓ role removal is not escalation guarded                               0.17s  
-  ✓ a member without the staff permission cannot roster                  0.14s  
-  ✓ an outlet manager cannot assign roles                                0.15s  
+  ✓ role removal is not escalation guarded                               0.14s  
+  ✓ a member without the staff permission cannot roster                  0.16s  
+  ✓ an outlet manager cannot assign roles                                0.16s  
   ✓ the staff list is tenant scoped                                      0.15s  
   ✓ the staff projection does not expose a phone number                  0.15s  
   ✓ the phone shape assertion actually catches a phone number            0.02s  
-  ✓ assignment and revocation are audited with tenant and actor          0.15s  
-  ✓ role assignment is audited                                           0.16s  
+  ✓ assignment and revocation are audited with tenant and actor          0.16s  
+  ✓ role assignment is audited                                           0.17s  
   ✓ membership outlet is bound to both sides by composite key            0.02s  
   ✓ step 4 introduces no new role or permission model                    0.02s  
 
    PASS  Tests\Feature\TenantContextTest
-  ✓ a user lists only the tenants they belong to                         0.14s  
-  ✓ selecting a tenant returns the context with recomputed permissions   0.13s  
-  ✓ selecting a tenant the user does not belong to is denied             0.14s  
+  ✓ a user lists only the tenants they belong to                         0.16s  
+  ✓ selecting a tenant returns the context with recomputed permissions   0.14s  
+  ✓ selecting a tenant the user does not belong to is denied             0.15s  
   ✓ a suspended membership cannot select its tenant                      0.13s  
   ✓ outlets of the active tenant are listed                              0.14s  
   ✓ an outlet of the active tenant is selected                           0.14s  
-  ✓ an outlet belonging to another tenant cannot be selected             0.14s  
+  ✓ an outlet belonging to another tenant cannot be selected             0.15s  
   ✓ a tenant scoped endpoint requires a tenant                           0.14s  
-  ✓ current membership reports the callers own context                   0.14s  
-  ✓ the same identity gets different permissions in each tenant          0.17s  
+  ✓ current membership reports the callers own context                   0.15s  
+  ✓ the same identity gets different permissions in each tenant          0.14s  
 
-  Tests:    536 passed (5204 assertions)
-  Duration: 56.26s
+  Tests:    538 passed (5209 assertions)
+  Duration: 56.73s
 

@@ -1,71 +1,85 @@
 # Step 5 — POS, Order, and Payment Foundation: Evidence Pack
 
 **Step:** 5 — POS, Order, and Payment Foundation
-**Status:** `IN PROGRESS` — backend foundation complete and verified; `GO` is the owner's to confer after merge and the remaining scope below.
+**Status:** `IN PROGRESS` — backend (Units A–E) and the operator UI (Unit F) implemented and verified;
+OQ-017 resolved. `GO` is the owner's to confer after merge.
 **Authorised by:** the canonical roadmap (Master Source §24) — runtime scope opened by
-[DEC-0035](../../docs/decisions/DEC-0035-step-05-runtime-scope-transition.md).
-**Master Source version:** 1.4.6
+[DEC-0035](../../docs/decisions/DEC-0035-step-05-runtime-scope-transition.md); order-line rounding
+mode ratified by [DEC-0036](../../docs/decisions/DEC-0036-oq-017-order-rounding-mode-halfup.md).
+**Master Source version:** 1.4.7
 
-## Exact-SHA binding (Rule 01, DEC-0013)
+## SHAs (kept distinct, Rule 01)
 
-Every gate result in this pack was produced at commit
-**`c2565fca4d64bad15b75830d37ab39c8ac06f060`**, on a clean working tree, against the
-authoritative **PostgreSQL** development database (Rule 43). This README and the captured `.txt`
-files are committed in the immediately following commit; the results belong to the SHA above, not to
-the commit that stores them.
+| Role | SHA |
+|---|---|
+| Baseline (`main` at Step 5 start) | `d18602950034973b6f2bdeef107d146e940450e8` |
+| Backend runtime checkpoint (first gate run) | `c2565fca4d64bad15b75830d37ab39c8ac06f060` |
+| Backend evidence commit | `9d381d57dd854a74356e7f69c8b34abe2234a135` |
+| **Complete Step 5 candidate — all gates re-run here (backend + Unit F)** | **`b12921a8a0de744ae8ecbae3c83e10962699281f`** |
 
-**Sanitisation.** Every captured file is test/gate console output — test names, pass counts, and
-classification lines only. No customer datum, phone number, address, token, secret, or credential
-appears in any file; every test fixture uses recognisably fictional data (e.g. `0812-0000-0000`),
-scanned before commit (Rule 23).
+The gate results in THIS pack were produced at the complete candidate
+**`b12921a8a0de744ae8ecbae3c83e10962699281f`**, on a clean working tree, against the authoritative
+PostgreSQL database and with the pinned Flutter 3.44.6 SDK (Rule 43, Rule 37). This README and the
+`.txt` files are committed in the immediately following commit; the results belong to the candidate SHA
+above. Results captured only at the earlier backend checkpoint are NOT claimed to prove the Flutter
+candidate — the full backend suite was re-run here.
 
-## What was verified (captured files)
+**Sanitisation.** Every captured file is test/gate console output only — no customer datum, phone,
+address, token, secret, or credential; every fixture is recognisably fictional; scanned before commit
+(Rule 23).
+
+## What was verified (captured files, all at `b12921a`)
 
 | Gate | File | Result |
 |---|---|---|
-| Full backend suite (regression + Step 5), live PostgreSQL | [`full-suite.txt`](full-suite.txt) | **536 passed** (5204 assertions), 0 failed |
-| Step 5 suites (Ordering + Payments) | [`step5-suites.txt`](step5-suites.txt) | **70 passed** (136 assertions) |
-| Migration up / rollback / re-apply (orders, payments) | [`migrations.txt`](migrations.txt) | all `DONE` |
+| Full backend suite (regression + Step 5), live PostgreSQL | [`backend-full.txt`](backend-full.txt) | **538 passed** (5209 assertions), 0 failed |
+| Step 5 backend suites (Ordering + Payments) | [`backend-step5.txt`](backend-step5.txt) | **72 passed** |
+| Flutter analyze (domain, networking, ops_android, admin_web) | [`flutter-analyze.txt`](flutter-analyze.txt) | No issues found |
+| Flutter order/payment contract tests (`pos_repository`) | [`flutter-pos-repo.txt`](flutter-pos-repo.txt) | **7 passed** |
+| Flutter ops_android suite (incl. POS widget tests) | [`flutter-ops-suite.txt`](flutter-ops-suite.txt) | **113 passed** |
 | Governance validator suite (7 validators) | [`governance.txt`](governance.txt) | **PASS** |
-| Runtime-scope guard (`classify`) | [`runtime-scope.txt`](runtime-scope.txt) | PASS — within scope |
-| DEC-0035 label audit (Step 5 residual) | [`dec-0035-labels.txt`](dec-0035-labels.txt) | PASS |
-| DEC-0030 label audit (step-aware) | [`dec-0030-labels.txt`](dec-0030-labels.txt) | PASS |
+| Runtime-scope guard (`classify`) | [`runtime-scope.txt`](runtime-scope.txt) | PASS |
+| DEC-0035 label audit | [`dec-0035-labels.txt`](dec-0035-labels.txt) | PASS |
 | Step 5 adversarial harness | [`adversarial-step05.txt`](adversarial-step05.txt) | **12/12** |
-| Step 4 adversarial harness (step-aware) | [`adversarial-step04.txt`](adversarial-step04.txt) | **4/4** |
-| Live-schema Step 5 scope guard | [`schema-scope.txt`](schema-scope.txt) | within Step 5 scope — 3 Step 5 tables, 0 forbidden |
-| No float in any money path | [`money-rules.txt`](money-rules.txt) | PASS (21/21) |
-| MASTER_SOURCE checksum | [`checksum.txt`](checksum.txt) | OK |
+| Live-schema Step 5 scope guard | [`schema-scope.txt`](schema-scope.txt) | within scope (3 Step 5 tables, 0 forbidden) |
+| No float in any money path | [`money-rules.txt`](money-rules.txt) | PASS |
+| MASTER_SOURCE checksum (1.4.7) | [`checksum.txt`](checksum.txt) | OK |
 
-The canonical Step 5 verifier is [`scripts/verify-step-05.sh`](../../scripts/verify-step-05.sh); it
-orchestrates the above plus the delegated Step 0-4 regression (including the Flutter gates, which run
-in CI / an environment with Flutter on PATH).
+Runner: [`scripts/verify-step-05.sh`](../../scripts/verify-step-05.sh) — orchestrates the above plus
+the delegated Step 0–4 regression (the Flutter Step 0–4 gates run in CI / with Flutter on PATH).
 
-## Requirement → evidence traceability (Step 5 backend)
+## Requirement → evidence traceability
+
+**Backend (FR-048 … FR-070, FR-036):**
 
 | Requirement | Enforced by | Proven in |
 |---|---|---|
 | FR-048/050/053/055/058/059/060, FR-036 snapshot | orders/order_lines schema + `OrderRegistry` | `OrderingSchemaTest` (16), `OrderRegistryTest` (13) |
-| FR-051 server-authoritative totals | `OrderPricing`, DB CHECK `total = subtotal - discount` | `OrderPricingTest` (10), surface test (client total ignored) |
-| FR-052 nota | `ReceiptProjection` (captured-price snapshot) | `PaymentRegistryTest`, surface test |
-| FR-061/062/064 payment methods, idempotency, no client-claimed paid | `PaymentRegistry`, UNIQUE(client_reference) | `PaymentRegistryTest` (14), `OrderPaymentSurfaceTest` |
-| FR-063 gateway callback verification + replay reject | `PaymentRegistry::confirmGateway` | `PaymentRegistryTest` |
-| FR-065/067 refund/void by reversal, with reason | `PaymentRegistry::reverse` | `PaymentRegistryTest` |
-| FR-066 no hard delete of financial records | `payments` ENABLE ALWAYS delete trigger | `PaymentsSchemaTest` ("can never be hard deleted") |
+| FR-051 server-authoritative totals; FR-038/OQ-017 HALF_UP | `OrderPricing` + DB CHECK | `OrderPricingTest` (12, incl. half-Rupiah boundary) |
+| FR-052 nota | `ReceiptProjection` (captured-price snapshot) | `PaymentRegistryTest`, `OrderPaymentSurfaceTest` |
+| FR-061/062/064 payment methods, idempotency, no client-claimed paid | `PaymentRegistry` + UNIQUE(client_reference) | `PaymentRegistryTest` (14) |
+| FR-063 gateway verification + replay reject | `PaymentRegistry::confirmGateway` | `PaymentRegistryTest` |
+| FR-065/067 refund/void by reversal + reason | `PaymentRegistry::reverse` | `PaymentRegistryTest` |
+| FR-066 no hard delete of financial records | `payments` ENABLE ALWAYS trigger | `PaymentsSchemaTest` |
 | FR-070 receivable (derived) | `OrderBalance` | `PaymentRegistryTest`, `OrderPaymentSurfaceTest` |
-| Tenant isolation (Rule 02/48) — every access path | composite FKs + tenant-scoped queries + policies | schema tests (cross-tenant reject), surface test (404 + empty list) |
-| RBAC (Rule 40) | `OrderPolicy`/`PaymentPolicy` + `PermissionRegistry` | `OrderPaymentSurfaceTest` (403s), full auth suite |
+| Tenant isolation (Rule 02/48); RBAC (Rule 40) | composite FKs + policies | schema tests, `OrderPaymentSurfaceTest` (403/404) |
 
-## What is NOT yet done (honest scope, Rule 01)
+**Operator UI — Unit F (FR-048/049 intake, FR-051 display, FR-052 nota, FR-057 list, FR-064 QRIS):**
 
-This pack evidences the **backend foundation**. The following remain and are why Step 5 is not `GO`:
+| Requirement | Delivered by | Proven in |
+|---|---|---|
+| FR-057 order list, outlet-scoped | `pos_counter_screen.dart` | `pos_test.dart` (list render + `outlet_id` sent) |
+| FR-048/049 shortest-path intake, idempotent | `pos_new_order_screen.dart` (single `client_reference`) | `pos_test`, `pos_repository_test` |
+| FR-051 server totals shown, never client-computed | `OrderProjection`/`Rupiah` (integer, no arithmetic) | `pos_test` (Rp20.000 from server), `pos_repository_test` |
+| FR-052 nota | `_ReceiptSheet` from server `Receipt` | `pos_test` (detail), `pos_repository_test` |
+| FR-058/065 cancel/reverse with reason | detail actions | `pos_test` (actions), `pos_repository_test` (reason sent) |
+| FR-064 QRIS shown as pending, never fabricated | payment sheet + `PaymentMethod.isGateway` | code + `pos_repository_test` |
 
-- **Unit F — Flutter/operator POS UI** (customer/service selection, item entry, payment confirmation,
-  receipt, and their loading/empty/error/unauthorized/conflict states) is **NOT IMPLEMENTED**. The
-  backend API contract it consumes is complete and tested.
-- **Full `verify-step-05.sh` run including the delegated Flutter Step 0-4 gates** is intended for CI /
-  an environment with Flutter on PATH; the backend gates above were captured directly here.
-- **Owner merge to `main`** (Rule 12) and **owner-conferred `GO`** (Rule 01) — `GO` is never
-  self-declared by an agent.
+## What remains (why this is still `IN PROGRESS`, not `GO`)
+
+- **Owner merge of PR #21 to `main`** (Rule 12 — merge is the owner's) and **owner-conferred `GO`**
+  (Rule 01 — never self-declared by an agent).
 - **Deployment** remains `ABSENT` and is not authorised by anything in Step 5.
-- **OQ-017** (order-line rounding mode) is a flagged open question; the foundation uses a single,
-  changeable `HALF_UP` constant pending owner ratification.
+
+No internally-actionable Step 5 requirement remains: the backend and the operator UI are implemented
+and verified, and OQ-017 is closed.

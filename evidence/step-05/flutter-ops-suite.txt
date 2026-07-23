@@ -1,0 +1,132 @@
+Resolving dependencies in `/home/fikri/Projects/aish_laundry`...
+Downloading packages...
+  _fe_analyzer_shared 99.0.0 (105.0.0 available)
+  analyzer 12.1.0 (14.1.0 available)
+  flutter_secure_storage_darwin 0.3.2 (0.4.0 available)
+  hooks 2.0.2 (2.1.0 available)
+  matcher 0.12.19 (0.12.20 available)
+  meta 1.18.0 (1.19.0 available)
+  package_config 2.2.0 (3.0.0 available)
+  record_use 0.6.0 (1.0.0 available)
+  test 1.31.0 (1.31.2 available)
+  test_api 0.7.11 (0.7.13 available)
+  test_core 0.6.17 (0.6.19 available)
+  vector_math 2.2.0 (2.4.1 available)
+Got dependencies in `/home/fikri/Projects/aish_laundry`!
+12 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart
+00:00 +0: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +1: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +2: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +3: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +4: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +5: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +6: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +7: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +8: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +9: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +10: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +11: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +12: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +13: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +14: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +15: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +16: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +17: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +18: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +19: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +20: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +21: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +22: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +23: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +24: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +25: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +26: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +27: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +28: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Startup coordinator ordering an authenticated user MUST choose a tenant first
+00:00 +29: /home/fikri/Projects/aish_laundry/apps/ops_android/test/runtime_composition_test.dart: real startup an unauthenticated launch reaches sign-in, not a crash
+00:01 +30: /home/fikri/Projects/aish_laundry/apps/ops_android/test/runtime_composition_test.dart: real startup an unauthenticated launch reaches sign-in, not a crash
+00:01 +31: /home/fikri/Projects/aish_laundry/apps/ops_android/test/runtime_composition_test.dart: real startup an unauthenticated launch reaches sign-in, not a crash
+00:01 +32: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: Customer lookup renders every canonical state LOADED shows a masked phone and offers no unmask control
+00:01 +33: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: Customer lookup renders every canonical state LOADED shows a masked phone and offers no unmask control
+00:01 +34: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: Customer lookup renders every canonical state LOADED shows a masked phone and offers no unmask control
+00:01 +35: /home/fikri/Projects/aish_laundry/apps/ops_android/test/customer_address_test.dart: Address list 1. renders the saved addresses on a successful load
+00:01 +36: /home/fikri/Projects/aish_laundry/apps/ops_android/test/customer_address_test.dart: Address list 1. renders the saved addresses on a successful load
+00:01 +37: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: Customer lookup renders every canonical state a list row renders no address component
+00:01 +38: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: Customer lookup renders every canonical state a list row renders no address component
+00:01 +39: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Tenant selection a refused tenant lands on access denied
+00:01 +40: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Tenant selection a refused tenant lands on access denied
+00:01 +41: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: Customer lookup renders every canonical state EMPTY after a search names the term that found nothing
+00:02 +42: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: Customer lookup renders every canonical state EMPTY after a search names the term that found nothing
+00:02 +43: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: Customer lookup renders every canonical state EMPTY after a search names the term that found nothing
+00:02 +44: /home/fikri/Projects/aish_laundry/apps/ops_android/test/customer_address_test.dart: Create and edit 4. the create form opens and validates a required label
+00:02 +45: /home/fikri/Projects/aish_laundry/apps/ops_android/test/customer_address_test.dart: Create and edit 4. the create form opens and validates a required label
+00:02 +46: /home/fikri/Projects/aish_laundry/apps/ops_android/test/customer_address_test.dart: Create and edit 4. the create form opens and validates a required label
+00:02 +47: /home/fikri/Projects/aish_laundry/apps/ops_android/test/customer_address_test.dart: Create and edit 4. the create form opens and validates a required label
+00:02 +48: /home/fikri/Projects/aish_laundry/apps/ops_android/test/customer_address_test.dart: Create and edit 4. the create form opens and validates a required label
+00:02 +49: /home/fikri/Projects/aish_laundry/apps/ops_android/test/customer_address_test.dart: Create and edit 4. the create form opens and validates a required label
+00:02 +50: /home/fikri/Projects/aish_laundry/apps/ops_android/test/customer_address_test.dart: Create and edit 4. the create form opens and validates a required label
+00:02 +51: /home/fikri/Projects/aish_laundry/apps/ops_android/test/customer_address_test.dart: Create and edit 4. the create form opens and validates a required label
+00:02 +52: /home/fikri/Projects/aish_laundry/apps/ops_android/test/pos_test.dart: the counter lists an order with its number, total and status
+00:02 +53: /home/fikri/Projects/aish_laundry/apps/ops_android/test/pos_test.dart: the counter lists an order with its number, total and status
+00:03 +54: /home/fikri/Projects/aish_laundry/apps/ops_android/test/pos_test.dart: the counter lists an order with its number, total and status
+00:03 +55: /home/fikri/Projects/aish_laundry/apps/ops_android/test/pos_test.dart: the counter lists an order with its number, total and status
+00:03 +56: /home/fikri/Projects/aish_laundry/apps/ops_android/test/pos_test.dart: the counter lists an order with its number, total and status
+00:03 +57: /home/fikri/Projects/aish_laundry/apps/ops_android/test/pos_test.dart: the counter lists an order with its number, total and status
+00:03 +58: /home/fikri/Projects/aish_laundry/apps/ops_android/test/pos_test.dart: the counter lists an order with its number, total and status
+00:03 +59: /home/fikri/Projects/aish_laundry/apps/ops_android/test/pos_test.dart: the counter lists an order with its number, total and status
+00:03 +60: /home/fikri/Projects/aish_laundry/apps/ops_android/test/pos_test.dart: the counter lists an order with its number, total and status
+00:03 +61: /home/fikri/Projects/aish_laundry/apps/ops_android/test/pos_test.dart: the counter lists an order with its number, total and status
+00:03 +62: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting customer edit offers reload, never retry it says plainly that nothing was saved
+00:03 +63: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting customer edit offers reload, never retry it says plainly that nothing was saved
+00:03 +64: /home/fikri/Projects/aish_laundry/apps/ops_android/test/customer_address_test.dart: Create and edit 7. an edit submits the version it read with the record
+00:03 +65: /home/fikri/Projects/aish_laundry/apps/ops_android/test/customer_address_test.dart: Create and edit 7. an edit submits the version it read with the record
+00:03 +66: /home/fikri/Projects/aish_laundry/apps/ops_android/test/customer_address_test.dart: Create and edit 7. an edit submits the version it read with the record
+00:03 +67: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting customer edit offers reload, never retry it preserves what the operator typed
+00:03 +68: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting customer edit offers reload, never retry it preserves what the operator typed
+00:03 +69: /home/fikri/Projects/aish_laundry/apps/ops_android/test/pos_test.dart: the detail shows lines, the derived balance and the payment history
+00:03 +70: /home/fikri/Projects/aish_laundry/apps/ops_android/test/customer_address_test.dart: Stale write (HTTP 409) 8. a conflict is explained as somebody else having changed it
+00:04 +71: /home/fikri/Projects/aish_laundry/apps/ops_android/test/customer_address_test.dart: Stale write (HTTP 409) 8. a conflict is explained as somebody else having changed it
+00:04 +72: /home/fikri/Projects/aish_laundry/apps/ops_android/test/customer_address_test.dart: Stale write (HTTP 409) 8. a conflict is explained as somebody else having changed it
+00:04 +73: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting customer edit offers reload, never retry a conflict is not rendered as a validation error
+00:04 +74: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting customer edit offers reload, never retry a conflict is not rendered as a validation error
+00:04 +75: /home/fikri/Projects/aish_laundry/apps/ops_android/test/customer_address_test.dart: Stale write (HTTP 409) 9. the recovery is RELOAD, and no generic retry is offered
+00:04 +76: /home/fikri/Projects/aish_laundry/apps/ops_android/test/customer_address_test.dart: Stale write (HTTP 409) 9. the recovery is RELOAD, and no generic retry is offered
+00:04 +77: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting outlet edit behaves the same way reload is offered and retry is not
+00:04 +78: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting outlet edit behaves the same way reload is offered and retry is not
+00:04 +79: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting outlet edit behaves the same way reload is offered and retry is not
+00:04 +80: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting outlet edit behaves the same way reload is offered and retry is not
+00:04 +81: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting outlet edit behaves the same way reload is offered and retry is not
+00:04 +82: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Future-feature routes render the literal notice and keep the tenant banner
+00:04 +83: /home/fikri/Projects/aish_laundry/apps/ops_android/test/customer_address_test.dart: Stale write (HTTP 409) 11. the surface stays usable after a conflict
+00:04 +84: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting outlet edit behaves the same way the loaded version token is what the patch sends
+00:04 +85: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting outlet edit behaves the same way the loaded version token is what the patch sends
+00:04 +86: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting outlet edit behaves the same way the loaded version token is what the patch sends
+00:04 +87: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting outlet edit behaves the same way the loaded version token is what the patch sends
+00:04 +88: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: A conflicting outlet edit behaves the same way the loaded version token is what the patch sends
+00:04 +89: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Logout signs out and returns to sign-in
+00:04 +90: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Logout signs out and returns to sign-in
+00:05 +91: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Logout signs out and returns to sign-in
+00:05 +92: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Logout signs out and returns to sign-in
+00:05 +93: /home/fikri/Projects/aish_laundry/apps/ops_android/test/tenant_outlet_selection_test.dart: Logout signs out and returns to sign-in
+00:05 +94: /home/fikri/Projects/aish_laundry/apps/ops_android/test/customer_address_test.dart: Masking (FR-025) 17. a masked editor cannot blank a street it cannot read
+00:05 +95: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: Consent renders its true state and cannot be edited never-asked is not rendered as withdrawn
+00:05 +96: /home/fikri/Projects/aish_laundry/apps/ops_android/test/customer_address_test.dart: Masking (FR-025) 18. no street appears in the error state either
+00:05 +97: /home/fikri/Projects/aish_laundry/apps/ops_android/test/customer_address_test.dart: Masking (FR-025) 18. no street appears in the error state either
+00:05 +98: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: Consent renders its true state and cannot be edited withdrawing is confirmed with the safe choice focused
+00:05 +99: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: Consent renders its true state and cannot be edited withdrawing is confirmed with the safe choice focused
+00:05 +100: /home/fikri/Projects/aish_laundry/apps/ops_android/test/customer_address_test.dart: Authorization 20. a server refusal is stated as a permission matter
+00:05 +101: /home/fikri/Projects/aish_laundry/apps/ops_android/test/customer_address_test.dart: Authorization 20. a server refusal is stated as a permission matter
+00:05 +102: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: The roster keeps outlet assignment and role grant apart a suspended membership offers no assignment control
+00:05 +103: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: The roster keeps outlet assignment and role grant apart a suspended membership can still have a role revoked
+00:05 +104: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: The roster keeps outlet assignment and role grant apart the role picker never offers a platform role
+00:05 +105: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: The roster keeps outlet assignment and role grant apart the picker excludes a role the member already holds
+00:05 +106: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: The roster keeps outlet assignment and role grant apart granting a role is confirmed and states the effect
+00:05 +107: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: The roster keeps outlet assignment and role grant apart a refused role grant explains the escalation rule
+00:06 +108: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: The roster keeps outlet assignment and role grant apart revoking a role is confirmed as immediate
+00:06 +109: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: The catalogue quotes a price without computing a total it reads ACTIVE price lists only
+00:06 +110: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: The catalogue quotes a price without computing a total it offers no control that would author a price
+00:06 +111: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: The master-data routes name no order/payment/document no master-data route names an order, a payment or a document
+00:06 +112: /home/fikri/Projects/aish_laundry/apps/ops_android/test/master_data_test.dart: The master-data routes name no order/payment/document the customer detail route is built from an id, not guessed
+00:06 +113: All tests passed!

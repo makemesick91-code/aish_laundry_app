@@ -11,7 +11,7 @@ PASS  runtime introduction is backed by Master Source >= 1.4.0 and DEC-0024
 CLASSIFICATION: STEP_3_RUNTIME_FOUNDATION_WITHIN_SCOPE
 ========================================================================
   approved runtime roots : 14
-  files examined         : 899
+  files examined         : 923
   runtime present        : yes
 
   A runtime manifest is not evidence that a feature works.

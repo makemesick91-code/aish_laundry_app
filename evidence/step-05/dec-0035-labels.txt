@@ -8,7 +8,7 @@ PASS  no structural identifier carries a label DEC-0035 did not permit
 ------------------------------------------------------------------------
   permitted labels audited : 4
   forbidden labels checked : 9
-  source files examined    : 302
+  source files examined    : 312
   structural allowlist     : 1 entries, each with a reason
 
   RESIDUAL RISK, stated rather than implied: DEC-0035 reduced token
