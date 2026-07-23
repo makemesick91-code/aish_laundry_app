@@ -51,8 +51,17 @@ abstract final class OpsRoutes {
 
   static const String staffRoster = '/beranda/staf';
 
+  // Step 5 — POS counter (orders and payments), DEC-0035.
+  static const String counter = '/beranda/kasir';
+  static const String counterNewOrder = '/beranda/kasir/baru';
+
+  /// The detail route pattern and its builder. Literal `baru` is declared before
+  /// this `:orderId` pattern in the router, so `/kasir/baru` is not swallowed as
+  /// an order id.
+  static const String counterOrderDetail = '/beranda/kasir/:orderId';
+  static String counterOrderDetailFor(String orderId) => '/beranda/kasir/$orderId';
+
   // Future canonical Steps — placeholder only.
-  static const String futureCounter = '/beranda/kasir';
   static const String futureProduction = '/beranda/produksi';
   static const String futureQualityControl = '/beranda/kendali-mutu';
   static const String futureCourier = '/beranda/kurir';
