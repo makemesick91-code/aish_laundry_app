@@ -706,18 +706,26 @@ final class ServiceCatalogSurfaceTest extends TestCase
     // Absent by design
     // ==================================================================
 
-    public function test_no_order_payment_or_export_route_exists_on_the_catalogue_surface(): void
+    public function test_no_out_of_scope_business_route_exists(): void
     {
-        // DEC-0030, Rule 42. The catalogue configures what is sold; SELECTING
-        // from it is Step 5 and no route here anticipates it.
-        $forbidden = ['order', 'payment', 'invoice', 'receipt', 'nota', 'struk', 'export', 'bulk', 'checkout', 'cart'];
+        // DEC-0035 authorised the Step 5 order/payment/receipt surface, so those
+        // tokens are no longer forbidden. This assertion now guards the CURRENT
+        // forward boundary: Step 6+ business features (production, tracking,
+        // pickup, delivery, reminders, subscription) and features never in Step 5
+        // scope (invoice, export, bulk, checkout, cart) must still have no route.
+        $forbidden = [
+            'invoice', 'export', 'bulk', 'checkout', 'cart',
+            'produksi', 'production', 'washing', 'drying', 'tracking',
+            'whatsapp', 'pickup', 'penjemputan', 'delivery', 'pengantaran',
+            'reminder', 'subscription',
+        ];
 
         foreach (app('router')->getRoutes() as $route) {
             foreach ($forbidden as $token) {
                 $this->assertStringNotContainsString(
                     $token,
                     $route->uri(),
-                    "Route /{$route->uri()} contains the Step 5+ token \"{$token}\"."
+                    "Route /{$route->uri()} contains the out-of-scope token \"{$token}\"."
                 );
             }
         }

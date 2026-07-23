@@ -8,8 +8,10 @@ use App\Modules\CustomerManagement\Http\Controllers\CustomerController;
 use App\Modules\Identity\Http\Controllers\AuthController;
 use App\Modules\Identity\Http\Controllers\PasswordResetController;
 use App\Modules\Identity\Http\Controllers\SessionController;
+use App\Modules\Ordering\Http\Controllers\OrderController;
 use App\Modules\Organization\Http\Controllers\OutletMasterDataController;
 use App\Modules\Organization\Http\Controllers\StaffAssignmentController;
+use App\Modules\Payments\Http\Controllers\PaymentController;
 use App\Modules\ServiceCatalog\Http\Controllers\PriceListController;
 use App\Modules\ServiceCatalog\Http\Controllers\ServiceCatalogController;
 use App\Modules\Tenancy\Http\Controllers\ContextController;
@@ -297,4 +299,25 @@ Route::middleware(['auth.api', 'tenant.context'])->group(function (): void {
         ->name('api.v1.price-lists.items.update');
     Route::delete('price-lists/{priceList}/items/{item}', [PriceListController::class, 'destroyItem'])
         ->name('api.v1.price-lists.items.destroy');
+
+    // -----------------------------------------------------------------------
+    // Step 5 — orders (FR-048 … FR-060) and payments (FR-061 … FR-069),
+    // authorised by the canonical roadmap and DEC-0035.
+    //
+    // There is NO order destroy and NO payment update/destroy route: an order is
+    // cancelled (with a reason) and a payment is reversed (with a reason), never
+    // deleted — the ledger is append-only (FR-066). Placing and cancelling have
+    // their own routes and permissions because each is a distinct control point.
+    // -----------------------------------------------------------------------
+    Route::get('orders', [OrderController::class, 'index'])->name('api.v1.orders.index');
+    Route::post('orders', [OrderController::class, 'store'])->name('api.v1.orders.store');
+    Route::get('orders/{order}', [OrderController::class, 'show'])->name('api.v1.orders.show');
+    Route::post('orders/{order}/place', [OrderController::class, 'place'])->name('api.v1.orders.place');
+    Route::post('orders/{order}/cancel', [OrderController::class, 'cancel'])->name('api.v1.orders.cancel');
+    Route::get('orders/{order}/receipt', [OrderController::class, 'receipt'])->name('api.v1.orders.receipt');
+
+    Route::get('orders/{order}/payments', [PaymentController::class, 'index'])->name('api.v1.orders.payments.index');
+    Route::post('orders/{order}/payments', [PaymentController::class, 'store'])->name('api.v1.orders.payments.store');
+    Route::post('payments/{payment}/confirm', [PaymentController::class, 'confirm'])->name('api.v1.payments.confirm');
+    Route::post('payments/{payment}/reverse', [PaymentController::class, 'reverse'])->name('api.v1.payments.reverse');
 });

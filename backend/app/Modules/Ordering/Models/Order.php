@@ -56,6 +56,13 @@ class Order extends Model
 
     public const STATUS_CANCELLED = 'CANCELLED';
 
+    /** The fifteen canonical order statuses (Rule 19); mirrors the DB CHECK. */
+    public const CANONICAL_STATUSES = [
+        'DRAFT', 'RECEIVED', 'AWAITING_PROCESS', 'SORTING', 'WASHING', 'DRYING',
+        'FINISHING', 'QUALITY_CONTROL', 'REWORK', 'READY_FOR_PICKUP',
+        'SCHEDULED_FOR_DELIVERY', 'OUT_FOR_DELIVERY', 'COMPLETED', 'CANCELLED', 'ISSUE',
+    ];
+
     protected $table = 'orders';
 
     /**
