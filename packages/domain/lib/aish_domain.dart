@@ -1,14 +1,17 @@
-/// Identity, tenancy, authorization, and LAUNDRY MASTER DATA projections.
+/// Identity, tenancy, authorization, LAUNDRY MASTER DATA, and STEP 5 POS/order/
+/// payment projections.
 ///
 /// SCOPE BOUNDARY, stated so it cannot be crossed by accident: this package
-/// carries NO order, payment, invoice, receipt, production, tracking, delivery,
-/// reminder, finance, loyalty or subscription type. Those belong to Step 5 and
-/// later, and a type added here early is roadmap leakage rather than a head
-/// start (CLAUDE.md §3, Rule 42).
+/// carries NO invoice, production, tracking, delivery, reminder, finance,
+/// loyalty or subscription type. Those belong to Step 6 and later, and a type
+/// added here early is roadmap leakage rather than a head start (CLAUDE.md §3,
+/// Rule 42). Order, payment, and receipt projections ARE carried now: DEC-0035
+/// authorised the Step 5 runtime.
 ///
-/// Step 3 delivered the identity and tenancy projections. Step 4 adds master
+/// Step 3 delivered the identity and tenancy projections. Step 4 added master
 /// data under DEC-0028 and DEC-0030: customers, the service catalogue, price
-/// lists, outlet configuration, and staff assignment.
+/// lists, outlet configuration, and staff assignment. Step 5 adds the order,
+/// payment, and receipt projections under DEC-0035.
 ///
 /// Every type here is a PROJECTION of server state. The backend is the
 /// authorization authority; these classes describe what the client was TOLD,
@@ -31,6 +34,9 @@ export 'src/master_data/rupiah.dart';
 export 'src/master_data/staff_assignment.dart';
 export 'src/master_data/tenant_role.dart';
 export 'src/membership.dart';
+export 'src/pos/order.dart';
+export 'src/pos/payment.dart';
+export 'src/pos/receipt.dart';
 export 'src/outlet.dart';
 export 'src/permission.dart';
 export 'src/role.dart';
