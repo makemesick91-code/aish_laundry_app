@@ -1,0 +1,27 @@
+========================================================================
+VALIDATOR: money-rules
+========================================================================
+PASS  Step 1 corpus exists to validate
+PASS  corpus states: money is integer Rupiah
+PASS  corpus states: floating point is forbidden in financial paths
+PASS  corpus states: payments are idempotent
+PASS  corpus states: idempotency is keyed on a client reference
+PASS  corpus states: historical price snapshot is immutable
+PASS  corpus states: a price-list change never alters a past order
+PASS  corpus states: financial records are never hard-deleted
+PASS  corpus states: corrections are reversal or adjustment entries
+PASS  corpus states: an order is never marked paid on a client claim
+PASS  corpus states: gateway callbacks are verified server-side
+PASS  corpus states: refund requires permission and a reason
+PASS  corpus states: shift closing compares expected against actual cash
+PASS  corpus states: courier cash is reconciled
+PASS  docs/domain/PAYMENT_DOMAIN.md exists
+PASS  payment domain states: money is integer Rupiah
+PASS  payment domain states: payments are idempotent
+PASS  payment domain states: corrections are reversal-based
+PASS  no a float() cast on money in the corpus
+PASS  no a float-typed money field in the corpus
+PASS  no a fractional decimal money column in the corpus
+------------------------------------------------------------------------
+SUMMARY [money-rules]: 21/21 checks passed, 0 failed
+RESULT: PASS (money-rules)

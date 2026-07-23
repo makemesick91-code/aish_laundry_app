@@ -10,11 +10,15 @@ use App\Modules\Authorization\Policies\CustomerPolicy;
 use App\Modules\Authorization\Policies\DeviceSessionPolicy;
 use App\Modules\Authorization\Policies\LaundryBrandPolicy;
 use App\Modules\Authorization\Policies\MembershipPolicy;
+use App\Modules\Authorization\Policies\OrderPolicy;
 use App\Modules\Authorization\Policies\OutletPolicy;
+use App\Modules\Authorization\Policies\PaymentPolicy;
 use App\Modules\Authorization\Policies\PriceListPolicy;
 use App\Modules\Authorization\Policies\ServicePolicy;
 use App\Modules\CustomerManagement\Models\Customer;
 use App\Modules\Identity\Models\User;
+use App\Modules\Ordering\Models\Order;
+use App\Modules\Payments\Models\Payment;
 use App\Modules\Organization\Models\LaundryBrand;
 use App\Modules\Organization\Models\Outlet;
 use App\Modules\ServiceCatalog\Models\PriceList;
@@ -28,14 +32,16 @@ use Illuminate\Support\ServiceProvider;
 /**
  * Wires the Step 3 authorization surface.
  *
- * SCOPE DISCIPLINE: policies exist here for STEP 3 and STEP 4 resources only —
- * tenant context, membership, laundry brand, outlet, device session, role
- * assignment, permission inspection, audit read, and the Step 4 master data
- * authorised by DEC-0028 and DEC-0030.
+ * SCOPE DISCIPLINE: policies exist here for STEP 3, STEP 4, and the STEP 5
+ * order surface authorised by the canonical roadmap and DEC-0035 — tenant
+ * context, membership, laundry brand, outlet, device session, role assignment,
+ * permission inspection, audit read, the Step 4 master data (DEC-0028, DEC-0030),
+ * and the Step 5 order aggregate.
  *
- * There is still no policy for an order, a payment, a receipt, production,
- * tracking, a delivery, a reminder, or a subscription, because none of those
- * exists. Adding one early would be scope leakage (CLAUDE.md §3, roadmap lock).
+ * There is still no policy for a payment, a receipt, production, tracking, a
+ * delivery, a reminder, or a subscription. Payment/receipt arrive later in
+ * Step 5; production and beyond are Step 6+ and remain scope leakage until their
+ * own step is authorised (CLAUDE.md §3, roadmap lock, Rule 36 hard rule 8).
  */
 final class AuthorizationServiceProvider extends ServiceProvider
 {
@@ -65,6 +71,10 @@ final class AuthorizationServiceProvider extends ServiceProvider
         Gate::policy(Service::class, ServicePolicy::class);
 
         Gate::policy(PriceList::class, PriceListPolicy::class);
+
+        // Step 5 orders and payments (DEC-0035, canonical roadmap authorisation).
+        Gate::policy(Order::class, OrderPolicy::class);
+        Gate::policy(Payment::class, PaymentPolicy::class);
 
         $this->defineContextGates();
     }

@@ -127,6 +127,25 @@ make_fixture() {
 SCOPE_GUARD="scripts/validate-runtime-scope.py"
 LABEL_AUDIT="scripts/validate-dec-0030-labels.py"
 
+# The canonical current step. DEC-0035 permitted the seven Step 5 labels
+# (order, payment, receipt/nota, POS, intake, refund, QRIS) from step 5 onward.
+# The order/payment/receipt fixtures below were VIOLATIONS while step < 5; from
+# step 5 they are authorised runtime, and that boundary's adversarial coverage —
+# Step 5 accepted, Step 6 rejected — moves to test-step-05-validators.sh. This
+# harness keeps its Step-4-boundary assertions and skips the superseded ones.
+STEP="$(python3 -c 'import sys; sys.path.insert(0, "scripts"); import _common; print(_common.CANONICAL_CURRENT_STEP)')" \
+  || abort_setup "could not read CANONICAL_CURRENT_STEP"
+
+# expect_reject for a token that DEC-0035 later permitted: a real reject below
+# step 5, a recorded skip at/after it (coverage lives in test-step-05).
+reject_step5_token() {
+  if [ "$STEP" -lt 5 ]; then
+    expect_reject "$1" "$2"
+  else
+    echo "  --    ${1} — superseded by DEC-0035 (covered in test-step-05-validators.sh)"
+  fi
+}
+
 echo "========================================================================"
 echo "ADVERSARIAL TEST — STEP 4 VALIDATORS"
 echo "========================================================================"
@@ -163,8 +182,8 @@ make_fixture "$MIGRATION" \
   '  }' \
   '};'
 grep -q "$ORDERS" "$MIGRATION" || abort_setup "the orders fixture does not contain its token"
-expect_reject "scope guard rejects a Step 5 order table" "$SCOPE_GUARD"
-expect_reject "label audit rejects a Step 5 order table" "$LABEL_AUDIT"
+reject_step5_token "scope guard rejects a Step 5 order table" "$SCOPE_GUARD"
+reject_step5_token "label audit rejects a Step 5 order table" "$LABEL_AUDIT"
 rm -f "$MIGRATION"
 
 # The rename-evasion case. Rule 36 hard rule 4 treats renaming to evade
@@ -181,7 +200,7 @@ make_fixture "$MIGRATION2" \
   '  }' \
   '};'
 grep -q "$RECEIPTS" "$MIGRATION2" || abort_setup "the receipts fixture does not contain its token"
-expect_reject "label audit rejects a compound-renamed receipt table" "$LABEL_AUDIT"
+reject_step5_token "label audit rejects a compound-renamed receipt table" "$LABEL_AUDIT"
 rm -f "$MIGRATION2"
 
 # The Indonesian-rename case: a POS document named in Bahasa Indonesia.
@@ -197,7 +216,7 @@ make_fixture "$MIGRATION3" \
   '  }' \
   '};'
 grep -q "$NOTA" "$MIGRATION3" || abort_setup "the nota fixture does not contain its token"
-expect_reject "label audit rejects an Indonesian-renamed document table" "$LABEL_AUDIT"
+reject_step5_token "label audit rejects an Indonesian-renamed document table" "$LABEL_AUDIT"
 rm -f "$MIGRATION3"
 echo
 
@@ -214,8 +233,8 @@ PAYMENT="$(printf '%s%s' 'pay' 'ments')"
 printf "\n// ADVERSARIAL FIXTURE — removed by the harness.\nRoute::post('%s', [PriceListController::class, 'store']);\n" \
   "$PAYMENT" >> "$ROUTES" || abort_setup "could not append the payment route"
 grep -q "$PAYMENT" "$ROUTES" || abort_setup "the payment route was not appended"
-expect_reject "scope guard rejects a Step 5 payment route" "$SCOPE_GUARD"
-expect_reject "label audit rejects a Step 5 payment route" "$LABEL_AUDIT"
+reject_step5_token "scope guard rejects a Step 5 payment route" "$SCOPE_GUARD"
+reject_step5_token "label audit rejects a Step 5 payment route" "$LABEL_AUDIT"
 cleanup
 BACKED_UP=()
 echo
@@ -234,7 +253,10 @@ make_fixture "$PRINTER_MODEL" \
   "  protected \$table = 'outlet_printer_${RECEIPTS}';" \
   '}'
 grep -q "$RECEIPTS" "$PRINTER_MODEL" || abort_setup "the printer-document fixture lacks its token"
-expect_reject "label audit rejects a document template beside printer config" "$LABEL_AUDIT"
+# The FR-045-vs-FR-052 boundary (printer config must not become the nota) only
+# holds below step 5; DEC-0035 authorises the nota from step 5, so this is
+# superseded exactly like the order/payment/receipt fixtures above.
+reject_step5_token "label audit rejects a document template beside printer config" "$LABEL_AUDIT"
 rm -f "$PRINTER_MODEL"
 echo
 

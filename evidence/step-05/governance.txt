@@ -1,0 +1,629 @@
+
+========================================================================
+VALIDATOR: required-files
+========================================================================
+PASS  required file exists: README.md
+PASS  required file exists: CLAUDE.md
+PASS  required file exists: CONTRIBUTING.md
+PASS  required file exists: SECURITY.md
+PASS  required file exists: .editorconfig
+PASS  required file exists: .gitignore
+PASS  required file exists: docs/MASTER_SOURCE.md
+PASS  required file exists: docs/MASTER_SOURCE.sha256
+PASS  required file exists: docs/CHANGELOG.md
+PASS  required file exists: docs/DEFINITION_OF_DONE.md
+PASS  required file exists: docs/ROADMAP.md
+PASS  required file exists: docs/STATUS.md
+PASS  required file exists: docs/ASSUMPTIONS.md
+PASS  required file exists: docs/GOVERNANCE_TRACEABILITY.md
+PASS  required file exists: docs/GIT_AND_RELEASE_POLICY.md
+PASS  required file exists: docs/AI_EXECUTION_POLICY.md
+PASS  required file exists: docs/TOOLING_POLICY.md
+PASS  required file exists: docs/governance/REQUIRED_FILES.md
+PASS  required file exists: docs/governance/STATUS_MODEL.md
+PASS  required file exists: docs/governance/EVIDENCE_POLICY.md
+PASS  required file exists: docs/governance/TENANT_ISOLATION_POLICY.md
+PASS  required file exists: docs/governance/FINANCIAL_INTEGRITY_POLICY.md
+PASS  required file exists: .claude/hooks/guard-destructive-operations.sh
+PASS  required file exists: .claude/skills/aish-laundry-governance/SKILL.md
+PASS  required file exists: .github/pull_request_template.md
+PASS  required file exists: .github/CODEOWNERS
+PASS  required file exists: .github/dependabot.yml
+PASS  required file exists: .github/ISSUE_TEMPLATE/bug.yml
+PASS  required file exists: .github/ISSUE_TEMPLATE/feature.yml
+PASS  required file exists: .github/ISSUE_TEMPLATE/governance.yml
+PASS  required file exists: .github/ISSUE_TEMPLATE/config.yml
+PASS  required directory exists: .claude/rules/
+PASS  rule files present: 51 distinct numbers (expected 51)
+PASS  rule 00 present exactly once: .claude/rules/00-canonical-source.md
+PASS  rule 01 present exactly once: .claude/rules/01-status-and-evidence.md
+PASS  rule 02 present exactly once: .claude/rules/02-multi-tenancy.md
+PASS  rule 03 present exactly once: .claude/rules/03-security-and-privacy.md
+PASS  rule 04 present exactly once: .claude/rules/04-financial-integrity.md
+PASS  rule 05 present exactly once: .claude/rules/05-flutter-client-foundation.md
+PASS  rule 06 present exactly once: .claude/rules/06-backend-api-foundation.md
+PASS  rule 07 present exactly once: .claude/rules/07-offline-sync.md
+PASS  rule 08 present exactly once: .claude/rules/08-notification-and-whatsapp.md
+PASS  rule 09 present exactly once: .claude/rules/09-pickup-and-delivery.md
+PASS  rule 10 present exactly once: .claude/rules/10-unclaimed-laundry.md
+PASS  rule 11 present exactly once: .claude/rules/11-git-and-ci.md
+PASS  rule 12 present exactly once: .claude/rules/12-autonomous-execution.md
+PASS  rule 13 present exactly once: .claude/rules/13-testing-and-definition-of-done.md
+PASS  rule 14 present exactly once: .claude/rules/14-pricing-and-commercial.md
+PASS  rule 15 present exactly once: .claude/rules/15-current-product-status.md
+PASS  rule 16 present exactly once: .claude/rules/16-product-requirements.md
+PASS  rule 17 present exactly once: .claude/rules/17-domain-model-and-bounded-contexts.md
+PASS  rule 18 present exactly once: .claude/rules/18-domain-invariants.md
+PASS  rule 19 present exactly once: .claude/rules/19-state-machines.md
+PASS  rule 20 present exactly once: .claude/rules/20-domain-events-and-idempotency.md
+PASS  rule 21 present exactly once: .claude/rules/21-threat-model-and-data-classification.md
+PASS  rule 22 present exactly once: .claude/rules/22-acceptance-criteria-and-traceability.md
+PASS  rule 23 present exactly once: .claude/rules/23-public-repository-safety.md
+PASS  rule 24 present exactly once: .claude/rules/24-current-step-01-status.md
+PASS  rule 25 present exactly once: .claude/rules/25-design-system-foundation.md
+PASS  rule 26 present exactly once: .claude/rules/26-design-token-governance.md
+PASS  rule 27 present exactly once: .claude/rules/27-accessibility-foundation.md
+PASS  rule 28 present exactly once: .claude/rules/28-platform-adaptive-navigation.md
+PASS  rule 29 present exactly once: .claude/rules/29-ux-state-model.md
+PASS  rule 30 present exactly once: .claude/rules/30-content-design-and-localization.md
+PASS  rule 31 present exactly once: .claude/rules/31-responsive-and-device-foundation.md
+PASS  rule 32 present exactly once: .claude/rules/32-security-and-privacy-ux.md
+PASS  rule 33 present exactly once: .claude/rules/33-design-traceability.md
+PASS  rule 34 present exactly once: .claude/rules/34-component-and-screen-governance.md
+PASS  rule 35 present exactly once: .claude/rules/35-current-step-02-status.md
+PASS  rule 36 present exactly once: .claude/rules/36-runtime-architecture.md
+PASS  rule 37 present exactly once: .claude/rules/37-toolchain-and-dependencies.md
+PASS  rule 38 present exactly once: .claude/rules/38-authentication-and-session-security.md
+PASS  rule 39 present exactly once: .claude/rules/39-multi-tenancy-runtime.md
+PASS  rule 40 present exactly once: .claude/rules/40-rbac-and-authorization.md
+PASS  rule 41 present exactly once: .claude/rules/41-flutter-runtime-foundation.md
+PASS  rule 42 present exactly once: .claude/rules/42-backend-api-foundation.md
+PASS  rule 43 present exactly once: .claude/rules/43-database-and-migrations.md
+PASS  rule 44 present exactly once: .claude/rules/44-redis-cache-and-queue.md
+PASS  rule 45 present exactly once: .claude/rules/45-secret-and-public-repository-safety.md
+PASS  rule 46 present exactly once: .claude/rules/46-runtime-observability.md
+PASS  rule 47 present exactly once: .claude/rules/47-runtime-testing-and-adversarial-gates.md
+PASS  rule 48 present exactly once: .claude/rules/48-tenant-isolation-hard-gate.md
+PASS  rule 49 present exactly once: .claude/rules/49-current-step-03-status.md
+PASS  rule 50 present exactly once: .claude/rules/50-current-step-04-status.md
+PASS  required directory exists: docs/decisions/
+PASS  decision DEC-0001 present exactly once: DEC-0001-official-product-name.md
+PASS  decision DEC-0002 present exactly once: DEC-0002-multi-tenant-architecture.md
+PASS  decision DEC-0003 present exactly once: DEC-0003-multi-laundry-owner-model.md
+PASS  decision DEC-0004 present exactly once: DEC-0004-flutter-client-and-web-console.md
+PASS  decision DEC-0005 present exactly once: DEC-0005-api-first-modular-monolith-backend.md
+PASS  decision DEC-0006 present exactly once: DEC-0006-public-tracking-without-app-installation.md
+PASS  decision DEC-0007 present exactly once: DEC-0007-pickup-and-delivery-as-core-product.md
+PASS  decision DEC-0008 present exactly once: DEC-0008-h1-h3-h7-reminder-as-core-product.md
+PASS  decision DEC-0009 present exactly once: DEC-0009-initial-commercial-pricing.md
+PASS  decision DEC-0010 present exactly once: DEC-0010-no-lifetime-cloud-subscription.md
+PASS  decision DEC-0011 present exactly once: DEC-0011-transparent-third-party-messaging-costs.md
+PASS  decision DEC-0012 present exactly once: DEC-0012-tenant-isolation-and-financial-integrity-hard-gate.md
+PASS  decision DEC-0013 present exactly once: DEC-0013-exact-sha-evidence-before-go.md
+PASS  decision DEC-0014 present exactly once: DEC-0014-customer-android-does-not-replace-public-tracking.md
+PASS  decision DEC-0015 present exactly once: DEC-0015-mvp-focuses-on-laundry-operations.md
+PASS  decision DEC-0016 present exactly once: DEC-0016-public-repository-visibility-accepted-deviation.md
+PASS  decision DEC-0017 present exactly once: DEC-0017-single-maintainer-approval-standing-deviation.md
+PASS  decision DEC-0018 present exactly once: DEC-0018-two-layer-design-token-architecture.md
+PASS  decision DEC-0019 present exactly once: DEC-0019-light-theme-canonical-mvp-dark-mode-deferred.md
+PASS  decision DEC-0020 present exactly once: DEC-0020-system-first-typography-no-font-binary.md
+PASS  decision DEC-0021 present exactly once: DEC-0021-wcag-22-aa-aligned-accessibility-target.md
+PASS  decision DEC-0022 present exactly once: DEC-0022-canonical-ux-state-taxonomy-and-role-adaptive-navigation.md
+PASS  decision DEC-0023 present exactly once: DEC-0023-low-fidelity-wireframes-and-no-final-logo-fabrication.md
+PASS  decision DEC-0024 present exactly once: DEC-0024-step-3-runtime-introduction-and-runtime-scope-guard-transition.md
+PASS  decision DEC-0025 present exactly once: DEC-0025-platform-managed-role-catalogues-and-tenant-scoped-authorization.md
+PASS  decision DEC-0026 present exactly once: DEC-0026-step-3-flutter-platform-scaffolding-guard-transition.md
+PASS  decision DEC-0027 present exactly once: DEC-0027-local-development-environment-bootstrap-and-template-contract.md
+PASS  decision DEC-0028 present exactly once: DEC-0028-step-04-scope-resolution-and-canonical-authorization.md
+PASS  decision DEC-0029 present exactly once: DEC-0029-canonical-status-drift-remediation-and-cross-document-validation.md
+PASS  decision DEC-0030 present exactly once: DEC-0030-step-04-runtime-scope-transition.md
+PASS  decision DEC-0031 present exactly once: DEC-0031-step-04-traceability-boundaries.md
+PASS  decision DEC-0032 present exactly once: DEC-0032-step-03-post-go-corrective-auth-runtime-wiring.md
+PASS  decision DEC-0033 present exactly once: DEC-0033-step-04-independent-review-closure.md
+PASS  decision DEC-0034 present exactly once: DEC-0034-step-03-token-logging-correction-carried-in-step-04.md
+PASS  decision DEC-0035 present exactly once: DEC-0035-step-05-runtime-scope-transition.md
+PASS  decision DEC-0036 present exactly once: DEC-0036-oq-017-order-rounding-mode-halfup.md
+------------------------------------------------------------------------
+SUMMARY [required-files]: 121/121 checks passed, 0 failed
+RESULT: PASS (required-files)
+
+========================================================================
+VALIDATOR: master-source
+========================================================================
+PASS  docs/MASTER_SOURCE.md exists
+PASS  header declares Master Source version 1.4.7 (found 1.4.7)
+PASS  footer declares Master Source version 1.4.7 (found 1.4.7)
+PASS  header and footer declare the same Master Source version
+PASS  declares baseline date 19 July 2026 (matched /19\s+July\s+2026/)
+PASS  contains canonical product name "Aish Laundry App"
+PASS  no competing canonical product name
+PASS  covers topic: multi-tenancy
+PASS  covers topic: platforms
+PASS  covers topic: architecture
+PASS  covers topic: roles
+PASS  covers topic: tracking
+PASS  covers topic: pickup and delivery
+PASS  covers topic: unclaimed laundry
+PASS  covers topic: offline-first
+PASS  covers topic: notifications
+PASS  covers topic: security
+PASS  covers topic: financial integrity
+PASS  covers topic: privacy
+PASS  covers topic: UX
+PASS  covers topic: performance
+PASS  covers topic: observability
+PASS  covers topic: pricing
+PASS  covers topic: MVP
+PASS  covers topic: non-goals
+PASS  covers topic: roadmap
+PASS  covers topic: definition of done
+PASS  covers topic: git policy
+PASS  covers topic: testing
+PASS  covers topic: metrics
+PASS  covers topic: positioning
+PASS  covers topic: changelog
+PASS  is substantial: 2066 lines (minimum 400)
+PASS  docs/MASTER_SOURCE.sha256 exists
+      recorded path: MASTER_SOURCE.md
+PASS  digest line refers to MASTER_SOURCE.md (got: MASTER_SOURCE.md)
+PASS  SHA-256 of docs/MASTER_SOURCE.md matches recorded digest (24e4886359f28d92...)
+------------------------------------------------------------------------
+SUMMARY [master-source]: 36/36 checks passed, 0 failed
+RESULT: PASS (master-source)
+
+========================================================================
+VALIDATOR: decisions
+========================================================================
+PASS  docs/decisions/ exists
+PASS  DEC-0001 present exactly once (DEC-0001-official-product-name.md)
+PASS  DEC-0002 present exactly once (DEC-0002-multi-tenant-architecture.md)
+PASS  DEC-0003 present exactly once (DEC-0003-multi-laundry-owner-model.md)
+PASS  DEC-0004 present exactly once (DEC-0004-flutter-client-and-web-console.md)
+PASS  DEC-0005 present exactly once (DEC-0005-api-first-modular-monolith-backend.md)
+PASS  DEC-0006 present exactly once (DEC-0006-public-tracking-without-app-installation.md)
+PASS  DEC-0007 present exactly once (DEC-0007-pickup-and-delivery-as-core-product.md)
+PASS  DEC-0008 present exactly once (DEC-0008-h1-h3-h7-reminder-as-core-product.md)
+PASS  DEC-0009 present exactly once (DEC-0009-initial-commercial-pricing.md)
+PASS  DEC-0010 present exactly once (DEC-0010-no-lifetime-cloud-subscription.md)
+PASS  DEC-0011 present exactly once (DEC-0011-transparent-third-party-messaging-costs.md)
+PASS  DEC-0012 present exactly once (DEC-0012-tenant-isolation-and-financial-integrity-hard-gate.md)
+PASS  DEC-0013 present exactly once (DEC-0013-exact-sha-evidence-before-go.md)
+PASS  DEC-0014 present exactly once (DEC-0014-customer-android-does-not-replace-public-tracking.md)
+PASS  DEC-0015 present exactly once (DEC-0015-mvp-focuses-on-laundry-operations.md)
+PASS  DEC-0016 present exactly once (DEC-0016-public-repository-visibility-accepted-deviation.md)
+PASS  DEC-0017 present exactly once (DEC-0017-single-maintainer-approval-standing-deviation.md)
+PASS  DEC-0018 present exactly once (DEC-0018-two-layer-design-token-architecture.md)
+PASS  DEC-0019 present exactly once (DEC-0019-light-theme-canonical-mvp-dark-mode-deferred.md)
+PASS  DEC-0020 present exactly once (DEC-0020-system-first-typography-no-font-binary.md)
+PASS  DEC-0021 present exactly once (DEC-0021-wcag-22-aa-aligned-accessibility-target.md)
+PASS  DEC-0022 present exactly once (DEC-0022-canonical-ux-state-taxonomy-and-role-adaptive-navigation.md)
+PASS  DEC-0023 present exactly once (DEC-0023-low-fidelity-wireframes-and-no-final-logo-fabrication.md)
+PASS  DEC-0024 present exactly once (DEC-0024-step-3-runtime-introduction-and-runtime-scope-guard-transition.md)
+PASS  DEC-0025 present exactly once (DEC-0025-platform-managed-role-catalogues-and-tenant-scoped-authorization.md)
+PASS  DEC-0026 present exactly once (DEC-0026-step-3-flutter-platform-scaffolding-guard-transition.md)
+PASS  DEC-0027 present exactly once (DEC-0027-local-development-environment-bootstrap-and-template-contract.md)
+PASS  DEC-0028 present exactly once (DEC-0028-step-04-scope-resolution-and-canonical-authorization.md)
+PASS  DEC-0029 present exactly once (DEC-0029-canonical-status-drift-remediation-and-cross-document-validation.md)
+PASS  DEC-0030 present exactly once (DEC-0030-step-04-runtime-scope-transition.md)
+PASS  DEC-0031 present exactly once (DEC-0031-step-04-traceability-boundaries.md)
+PASS  DEC-0032 present exactly once (DEC-0032-step-03-post-go-corrective-auth-runtime-wiring.md)
+PASS  DEC-0033 present exactly once (DEC-0033-step-04-independent-review-closure.md)
+PASS  DEC-0034 present exactly once (DEC-0034-step-03-token-logging-correction-carried-in-step-04.md)
+PASS  DEC-0035 present exactly once (DEC-0035-step-05-runtime-scope-transition.md)
+PASS  DEC-0036 present exactly once (DEC-0036-oq-017-order-rounding-mode-halfup.md)
+PASS  DEC-0001 status is ACCEPTED
+PASS  DEC-0001 has all 12 required headings
+PASS  DEC-0002 status is ACCEPTED
+PASS  DEC-0002 has all 12 required headings
+PASS  DEC-0003 status is ACCEPTED
+PASS  DEC-0003 has all 12 required headings
+PASS  DEC-0004 status is ACCEPTED
+PASS  DEC-0004 has all 12 required headings
+PASS  DEC-0005 status is ACCEPTED
+PASS  DEC-0005 has all 12 required headings
+PASS  DEC-0006 status is ACCEPTED
+PASS  DEC-0006 has all 12 required headings
+PASS  DEC-0007 status is ACCEPTED
+PASS  DEC-0007 has all 12 required headings
+PASS  DEC-0008 status is ACCEPTED
+PASS  DEC-0008 has all 12 required headings
+PASS  DEC-0009 status is ACCEPTED
+PASS  DEC-0009 has all 12 required headings
+PASS  DEC-0010 status is ACCEPTED
+PASS  DEC-0010 has all 12 required headings
+PASS  DEC-0011 status is ACCEPTED
+PASS  DEC-0011 has all 12 required headings
+PASS  DEC-0012 status is ACCEPTED
+PASS  DEC-0012 has all 12 required headings
+PASS  DEC-0013 status is ACCEPTED
+PASS  DEC-0013 has all 12 required headings
+PASS  DEC-0014 status is ACCEPTED
+PASS  DEC-0014 has all 12 required headings
+PASS  DEC-0015 status is ACCEPTED
+PASS  DEC-0015 has all 12 required headings
+PASS  DEC-0016 status is ACCEPTED
+PASS  DEC-0016 has all 12 required headings
+PASS  DEC-0017 status is ACCEPTED
+PASS  DEC-0017 has all 12 required headings
+PASS  DEC-0018 status is ACCEPTED
+PASS  DEC-0018 has all 12 required headings
+PASS  DEC-0019 status is ACCEPTED
+PASS  DEC-0019 has all 12 required headings
+PASS  DEC-0020 status is ACCEPTED
+PASS  DEC-0020 has all 12 required headings
+PASS  DEC-0021 status is ACCEPTED
+PASS  DEC-0021 has all 12 required headings
+PASS  DEC-0022 status is ACCEPTED
+PASS  DEC-0022 has all 12 required headings
+PASS  DEC-0023 status is ACCEPTED
+PASS  DEC-0023 has all 12 required headings
+PASS  DEC-0024 status is ACCEPTED
+PASS  DEC-0024 has all 12 required headings
+PASS  DEC-0025 status is ACCEPTED
+PASS  DEC-0025 has all 12 required headings
+PASS  DEC-0026 status is ACCEPTED
+PASS  DEC-0026 has all 12 required headings
+PASS  DEC-0027 status is ACCEPTED
+PASS  DEC-0027 has all 12 required headings
+PASS  DEC-0028 status is ACCEPTED
+PASS  DEC-0028 has all 12 required headings
+PASS  DEC-0029 status is ACCEPTED
+PASS  DEC-0029 has all 12 required headings
+PASS  DEC-0030 status is ACCEPTED
+PASS  DEC-0030 has all 12 required headings
+PASS  DEC-0031 status is ACCEPTED
+PASS  DEC-0031 has all 12 required headings
+PASS  DEC-0032 status is ACCEPTED
+PASS  DEC-0032 has all 12 required headings
+PASS  DEC-0033 status is ACCEPTED
+PASS  DEC-0033 has all 12 required headings
+PASS  DEC-0034 status is ACCEPTED
+PASS  DEC-0034 has all 12 required headings
+PASS  DEC-0035 status is ACCEPTED
+PASS  DEC-0035 has all 12 required headings
+PASS  DEC-0036 status is ACCEPTED
+PASS  DEC-0036 has all 12 required headings
+      --- Master Source §31 decision index (DEC-0029) ---
+PASS  docs/MASTER_SOURCE.md exists
+PASS  docs/MASTER_SOURCE.md §31 lists no decision twice (duplicates: [])
+PASS  every decision record on disk is listed in docs/MASTER_SOURCE.md §31 (unlisted: [])
+PASS  every decision listed in docs/MASTER_SOURCE.md §31 has a record on disk (phantom: [])
+PASS  docs/MASTER_SOURCE.md §31 prose count (Thirty-six = 36) matches the 36 rows in its table
+------------------------------------------------------------------------
+SUMMARY [decisions]: 114/114 checks passed, 0 failed
+RESULT: PASS (decisions)
+
+========================================================================
+VALIDATOR: roadmap
+========================================================================
+PASS  docs/ROADMAP.md exists
+PASS  Step 0 declared exactly once (line 35)
+PASS  Step 1 declared exactly once (line 59)
+PASS  Step 2 declared exactly once (line 86)
+PASS  Step 3 declared exactly once (line 111)
+PASS  Step 4 declared exactly once (line 135)
+PASS  Step 5 declared exactly once (line 158)
+PASS  Step 6 declared exactly once (line 172)
+PASS  Step 7 declared exactly once (line 186)
+PASS  Step 8 declared exactly once (line 201)
+PASS  Step 9 declared exactly once (line 214)
+PASS  Step 10 declared exactly once (line 229)
+PASS  Step 11 declared exactly once (line 242)
+PASS  Step 12 declared exactly once (line 253)
+PASS  Step 13 declared exactly once (line 268)
+PASS  Step 14 declared exactly once (line 282)
+PASS  Step 0 title matches canonical: Master Source and Governance
+PASS  Step 1 title matches canonical: Product Requirement and Domain Model
+PASS  Step 2 title matches canonical: Design System and UX Foundation
+PASS  Step 3 title matches canonical: Runtime, Authentication, Multi-Tenancy, and RBAC
+PASS  Step 4 title matches canonical: Laundry Master Data
+PASS  Step 5 title matches canonical: POS, Order, and Payment Foundation
+PASS  Step 6 title matches canonical: Production Operations
+PASS  Step 7 title matches canonical: Customer Tracking and WhatsApp
+PASS  Step 8 title matches canonical: Pickup and Delivery Operations
+PASS  Step 9 title matches canonical: Unclaimed Laundry and Cashflow Recovery
+PASS  Step 10 title matches canonical: Finance, Reports, and Owner Portfolio
+PASS  Step 11 title matches canonical: Customer Android Experience
+PASS  Step 12 title matches canonical: Subscription and Platform Administration
+PASS  Step 13 title matches canonical: Security, Performance, Backup, and Recovery
+PASS  Step 14 title matches canonical: Pilot and Commercial Launch
+PASS  Step 5 carries an allowed working status (declared: IN PROGRESS)
+PASS  Step 6 is marked PLANNED
+PASS  Step 7 is marked PLANNED
+PASS  Step 8 is marked PLANNED
+PASS  Step 9 is marked PLANNED
+PASS  Step 10 is marked PLANNED
+PASS  Step 11 is marked PLANNED
+PASS  Step 12 is marked PLANNED
+PASS  Step 13 is marked PLANNED
+PASS  Step 14 is marked PLANNED
+      --- cross-source roadmap agreement (DEC-0029) ---
+PASS  docs/MASTER_SOURCE.md §24 declares a parseable roadmap table
+PASS  Step 0: MASTER_SOURCE §24 (GO) agrees with STATUS.md (GO)
+PASS  Step 0: ROADMAP.md (GO) agrees with STATUS.md (GO)
+PASS  Step 1: MASTER_SOURCE §24 (GO) agrees with STATUS.md (GO)
+PASS  Step 1: ROADMAP.md (GO) agrees with STATUS.md (GO)
+PASS  Step 2: MASTER_SOURCE §24 (GO) agrees with STATUS.md (GO)
+PASS  Step 2: ROADMAP.md (GO) agrees with STATUS.md (GO)
+PASS  Step 3: MASTER_SOURCE §24 (GO) agrees with STATUS.md (GO)
+PASS  Step 3: ROADMAP.md (GO) agrees with STATUS.md (GO)
+PASS  Step 4: MASTER_SOURCE §24 (GO) agrees with STATUS.md (GO)
+PASS  Step 4: ROADMAP.md (GO) agrees with STATUS.md (GO)
+PASS  Step 5: MASTER_SOURCE §24 (IN PROGRESS) agrees with STATUS.md (IN PROGRESS)
+PASS  Step 5: ROADMAP.md (IN PROGRESS) agrees with STATUS.md (IN PROGRESS)
+PASS  Step 6: MASTER_SOURCE §24 (PLANNED) agrees with STATUS.md (PLANNED)
+PASS  Step 6: ROADMAP.md (PLANNED) agrees with STATUS.md (PLANNED)
+PASS  Step 7: MASTER_SOURCE §24 (PLANNED) agrees with STATUS.md (PLANNED)
+PASS  Step 7: ROADMAP.md (PLANNED) agrees with STATUS.md (PLANNED)
+PASS  Step 8: MASTER_SOURCE §24 (PLANNED) agrees with STATUS.md (PLANNED)
+PASS  Step 8: ROADMAP.md (PLANNED) agrees with STATUS.md (PLANNED)
+PASS  Step 9: MASTER_SOURCE §24 (PLANNED) agrees with STATUS.md (PLANNED)
+PASS  Step 9: ROADMAP.md (PLANNED) agrees with STATUS.md (PLANNED)
+PASS  Step 10: MASTER_SOURCE §24 (PLANNED) agrees with STATUS.md (PLANNED)
+PASS  Step 10: ROADMAP.md (PLANNED) agrees with STATUS.md (PLANNED)
+PASS  Step 11: MASTER_SOURCE §24 (PLANNED) agrees with STATUS.md (PLANNED)
+PASS  Step 11: ROADMAP.md (PLANNED) agrees with STATUS.md (PLANNED)
+PASS  Step 12: MASTER_SOURCE §24 (PLANNED) agrees with STATUS.md (PLANNED)
+PASS  Step 12: ROADMAP.md (PLANNED) agrees with STATUS.md (PLANNED)
+PASS  Step 13: MASTER_SOURCE §24 (PLANNED) agrees with STATUS.md (PLANNED)
+PASS  Step 13: ROADMAP.md (PLANNED) agrees with STATUS.md (PLANNED)
+PASS  Step 14: MASTER_SOURCE §24 (PLANNED) agrees with STATUS.md (PLANNED)
+PASS  Step 14: ROADMAP.md (PLANNED) agrees with STATUS.md (PLANNED)
+      GO tags present for steps: [0, 1, 2, 3, 4]
+PASS  Step 0 is declared GO and its GO tag exists
+PASS  Step 1 is declared GO and its GO tag exists
+PASS  Step 2 is declared GO and its GO tag exists
+PASS  Step 3 is declared GO and its GO tag exists
+PASS  Step 4 is declared GO and its GO tag exists
+PASS  Step 5 is declared IN PROGRESS and carries no GO tag
+PASS  Step 6 is declared PLANNED and carries no GO tag
+PASS  Step 7 is declared PLANNED and carries no GO tag
+PASS  Step 8 is declared PLANNED and carries no GO tag
+PASS  Step 9 is declared PLANNED and carries no GO tag
+PASS  Step 10 is declared PLANNED and carries no GO tag
+PASS  Step 11 is declared PLANNED and carries no GO tag
+PASS  Step 12 is declared PLANNED and carries no GO tag
+PASS  Step 13 is declared PLANNED and carries no GO tag
+PASS  Step 14 is declared PLANNED and carries no GO tag
+------------------------------------------------------------------------
+SUMMARY [roadmap]: 87/87 checks passed, 0 failed
+RESULT: PASS (roadmap)
+
+========================================================================
+VALIDATOR: status
+========================================================================
+PASS  docs/STATUS.md exists
+PASS  Step 0 status is one of ['IN PROGRESS', 'TESTED', 'WATCH', 'GO'] (found: GO)
+PASS  Step 5 carries an allowed working status (declared: IN PROGRESS)
+PASS  Step 6 declared PLANNED
+PASS  Step 7 declared PLANNED
+PASS  Step 8 declared PLANNED
+PASS  Step 9 declared PLANNED
+PASS  Step 10 declared PLANNED
+PASS  Step 11 declared PLANNED
+PASS  Step 12 declared PLANNED
+PASS  Step 13 declared PLANNED
+PASS  Step 14 declared PLANNED
+PASS  no feature is marked IMPLEMENTED
+PASS  declares deployment is ABSENT
+PASS  declares UAT is NOT STARTED
+PASS  runtime-absence declarations not applicable from Step 3 (DEC-0024)
+PASS  Application CI is declared ACTIVE and all three runtime workflows exist (3/3 present)
+PASS  uses status vocabulary NOT STARTED
+PASS  canonical state block parses (exactly one, no duplicate keys)
+PASS  canonical state declares every step 00-14 (missing: [])
+PASS  STEP_03_STATUS is GO after the Step 3 GO tag (found 'GO')
+PASS  STEP_05_STATUS is one of ['GO', 'IN_PROGRESS', 'TESTED', 'WATCH'] (found 'IN_PROGRESS')
+PASS  every step 06-14 is PLANNED (violations: {})
+PASS  machine-readable and human-readable status agree (0 disagreement(s))
+PASS  STATUS.md does not claim the backend is ABSENT while backend/composer.json exists
+PASS  STATUS.md does not claim the Flutter workspace is ABSENT while pubspec.yaml exists
+PASS  no production deployment artefact contradicts the ABSENT deployment claim
+      --- infrastructure self-consistency (DEC-0029) ---
+PASS  postgresql: no unqualified PRESENT/ABSENT collision in docs/STATUS.md (1 unqualified present, 0 unqualified absent)
+PASS  redis: no unqualified PRESENT/ABSENT collision in docs/STATUS.md (1 unqualified present, 0 unqualified absent)
+PASS  object storage: no unqualified PRESENT/ABSENT collision in docs/STATUS.md (0 unqualified present, 1 unqualified absent)
+PASS  docs/STATUS.md does not declare local development PostgreSQL ABSENT while infrastructure/docker-compose.dev.yml defines it
+PASS  docs/STATUS.md does not declare local development Redis ABSENT while infrastructure/docker-compose.dev.yml defines it
+      --- cross-document canonical status (DEC-0027) ---
+PASS  canonical status document exists: CLAUDE.md
+PASS  CLAUDE.md does not declare backend runtime ABSENT while backend/composer.json exists
+PASS  CLAUDE.md does not declare Flutter workspace ABSENT while pubspec.yaml exists
+PASS  CLAUDE.md does not declare Application CI NOT APPLICABLE while all 3 runtime workflows exist
+PASS  CLAUDE.md does not declare Step 6 started
+PASS  canonical status document exists: .claude/rules/49-current-step-03-status.md
+PASS  .claude/rules/49-current-step-03-status.md does not declare backend runtime ABSENT while backend/composer.json exists
+PASS  .claude/rules/49-current-step-03-status.md does not declare Flutter workspace ABSENT while pubspec.yaml exists
+PASS  .claude/rules/49-current-step-03-status.md does not declare Application CI NOT APPLICABLE while all 3 runtime workflows exist
+PASS  .claude/rules/49-current-step-03-status.md does not declare Step 6 started
+PASS  canonical status document exists: .claude/rules/15-current-product-status.md
+PASS  .claude/rules/15-current-product-status.md does not declare backend runtime ABSENT while backend/composer.json exists
+PASS  .claude/rules/15-current-product-status.md does not declare Flutter workspace ABSENT while pubspec.yaml exists
+PASS  .claude/rules/15-current-product-status.md does not declare Application CI NOT APPLICABLE while all 3 runtime workflows exist
+PASS  .claude/rules/15-current-product-status.md does not declare Step 6 started
+      --- Step 3 GO-tag closure (status advancement) ---
+PASS  closure STEP_03_CLOSURE_CLASSIFICATION == 'GO_WITH_ACCEPTED_DEVIATION' (found 'GO_WITH_ACCEPTED_DEVIATION')
+PASS  closure STEP_03_GO_TAG == 'aish-laundry-step-03-runtime-auth-multitenancy-rbac-v1.4.0-go' (found 'aish-laundry-step-03-runtime-auth-multitenancy-rbac-v1.4.0-go')
+PASS  closure STEP_03_GO_TAG_OBJECT == '8b37230ed8df8da343a1546fd949d8a41329fbdf' (found '8b37230ed8df8da343a1546fd949d8a41329fbdf')
+PASS  closure STEP_03_RUNTIME_MERGE_SHA == '0e2554338812b05eba8411afeb099212b05f9761' (found '0e2554338812b05eba8411afeb099212b05f9761')
+PASS  closure STEP_03_GO_TAG_PEELED == '0e2554338812b05eba8411afeb099212b05f9761' (found '0e2554338812b05eba8411afeb099212b05f9761')
+PASS  closure STEP_03_EVIDENCE_MERGE_SHA == 'ad31473da8376e91b67449bf7820ab9877ea8a4a' (found 'ad31473da8376e91b67449bf7820ab9877ea8a4a')
+PASS  closure DEPLOYMENT == 'ABSENT' (found 'ABSENT')
+PASS  GO tag peels to the runtime merge SHA
+PASS  GO tag peeled SHA is NOT the post-tag evidence SHA
+PASS  runtime merge SHA and evidence merge SHA are distinct
+PASS  STATUS.md keeps the accepted-deviation reference DEC-0017 visible
+PASS  STATUS.md keeps the accepted-deviation reference DEC-0026 visible
+PASS  real local tag object matches the recorded tag object
+PASS  real local tag peels to the recorded runtime merge SHA
+------------------------------------------------------------------------
+SUMMARY [status]: 61/61 checks passed, 0 failed
+RESULT: PASS (status)
+
+========================================================================
+VALIDATOR: pricing
+========================================================================
+      inspecting 220 markdown files
+PASS  canonical figure present somewhere: Rp79.000
+PASS  canonical figure present somewhere: Rp199.000
+PASS  canonical figure present somewhere: Rp399.000
+PASS  canonical figure present somewhere: Rp999.000
+PASS  canonical figure present somewhere: Rp790.000
+PASS  canonical figure present somewhere: Rp1.990.000
+PASS  canonical figure present somewhere: Rp3.990.000
+PASS  canonical trial length present: 14 hari
+PASS  starter outlet limit present: 1 outlet
+PASS  starter staff limit present: 5 staff
+PASS  starter order limit present: 1.000 order
+PASS  growth outlet limit present: 3 outlet
+PASS  growth staff limit present: 20 staff
+PASS  growth order limit present: 5.000 order
+PASS  scale outlet limit present: 10 outlet
+PASS  scale staff limit present: 75 staff
+PASS  scale order limit present: 20.000 order
+PASS  no conflicting plan price or plan limit found on any plan line
+PASS  no conflicting trial length found
+PASS  no cloud plan is offered as 'lifetime'
+------------------------------------------------------------------------
+SUMMARY [pricing]: 20/20 checks passed, 0 failed
+RESULT: PASS (pricing)
+
+========================================================================
+VALIDATOR: rules-traceability
+========================================================================
+PASS  .claude/rules/ exists
+PASS  all 51 rule files exist (found 51)
+PASS  rule 00 file exists
+PASS  rule 01 file exists
+PASS  rule 02 file exists
+PASS  rule 03 file exists
+PASS  rule 04 file exists
+PASS  rule 05 file exists
+PASS  rule 06 file exists
+PASS  rule 07 file exists
+PASS  rule 08 file exists
+PASS  rule 09 file exists
+PASS  rule 10 file exists
+PASS  rule 11 file exists
+PASS  rule 12 file exists
+PASS  rule 13 file exists
+PASS  rule 14 file exists
+PASS  rule 15 file exists
+PASS  rule 16 file exists
+PASS  rule 17 file exists
+PASS  rule 18 file exists
+PASS  rule 19 file exists
+PASS  rule 20 file exists
+PASS  rule 21 file exists
+PASS  rule 22 file exists
+PASS  rule 23 file exists
+PASS  rule 24 file exists
+PASS  rule 25 file exists
+PASS  rule 26 file exists
+PASS  rule 27 file exists
+PASS  rule 28 file exists
+PASS  rule 29 file exists
+PASS  rule 30 file exists
+PASS  rule 31 file exists
+PASS  rule 32 file exists
+PASS  rule 33 file exists
+PASS  rule 34 file exists
+PASS  rule 35 file exists
+PASS  rule 36 file exists
+PASS  rule 37 file exists
+PASS  rule 38 file exists
+PASS  rule 39 file exists
+PASS  rule 40 file exists
+PASS  rule 41 file exists
+PASS  rule 42 file exists
+PASS  rule 43 file exists
+PASS  rule 44 file exists
+PASS  rule 45 file exists
+PASS  rule 46 file exists
+PASS  rule 47 file exists
+PASS  rule 48 file exists
+PASS  rule 49 file exists
+PASS  rule 50 file exists
+PASS  rule 02 (02-multi-tenancy.md) covers tenant isolation hard gate
+PASS  rule 04 (04-financial-integrity.md) covers financial integrity hard gate
+PASS  rule 07 (07-offline-sync.md) covers offline-first
+PASS  rule 08 (08-notification-and-whatsapp.md) covers WhatsApp
+PASS  rule 09 (09-pickup-and-delivery.md) covers pickup and delivery
+PASS  rule 10 (10-unclaimed-laundry.md) covers aging / H+1 H+3 H+7
+PASS  rule 11 (11-git-and-ci.md) covers git and CI
+PASS  rule 12 (12-autonomous-execution.md) covers autonomous execution
+PASS  rule 14 (14-pricing-and-commercial.md) covers pricing
+PASS  rule 15 (15-current-product-status.md) covers status
+PASS  rule 02 states tenant isolation as a hard gate / automatic NO-GO
+PASS  rule 04 states financial integrity as a hard gate / automatic NO-GO
+PASS  tracking foundation covered by: 03-security-and-privacy.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md exists
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 00-canonical-source.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 01-status-and-evidence.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 02-multi-tenancy.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 03-security-and-privacy.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 04-financial-integrity.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 05-flutter-client-foundation.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 06-backend-api-foundation.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 07-offline-sync.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 08-notification-and-whatsapp.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 09-pickup-and-delivery.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 10-unclaimed-laundry.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 11-git-and-ci.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 12-autonomous-execution.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 13-testing-and-definition-of-done.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 14-pricing-and-commercial.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 15-current-product-status.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 16-product-requirements.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 17-domain-model-and-bounded-contexts.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 18-domain-invariants.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 19-state-machines.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 20-domain-events-and-idempotency.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 21-threat-model-and-data-classification.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 22-acceptance-criteria-and-traceability.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 23-public-repository-safety.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 24-current-step-01-status.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 25-design-system-foundation.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 26-design-token-governance.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 27-accessibility-foundation.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 28-platform-adaptive-navigation.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 29-ux-state-model.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 30-content-design-and-localization.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 31-responsive-and-device-foundation.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 32-security-and-privacy-ux.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 33-design-traceability.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 34-component-and-screen-governance.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 35-current-step-02-status.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 36-runtime-architecture.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 37-toolchain-and-dependencies.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 38-authentication-and-session-security.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 39-multi-tenancy-runtime.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 40-rbac-and-authorization.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 41-flutter-runtime-foundation.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 42-backend-api-foundation.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 43-database-and-migrations.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 44-redis-cache-and-queue.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 45-secret-and-public-repository-safety.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 46-runtime-observability.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 47-runtime-testing-and-adversarial-gates.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 48-tenant-isolation-hard-gate.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 49-current-step-03-status.md
+PASS  docs/GOVERNANCE_TRACEABILITY.md references 50-current-step-04-status.md
+------------------------------------------------------------------------
+SUMMARY [rules-traceability]: 118/118 checks passed, 0 failed
+RESULT: PASS (rules-traceability)
+
+========================================================================
+GOVERNANCE VALIDATION SUMMARY
+========================================================================
+GATE                         RESULT
+----                         ------
+required-files               PASS
+master-source                PASS
+decisions                    PASS
+roadmap                      PASS
+status                       PASS
+pricing                      PASS
+rules-traceability           PASS
+------------------------------------------------------------------------
+GOVERNANCE RESULT: PASS

@@ -1,0 +1,5 @@
+  tables present: 38
+  forbidden Step 6+ tables: 0
+  authorised Step 4 tables present: 15
+  authorised Step 5 tables present: 3
+schema is within Step 5 scope

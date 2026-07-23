@@ -21,7 +21,7 @@ FIRST_DEC = 1
 # Raised 27 -> 30 at Master Source 1.4.1 for DEC-0028 (Step 4 scope resolution and
 # canonical authorization), DEC-0029 (canonical status drift remediation and
 # cross-document validation), and DEC-0030 (Step 4 runtime scope transition).
-LAST_DEC = 34
+LAST_DEC = 36
 
 # label -> list of accepted heading keywords (lowercase, substring match)
 REQUIRED_HEADINGS: list[tuple[str, list[str]]] = [
@@ -205,6 +205,7 @@ def check_master_source_index(root, rep, on_disk: set[int]) -> None:
         "twenty-six": 26, "twenty-seven": 27, "twenty-eight": 28,
         "twenty-nine": 29, "thirty": 30, "thirty-one": 31, "thirty-two": 32,
         "thirty-three": 33, "thirty-four": 34, "thirty-five": 35,
+        "thirty-six": 36, "thirty-seven": 37, "thirty-eight": 38,
     }
     m = re.search(r"^([A-Za-z-]+) decisions are locked\b", text, re.MULTILINE)
     if m is None:

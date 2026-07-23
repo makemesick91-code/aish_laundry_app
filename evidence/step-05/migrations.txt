@@ -1,0 +1,7 @@
+== rollback payments ==
+  2026_07_23_110000_create_payments_tables ....................... 9.22ms DONE
+== rollback orders ==
+  2026_07_23_100000_create_ordering_tables ...................... 12.10ms DONE
+== re-apply both ==
+  2026_07_23_100000_create_ordering_tables ...................... 27.99ms DONE
+  2026_07_23_110000_create_payments_tables ...................... 14.38ms DONE

@@ -6,13 +6,15 @@
 ///
 /// Step 3 registered authentication, tenancy and RBAC. Step 4 adds LAUNDRY
 /// MASTER DATA under DEC-0028 and DEC-0030 — customers, consent, the service
-/// catalogue, price lists, outlet master data, and staff assignment.
+/// catalogue, price lists, outlet master data, and staff assignment. Step 5 adds
+/// the ORDER and PAYMENT surface under DEC-0035 — order intake, the nota, and the
+/// append-only payment ledger.
 ///
-/// STILL ABSENT, AND ABSENT ON PURPOSE: any path for an order, a payment, an
-/// invoice, a receipt, production, tracking, a pickup, a delivery, a reminder,
-/// or a subscription. Those belong to Step 5 and later (CLAUDE.md §3 — roadmap
-/// lock, Rule 42). There is likewise no export and no bulk path, because the
-/// backend registers neither (threats T-19, T-20).
+/// STILL ABSENT, AND ABSENT ON PURPOSE: any path for an invoice, production,
+/// tracking, a pickup, a delivery, a reminder, or a subscription. Those belong to
+/// Step 6 and later (CLAUDE.md §3 — roadmap lock, Rule 42). There is likewise no
+/// export and no bulk path, because the backend registers neither (threats T-19,
+/// T-20).
 abstract final class ApiEndpoints {
   // Operational probes.
   static const String health = 'health';
@@ -122,4 +124,26 @@ abstract final class ApiEndpoints {
   static String staffRoles(String id) => 'staff/$id/roles';
   static String staffRole(String membershipId, String roleKey) =>
       'staff/$membershipId/roles/$roleKey';
+
+  // -------------------------------------------------------------------------
+  // STEP 5 — POS, ORDER, AND PAYMENT FOUNDATION (FR-048 … FR-070, DEC-0035)
+  // -------------------------------------------------------------------------
+
+  // Orders (FR-048 … FR-060). No destroy path: an order is cancelled with a
+  // reason, never deleted, so its financial history survives (FR-066). Placing
+  // and cancelling have their own paths and permissions.
+  static const String orders = 'orders';
+  static String order(String id) => 'orders/$id';
+  static String orderPlace(String id) => 'orders/$id/place';
+  static String orderCancel(String id) => 'orders/$id/cancel';
+  static String orderReceipt(String id) => 'orders/$id/receipt';
+
+  // Payments (FR-061 … FR-069). Read and APPEND only — there is no update and no
+  // destroy path, because a correction is a reversal (a new row) and the ledger
+  // is append-only (FR-066, FR-067).
+  static String orderPayments(String orderId) => 'orders/$orderId/payments';
+  static String paymentConfirm(String paymentId) =>
+      'payments/$paymentId/confirm';
+  static String paymentReverse(String paymentId) =>
+      'payments/$paymentId/reverse';
 }

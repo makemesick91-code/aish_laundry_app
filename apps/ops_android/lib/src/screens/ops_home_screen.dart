@@ -117,14 +117,22 @@ class OpsHomeScreen extends ConsumerWidget {
             ),
 
           SizedBox(height: AishSpacing.space6),
-          Text('Belum tersedia', style: textTheme.titleMedium),
+          Text('Operasi', style: textTheme.titleMedium),
           SizedBox(height: AishSpacing.space2),
+          // Step 5 — the POS counter is now a real feature (DEC-0035). Its
+          // visibility is not its authorization: the server enforces the order
+          // permissions regardless of this tile (Rule 28 hard rule 6).
           if (session.allows(Permission.outletView))
             _NavEntry(
               label: 'Kasir',
               icon: Icons.point_of_sale_outlined,
-              route: OpsRoutes.futureCounter,
+              route: OpsRoutes.counter,
+              available: true,
             ),
+
+          SizedBox(height: AishSpacing.space6),
+          Text('Belum tersedia', style: textTheme.titleMedium),
+          SizedBox(height: AishSpacing.space2),
           if (session.allows(Permission.outletView))
             _NavEntry(
               label: 'Produksi',

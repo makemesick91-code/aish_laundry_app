@@ -1331,7 +1331,7 @@ void main() {
   // =========================================================================
   // 8. SCOPE — the roadmap lock, asserted structurally
   // =========================================================================
-  group('The Ops surface reaches no Step 5+ feature', () {
+  group('The master-data routes name no order/payment/document', () {
     test('no master-data route names an order, a payment or a document', () {
       // CLAUDE.md §3 (roadmap lock), DEC-0030. `receipt` and its Indonesian
       // forms stay forbidden while `printer` is permitted: FR-045 authorises

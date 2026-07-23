@@ -107,7 +107,7 @@ def tracked_files(root: Path) -> list[Path]:
 #: History: 2 through Step 2. Raised to 3 for Step 3 (DEC-0024), LATE — runtime was
 #: already committed while it still read 2 (DEC-0027). Raised to 4 for Step 4
 #: (DEC-0028), in the same change that moved the status everywhere.
-CANONICAL_CURRENT_STEP = 4
+CANONICAL_CURRENT_STEP = 5
 
 #: Statuses the current step may legitimately carry.
 CURRENT_STEP_ALLOWED = ["IN PROGRESS", "TESTED", "WATCH", "GO"]

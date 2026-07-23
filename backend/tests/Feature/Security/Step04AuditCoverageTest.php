@@ -108,6 +108,14 @@ final class Step04AuditCoverageTest extends TestCase
             'api.v1.staff.roles.assign' => AuditAction::MEMBERSHIP_ROLE_ASSIGNED,
             'api.v1.staff.roles.remove' => AuditAction::MEMBERSHIP_ROLE_REMOVED,
 
+            // --- Step 5: orders and payments (DEC-0035) -------------------
+            'api.v1.orders.store' => AuditAction::ORDER_CREATED,
+            'api.v1.orders.place' => AuditAction::ORDER_PLACED,
+            'api.v1.orders.cancel' => AuditAction::ORDER_CANCELLED,
+            'api.v1.orders.payments.store' => AuditAction::PAYMENT_RECORDED,
+            'api.v1.payments.confirm' => AuditAction::PAYMENT_CONFIRMED,
+            'api.v1.payments.reverse' => AuditAction::PAYMENT_REVERSED,
+
             // --- Framework routes outside /api/v1 -------------------------
             //
             // DELIBERATELY NOT AUDITED, with the reason in the open.

@@ -10,6 +10,65 @@ Version numbers in this file track the **Master Source** document version
 
 ---
 
+## [1.4.7] — 23 July 2026 — OQ-017 resolved: order-line rounding mode is HALF_UP
+
+**Master Source 1.4.6 → 1.4.7, classified PATCH under §1.2** — no product decision
+is reversed, no pricing figure, roadmap number, hierarchy level, reminder stage,
+or architectural lock changes. The content edits to `MASTER_SOURCE.md` are the
+§31 decision index (one new row, count 35 → 36). Step 5 stays `IN PROGRESS`.
+
+- **Added [DEC-0036](decisions/DEC-0036-oq-017-order-rounding-mode-halfup.md) —
+  the owner ratifies HALF_UP as the canonical order-line rounding mode**,
+  resolving open question OQ-017. This RATIFIES the existing provisional
+  implementation (`OrderPricing::ROUNDING_MODE`); it changes no code behaviour and
+  introduces no new feature. The integer-Rupiah model is preserved, rounding
+  happens once at `RupiahRounding` by exact integer arithmetic (no floating
+  point), and the decision is bounded to order-line rounding — it creates no
+  pricing/tax/discount/accounting policy.
+- **OQ-017 is now RESOLVED** in
+  [`ASSUMPTIONS_AND_OPEN_QUESTIONS.md`](product/ASSUMPTIONS_AND_OPEN_QUESTIONS.md).
+- Half-Rupiah boundary tests added (below/at/above the threshold, plus a 22.5 → 23
+  case that a HALF_EVEN mode would round to 22 — locking the mode by test).
+- The pinned validator version (`validate-master-source.py`) and the decision
+  count/index pins (`validate-required-files.py`, `validate-decisions.py`) moved
+  with the checksum, regenerated through tooling.
+
+## [1.4.6] — 23 July 2026 — Step 5 runtime scope transition; Step 5 started
+
+**Master Source 1.4.5 → 1.4.6, classified PATCH under §1.2** — no product
+decision, pricing figure, roadmap number, hierarchy level, reminder stage, or
+architectural lock changes. Step 5's canonical name and scope are unchanged
+(**POS, Order, and Payment Foundation**). The content edits to `MASTER_SOURCE.md`
+are the §31 decision index (one new row, count 34 → 35) and the §24 roadmap-status
+row advancing Step 5 `PLANNED → IN PROGRESS` through the ordinary canonical
+process. The three canonical status sources (Master Source §24, `ROADMAP.md`,
+`STATUS.md`) are kept in agreement as `validate-roadmap.py`/`validate-status.py`
+require; the checksum was regenerated through tooling and the pinned validator
+version moved with it.
+
+- **Added [DEC-0035](decisions/DEC-0035-step-05-runtime-scope-transition.md) —
+  Step 5 Runtime Scope Transition.** The runtime-scope guard
+  (`scripts/validate-runtime-scope.py`) forbade the POS/order/payment tokens
+  unconditionally. Rule 36 hard rule 8 permits widening the guard only through a
+  decision record naming what it supersedes; DEC-0035 is that record. It splits
+  the former `STEP5_PLUS_FEATURE_TOKENS` map by delivering step: the seven labels
+  Step 5 delivers — POS, order, laundry intake, payment, refund, QRIS, receipt —
+  move into `STEP5_FEATURE_TOKENS`, permitted once `_common.CANONICAL_CURRENT_STEP`
+  reaches 5; the remaining twenty-three move into `STEP6_PLUS_FEATURE_TOKENS` and
+  stay forbidden. This is the identical mechanism DEC-0030 used for Step 4.
+- **`_common.CANONICAL_CURRENT_STEP` raised 4 → 5.** Starting Step 5 confers
+  `IN PROGRESS` and nothing else; `GO` stays owner-conferred against exact-SHA
+  evidence (Rule 01).
+- **Residual audits moved with the boundary, nothing weakened.**
+  `validate-dec-0030-labels.py` is made step-aware so it no longer false-fails on
+  the seven now-authorised labels; a new `validate-dec-0035-labels.py` audits the
+  Step 5 residual (every permitted label still traces to FR-048 … FR-070; every
+  Step 6+ label stays structurally absent).
+- **The canonical roadmap is the authorization for Step 5.** DEC-0035 does not
+  renumber, replace, reinterpret, or expand the roadmap — it is only the auditable
+  guard-transition mechanism. Deployment remains `ABSENT`; no application test,
+  feature, or `GO` is claimed by this bump.
+
 ## [1.4.5] — 22 July 2026 — Step 4 GO recorded
 
 **Master Source 1.4.4 → 1.4.5, classified PATCH under §1.2** — no product

@@ -1,0 +1,9 @@
+00:00 +0: loading packages/networking/test/pos_repository_test.dart
+00:00 +0: OrdersRepository createOrder posts customer, client_reference and lines; parses server totals
+00:00 +1: OrdersRepository orders() sends filters and parses the summary list
+00:00 +2: OrdersRepository cancelOrder sends the reason
+00:00 +3: OrdersRepository a server error envelope becomes an Err result, never an exception
+00:00 +4: PaymentsRepository recordPayment posts an integer amount and the idempotency key
+00:00 +5: PaymentsRepository reversePayment sends amount and reason
+00:00 +6: PaymentsRepository confirmPayment posts the verified amount
+00:00 +7: All tests passed!

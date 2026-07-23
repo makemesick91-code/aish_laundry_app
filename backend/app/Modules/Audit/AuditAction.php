@@ -139,6 +139,31 @@ final class AuditAction
 
     public const PROOF_POLICY_UPDATED = 'proof_policy.updated';
 
+    // --- Step 5: order intake (FR-048, FR-058, FR-060) --------------------
+    //
+    // Each order state change is its own action. An auditor asking "who
+    // cancelled this order and why" reads ORDER_CANCELLED with its `reason`; a
+    // generic `order.changed` could not answer it, and cancellation is the one a
+    // financial dispute reaches for.
+
+    public const ORDER_CREATED = 'order.created';
+
+    public const ORDER_PLACED = 'order.placed';
+
+    public const ORDER_CANCELLED = 'order.cancelled';
+
+    // --- Step 5: payments (FR-061 … FR-069) -------------------------------
+    //
+    // Financial actions each get their own entry — a dispute reaches for
+    // PAYMENT_REVERSED with its reason, and a generic `payment.changed` could not
+    // answer "who reversed this and why" (Rule 04).
+
+    public const PAYMENT_RECORDED = 'payment.recorded';
+
+    public const PAYMENT_CONFIRMED = 'payment.confirmed';
+
+    public const PAYMENT_REVERSED = 'payment.reversed';
+
     /**
      * Reason codes for a failed login.
      *
@@ -209,6 +234,12 @@ final class AuditAction
             self::OUTLET_PRINTER_CREATED,
             self::OUTLET_PRINTER_UPDATED,
             self::PROOF_POLICY_UPDATED,
+            self::ORDER_CREATED,
+            self::ORDER_PLACED,
+            self::ORDER_CANCELLED,
+            self::PAYMENT_RECORDED,
+            self::PAYMENT_CONFIRMED,
+            self::PAYMENT_REVERSED,
         ];
     }
 }

@@ -1,0 +1,22 @@
+========================================================================
+DEC-0035 LABEL AUDIT — the residual after seven labels were permitted
+========================================================================
+
+PASS  every permitted label traces to a requirement the PRD carries
+PASS  no structural identifier carries a label DEC-0035 did not permit
+
+------------------------------------------------------------------------
+  permitted labels audited : 4
+  forbidden labels checked : 9
+  source files examined    : 312
+  structural allowlist     : 1 entries, each with a reason
+
+  RESIDUAL RISK, stated rather than implied: DEC-0035 reduced token
+  protection for seven labels. A Step 6+ workflow built INSIDE a
+  permitted order/payment module, under a permitted name, would not be
+  caught here by name alone — it is caught by review and by the absence
+  of any production/tracking/pickup route.
+------------------------------------------------------------------------
+
+SUMMARY [dec-0035-labels]: 2/2 checks passed, 0 failed
+RESULT: PASS (dec-0035-labels)

@@ -80,7 +80,11 @@ EXPECTED_RULE_COUNT = 51
 # every derived validator has been re-run, not merely edited.
 # Raised 33 -> 34 at Master Source 1.4.4 for DEC-0034 (Step 3 post-GO
 # token-logging correction co-delivered in PR #18).
-EXPECTED_DECISION_COUNT = 34
+# Raised 34 -> 35 at Master Source 1.4.6 for DEC-0035 (Step 5 runtime scope
+# transition — the guard transition that starts Step 5 POS/order/payment runtime).
+# Raised 35 -> 36 at Master Source 1.4.7 for DEC-0036 (OQ-017 ratification: the
+# order-line rounding mode is HALF_UP).
+EXPECTED_DECISION_COUNT = 36
 
 
 def main() -> int:

@@ -12,6 +12,9 @@ import '../master_data/customer_counter_screen.dart';
 import '../master_data/customer_detail_screen.dart';
 import '../master_data/outlet_master_data_screen.dart';
 import '../master_data/staff_roster_screen.dart';
+import '../pos/pos_counter_screen.dart';
+import '../pos/pos_new_order_screen.dart';
+import '../pos/pos_order_detail_screen.dart';
 import '../screens/ops_home_screen.dart';
 import '../screens/ops_session_screens.dart';
 import '../screens/select_outlet_screen.dart';
@@ -122,13 +125,24 @@ final Provider<GoRouter> opsRouterProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(path: 'staf', builder: (_, _) => const StaffRosterScreen()),
 
+          // Step 5 — POS counter (DEC-0035). `baru` is declared BEFORE the
+          // `:orderId` pattern so `/kasir/baru` opens the intake screen rather
+          // than an order whose id is "baru".
           GoRoute(
             path: 'kasir',
-            builder: (_, _) => const _FuturePage(
-              title: 'Kasir',
-              feature: 'Kasir, pesanan, dan pembayaran',
-              step: 'Step 5',
-            ),
+            builder: (_, _) => const PosCounterScreen(),
+            routes: <RouteBase>[
+              GoRoute(
+                path: 'baru',
+                builder: (_, _) => const PosNewOrderScreen(),
+              ),
+              GoRoute(
+                path: ':orderId',
+                builder: (_, state) => PosOrderDetailScreen(
+                  orderId: state.pathParameters['orderId']!,
+                ),
+              ),
+            ],
           ),
           GoRoute(
             path: 'produksi',
