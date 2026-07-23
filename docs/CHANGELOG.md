@@ -10,6 +10,34 @@ Version numbers in this file track the **Master Source** document version
 
 ---
 
+## [1.4.5] — 22 July 2026 — Step 4 GO recorded
+
+**Master Source 1.4.4 → 1.4.5, classified PATCH under §1.2** — no product
+decision, pricing figure, roadmap number, hierarchy level, reminder stage, or
+architectural lock changes. The only content edit to `MASTER_SOURCE.md` is the
+§24 roadmap-status row: Step 4 advances `IN PROGRESS → GO` through the ordinary
+canonical process, recording an owner-conferred, exact-SHA-evidenced status —
+exactly as the 1.4.1 bump advanced Steps 2 and 3. The three canonical status
+sources (Master Source §24, `ROADMAP.md`, `STATUS.md`) are kept in agreement, as
+`validate-roadmap.py` requires; the checksum was regenerated through tooling and
+the pinned validator version moved with it.
+
+- **Step 4 (Laundry Master Data) reached `GO`**, owner-conferred against
+  exact-SHA evidence after PR #18 merged as merge commit
+  `af31ea3b0945b274b249ff21cf30918cb2d17a5f`.
+- Immutable annotated tag **`aish-laundry-step-04-laundry-master-data-v1.0.0-go`**
+  (object `55ed19761714aea945ecfcc919a78bae769339ac`) peels to the merge commit —
+  never to the later evidence commit.
+- Post-merge CI: 11/11 workflows green at the exact merge SHA on `main`. A fresh
+  clean-checkout re-verification at the merge SHA passed every gate, including
+  the two build gates that a disk-exhausted earlier run had left unresolved.
+- FR-024 and FR-025 `COMPLETE_AND_VERIFIED`. Seven requirements remain
+  `STEP_5_E2E_PENDING`; FR-036 is a mandatory Step 5 financial-integrity
+  obligation. Step 4 `GO` does not start Step 5 and does not authorise deployment.
+- The Step 3 GO tag is unchanged.
+
+---
+
 ## [1.4.4] — 22 July 2026
 
 ### Added

@@ -16,15 +16,32 @@ Canonical status: [`../../docs/STATUS.md`](../../docs/STATUS.md). Master Source 
 | Step 1 — Product Requirement and Domain Model | **GO WITH ACCEPTED DEVIATION** |
 | Step 2 — Design System and UX Foundation | **GO WITH ACCEPTED DEVIATION** |
 | Step 3 — Runtime, Authentication, Multi-Tenancy, and RBAC | **GO WITH ACCEPTED DEVIATION** |
-| Step 4 — Laundry Master Data | **IN PROGRESS** |
+| Step 4 — Laundry Master Data | **GO** |
 | Steps 5–14 | **PLANNED** |
 | Step 5+ product business features | **NOT IMPLEMENTED** |
 | Deployment | **ABSENT** |
 | UAT | **NOT STARTED** |
 
-**`IN PROGRESS` is the maximum status Step 4 may carry while its pull request is open** (Rule 01).
-`TESTED` requires executed output captured at an exact commit SHA. `GO` is conferred by the repository
-owner and is never self-declared by an agent.
+**Step 4 is now `GO`.** The repository owner conferred it on 22 July 2026 against exact-SHA evidence
+after PR #18 merged as merge commit `af31ea3b0945b274b249ff21cf30918cb2d17a5f`. The immutable annotated
+tag `aish-laundry-step-04-laundry-master-data-v1.0.0-go` (object
+`55ed19761714aea945ecfcc919a78bae769339ac`) peels to that merge commit — never to the later evidence
+commit. Closure evidence is [`../../evidence/step-04/`](../../evidence/step-04/), and the
+independent-review chronology (three rounds, twenty-three findings, three refuted first remediations) is
+in [`../../evidence/step-04/INDEPENDENT-REVIEW-CLOSURE.md`](../../evidence/step-04/INDEPENDENT-REVIEW-CLOSURE.md).
+
+**`GO` is not an unqualified endorsement.** It carries accepted deviations and boundaries: NEW-04
+(`ACCEPTED_OPERATIONAL_RESIDUAL`), single-maintainer governance with no independent human review
+(DEC-0017), the database guarantees holding only at the application connection boundary — a non-owner,
+non-superuser runtime role is `REQUIRED_FOR_FUTURE_DEPLOYMENT` and `NOT_YET_PROVISIONED` — and seven
+requirements (FR-029, FR-033, FR-036, FR-039, FR-044, FR-046, FR-047) still `STEP_5_E2E_PENDING`, FR-036
+a mandatory financial-integrity obligation. **Step 4 `GO` does not start Step 5 and does not authorise
+deployment.**
+
+While its pull request was open the maximum status Step 4 could carry was `IN PROGRESS`; `GO` is
+conferred by the repository owner and is never self-declared by an agent (Rule 01). Both statements
+remain true — the first is now history, the second is why the tag is owner-authorized rather than
+agent-created.
 
 ## What authorised Step 4
 

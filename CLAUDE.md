@@ -35,7 +35,7 @@ date **19 July 2026**).
 | Step 1 — Product Requirement and Domain Model | **GO** (owner-conferred 19 July 2026, with a recorded deviation) |
 | Step 2 — Design System and UX Foundation | **GO** (owner-conferred 20 July 2026, with four recorded deviations) |
 | Step 3 — Runtime, Authentication, Multi-Tenancy, and RBAC | **GO WITH ACCEPTED DEVIATION** (owner-conferred, GO-tagged) |
-| Step 4 — Laundry Master Data | **IN PROGRESS** (started under DEC-0028) |
+| Step 4 — Laundry Master Data | **GO** (owner-conferred 22 July 2026; merged PR #18, tag `…step-04…v1.0.0-go`) |
 | Step 5–14 | **PLANNED** |
 | All product business features | **NOT IMPLEMENTED** |
 | Backend runtime | **PRESENT — STEP 3 FOUNDATION ONLY** |

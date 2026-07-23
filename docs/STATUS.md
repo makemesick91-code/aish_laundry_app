@@ -16,7 +16,7 @@ Canonical source: [`MASTER_SOURCE.md`](MASTER_SOURCE.md)
 | Step 1 | Product Requirement and Domain Model | GO WITH ACCEPTED DEVIATION |
 | Step 2 | Design System and UX Foundation | GO WITH ACCEPTED DEVIATION |
 | Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | GO WITH ACCEPTED DEVIATION |
-| Step 4 | Laundry Master Data | IN PROGRESS |
+| Step 4 | Laundry Master Data | GO |
 | Step 5 | POS, Order, and Payment Foundation | PLANNED |
 | Step 6 | Production Operations | PLANNED |
 | Step 7 | Customer Tracking and WhatsApp | PLANNED |
@@ -189,8 +189,9 @@ see §2 for exactly what is verified and what is not.
 began only through the separately authorised canonical process Step 3 required,
 recorded as
 [DEC-0028](decisions/DEC-0028-step-04-scope-resolution-and-canonical-authorization.md)
-on 21 July 2026. Step 4 is `IN PROGRESS`; deployment remains `ABSENT`, and the
-Step 3 tag never moves.
+on 21 July 2026. Step 4 has since reached `GO` (PR #18 merged, tag on the merge
+commit — see the Step 4 closure section below); deployment remains `ABSENT`, and
+the Step 3 tag never moves. Step 4 `GO` did not start Step 5.
 
 This paragraph previously read "Step 4 remains `PLANNED / NOT STARTED`". That
 was true when written and stopped being true at DEC-0028. It contradicted the
@@ -276,16 +277,43 @@ erase the evidence that the gate missed something.
 **Runtime existing is still not runtime working.** Every claim above is bound to
 captured output at an exact SHA in
 [`../evidence/step-03-corrective-auth-runtime/`](../evidence/step-03-corrective-auth-runtime/)
-and [`../evidence/step-04/`](../evidence/step-04/). Step 4 remains `IN PROGRESS`;
-PR #18 is unmerged.
+and [`../evidence/step-04/`](../evidence/step-04/). Step 4 is **`GO`**; PR #18 is
+merged and the GO tag is on the verified merge commit.
 
-### Step 4 pre-merge state
+### Step 4 closure
 
-**Classification: `NO-GO — STEP 4 IN PROGRESS / MERGE-READY HANDOFF`.**
+**Classification: `GO`** — owner-authorized, conferred 22 July 2026 against
+exact-SHA evidence after merge.
 
-This is not a product failure and not an external blocker. It records that the
-two remaining actions — merging PR #18 and conferring a `GO` tag — are the
-repository owner's and are deliberately reserved (Rule 01, Rule 12).
+- PR #18 **MERGED** as merge commit
+  `af31ea3b0945b274b249ff21cf30918cb2d17a5f` (first parent `0f065a33` = prior
+  main; second parent `1a9e2d3b` = the tested candidate; merge tree
+  byte-identical to the tested candidate).
+- GO tag **`aish-laundry-step-04-laundry-master-data-v1.0.0-go`** (object
+  `55ed19761714aea945ecfcc919a78bae769339ac`) peels to the merge commit
+  `af31ea3` — **never** to this later evidence commit. The tag is immutable and
+  is never moved.
+- **Post-merge CI:** 11 required workflows, 11 successful, at the exact merge SHA
+  on `main` (`push`, not inherited from the PR-head). Recorded in
+  [`../evidence/step-04/authoritative-ci.txt`](../evidence/step-04/authoritative-ci.txt).
+- **Fresh clean-checkout verification at the merge SHA:** backend 466/466,
+  lifecycle clean, five hardened triggers `tgenabled='A'`, the destructive-
+  boundary protocol refusing every prohibited mutation with asserted fixtures
+  and unchanged row counts, 8 validators, harnesses 11/11 · 9/9 · 10/10,
+  verify-step-00/01/02 PASS, verify-step-03 **52/0/1**, verify-step-04
+  **27/0/1**. The one skip is the named `DEC-0026` exit-78 scaffold suite and is
+  not counted as a pass.
+- The earlier interrupted clean-checkout run reported two build-gate failures;
+  those were **disk exhaustion**, and the re-run with adequate disk resolved
+  them to a clean pass. Recorded rather than hidden — a failure interrupted by a
+  resource limit is neither a pass nor a confirmed regression until re-run.
+
+This `GO` is not an unqualified endorsement of everything downstream. It carries
+the accepted boundaries below, and Step 4 `GO` does not start Step 5 and does not
+authorise deployment.
+
+The Step 3 GO tag is unchanged and immutable
+(`8b37230…` peeling to `0e25543…`).
 
 Three independent review rounds produced twenty-three findings. **Three first
 remediations were refuted by a later round**, each failing the same way: a
@@ -325,7 +353,7 @@ STEP_00_STATUS=GO
 STEP_01_STATUS=GO
 STEP_02_STATUS=GO
 STEP_03_STATUS=GO
-STEP_04_STATUS=IN_PROGRESS
+STEP_04_STATUS=GO
 STEP_05_STATUS=PLANNED
 STEP_06_STATUS=PLANNED
 STEP_07_STATUS=PLANNED
@@ -354,7 +382,7 @@ STEP_03_EVIDENCE_MERGE_SHA=ad31473da8376e91b67449bf7820ab9877ea8a4a
 STEP_03_GO_TAG=aish-laundry-step-03-runtime-auth-multitenancy-rbac-v1.4.0-go
 STEP_03_GO_TAG_OBJECT=8b37230ed8df8da343a1546fd949d8a41329fbdf
 STEP_03_GO_TAG_PEELED=0e2554338812b05eba8411afeb099212b05f9761
-STEP_04_STATUS_NOTE=IN_PROGRESS_AUTHORIZED_BY_DEC_0028
+STEP_04_STATUS_NOTE=GO_MERGE_af31ea3_TAG_step-04-v1.0.0-go
 DEPLOYMENT=ABSENT
 <!-- STEP_03_CLOSURE_END -->
 
