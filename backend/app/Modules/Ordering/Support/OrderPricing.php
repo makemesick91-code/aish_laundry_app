@@ -22,23 +22,21 @@ use InvalidArgumentException;
  * fractional weight), and it is resolved exactly once, by RupiahRounding, whose
  * every operation is integer and overflow-checked.
  *
- * THE ROUNDING MODE IS A FLAGGED OPEN QUESTION (Rule 00 hard rule 6).
- * ------------------------------------------------------------------
+ * THE ROUNDING MODE IS OWNER-RATIFIED (DEC-0036, OQ-017).
+ * ------------------------------------------------------
  * FR-038 requires the rounding rule to be explicit and applied at a defined
- * point; it does NOT fix which mode. The Master Source does not name a canonical
- * mode either. This foundation uses HALF_UP — the conventional Indonesian retail
- * rounding — as a SINGLE, NAMED, CHANGEABLE constant, and records it as an owner
- * question to ratify rather than inventing a settled product decision. Changing
- * it is a one-line edit here plus a decision record; no call site chooses a mode
- * independently.
+ * point; it does NOT fix which mode, and neither does the Master Source. The
+ * repository owner ratified HALF_UP — the conventional Indonesian retail
+ * rounding — in DEC-0036, resolving open question OQ-017. It is a SINGLE, NAMED
+ * constant; changing it in future is a one-line edit here plus a superseding
+ * decision record, and no call site chooses a mode independently.
  */
 final class OrderPricing
 {
     /**
-     * The Step 5 foundation rounding mode. OPEN QUESTION — owner to ratify
-     * (recorded in docs/quality/STEP_05_REQUIREMENT_MATRIX.md and
-     * docs/product/ASSUMPTIONS_AND_OPEN_QUESTIONS.md). Not a default parameter:
-     * it is a visible, named decision, per RupiahRounding's own contract.
+     * The order-line rounding mode, ratified as HALF_UP by DEC-0036 (OQ-017). Not
+     * a default parameter: it is a visible, named decision, per RupiahRounding's
+     * own contract. Covered by half-Rupiah boundary tests in OrderPricingTest.
      */
     public const ROUNDING_MODE = RupiahRounding::HALF_UP;
 

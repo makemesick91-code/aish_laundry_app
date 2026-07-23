@@ -82,7 +82,9 @@ EXPECTED_RULE_COUNT = 51
 # token-logging correction co-delivered in PR #18).
 # Raised 34 -> 35 at Master Source 1.4.6 for DEC-0035 (Step 5 runtime scope
 # transition — the guard transition that starts Step 5 POS/order/payment runtime).
-EXPECTED_DECISION_COUNT = 35
+# Raised 35 -> 36 at Master Source 1.4.7 for DEC-0036 (OQ-017 ratification: the
+# order-line rounding mode is HALF_UP).
+EXPECTED_DECISION_COUNT = 36
 
 
 def main() -> int:

@@ -105,7 +105,7 @@ these**, and none has been closed by invention.
 | OQ-014 | Which **web stack** is chosen for the Portal Tracking Publik, given that Flutter is explicitly not mandatory there? | §5.4 permits a lighter stack if it performs materially better on low-end Android browsers. | Step 7 | The choice is recorded in a decision record in the Step that builds it; performance for this surface outranks stack uniformity. |
 | OQ-015 | Which **payment gateway** or gateways are integrated? | FR-063 requires server-side callback verification against a specific gateway's contract. | Step 5 | Introducing any third-party provider requires owner approval; none is introduced in Step 1. |
 | OQ-016 | Which **official WhatsApp Business API provider** is used as the automated path? | FR-094 requires an official provider; FR-093 keeps the choice behind an abstraction. | Step 7 | The abstraction must hold regardless of the answer; no vendor specifics may leak into business logic. |
-| OQ-017 | Which **Rupiah rounding mode** applies when an order line produces a fractional Rupiah (a per-kilogram price × a fractional weight)? | FR-038 requires the rounding rule to be explicit and applied at one defined point; neither the Master Source nor FR-038 names a canonical mode. | Step 5 | The mode is a single, named, changeable constant (`OrderPricing::ROUNDING_MODE`), applied only through `RupiahRounding`; changing it is a one-line edit plus a decision record. **Step 5 foundation provisionally uses `HALF_UP`** (conventional Indonesian retail rounding), flagged pending owner ratification — it is not presented as settled. |
+| OQ-017 | Which **Rupiah rounding mode** applies when an order line produces a fractional Rupiah (a per-kilogram price × a fractional weight)? | FR-038 requires the rounding rule to be explicit and applied at one defined point; neither the Master Source nor FR-038 names a canonical mode. | Step 5 | **RESOLVED by [DEC-0036](../decisions/DEC-0036-oq-017-order-rounding-mode-halfup.md), 23 July 2026: the owner ratifies `HALF_UP`.** This confirmed the existing provisional implementation (`OrderPricing::ROUNDING_MODE`); it changed no behaviour, preserved the integer-Rupiah model and the single `RupiahRounding` boundary, introduced no floating point, and created no pricing/tax/discount policy. Covered by half-Rupiah boundary tests. |
 
 ---
 
@@ -149,9 +149,9 @@ When an unanswered question is encountered during a later Step:
 | --- | --- |
 | Product assumptions recorded | PA-001 … PA-010 |
 | Open questions recorded | OQ-001 … OQ-017 |
-| Open questions resolved | **0** — all seventeen await an owner decision |
-| Requirements depending on an unresolved open question | **0 hard** — none assumes a settled answer. **1 provisional**: the Step 5 order-total rounding (FR-038/FR-051) uses a flagged, single-point `HALF_UP` default under OQ-017, changeable at one line pending owner ratification. |
+| Open questions resolved | **1** — OQ-017, by an owner decision recorded in [DEC-0036](../decisions/DEC-0036-oq-017-order-rounding-mode-halfup.md). OQ-001 … OQ-016 await a decision. |
+| Requirements depending on an unresolved open question | **0** — none assumes a settled answer; OQ-017 is now decided (HALF_UP), so the Step 5 order-total rounding is a ratified product decision rather than a provisional default. |
 
-No assumption in this document is a decision. No open question in this document has been closed by
-invention. OQ-017's provisional `HALF_UP` is an explicitly-flagged foundation default, isolated to one
-named constant, not a settled product decision — it is surfaced for the owner to ratify or change.
+No assumption in this document is a decision. No open question here has been closed by invention: OQ-017
+was resolved by the repository owner (DEC-0036), not by an agent, and the remaining sixteen still await
+an owner decision.

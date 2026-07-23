@@ -10,6 +10,29 @@ Version numbers in this file track the **Master Source** document version
 
 ---
 
+## [1.4.7] — 23 July 2026 — OQ-017 resolved: order-line rounding mode is HALF_UP
+
+**Master Source 1.4.6 → 1.4.7, classified PATCH under §1.2** — no product decision
+is reversed, no pricing figure, roadmap number, hierarchy level, reminder stage,
+or architectural lock changes. The content edits to `MASTER_SOURCE.md` are the
+§31 decision index (one new row, count 35 → 36). Step 5 stays `IN PROGRESS`.
+
+- **Added [DEC-0036](decisions/DEC-0036-oq-017-order-rounding-mode-halfup.md) —
+  the owner ratifies HALF_UP as the canonical order-line rounding mode**,
+  resolving open question OQ-017. This RATIFIES the existing provisional
+  implementation (`OrderPricing::ROUNDING_MODE`); it changes no code behaviour and
+  introduces no new feature. The integer-Rupiah model is preserved, rounding
+  happens once at `RupiahRounding` by exact integer arithmetic (no floating
+  point), and the decision is bounded to order-line rounding — it creates no
+  pricing/tax/discount/accounting policy.
+- **OQ-017 is now RESOLVED** in
+  [`ASSUMPTIONS_AND_OPEN_QUESTIONS.md`](product/ASSUMPTIONS_AND_OPEN_QUESTIONS.md).
+- Half-Rupiah boundary tests added (below/at/above the threshold, plus a 22.5 → 23
+  case that a HALF_EVEN mode would round to 22 — locking the mode by test).
+- The pinned validator version (`validate-master-source.py`) and the decision
+  count/index pins (`validate-required-files.py`, `validate-decisions.py`) moved
+  with the checksum, regenerated through tooling.
+
 ## [1.4.6] — 23 July 2026 — Step 5 runtime scope transition; Step 5 started
 
 **Master Source 1.4.5 → 1.4.6, classified PATCH under §1.2** — no product

@@ -1,6 +1,6 @@
 # Aish Laundry App — Master Source
 
-**Document version: 1.4.6**
+**Document version: 1.4.7**
 **Baseline date: 19 July 2026**
 
 Owner: Aish Tech Solution
@@ -1558,11 +1558,11 @@ must be claims the software can substantiate — the honesty rule (§3.1) applie
 
 ## 31. Decision records
 
-Thirty-five decisions are locked. Fifteen were locked at the 1.0.0 baseline; DEC-0016 was added at
+Thirty-six decisions are locked. Fifteen were locked at the 1.0.0 baseline; DEC-0016 was added at
 version 1.0.1, DEC-0017 at version 1.2.0, DEC-0018 … DEC-0023 at version 1.3.0, DEC-0024 … DEC-0027 at
-version 1.4.0, DEC-0028 … DEC-0031 at version 1.4.1, DEC-0032 at version 1.4.2, DEC-0033 at version 1.4.3, DEC-0034 at version 1.4.4, and DEC-0035 at version 1.4.6. DEC-0001 … DEC-0023 carry date
+version 1.4.0, DEC-0028 … DEC-0031 at version 1.4.1, DEC-0032 at version 1.4.2, DEC-0033 at version 1.4.3, DEC-0034 at version 1.4.4, DEC-0035 at version 1.4.6, and DEC-0036 at version 1.4.7. DEC-0001 … DEC-0023 carry date
 **19 July 2026**; DEC-0024 … DEC-0027 carry **20 July 2026**; DEC-0028 … DEC-0031 carry
-**21 July 2026**; DEC-0035 carries **23 July 2026**. All carry status **ACCEPTED**. Each has a full record in
+**21 July 2026**; DEC-0035 and DEC-0036 carry **23 July 2026**. All carry status **ACCEPTED**. Each has a full record in
 [`decisions/`](decisions/).
 
 **This section was stale and is corrected under
@@ -1610,6 +1610,7 @@ without being listed here — or listed here without existing — fails closed.
 | DEC-0033 | Step 4 Independent Review Findings SEC-01 … SEC-12, and the Conditions Under Which Each Closes | ACCEPTED | [DEC-0033](decisions/DEC-0033-step-04-independent-review-closure.md) |
 | DEC-0034 | Password-Reset Token Disclosure: a Step 3 Post-GO Security Correction Co-Delivered in PR #18 | ACCEPTED | [DEC-0034](decisions/DEC-0034-step-03-token-logging-correction-carried-in-step-04.md) |
 | DEC-0035 | Step 5 Runtime Scope Transition | ACCEPTED | [DEC-0035](decisions/DEC-0035-step-05-runtime-scope-transition.md) |
+| DEC-0036 | Order-Line Rounding Mode is HALF_UP (OQ-017 Ratification) | ACCEPTED | [DEC-0036](decisions/DEC-0036-oq-017-order-rounding-mode-halfup.md) |
 
 ### 31.1 Decision record rules
 
@@ -2062,4 +2063,4 @@ was met.
 
 ---
 
-*End of Master Source, version 1.4.6, baseline date 19 July 2026.*
+*End of Master Source, version 1.4.7, baseline date 19 July 2026.*
