@@ -165,6 +165,21 @@ final class PermissionRegistry
      */
     public const PRICE_OVERRIDE = 'price.override';
 
+    // --- Step 5: orders (FR-048 … FR-060) --------------------------------
+    public const ORDER_VIEW = 'order.view';
+
+    public const ORDER_CREATE = 'order.create';
+
+    // Edit a DRAFT order before it is placed. Necessary but not sufficient:
+    // OrderRegistry refuses a write against a placed or terminal order whatever
+    // permission the caller holds.
+    public const ORDER_MANAGE = 'order.manage';
+
+    // Separate from ORDER_MANAGE because a cancellation is a control point that
+    // carries a mandatory reason and an actor (FR-058), the same reasoning that
+    // keeps PRICE_LIST_PUBLISH separate from PRICE_LIST_MANAGE.
+    public const ORDER_CANCEL = 'order.cancel';
+
     /** Manage outlet master data: hours, capacity, zones, shifts, printers. */
     public const OUTLET_MASTER_DATA_MANAGE = 'outlet.master_data.manage';
 
@@ -250,6 +265,10 @@ final class PermissionRegistry
             self::PRICE_LIST_MANAGE => ['description' => 'Mengelola daftar harga berstatus draf', 'category' => self::CATEGORY_TENANT],
             self::PRICE_LIST_PUBLISH => ['description' => 'Menerbitkan daftar harga sehingga menjadi permanen', 'category' => self::CATEGORY_TENANT],
             self::PRICE_OVERRIDE => ['description' => 'Mengubah harga pada pesanan dengan alasan tercatat', 'category' => self::CATEGORY_TENANT],
+            self::ORDER_VIEW => ['description' => 'Melihat pesanan pada tenant aktif', 'category' => self::CATEGORY_TENANT],
+            self::ORDER_CREATE => ['description' => 'Membuat pesanan baru pada outlet aktif', 'category' => self::CATEGORY_TENANT],
+            self::ORDER_MANAGE => ['description' => 'Mengubah pesanan draf sebelum diterima', 'category' => self::CATEGORY_TENANT],
+            self::ORDER_CANCEL => ['description' => 'Membatalkan pesanan dengan alasan tercatat', 'category' => self::CATEGORY_TENANT],
             self::OUTLET_MASTER_DATA_MANAGE => ['description' => 'Mengelola data induk outlet: jam, kapasitas, zona, shift, printer', 'category' => self::CATEGORY_TENANT],
             self::STAFF_ASSIGNMENT_MANAGE => ['description' => 'Menugaskan keanggotaan ke outlet pada tenant aktif', 'category' => self::CATEGORY_TENANT],
 
@@ -319,6 +338,13 @@ final class PermissionRegistry
             self::PRICE_OVERRIDE,
             self::OUTLET_MASTER_DATA_MANAGE,
             self::STAFF_ASSIGNMENT_MANAGE,
+
+            // Step 5 orders. Operational, so the admin deputy inherits them; the
+            // financial control (PRICE_OVERRIDE) stays owner-only, above.
+            self::ORDER_VIEW,
+            self::ORDER_CREATE,
+            self::ORDER_MANAGE,
+            self::ORDER_CANCEL,
         ];
 
         // The admin is an operational deputy, not a co-owner. Two capabilities
@@ -367,6 +393,12 @@ final class PermissionRegistry
                     self::SERVICE_VIEW,
                     self::PRICE_LIST_VIEW,
                     self::OUTLET_MASTER_DATA_MANAGE,
+
+                    // Step 5. A manager runs an outlet's counter and may cancel.
+                    self::ORDER_VIEW,
+                    self::ORDER_CREATE,
+                    self::ORDER_MANAGE,
+                    self::ORDER_CANCEL,
                 ]),
             ],
             self::ROLE_CASHIER => [
@@ -385,6 +417,15 @@ final class PermissionRegistry
                     self::CUSTOMER_MANAGE,
                     self::SERVICE_VIEW,
                     self::PRICE_LIST_VIEW,
+
+                    // Step 5. The counter creates and manages orders and may
+                    // cancel a mistaken draft (with a recorded reason, FR-058).
+                    // It does NOT hold PRICE_OVERRIDE — a kasir changing a price
+                    // is the control point FR-039 guards.
+                    self::ORDER_VIEW,
+                    self::ORDER_CREATE,
+                    self::ORDER_MANAGE,
+                    self::ORDER_CANCEL,
                 ]),
             ],
             self::ROLE_PRODUCTION_OPERATOR => [
@@ -428,6 +469,10 @@ final class PermissionRegistry
                     // on revenue is not the role that sets it.
                     self::SERVICE_VIEW,
                     self::PRICE_LIST_VIEW,
+
+                    // Step 5. Finance READS orders for reconciliation; it does
+                    // not create or cancel them.
+                    self::ORDER_VIEW,
                 ]),
             ],
             self::ROLE_CUSTOMER => [
