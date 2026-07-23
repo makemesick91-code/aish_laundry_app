@@ -83,3 +83,18 @@ the delegated Step 0–4 regression (the Flutter Step 0–4 gates run in CI / wi
 
 No internally-actionable Step 5 requirement remains: the backend and the operator UI are implemented
 and verified, and OQ-017 is closed.
+
+## Post-GO (append-only — the two sections above are the state at the candidate SHA)
+
+The "What remains" section above is the state **while Step 5's PR was open** and is retained as history.
+Step 5 has since been **merged (PR #21 → `f0524b3`), owner-conferred `GO`, and GO-tagged**
+(`aish-laundry-step-05-pos-order-payment-foundation-v1.0.0-go` → `f0524b3`), with the status
+synchronisation merged via PR #22. Closure evidence: [`GO-CLOSURE.md`](GO-CLOSURE.md).
+
+A **post-GO verifier-tooling defect** was subsequently found and repaired (the local
+`verify-step-0X.sh` chain had a stale version pin and two non-step-aware Step-3 adversarial harnesses;
+none was a product, guard, CI, or schema defect, and the `GO` tag is unchanged). Diagnosis, repair, and
+the clean re-verification (`verify-step-05.sh` → **PASS 22 / FAIL 0 / SKIP 0**) are in
+[`POST-GO-VERIFIER-REPAIR.md`](POST-GO-VERIFIER-REPAIR.md) and
+[`verify-step-05-post-repair.txt`](verify-step-05-post-repair.txt); the correction to GO-CLOSURE §4's
+"exit 0" reading is in [`GO-CLOSURE.md`](GO-CLOSURE.md) §7.

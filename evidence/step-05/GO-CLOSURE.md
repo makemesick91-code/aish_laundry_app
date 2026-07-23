@@ -86,3 +86,29 @@ test.
 While its pull request was open the maximum status Step 5 could carry was `IN PROGRESS`; `GO` is
 conferred by the repository owner and is never self-declared by an agent (Rule 01). Both statements
 remain true — the first is now history, the second is why the tag is owner-authorized.
+
+## 7. Correction — the §4 verifier "exit 0" reading was wrong (23 July 2026)
+
+Section 4 above reported that `verify-step-05.sh` returned **exit 0** on a fresh clone at the merge SHA
+`f0524b3`. **That reading was incorrect and is corrected here rather than silently edited (Rule 01).**
+The displayed `exit 0` was the exit code of the **subsequent `sha256sum -c` command**, not of
+`verify-step-05.sh`. A post-GO re-run on canonical `main` (`99e9908`) established that the verifier in
+fact **FAILED** — at `f0524b3` and at `99e9908` — for **three verifier-tooling defects**, none of which
+is a product, guard, CI, or schema defect:
+
+1. a **stale hardcoded Master Source version pin** (`1.4.6`) in `verify-step-05.sh`, which false-FAILed
+   once DEC-0036 (`1.4.7`) and this GO closure (`1.4.8`) advanced the canonical version;
+2. **two Step-3-era adversarial harnesses** (`test-step-03-validators.sh`, `test-status-advancement.sh`)
+   left non-step-aware, which false-FAILed once DEC-0035 authorised the Step 5 labels and Step 5 reached
+   `GO` (the guard and status validators behaved **correctly**; the harness expectations were stale);
+3. an **unguarded live-schema gate** that hard-FAILs when the dev PostgreSQL is unreachable.
+
+**The Step 5 `GO` decision stands, and the tag is unchanged.** `GO` rests on the **15/15 authoritative
+CI checks** green at the merge commit `f0524b3` (§3 above) and on the real Step 5 backend and Flutter
+suites — **none of which invokes `verify-step-0X.sh`**. The defects lived only in the **local exact-SHA
+verifier scripts**. They were repaired in commit `bde860d8abda603b03d1286f8cdbf5be0f000e6d` (branch
+`fix/step-05-post-go-verifier-repair`), after which `verify-step-05.sh` returns **exit 0** on a clean
+tree with the dev DB up: **PASS 22 / FAIL 0 / SKIP 0**. Full diagnosis, repair, and captured output are
+in [`POST-GO-VERIFIER-REPAIR.md`](POST-GO-VERIFIER-REPAIR.md) and
+[`verify-step-05-post-repair.txt`](verify-step-05-post-repair.txt). The immutable `GO` tag
+(`fd85f93…` → `f0524b3`) was **not** moved, deleted, recreated, or retargeted.

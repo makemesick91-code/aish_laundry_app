@@ -78,7 +78,17 @@ fi
 # ---------------------------------------------------------------------------
 hdr "2. Step 5 authorization and governance"
 gate "DEC-0035 present and ACCEPTED"       bash -c 'grep -qE "^\*\*Status:\*\* ACCEPTED" docs/decisions/DEC-0035-*.md'
-gate "Master Source at version 1.4.6"      bash -c 'grep -q "Document version: 1.4.6" docs/MASTER_SOURCE.md'
+# Version-agnostic: this gate derives the expected version from the single
+# authoritative pin (scripts/validate-master-source.py VERSION) and asserts the
+# Master Source header matches it. It previously pinned the literal "1.4.6" and
+# became a false FAIL the moment DEC-0036 (1.4.7) and the Step 5 GO closure
+# (1.4.8) advanced the canonical version — a stale pin is exactly the drift the
+# governance suite exists to catch, so the verifier must not carry one itself.
+gate "Master Source header matches the pinned canonical version" \
+  python3 -c 'import re, sys, pathlib
+pin = re.search(r"VERSION\s*=\s*\"([0-9.]+)\"", pathlib.Path("scripts/validate-master-source.py").read_text()).group(1)
+ms = pathlib.Path("docs/MASTER_SOURCE.md").read_text()
+sys.exit(0 if f"Document version: {pin}" in ms else 1)'
 gate "MASTER_SOURCE checksum matches"      bash -c 'cd docs && sha256sum -c MASTER_SOURCE.sha256'
 gate "Rule 50 (Step 4 status) present"     test -f .claude/rules/50-current-step-04-status.md
 gate "Step 5 requirement matrix present"   test -f docs/quality/STEP_05_REQUIREMENT_MATRIX.md
@@ -92,12 +102,23 @@ gate "financial money-rules (no float money column)" python3 scripts/validate-mo
 
 # ---------------------------------------------------------------------------
 hdr "3. Step 5 backend runtime (order + payment)"
-# The live schema must contain the Step 5 tables and NO Step 6+ table.
-gate "live schema within Step 5 scope"     bash -c 'cd backend && set -a && . ./.env && set +a && php scripts/ci/assert-schema-scope.php'
-# The Step 5 backend suites run against real PostgreSQL (Rule 43): schema
-# invariants, domain/service behaviour, HTTP surface, RBAC, tenant isolation,
-# idempotency, financial integrity (append-only, historical price, reversal).
-gate "Step 5 backend suite (Ordering + Payments)" bash -c 'cd backend && php artisan test --filter="Ordering|Payments" 2>&1 | grep -qE "FAIL|failed" && exit 1 || exit 0'
+# The two gates below both require a reachable development PostgreSQL (Rule 43).
+# They are guarded exactly as verify-step-03.sh guards its DB gates: when the dev
+# DB is not reachable the PRECONDITION is not met, so they are a visible SKIP —
+# never a false FAIL that reads like a schema violation, and never a silent pass.
+# When the DB IS up (CI, a proper local run) they execute and their exit status
+# decides the result. A gate that could not run has verified nothing (Rule 01).
+if bash scripts/check-dev-services.sh >/dev/null 2>&1; then
+  # The live schema must contain the Step 5 tables and NO Step 6+ table.
+  gate "live schema within Step 5 scope"     bash -c 'cd backend && set -a && . ./.env && set +a && php scripts/ci/assert-schema-scope.php'
+  # The Step 5 backend suites run against real PostgreSQL (Rule 43): schema
+  # invariants, domain/service behaviour, HTTP surface, RBAC, tenant isolation,
+  # idempotency, financial integrity (append-only, historical price, reversal).
+  gate "Step 5 backend suite (Ordering + Payments)" bash -c 'cd backend && php artisan test --filter="Ordering|Payments" 2>&1 | grep -qE "FAIL|failed" && exit 1 || exit 0'
+else
+  skip "live schema within Step 5 scope" "development PostgreSQL not reachable (bash scripts/start-dev-services.sh)"
+  skip "Step 5 backend suite (Ordering + Payments)" "development PostgreSQL not reachable (bash scripts/start-dev-services.sh)"
+fi
 gate "no float in any money path"          python3 scripts/validate-money-rules.py
 
 # ---------------------------------------------------------------------------

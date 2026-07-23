@@ -127,6 +127,28 @@ expect_green() {
   fi
 }
 
+# The canonical current step. DEC-0035 permitted the seven Step 5 labels (order,
+# payment, receipt/nota, POS, intake, refund, QRIS) from step 5 onward. The
+# fixtures marked red_step5 below were VIOLATIONS while step < 5; from step 5 they
+# are authorised Step 5 runtime, and that boundary's adversarial coverage — Step 5
+# accepted, Step 6 rejected — lives in test-step-05-validators.sh. This harness
+# keeps its Step-6+ leakage assertions unchanged and records the superseded Step-5
+# ones as a visible skip: same strength, boundary moved forward by DEC-0035, no
+# coverage lost. Mirrors reject_step5_token in test-step-04-validators.sh.
+STEP="$(python3 -c 'import sys; sys.path.insert(0, "scripts"); import _common; print(_common.CANONICAL_CURRENT_STEP)')" \
+  || { echo "could not read CANONICAL_CURRENT_STEP" >&2; exit 1; }
+
+# red_step5 <id> <desc> <setup>: a real expect_red while step < 5; a visible,
+# UNCOUNTED skip at/after step 5, because DEC-0035 made the token authorised
+# runtime and its accept/reject coverage moved to test-step-05-validators.sh.
+red_step5() {
+  if [ "${STEP}" -lt 5 ]; then
+    expect_red "$@"
+  else
+    printf '  --    M%-2s %s — superseded by DEC-0035 (covered in test-step-05-validators.sh)\n' "$1" "$2"
+  fi
+}
+
 echo "========================================================================"
 echo "ADVERSARIAL TEST — scripts/validate-runtime-scope.py"
 echo "========================================================================"
@@ -139,18 +161,18 @@ expect_red 4  "PHP source outside backend"                   "step3_base; mkdir 
 expect_red 5  "unauthorised executable prototype (Go)"       "step3_base; mkdir -p proto && printf 'package main\n' > proto/main.go"
 
 echo
-echo "-- Step 4+ business feature leakage --"
-expect_red 6  "POS module directory"                         "step3_base; mkdir -p backend/app/Modules/pos && printf '<?php\n' > backend/app/Modules/pos/Service.php"
-expect_red 7  "payment route"                                "step3_base; printf '<?php\nRoute::post(\"api/v1/payments\", [X::class]);\n' > backend/routes_api.php && mv backend/routes_api.php backend/app/routes_api.php"
-expect_red 8  "order migration filename"                     "step3_base; printf '<?php\n' > backend/database/migrations/2026_07_20_000000_create_orders_table.php"
-expect_red 9  "orders table via Schema::create"              "step3_base; printf '<?php\nSchema::create(\"orders\", function(\$t){});\n' > backend/app/Mig.php"
+echo "-- Step 5+ business feature leakage (Step 5 authorised by DEC-0035; Step 6+ still forbidden) --"
+red_step5   6  "POS module directory"                        "step3_base; mkdir -p backend/app/Modules/pos && printf '<?php\n' > backend/app/Modules/pos/Service.php"
+red_step5   7  "payment route"                               "step3_base; printf '<?php\nRoute::post(\"api/v1/payments\", [X::class]);\n' > backend/routes_api.php && mv backend/routes_api.php backend/app/routes_api.php"
+red_step5   8  "order migration filename"                    "step3_base; printf '<?php\n' > backend/database/migrations/2026_07_20_000000_create_orders_table.php"
+red_step5   9  "orders table via Schema::create"             "step3_base; printf '<?php\nSchema::create(\"orders\", function(\$t){});\n' > backend/app/Mig.php"
 expect_red 10 "tracking controller (tracking_tokens table)"  "step3_base; printf '<?php\nSchema::create(\"tracking_tokens\", function(\$t){});\n' > backend/app/Trk.php"
 expect_red 11 "delivery module directory"                    "step3_base; mkdir -p backend/app/Modules/deliveries && printf '<?php\n' > backend/app/Modules/deliveries/D.php"
 expect_red 12 "H+7 reminder worker (reminder_stages)"        "step3_base; printf '<?php\nSchema::create(\"reminder_stages\", function(\$t){});\n' > backend/app/Rem.php"
 expect_red 13 "WhatsApp provider implementation"             "step3_base; mkdir -p backend/app/Modules/whatsapp && printf '<?php\n' > backend/app/Modules/whatsapp/Client.php"
-expect_red 14 "QRIS provider implementation"                 "step3_base; mkdir -p backend/app/Modules/qris && printf '<?php\n' > backend/app/Modules/qris/Gateway.php"
-expect_red 15 "Eloquent Payment model"                       "step3_base; printf '<?php\nclass Payment extends Model {}\n' > backend/app/Payment.php"
-expect_red 16 "Flutter POS feature directory"                "step3_base; mkdir -p apps/ops_android/lib/features/pos && printf 'void main(){}\n' > apps/ops_android/lib/features/pos/screen.dart"
+red_step5  14 "QRIS provider implementation"                 "step3_base; mkdir -p backend/app/Modules/qris && printf '<?php\n' > backend/app/Modules/qris/Gateway.php"
+red_step5  15 "Eloquent Payment model"                       "step3_base; printf '<?php\nclass Payment extends Model {}\n' > backend/app/Payment.php"
+red_step5  16 "Flutter POS feature directory"                "step3_base; mkdir -p apps/ops_android/lib/features/pos && printf 'void main(){}\n' > apps/ops_android/lib/features/pos/screen.dart"
 
 echo
 echo "-- deployment --"
@@ -186,22 +208,28 @@ expect_red 27 "runtime present but DEC-0024 removed"         "step3_base; rm -f 
 # (Rule 49). The trailing grep makes a failed mutation a loud SETUP ERROR.
 expect_red 28 "runtime present but Master Source rolled back below 1.4.0" \
   "step3_base; sed -i -E 's/^\*\*Document version: [0-9]+\.[0-9]+\.[0-9]+\*\*/**Document version: 1.3.0**/' docs/MASTER_SOURCE.md; grep -q '^\*\*Document version: 1\.3\.0\*\*' docs/MASTER_SOURCE.md"
-# The forward-leak boundary follows _common.CANONICAL_CURRENT_STEP. These were
-# pinned to Steps 4 and 5 while Step 3 was current; DEC-0028 authorised Step 4, so
-# they move to Steps 5 and 6. Same strength, boundary moved by one.
-expect_red 29 "Step 5 claimed IN PROGRESS"                   "step3_base; printf '\n| Step 5 | POS, Order, and Payment Foundation | IN PROGRESS |\n' >> docs/STATUS.md"
+# The forward-leak boundary follows _common.CANONICAL_CURRENT_STEP: any step
+# BEYOND the current one carrying a non-PLANNED status is a leak the guard rejects.
+# These were pinned to Steps 4/5 at Step 3, moved to 5/6 at DEC-0028, and move to
+# Step 6 now that DEC-0035 made Step 5 the current step and its GO the reality.
+# The next transition moves them forward again. Same strength, boundary +1.
+expect_red 29 "Step 6 claimed IN PROGRESS"                   "step3_base; printf '\n| Step 6 | Production Operations | IN PROGRESS |\n' >> docs/STATUS.md"
 expect_red 30 "Step 6 claimed GO"                            "step3_base; printf '\n| Step 6 | Production Operations | GO |\n' >> docs/STATUS.md"
 expect_red 31 "symlink escaping the repository"              "step3_base; ln -s /etc backend/escape"
 
 echo
-echo "-- DEC-0030: Step 5+ features stay forbidden after Step 4 opened --"
-# Permitting four Step 4 labels must not have loosened anything else. These probe
-# the retained set directly, including the sharp edge DEC-0030 created.
-expect_red 32 "receipt/nota table (printer is Step 4, nota is Step 5 FR-052)" \
+echo "-- DEC-0035: Step 6+ features stay forbidden after Step 5 opened --"
+# Permitting the seven Step 5 labels (DEC-0035) must not have loosened anything
+# else. The Step 5 fixtures below (nota, orders, payments, kasir) are red_step5:
+# real rejections before step 5, superseded skips at step 5 (accept-coverage in
+# test-step-05-validators.sh). The Step 6+ set (tracking_tokens, subscriptions)
+# stays a hard rejection — this is the retained boundary, including the
+# printer(Step 4)/nota(Step 5 FR-052) sharp edge.
+red_step5  32 "receipt/nota table (printer is Step 4, nota is Step 5 FR-052)" \
   "step3_base; printf '<?php\nSchema::create(\"nota\", function(\$t){});\n' > backend/app/Nota.php"
-expect_red 33 "orders table"                                 "step3_base; printf '<?php\nSchema::create(\"orders\", function(\$t){});\n' > backend/app/Ord.php"
-expect_red 34 "payments table"                               "step3_base; printf '<?php\nSchema::create(\"payments\", function(\$t){});\n' > backend/app/Pay.php"
-expect_red 35 "POS renamed to 'kasir' (evasion by renaming)" "step3_base; mkdir -p backend/app/Modules/kasir; printf '<?php\nclass X {}\n' > backend/app/Modules/kasir/X.php"
+red_step5  33 "orders table"                                 "step3_base; printf '<?php\nSchema::create(\"orders\", function(\$t){});\n' > backend/app/Ord.php"
+red_step5  34 "payments table"                               "step3_base; printf '<?php\nSchema::create(\"payments\", function(\$t){});\n' > backend/app/Pay.php"
+red_step5  35 "POS renamed to 'kasir' (evasion by renaming)" "step3_base; mkdir -p backend/app/Modules/kasir; printf '<?php\nclass X {}\n' > backend/app/Modules/kasir/X.php"
 expect_red 36 "tracking_tokens table"                        "step3_base; printf '<?php\nSchema::create(\"tracking_tokens\", function(\$t){});\n' > backend/app/Trk.php"
 expect_red 37 "subscription billing table"                   "step3_base; printf '<?php\nSchema::create(\"subscriptions\", function(\$t){});\n' > backend/app/Sub.php"
 

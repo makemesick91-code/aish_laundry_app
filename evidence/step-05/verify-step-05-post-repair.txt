@@ -1,0 +1,45 @@
+========================================================================
+STEP 5 CANONICAL VERIFICATION — POS, ORDER, AND PAYMENT FOUNDATION
+========================================================================
+  commit    : bde860d8abda603b03d1286f8cdbf5be0f000e6d
+  timestamp : 2026-07-23T15:10:03Z (UTC)
+  authorised: canonical roadmap (Master Source §24), guard transition DEC-0035
+
+== 1. Step 0-4 regression (delegated, not restated) ==
+  PASS  Step 0-4 regression (verify-step-04.sh)
+
+== 2. Step 5 authorization and governance ==
+  PASS  DEC-0035 present and ACCEPTED
+  PASS  Master Source header matches the pinned canonical version
+  PASS  MASTER_SOURCE checksum matches
+  PASS  Rule 50 (Step 4 status) present
+  PASS  Step 5 requirement matrix present
+  PASS  governance validator suite
+  PASS  runtime scope guard (classify)
+  PASS  DEC-0035 label audit
+  PASS  DEC-0030 label audit
+  PASS  Step 5 validator adversarial harness
+  PASS  Step 4 validator adversarial harness (step-aware)
+  PASS  financial money-rules (no float money column)
+
+== 3. Step 5 backend runtime (order + payment) ==
+  PASS  live schema within Step 5 scope
+  PASS  Step 5 backend suite (Ordering + Payments)
+  PASS  no float in any money path
+
+== 3b. Step 5 Flutter operator UI (Unit F) ==
+  PASS  Flutter analyze (domain, networking, ops_android, admin_web)
+  PASS  Flutter order/payment contract tests (pos_repository)
+  PASS  Flutter POS widget tests (ops_android)
+
+== 4. Public repository safety and working tree ==
+  PASS  secret scan
+  PASS  public repository safety (canonical scan)
+  PASS  working tree clean
+
+========================================================================
+STEP 5 VERIFICATION SUMMARY
+========================================================================
+  commit : bde860d8abda603b03d1286f8cdbf5be0f000e6d
+  PASS 22   FAIL 0   SKIP 0
+------------------------------------------------------------------------
