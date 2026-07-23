@@ -157,7 +157,7 @@ next step nor authorises deployment.**
 
 ## Step 5 — POS, Order, and Payment Foundation
 
-**Status: IN PROGRESS**
+**Status: GO**
 
 - Order intake, quoting, nota generation, deposits.
 - Payment: cash, transfer, and gateway, with idempotency by construction.

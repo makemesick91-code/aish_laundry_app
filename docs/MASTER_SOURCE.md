@@ -1,6 +1,6 @@
 # Aish Laundry App — Master Source
 
-**Document version: 1.4.7**
+**Document version: 1.4.8**
 **Baseline date: 19 July 2026**
 
 Owner: Aish Tech Solution
@@ -1242,7 +1242,7 @@ The roadmap is **locked**. Step numbers are never reused or swapped without a de
 | Step 2 | Design System and UX Foundation | GO WITH ACCEPTED DEVIATION |
 | Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | GO WITH ACCEPTED DEVIATION |
 | Step 4 | Laundry Master Data | GO |
-| Step 5 | POS, Order, and Payment Foundation | IN PROGRESS |
+| Step 5 | POS, Order, and Payment Foundation | GO |
 | Step 6 | Production Operations | PLANNED |
 | Step 7 | Customer Tracking and WhatsApp | PLANNED |
 | Step 8 | Pickup and Delivery Operations | PLANNED |
@@ -2063,4 +2063,4 @@ was met.
 
 ---
 
-*End of Master Source, version 1.4.7, baseline date 19 July 2026.*
+*End of Master Source, version 1.4.8, baseline date 19 July 2026.*

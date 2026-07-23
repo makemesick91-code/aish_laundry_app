@@ -17,7 +17,7 @@ Master Source version **1.4.0**, baseline date **19 July 2026**.
 | Step 2 — Design System and UX Foundation | **GO** (owner-conferred 20 July 2026, with four recorded deviations) |
 | Step 3 — Runtime, Authentication, Multi-Tenancy, and RBAC | **GO WITH ACCEPTED DEVIATION** |
 | Step 4 — Laundry Master Data | **GO** (owner-conferred 22 July 2026, with accepted deviations) |
-| Step 5 — POS, Order, and Payment Foundation | **PLANNED** |
+| Step 5 — POS, Order, and Payment Foundation | **GO** (owner-conferred 23 July 2026, with accepted deviations) |
 | Step 6 — Production Operations | **PLANNED** |
 | Step 7 — Customer Tracking and WhatsApp | **PLANNED** |
 | Step 8 — Pickup and Delivery Operations | **PLANNED** |
@@ -27,7 +27,7 @@ Master Source version **1.4.0**, baseline date **19 July 2026**.
 | Step 12 — Subscription and Platform Administration | **PLANNED** |
 | Step 13 — Security, Performance, Backup, and Recovery | **PLANNED** |
 | Step 14 — Pilot and Commercial Launch | **PLANNED** |
-| **All product business features** | **NOT IMPLEMENTED** |
+| **Step 6+ product business features** | **NOT IMPLEMENTED** |
 | **Backend runtime** | **PRESENT — STEP 3 FOUNDATION ONLY** |
 | **Flutter workspace** | **PRESENT** |
 | **Deployment** | **ABSENT** |
@@ -43,9 +43,10 @@ Master Source version **1.4.0**, baseline date **19 July 2026**.
 - The Laravel backend, PostgreSQL, and Redis foundation **exist** (auth, tenancy, RBAC, audit only);
   the Flutter workspace and three application shells **exist**. This is Step 3 **foundation** —
   `composer.json`, `pubspec.yaml`, migrations, and runtime CI are present and verified.
-- **All Step 4+ product business features remain `NOT IMPLEMENTED`** — POS, orders, payments,
-  production, tracking, WhatsApp, pickup/delivery, unclaimed-laundry reminders, reporting, and
-  subscription. Runtime foundation existing is never the same as a product feature existing (Rule 42).
+- **Step 5 (the POS, order, and payment FOUNDATION) reached `GO`.** **Step 6+ product business
+  features remain `NOT IMPLEMENTED`** — production, tracking, WhatsApp, pickup/delivery,
+  unclaimed-laundry reminders, reporting, and subscription. A foundation existing is never the same as
+  a full consuming workflow existing (Rule 42).
 - Nothing is deployed anywhere. Deployment is **ABSENT**, and Step 3 `GO` does **not** authorise it.
 - Application CI is **ACTIVE**: the Step 3 runtime workflows run on every change to `main`.
 - No user acceptance testing has occurred. UAT is **NOT STARTED**.

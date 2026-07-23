@@ -10,6 +10,36 @@ Version numbers in this file track the **Master Source** document version
 
 ---
 
+## [1.4.8] — 23 July 2026 — Step 5 (POS, Order, and Payment Foundation) reaches GO
+
+**Master Source 1.4.7 → 1.4.8, classified PATCH under §1.2** — no product decision
+is reversed, no pricing figure, roadmap number, hierarchy level, reminder stage,
+or architectural lock changes. The Master Source content edit is the §24
+roadmap-status row: Step 5 advances `IN PROGRESS → GO` through the ordinary
+canonical process, recording an owner-conferred, exact-SHA-evidenced status after
+merge — exactly as the 1.4.5 bump advanced Step 4.
+
+- **Step 5 (POS, Order, and Payment Foundation) reached `GO`**, owner-conferred
+  against exact-SHA evidence after PR #21 merged as merge commit
+  `f0524b3a07f5306ec8b5c0584f94f865ec9f9346` (parents `d186029` prior main and
+  `813a13e` the tested candidate). All 15 authoritative main-branch CI checks are
+  green on that exact SHA, and a fresh clean-checkout `verify-step-05.sh` +
+  checksum run completed exit 0.
+- The immutable annotated tag **`aish-laundry-step-05-pos-order-payment-foundation-v1.0.0-go`**
+  peels to the merge commit — never to this later closure commit. Step 3 and
+  Step 4 GO tags are unchanged.
+- **`GO` is not an unqualified endorsement.** It carries the standing accepted
+  deviations (DEC-0017 single-maintainer, no independent human review) and
+  boundaries: Step 5 delivers the POS/order/payment FOUNDATION; the workflows that
+  consume an order — production, tracking, WhatsApp, pickup/delivery, reminders,
+  reporting, subscription — are Step 6+ and remain `NOT IMPLEMENTED`. QRIS is a
+  method/state only (no provider integrated, OQ-015). **Step 5 `GO` does not start
+  Step 6 and does not authorise deployment; deployment remains `ABSENT`.**
+- The three canonical status sources (Master Source §24, `ROADMAP.md`,
+  `STATUS.md`) are kept in agreement; the checksum was regenerated and the pinned
+  validator version moved with it. Closure evidence:
+  [`evidence/step-05/GO-CLOSURE.md`](evidence/step-05/GO-CLOSURE.md).
+
 ## [1.4.7] — 23 July 2026 — OQ-017 resolved: order-line rounding mode is HALF_UP
 
 **Master Source 1.4.6 → 1.4.7, classified PATCH under §1.2** — no product decision

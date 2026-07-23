@@ -36,8 +36,9 @@ date **19 July 2026**).
 | Step 2 — Design System and UX Foundation | **GO** (owner-conferred 20 July 2026, with four recorded deviations) |
 | Step 3 — Runtime, Authentication, Multi-Tenancy, and RBAC | **GO WITH ACCEPTED DEVIATION** (owner-conferred, GO-tagged) |
 | Step 4 — Laundry Master Data | **GO** (owner-conferred 22 July 2026; merged PR #18, tag `…step-04…v1.0.0-go`) |
-| Step 5–14 | **PLANNED** |
-| All product business features | **NOT IMPLEMENTED** |
+| Step 5 — POS, Order, and Payment Foundation | **GO** (owner-conferred 23 July 2026; merged PR #21, tag `…step-05…v1.0.0-go`) |
+| Step 6–14 | **PLANNED** |
+| Step 6+ product business features | **NOT IMPLEMENTED** |
 | Backend runtime | **PRESENT — STEP 3 FOUNDATION ONLY** |
 | PostgreSQL runtime foundation | **PRESENT** |
 | Redis runtime foundation | **PRESENT** |
@@ -57,10 +58,11 @@ immutable. **`GO WITH ACCEPTED DEVIATION` is not an unqualified `GO`:** the devi
 (single-maintainer; no independent human review) and DEC-0026 (scaffold-authorization 38/38 only on a
 Step 3 feature branch; a visible exit-78 SKIP on `main`/fresh clone, never PASS), plus debug-only
 runtime with no deployment. **Step 3 `GO` does not start Step 4 and does not authorise deployment.**
-**Step 4+ laundry business functionality — POS, orders, payments, production, tracking, delivery,
-reminders, finance, subscription — remains `NOT IMPLEMENTED`** regardless of how much foundation
-runtime exists (Rule 42), and Step 4 begins only through a separately authorised canonical Step 4
-process. Deployment remains `ABSENT`.
+Step 5 delivered the **POS, order, and payment FOUNDATION** (order intake, payment recording, the nota,
+the append-only ledger) and reached `GO`. **Step 6+ laundry business functionality — production,
+tracking, delivery, reminders, finance, subscription — remains `NOT IMPLEMENTED`** regardless of how
+much foundation runtime exists (Rule 42); the workflows that CONSUME an order are Step 6 and later, and
+each begins only through its own separately authorised canonical process. Deployment remains `ABSENT`.
 
 Repository visibility is **PUBLIC** by deliberate owner decision (AMENDMENT-0001), locked as an
 **accepted deviation** from a canonical desired **PRIVATE** by DEC-0016. Never describe this repository
