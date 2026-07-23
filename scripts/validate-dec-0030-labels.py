@@ -40,6 +40,21 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _common import CANONICAL_CURRENT_STEP  # noqa: E402
+
+# DEC-0035 GUARD TRANSITION (Rule 36 hard rule 8). DEC-0035 moved the seven
+# POS/order/payment labels — POS, order, laundry intake, payment, refund, QRIS,
+# receipt/nota — from unconditional prohibition to Step-5-gated, exactly as
+# DEC-0030 did for four Step-4 labels. This audit is the Step-4 residual and must
+# not FALSE-fail on authorised Step 5 runtime, so its restated "still forbidden"
+# set drops those seven once the canonical current step reaches 5. The Step-5
+# residual — that the seven permitted labels do not become the Step 6+ workflows
+# that consume them — is audited by validate-dec-0035-labels.py, not here.
+# Nothing is weakened: the tokens move to a different, step-appropriate auditor,
+# and below Step 5 they remain forbidden here exactly as before.
+_STEP5_PERMITTED_AT_5 = CANONICAL_CURRENT_STEP >= 5
+
 # ---------------------------------------------------------------------------
 # The four labels DEC-0030 permitted, and the requirements that authorise them.
 # ---------------------------------------------------------------------------
@@ -73,18 +88,30 @@ PERMITTED_LABELS: dict[str, dict[str, object]] = {
 # Labels DEC-0030 did NOT permit, restated here so the audit is self-contained.
 # `receipt` is the one that matters most: it sits closest to `printer`, and the
 # two are separated by a step boundary rather than by subject matter.
+# Labels that remain forbidden at EVERY step from 5 onward: Step 6+ workflows, plus
+# `invoice`/`checkout`/`cart`, which are NOT part of Step 5's canonical scope — the
+# Step 5 document is the nota (FR-052), and a counter POS has no cart. DEC-0035
+# permitted only the seven POS/order/payment labels, not these.
 STILL_FORBIDDEN: dict[str, set[str]] = {
-    "receipt / nota / struk (FR-052, Step 5)": {"receipt", "nota", "struk"},
-    "order (Step 5)": {"order", "pesanan", "transaksi"},
-    "payment (Step 5)": {"payment", "pembayaran", "qris"},
-    "invoice (Step 5)": {"invoice", "faktur"},
-    "checkout / cart (Step 5)": {"checkout", "cart", "keranjang"},
+    "invoice (not Step 5 scope; the nota is FR-052)": {"invoice", "faktur"},
+    "checkout / cart (not laundry-POS vocabulary)": {"checkout", "cart", "keranjang"},
     "production (Step 6)": {"produksi", "washing", "drying", "finishing"},
     "tracking (Step 7)": {"tracking_token", "public_tracking"},
     "pickup / delivery (Step 8)": {"pickup", "penjemputan", "delivery", "pengantaran"},
     "reminder ladder (Step 9)": {"reminder", "pengingat"},
     "subscription billing (Step 12)": {"subscription", "langganan"},
 }
+
+# The seven POS/order/payment labels: forbidden here only WHILE the canonical
+# current step is below 5. From Step 5 (DEC-0035) they are authorised runtime and
+# are audited by validate-dec-0035-labels.py instead.
+_STEP5_LABELS: dict[str, set[str]] = {
+    "receipt / nota / struk (FR-052, Step 5)": {"receipt", "nota", "struk"},
+    "order (Step 5)": {"order", "pesanan", "transaksi"},
+    "payment / QRIS (Step 5)": {"payment", "pembayaran", "qris"},
+}
+if not _STEP5_PERMITTED_AT_5:
+    STILL_FORBIDDEN.update(_STEP5_LABELS)
 
 # Structural identifiers that legitimately contain a forbidden substring and are
 # NOT the feature. Each needs a reason; an unexplained entry here would be a
@@ -267,7 +294,15 @@ def check_printer_did_not_become_a_document() -> list[str]:
     The two live one word apart, which is exactly why this is checked
     separately: a `printer` module that grows a `receipt_template` has crossed
     a step boundary while keeping a permitted name.
+
+    This boundary applies only BELOW Step 5. From Step 5 the nota (FR-052) is
+    authorised runtime (DEC-0035), so a receipt token appearing near printer
+    configuration is no longer a forward leak — it is the authorised feature. Its
+    tenant-scoping and integrity are audited by the Step 5 gates, not by name here.
     """
+    if _STEP5_PERMITTED_AT_5:
+        return []
+
     failures: list[str] = []
 
     for path in iter_source_files():

@@ -1,6 +1,6 @@
 # Aish Laundry App — Master Source
 
-**Document version: 1.4.5**
+**Document version: 1.4.6**
 **Baseline date: 19 July 2026**
 
 Owner: Aish Tech Solution
@@ -1242,7 +1242,7 @@ The roadmap is **locked**. Step numbers are never reused or swapped without a de
 | Step 2 | Design System and UX Foundation | GO WITH ACCEPTED DEVIATION |
 | Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | GO WITH ACCEPTED DEVIATION |
 | Step 4 | Laundry Master Data | GO |
-| Step 5 | POS, Order, and Payment Foundation | PLANNED |
+| Step 5 | POS, Order, and Payment Foundation | IN PROGRESS |
 | Step 6 | Production Operations | PLANNED |
 | Step 7 | Customer Tracking and WhatsApp | PLANNED |
 | Step 8 | Pickup and Delivery Operations | PLANNED |
@@ -1558,11 +1558,11 @@ must be claims the software can substantiate — the honesty rule (§3.1) applie
 
 ## 31. Decision records
 
-Thirty-four decisions are locked. Fifteen were locked at the 1.0.0 baseline; DEC-0016 was added at
+Thirty-five decisions are locked. Fifteen were locked at the 1.0.0 baseline; DEC-0016 was added at
 version 1.0.1, DEC-0017 at version 1.2.0, DEC-0018 … DEC-0023 at version 1.3.0, DEC-0024 … DEC-0027 at
-version 1.4.0, DEC-0028 … DEC-0031 at version 1.4.1, DEC-0032 at version 1.4.2, DEC-0033 at version 1.4.3, and DEC-0034 at version 1.4.4. DEC-0001 … DEC-0023 carry date
+version 1.4.0, DEC-0028 … DEC-0031 at version 1.4.1, DEC-0032 at version 1.4.2, DEC-0033 at version 1.4.3, DEC-0034 at version 1.4.4, and DEC-0035 at version 1.4.6. DEC-0001 … DEC-0023 carry date
 **19 July 2026**; DEC-0024 … DEC-0027 carry **20 July 2026**; DEC-0028 … DEC-0031 carry
-**21 July 2026**. All carry status **ACCEPTED**. Each has a full record in
+**21 July 2026**; DEC-0035 carries **23 July 2026**. All carry status **ACCEPTED**. Each has a full record in
 [`decisions/`](decisions/).
 
 **This section was stale and is corrected under
@@ -1609,6 +1609,7 @@ without being listed here — or listed here without existing — fails closed.
 | DEC-0032 | Step 3 Post-GO Corrective Remediation: Runtime Authentication Wiring | ACCEPTED | [DEC-0032](decisions/DEC-0032-step-03-post-go-corrective-auth-runtime-wiring.md) |
 | DEC-0033 | Step 4 Independent Review Findings SEC-01 … SEC-12, and the Conditions Under Which Each Closes | ACCEPTED | [DEC-0033](decisions/DEC-0033-step-04-independent-review-closure.md) |
 | DEC-0034 | Password-Reset Token Disclosure: a Step 3 Post-GO Security Correction Co-Delivered in PR #18 | ACCEPTED | [DEC-0034](decisions/DEC-0034-step-03-token-logging-correction-carried-in-step-04.md) |
+| DEC-0035 | Step 5 Runtime Scope Transition | ACCEPTED | [DEC-0035](decisions/DEC-0035-step-05-runtime-scope-transition.md) |
 
 ### 31.1 Decision record rules
 
@@ -2061,4 +2062,4 @@ was met.
 
 ---
 
-*End of Master Source, version 1.4.5, baseline date 19 July 2026.*
+*End of Master Source, version 1.4.6, baseline date 19 July 2026.*

@@ -134,10 +134,17 @@ STEP4_FEATURE_TOKENS = {
     "printer":              {"printers", "printer_settings"},
 }
 
-#: Labels owned by Step 5 and later. Forbidden unconditionally at Step 4.
-#: Editing this set to unblock work is a governance breach, not a fix (DEC-0030
+#: Labels Step 5 delivers (FR-048 … FR-070). Permitted once the canonical current
+#: step reaches 5, and forbidden before it. DEC-0035 authorises exactly these seven
+#: — the POS/order/payment cluster — and no others. Each traces to a Step 5
+#: requirement: POS/order intake (FR-048 … FR-050), the nota (FR-052 → "receipt"),
+#: payment and QRIS gateway (FR-061 … FR-064), and refund/void (FR-065).
+#:
+#: Splitting this out of the former unconditional STEP5_PLUS set is the DEC-0035
+#: guard transition — the exact mechanism DEC-0030 used for Step 4. Editing either
+#: set to unblock work is a governance breach, not a fix (DEC-0030 / DEC-0035
 #: supersession policy, Rule 36 hard rule 8).
-STEP5_PLUS_FEATURE_TOKENS = {
+STEP5_FEATURE_TOKENS = {
     "POS":                  {"pos", "kasir", "point_of_sale"},
     "order":                {"orders", "order_lines", "order_items", "transaksi", "pesanan"},
     "laundry intake":       {"intakes", "laundry_intake", "penerimaan"},
@@ -145,6 +152,12 @@ STEP5_PLUS_FEATURE_TOKENS = {
     "refund":               {"refunds", "pengembalian_dana"},
     "QRIS":                 {"qris"},
     "receipt":              {"receipts", "nota", "struk"},
+}
+
+#: Labels owned by Step 6 and later. Forbidden unconditionally at Step 5. `receipt`
+#: (FR-052) moved to Step 5 above; production begins the Step 6 band. DEC-0035 left
+#: every one of these unchanged.
+STEP6_PLUS_FEATURE_TOKENS = {
     "production":           {"production_jobs", "produksi"},
     "washing":              {"washing", "pencucian"},
     "drying":               {"drying", "pengeringan"},
@@ -298,11 +311,16 @@ FORBIDDEN_LABEL = f"Step {CANONICAL_CURRENT_STEP + 1}+"
 def forbidden_feature_map() -> dict[str, set[str]]:
     """Feature labels that are forbidden AT THE CURRENT CANONICAL STEP.
 
-    Step 5+ labels are always forbidden. The four Step 4 labels are forbidden only
-    while the canonical current step is below 4, so this guard cannot retroactively
-    permit anything in a Step 0-3 tree (DEC-0030, decision 4).
+    Step 6+ labels are always forbidden. The seven Step 5 labels are forbidden only
+    while the canonical current step is below 5 (DEC-0035); the four Step 4 labels
+    only while it is below 4 (DEC-0030). Deriving each band from
+    CANONICAL_CURRENT_STEP means this guard can never retroactively permit anything
+    in an earlier tree, and a step's own labels can never be unblocked by editing
+    the guard — they need that step's authorisation and its own record.
     """
-    forbidden = dict(STEP5_PLUS_FEATURE_TOKENS)
+    forbidden = dict(STEP6_PLUS_FEATURE_TOKENS)
+    if CANONICAL_CURRENT_STEP < 5:
+        forbidden.update(STEP5_FEATURE_TOKENS)
     if CANONICAL_CURRENT_STEP < 4:
         forbidden.update(STEP4_FEATURE_TOKENS)
     return forbidden

@@ -17,7 +17,7 @@ Canonical source: [`MASTER_SOURCE.md`](MASTER_SOURCE.md)
 | Step 2 | Design System and UX Foundation | GO WITH ACCEPTED DEVIATION |
 | Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | GO WITH ACCEPTED DEVIATION |
 | Step 4 | Laundry Master Data | GO |
-| Step 5 | POS, Order, and Payment Foundation | PLANNED |
+| Step 5 | POS, Order, and Payment Foundation | IN PROGRESS |
 | Step 6 | Production Operations | PLANNED |
 | Step 7 | Customer Tracking and WhatsApp | PLANNED |
 | Step 8 | Pickup and Delivery Operations | PLANNED |
@@ -354,7 +354,7 @@ STEP_01_STATUS=GO
 STEP_02_STATUS=GO
 STEP_03_STATUS=GO
 STEP_04_STATUS=GO
-STEP_05_STATUS=PLANNED
+STEP_05_STATUS=IN_PROGRESS
 STEP_06_STATUS=PLANNED
 STEP_07_STATUS=PLANNED
 STEP_08_STATUS=PLANNED
