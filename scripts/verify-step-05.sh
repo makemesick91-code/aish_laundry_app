@@ -101,6 +101,22 @@ gate "Step 5 backend suite (Ordering + Payments)" bash -c 'cd backend && php art
 gate "no float in any money path"          python3 scripts/validate-money-rules.py
 
 # ---------------------------------------------------------------------------
+hdr "3b. Step 5 Flutter operator UI (Unit F)"
+# Unit F added a real POS surface, so a backend-only verifier is no longer
+# sufficient. These gates need Flutter/Dart on PATH; where it is absent they are
+# a visible SKIP (the runtime-foundation CI runs the full Flutter suite).
+if command -v dart >/dev/null 2>&1 || [ -x "${HOME}/flutter/bin/dart" ]; then
+  gate "Flutter analyze (domain, networking, ops_android, admin_web)" \
+    bash -c 'export PATH="${HOME}/flutter/bin:${PATH}"; dart analyze packages/domain packages/networking apps/ops_android apps/admin_web'
+  gate "Flutter order/payment contract tests (pos_repository)" \
+    bash -c 'export PATH="${HOME}/flutter/bin:${PATH}"; dart test packages/networking/test/pos_repository_test.dart'
+  gate "Flutter POS widget tests (ops_android)" \
+    bash -c 'export PATH="${HOME}/flutter/bin:${PATH}"; cd apps/ops_android && flutter test test/pos_test.dart'
+else
+  skip "Step 5 Flutter operator UI gates" "Flutter/Dart not on PATH in this environment"
+fi
+
+# ---------------------------------------------------------------------------
 hdr "4. Public repository safety and working tree"
 gate "secret scan"                         bash scripts/validate-secrets.sh
 gate "public repository safety (canonical scan)" bash scripts/validate-public-repository-safety.sh

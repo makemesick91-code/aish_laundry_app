@@ -21,11 +21,24 @@ before the claim may be made.
 plan, not a result. Only captured output bound to an exact 40-character commit SHA proves anything
 (Rule 01, DEC-0013).
 
-**As of the baseline SHA, no Step 5 runtime exists.** The only thing delivered so far is the DEC-0035
-guard transition that *permits* Step 5 runtime to be built — a permitted token is not an implemented
-feature (DEC-0035, decision 9). Every functional requirement below is therefore `NOT IMPLEMENTED`
-until its migration, service, endpoint, and tests exist and are evidenced. A migration is not a tested
-schema, and a table is not a feature.
+**The FR table in §4 is the Phase-0/1 PLAN, frozen as first written** (every row `NOT IMPLEMENTED`,
+against the baseline SHA when only the DEC-0035 guard transition existed). **It has since been
+delivered.** The authoritative, current **requirement → evidence traceability** — which test proves
+each FR, at which SHA — lives in
+[`evidence/step-05/README.md`](../../evidence/step-05/), bound to the candidate SHA, and supersedes the
+`NOT IMPLEMENTED` labels below for status purposes (Rule 01). In summary, as of the Step 5 candidate:
+
+- **Backend (Units A–E):** orders, order lines, payments, the append-only ledger, server-authoritative
+  pricing with the FR-036 snapshot, idempotency, reversal, receipt, and the REST surface with RBAC and
+  tenant isolation — implemented and verified (backend suite green on PostgreSQL, all CI checks green).
+- **Operator UI (Unit F):** the Flutter POS counter, order intake, order detail, payment, and nota,
+  wired to the real backend — implemented and verified (`dart analyze` clean; POS and full ops widget
+  suites green with pinned Flutter 3.44.6).
+- **OQ-017 (order-line rounding mode):** RESOLVED — HALF_UP ratified by the owner
+  ([DEC-0036](../decisions/DEC-0036-oq-017-order-rounding-mode-halfup.md)), covered by boundary tests.
+
+`GO` remains the owner's to confer after merge (Rule 01); a permitted token is still not, by itself, an
+implemented feature (DEC-0035, decision 9), and every claim above is bound to captured evidence.
 
 **No requirement is invented here.** Step 5's requirement set is **FR-048 … FR-070**, fixed in
 [`PRODUCT_REQUIREMENTS.md`](../product/PRODUCT_REQUIREMENTS.md) and its traceability table. Step 5 also
