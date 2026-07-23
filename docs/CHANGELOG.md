@@ -10,6 +10,26 @@ Version numbers in this file track the **Master Source** document version
 
 ---
 
+## Step 4 — GO — 22 July 2026
+
+Not a Master Source version change; a roadmap-lifecycle milestone.
+
+- **Step 4 (Laundry Master Data) reached `GO`**, owner-conferred against
+  exact-SHA evidence after PR #18 merged as merge commit
+  `af31ea3b0945b274b249ff21cf30918cb2d17a5f`.
+- Immutable annotated tag **`aish-laundry-step-04-laundry-master-data-v1.0.0-go`**
+  (object `55ed19761714aea945ecfcc919a78bae769339ac`) peels to the merge commit —
+  never to the later evidence commit.
+- Post-merge CI: 11/11 workflows green at the exact merge SHA on `main`. A fresh
+  clean-checkout re-verification at the merge SHA passed every gate, including
+  the two build gates that a disk-exhausted earlier run had left unresolved.
+- FR-024 and FR-025 `COMPLETE_AND_VERIFIED`. Seven requirements remain
+  `STEP_5_E2E_PENDING`; FR-036 is a mandatory Step 5 financial-integrity
+  obligation. Step 4 `GO` does not start Step 5 and does not authorise deployment.
+- The Step 3 GO tag is unchanged.
+
+---
+
 ## [1.4.4] — 22 July 2026
 
 ### Added
