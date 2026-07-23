@@ -1,0 +1,22 @@
+========================================================================
+VALIDATOR: runtime-scope
+========================================================================
+PASS  every runtime manifest and source file sits inside an approved root
+PASS  no Step 6+ business feature detected by table, route, model, or module
+PASS  no deployment artifact present
+PASS  no secret-bearing file, credential pattern, or real phone number detected
+PASS  runtime introduction is backed by Master Source >= 1.4.0 and DEC-0024
+
+========================================================================
+CLASSIFICATION: STEP_3_RUNTIME_FOUNDATION_WITHIN_SCOPE
+========================================================================
+  approved runtime roots : 14
+  files examined         : 899
+  runtime present        : yes
+
+  A runtime manifest is not evidence that a feature works.
+  This validator classified scope. It executed no application test
+  and claims no application test result.
+------------------------------------------------------------------------
+SUMMARY [runtime-scope]: 5/5 checks passed, 0 failed
+RESULT: PASS (runtime-scope)

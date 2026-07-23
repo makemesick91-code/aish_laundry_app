@@ -1,0 +1,26 @@
+========================================================================
+ADVERSARIAL TEST — STEP 5 VALIDATORS (DEC-0035 transition)
+========================================================================
+
+CONTROL — legitimate input must be ACCEPTED
+  ok    runtime scope guard accepts the current tree
+  ok    DEC-0030 label audit accepts the current tree
+  ok    DEC-0035 label audit accepts the current tree
+
+AUTHORISED — a Step 5 table/route must now be ACCEPTED by the scope guard
+  ok    scope guard accepts a Step 5 order table (DEC-0035)
+  ok    DEC-0035 label audit accepts a Step 5 order table
+  ok    scope guard accepts a Step 5 payment table (DEC-0035)
+  ok    scope guard accepts a Step 5 payment route (DEC-0035)
+
+FORWARD-LEAK GUARD — a Step 6+ feature must still be REJECTED
+  ok    scope guard rejects a Step 6 production table
+  ok    DEC-0035 label audit rejects a Step 6 production table
+  ok    DEC-0035 label audit rejects a compound-renamed production table
+  ok    scope guard rejects a Step 8 delivery table
+  ok    DEC-0035 label audit rejects a Step 8 delivery table
+
+========================================================================
+working tree verified byte-identical before and after
+SUMMARY [step-05-validators]: 12/12 expectations met, 0 failed
+RESULT: PASS (step-05-validators)
