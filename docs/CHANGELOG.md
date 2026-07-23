@@ -10,9 +10,17 @@ Version numbers in this file track the **Master Source** document version
 
 ---
 
-## Step 4 — GO — 22 July 2026
+## [1.4.5] — 22 July 2026 — Step 4 GO recorded
 
-Not a Master Source version change; a roadmap-lifecycle milestone.
+**Master Source 1.4.4 → 1.4.5, classified PATCH under §1.2** — no product
+decision, pricing figure, roadmap number, hierarchy level, reminder stage, or
+architectural lock changes. The only content edit to `MASTER_SOURCE.md` is the
+§24 roadmap-status row: Step 4 advances `IN PROGRESS → GO` through the ordinary
+canonical process, recording an owner-conferred, exact-SHA-evidenced status —
+exactly as the 1.4.1 bump advanced Steps 2 and 3. The three canonical status
+sources (Master Source §24, `ROADMAP.md`, `STATUS.md`) are kept in agreement, as
+`validate-roadmap.py` requires; the checksum was regenerated through tooling and
+the pinned validator version moved with it.
 
 - **Step 4 (Laundry Master Data) reached `GO`**, owner-conferred against
   exact-SHA evidence after PR #18 merged as merge commit

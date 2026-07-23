@@ -134,10 +134,18 @@ The first Step permitted to create a runtime.
 
 ## Step 4 — Laundry Master Data
 
-**Status: IN PROGRESS** — started under the separate canonical authorization recorded in
+**Status: GO** — owner-conferred 22 July 2026 against exact-SHA evidence after PR #18 merged as merge
+commit `af31ea3b0945b274b249ff21cf30918cb2d17a5f`. Immutable annotated tag
+`aish-laundry-step-04-laundry-master-data-v1.0.0-go` (object
+`55ed19761714aea945ecfcc919a78bae769339ac`) peels to that merge commit. Closure evidence:
+[`evidence/step-04/GO-CLOSURE.md`](../evidence/step-04/GO-CLOSURE.md). Step 4 began under the separate
+canonical authorization recorded in
 [`DEC-0028`](decisions/DEC-0028-step-04-scope-resolution-and-canonical-authorization.md), as Rule 49
-requires. `IN PROGRESS` is the only status starting confers: no scope item below is delivered,
-tested, or `GO` by virtue of the step having begun.
+requires. `GO` is not an unqualified endorsement: it carries accepted deviations (NEW-04
+`ACCEPTED_OPERATIONAL_RESIDUAL`, single-maintainer governance per DEC-0017, a non-owner runtime DB role
+`REQUIRED_FOR_FUTURE_DEPLOYMENT` / `NOT_YET_PROVISIONED`) and seven requirements (FR-029, FR-033,
+FR-036, FR-039, FR-044, FR-046, FR-047) remain `STEP_5_E2E_PENDING`. **This `GO` neither starts the
+next step nor authorises deployment.**
 
 - Customers, contacts, addresses, and consent state.
 - Services: kiloan, satuan, packages, add-ons.
