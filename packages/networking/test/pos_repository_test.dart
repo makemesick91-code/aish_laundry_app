@@ -71,36 +71,43 @@ const String _payment =
 
 void main() {
   group('OrdersRepository', () {
-    test('createOrder posts customer, client_reference and lines; parses server totals', () async {
-      final adapter = _Adapter(201, _orderDetail);
-      final repo = OrdersRepository(clientWith(adapter));
+    test(
+      'createOrder posts customer, client_reference and lines; parses server totals',
+      () async {
+        final adapter = _Adapter(201, _orderDetail);
+        final repo = OrdersRepository(clientWith(adapter));
 
-      final result = await repo.createOrder(
-        customerId: 'c1',
-        outletId: 'ot1',
-        clientReference: 'ref-abc',
-        lines: const [
-          OrderLineInput(targetType: 'service', targetId: 's1', quantityMilli: 2500),
-        ],
-      );
+        final result = await repo.createOrder(
+          customerId: 'c1',
+          outletId: 'ot1',
+          clientReference: 'ref-abc',
+          lines: const [
+            OrderLineInput(
+              targetType: 'service',
+              targetId: 's1',
+              quantityMilli: 2500,
+            ),
+          ],
+        );
 
-      expect(result.isOk, isTrue);
-      final order = result.valueOrNull!;
-      // Money is parsed EXACTLY as integer Rupiah, never a double.
-      expect(order.total, const Rupiah(20000));
-      expect(order.lines.single.unitPrice, const Rupiah(8000));
-      expect(order.status, OrderStatus.draft);
+        expect(result.isOk, isTrue);
+        final order = result.valueOrNull!;
+        // Money is parsed EXACTLY as integer Rupiah, never a double.
+        expect(order.total, const Rupiah(20000));
+        expect(order.lines.single.unitPrice, const Rupiah(8000));
+        expect(order.status, OrderStatus.draft);
 
-      // The request carried what to order, and the idempotency key.
-      final body = adapter.last!.data as Map<String, Object?>;
-      expect(adapter.last!.path, contains('orders'));
-      expect(body['customer_id'], 'c1');
-      expect(body['client_reference'], 'ref-abc');
-      // No client-supplied total is ever sent.
-      expect(body.containsKey('total_rupiah'), isFalse);
-      final lines = body['lines']! as List;
-      expect((lines.single as Map)['quantity_milli'], 2500);
-    });
+        // The request carried what to order, and the idempotency key.
+        final body = adapter.last!.data as Map<String, Object?>;
+        expect(adapter.last!.path, contains('orders'));
+        expect(body['customer_id'], 'c1');
+        expect(body['client_reference'], 'ref-abc');
+        // No client-supplied total is ever sent.
+        expect(body.containsKey('total_rupiah'), isFalse);
+        final lines = body['lines']! as List;
+        expect((lines.single as Map)['quantity_milli'], 2500);
+      },
+    );
 
     test('orders() sends filters and parses the summary list', () async {
       final adapter = _Adapter(200, _orderList);
@@ -128,38 +135,58 @@ void main() {
       expect((adapter.last!.data as Map)['reason'], 'Pelanggan batal');
     });
 
-    test('a server error envelope becomes an Err result, never an exception', () async {
-      final adapter = _Adapter(422, '{"error":{"code":"VALIDATION_FAILED","message":"salah"},"meta":{}}');
-      final repo = OrdersRepository(clientWith(adapter));
+    test(
+      'a server error envelope becomes an Err result, never an exception',
+      () async {
+        final adapter = _Adapter(
+          422,
+          '{"error":{"code":"VALIDATION_FAILED","message":"salah"},"meta":{}}',
+        );
+        final repo = OrdersRepository(clientWith(adapter));
 
-      final result = await repo.createOrder(
-        customerId: 'c1', outletId: 'ot1', clientReference: 'r',
-        lines: const [OrderLineInput(targetType: 'service', targetId: 's1', quantityMilli: 1000)],
-      );
-      expect(result.isErr, isTrue);
-      expect(result.failureOrNull, isNotNull);
-    });
+        final result = await repo.createOrder(
+          customerId: 'c1',
+          outletId: 'ot1',
+          clientReference: 'r',
+          lines: const [
+            OrderLineInput(
+              targetType: 'service',
+              targetId: 's1',
+              quantityMilli: 1000,
+            ),
+          ],
+        );
+        expect(result.isErr, isTrue);
+        expect(result.failureOrNull, isNotNull);
+      },
+    );
   });
 
   group('PaymentsRepository', () {
-    test('recordPayment posts an integer amount and the idempotency key', () async {
-      final adapter = _Adapter(201, _payment);
-      final repo = PaymentsRepository(clientWith(adapter));
+    test(
+      'recordPayment posts an integer amount and the idempotency key',
+      () async {
+        final adapter = _Adapter(201, _payment);
+        final repo = PaymentsRepository(clientWith(adapter));
 
-      final result = await repo.recordPayment(
-        'o1', method: 'cash', amountRupiah: 20000, clientReference: 'pref-1',
-      );
-      expect(result.isOk, isTrue);
-      final payment = result.valueOrNull!;
-      expect(payment.amount, const Rupiah(20000));
-      expect(payment.method, PaymentMethod.cash);
-      expect(payment.status, PaymentStatus.succeeded);
+        final result = await repo.recordPayment(
+          'o1',
+          method: 'cash',
+          amountRupiah: 20000,
+          clientReference: 'pref-1',
+        );
+        expect(result.isOk, isTrue);
+        final payment = result.valueOrNull!;
+        expect(payment.amount, const Rupiah(20000));
+        expect(payment.method, PaymentMethod.cash);
+        expect(payment.status, PaymentStatus.succeeded);
 
-      final body = adapter.last!.data as Map<String, Object?>;
-      expect(adapter.last!.path, contains('orders/o1/payments'));
-      expect(body['amount_rupiah'], 20000);
-      expect(body['client_reference'], 'pref-1');
-    });
+        final body = adapter.last!.data as Map<String, Object?>;
+        expect(adapter.last!.path, contains('orders/o1/payments'));
+        expect(body['amount_rupiah'], 20000);
+        expect(body['client_reference'], 'pref-1');
+      },
+    );
 
     test('reversePayment sends amount and reason', () async {
       final adapter = _Adapter(
@@ -170,7 +197,11 @@ void main() {
       );
       final repo = PaymentsRepository(clientWith(adapter));
 
-      final result = await repo.reversePayment('p0', amountRupiah: 5000, reason: 'Kompensasi');
+      final result = await repo.reversePayment(
+        'p0',
+        amountRupiah: 5000,
+        reason: 'Kompensasi',
+      );
       expect(result.isOk, isTrue);
       final body = adapter.last!.data as Map<String, Object?>;
       expect(adapter.last!.path, contains('payments/p0/reverse'));
@@ -182,7 +213,11 @@ void main() {
       final adapter = _Adapter(200, _payment);
       final repo = PaymentsRepository(clientWith(adapter));
 
-      final result = await repo.confirmPayment('p1', amountRupiah: 20000, gatewayReference: 'REF-FIKTIF');
+      final result = await repo.confirmPayment(
+        'p1',
+        amountRupiah: 20000,
+        gatewayReference: 'REF-FIKTIF',
+      );
       expect(result.isOk, isTrue);
       final body = adapter.last!.data as Map<String, Object?>;
       expect(adapter.last!.path, contains('payments/p1/confirm'));

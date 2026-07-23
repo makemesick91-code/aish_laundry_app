@@ -74,9 +74,8 @@ class _PosCounterScreenState extends ConsumerState<PosCounterScreen> {
                   icon: _statusIcon(order.status),
                   tone: _statusTone(order.status),
                 ),
-                onTap: () => context.go(
-                  OpsRoutes.counterOrderDetailFor(order.id),
-                ),
+                onTap: () =>
+                    context.go(OpsRoutes.counterOrderDetailFor(order.id)),
               );
             },
           ),

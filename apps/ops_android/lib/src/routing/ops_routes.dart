@@ -59,7 +59,8 @@ abstract final class OpsRoutes {
   /// this `:orderId` pattern in the router, so `/kasir/baru` is not swallowed as
   /// an order id.
   static const String counterOrderDetail = '/beranda/kasir/:orderId';
-  static String counterOrderDetailFor(String orderId) => '/beranda/kasir/$orderId';
+  static String counterOrderDetailFor(String orderId) =>
+      '/beranda/kasir/$orderId';
 
   // Future canonical Steps — placeholder only.
   static const String futureProduction = '/beranda/produksi';

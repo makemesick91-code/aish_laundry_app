@@ -28,7 +28,11 @@ class _Adapter implements HttpClientAdapter {
   final List<RequestOptions> requests = <RequestOptions>[];
 
   @override
-  Future<ResponseBody> fetch(RequestOptions options, Stream<List<int>>? s, Future<void>? c) async {
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<List<int>>? s,
+    Future<void>? c,
+  ) async {
     requests.add(options);
     var status = fallback.$1;
     var body = fallback.$2;
@@ -39,29 +43,57 @@ class _Adapter implements HttpClientAdapter {
         break;
       }
     }
-    return ResponseBody.fromString(body, status, headers: <String, List<String>>{
-      Headers.contentTypeHeader: <String>[Headers.jsonContentType],
-    });
+    return ResponseBody.fromString(
+      body,
+      status,
+      headers: <String, List<String>>{
+        Headers.contentTypeHeader: <String>[Headers.jsonContentType],
+      },
+    );
   }
 
   @override
   void close({bool force = false}) {}
 }
 
-(bool Function(RequestOptions), int, String) on(String method, int status, String body,
-        {String? pathContains}) =>
-    ((RequestOptions o) => o.method == method && (pathContains == null || o.path.contains(pathContains)), status, body);
+(bool Function(RequestOptions), int, String) on(
+  String method,
+  int status,
+  String body, {
+  String? pathContains,
+}) => (
+  (RequestOptions o) =>
+      o.method == method &&
+      (pathContains == null || o.path.contains(pathContains)),
+  status,
+  body,
+);
 
-({ApiClient client, _Adapter adapter}) scripted(List<(bool Function(RequestOptions), int, String)> rules) {
+({ApiClient client, _Adapter adapter}) scripted(
+  List<(bool Function(RequestOptions), int, String)> rules,
+) {
   final adapter = _Adapter(rules, (200, '{"data":{},"meta":{}}'));
   final dio = Dio()..httpClientAdapter = adapter;
-  return (client: ApiClient(environment: env(), transport: CredentialTransport.bearerToken, dio: dio), adapter: adapter);
+  return (
+    client: ApiClient(
+      environment: env(),
+      transport: CredentialTransport.bearerToken,
+      dio: dio,
+    ),
+    adapter: adapter,
+  );
 }
 
-FakeAuthService fullContextAuth() =>
-    FakeAuthService(initial: AuthState.authenticated(ApiFixtures.fullContext()));
+FakeAuthService fullContextAuth() => FakeAuthService(
+  initial: AuthState.authenticated(ApiFixtures.fullContext()),
+);
 
-Future<void> pump(WidgetTester tester, Widget screen, ApiClient client, FakeAuthService auth) async {
+Future<void> pump(
+  WidgetTester tester,
+  Widget screen,
+  ApiClient client,
+  FakeAuthService auth,
+) async {
   tester.view.physicalSize = const Size(400, 900);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
@@ -104,45 +136,78 @@ const String _payments =
     '"version":1}]},"meta":{}}';
 
 void main() {
-  testWidgets('the counter lists an order with its number, total and status', (tester) async {
-    final s = scripted(<(bool Function(RequestOptions), int, String)>[on('GET', 200, _orderList, pathContains: 'orders')]);
+  testWidgets('the counter lists an order with its number, total and status', (
+    tester,
+  ) async {
+    final s = scripted(<(bool Function(RequestOptions), int, String)>[
+      on('GET', 200, _orderList, pathContains: 'orders'),
+    ]);
     await pump(tester, const PosCounterScreen(), s.client, fullContextAuth());
 
     expect(find.text('ORD-000001'), findsOneWidget);
     expect(find.text('Rp20.000'), findsOneWidget); // integer Rupiah, formatted
     expect(find.text('Diterima'), findsOneWidget); // OrderStatus.received label
     // The list request carried the active outlet (server scopes; no client filter).
-    expect(s.adapter.requests.single.queryParameters['outlet_id'], 'otl_fiktif_melati_pusat');
+    expect(
+      s.adapter.requests.single.queryParameters['outlet_id'],
+      'otl_fiktif_melati_pusat',
+    );
   });
 
-  testWidgets('the counter shows the empty state when there are no orders', (tester) async {
-    final s = scripted(<(bool Function(RequestOptions), int, String)>[on('GET', 200, _orderEmpty, pathContains: 'orders')]);
+  testWidgets('the counter shows the empty state when there are no orders', (
+    tester,
+  ) async {
+    final s = scripted(<(bool Function(RequestOptions), int, String)>[
+      on('GET', 200, _orderEmpty, pathContains: 'orders'),
+    ]);
     await pump(tester, const PosCounterScreen(), s.client, fullContextAuth());
     expect(find.text('Belum ada pesanan'), findsOneWidget);
   });
 
-  testWidgets('the detail shows lines, the derived balance and the payment history', (tester) async {
-    final s = scripted(<(bool Function(RequestOptions), int, String)>[
-      on('GET', 200, _payments, pathContains: 'payments'),
-      on('GET', 200, _orderDetail, pathContains: 'orders'),
-    ]);
-    await pump(tester, const PosOrderDetailScreen(orderId: 'o1'), s.client, fullContextAuth());
+  testWidgets(
+    'the detail shows lines, the derived balance and the payment history',
+    (tester) async {
+      final s = scripted(<(bool Function(RequestOptions), int, String)>[
+        on('GET', 200, _payments, pathContains: 'payments'),
+        on('GET', 200, _orderDetail, pathContains: 'orders'),
+      ]);
+      await pump(
+        tester,
+        const PosOrderDetailScreen(orderId: 'o1'),
+        s.client,
+        fullContextAuth(),
+      );
 
-    expect(find.text('ORD-000001'), findsWidgets);
-    expect(find.text('Cuci Kiloan Reguler'), findsOneWidget);
-    // Server-derived balance, shown as integer Rupiah.
-    expect(find.text('Dibayar Sebagian'), findsOneWidget); // PaymentState.partial
-    expect(find.text('Rp8.000'), findsWidgets); // outstanding
-    expect(find.textContaining('PAY-000001'), findsOneWidget); // payment history row
-  });
+      expect(find.text('ORD-000001'), findsWidgets);
+      expect(find.text('Cuci Kiloan Reguler'), findsOneWidget);
+      // Server-derived balance, shown as integer Rupiah.
+      expect(
+        find.text('Dibayar Sebagian'),
+        findsOneWidget,
+      ); // PaymentState.partial
+      expect(find.text('Rp8.000'), findsWidgets); // outstanding
+      expect(
+        find.textContaining('PAY-000001'),
+        findsOneWidget,
+      ); // payment history row
+    },
+  );
 
-  testWidgets('the detail offers a payment action while a balance is outstanding', (tester) async {
-    final s = scripted(<(bool Function(RequestOptions), int, String)>[
-      on('GET', 200, _payments, pathContains: 'payments'),
-      on('GET', 200, _orderDetail, pathContains: 'orders'),
-    ]);
-    await pump(tester, const PosOrderDetailScreen(orderId: 'o1'), s.client, fullContextAuth());
-    expect(find.text('Terima pembayaran'), findsOneWidget);
-    expect(find.text('Lihat nota'), findsOneWidget);
-  });
+  testWidgets(
+    'the detail offers a payment action while a balance is outstanding',
+    (tester) async {
+      final s = scripted(<(bool Function(RequestOptions), int, String)>[
+        on('GET', 200, _payments, pathContains: 'payments'),
+        on('GET', 200, _orderDetail, pathContains: 'orders'),
+      ]);
+      await pump(
+        tester,
+        const PosOrderDetailScreen(orderId: 'o1'),
+        s.client,
+        fullContextAuth(),
+      );
+      expect(find.text('Terima pembayaran'), findsOneWidget);
+      expect(find.text('Lihat nota'), findsOneWidget);
+    },
+  );
 }

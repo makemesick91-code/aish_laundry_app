@@ -102,9 +102,11 @@ class _PosOrderDetailScreenState extends ConsumerState<PosOrderDetailScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Expanded(
-                child: Text(order.orderNumber,
-                    style: Theme.of(context).textTheme.titleLarge,
-                    overflow: TextOverflow.ellipsis),
+                child: Text(
+                  order.orderNumber,
+                  style: Theme.of(context).textTheme.titleLarge,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
               SizedBox(width: AishSpacing.space2),
               StatusChip(
@@ -130,7 +132,9 @@ class _PosOrderDetailScreenState extends ConsumerState<PosOrderDetailScreen> {
             (line) => ListTile(
               dense: true,
               title: Text(line.serviceName),
-              subtitle: Text('${_quantityLabel(line)} × ${line.unitPrice.formatted}'),
+              subtitle: Text(
+                '${_quantityLabel(line)} × ${line.unitPrice.formatted}',
+              ),
               trailing: Text(line.subtotal.formatted),
             ),
           ),
@@ -139,7 +143,12 @@ class _PosOrderDetailScreenState extends ConsumerState<PosOrderDetailScreen> {
           _amountRow(context, 'Diskon', order.summary.discount),
           _amountRow(context, 'Total', order.total, emphasise: true),
           _amountRow(context, 'Dibayar', order.paid),
-          _amountRow(context, 'Sisa tagihan', order.outstanding, emphasise: true),
+          _amountRow(
+            context,
+            'Sisa tagihan',
+            order.outstanding,
+            emphasise: true,
+          ),
           SizedBox(height: AishSpacing.space4),
           if (_payments.isNotEmpty) ...<Widget>[
             const Text('Riwayat pembayaran'),
@@ -161,9 +170,11 @@ class _PosOrderDetailScreenState extends ConsumerState<PosOrderDetailScreen> {
 
   Widget _actions(BuildContext context, OrderDetail order) {
     final canPlace = order.status == OrderStatus.draft;
-    final canPay = order.paymentState != PaymentState.paid &&
+    final canPay =
+        order.paymentState != PaymentState.paid &&
         order.status != OrderStatus.cancelled;
-    final canCancel = order.status == OrderStatus.draft ||
+    final canCancel =
+        order.status == OrderStatus.draft ||
         order.status == OrderStatus.received;
 
     return Column(
@@ -205,7 +216,9 @@ class _PosOrderDetailScreenState extends ConsumerState<PosOrderDetailScreen> {
 
   Future<void> _place() async {
     setState(() => _busy = true);
-    final result = await ref.read(ordersRepositoryProvider).placeOrder(widget.orderId);
+    final result = await ref
+        .read(ordersRepositoryProvider)
+        .placeOrder(widget.orderId);
     if (!mounted) return;
     setState(() => _busy = false);
     _afterMutation(result.failureOrNull, 'Pesanan diterima.');
@@ -220,7 +233,9 @@ class _PosOrderDetailScreenState extends ConsumerState<PosOrderDetailScreen> {
     if (outcome == null || !mounted) return;
 
     setState(() => _busy = true);
-    final result = await ref.read(paymentsRepositoryProvider).recordPayment(
+    final result = await ref
+        .read(paymentsRepositoryProvider)
+        .recordPayment(
           widget.orderId,
           method: outcome.method.wireValue,
           amountRupiah: outcome.amountRupiah,
@@ -240,13 +255,19 @@ class _PosOrderDetailScreenState extends ConsumerState<PosOrderDetailScreen> {
 
   Future<void> _openReceipt() async {
     setState(() => _busy = true);
-    final result = await ref.read(ordersRepositoryProvider).receipt(widget.orderId);
+    final result = await ref
+        .read(ordersRepositoryProvider)
+        .receipt(widget.orderId);
     if (!mounted) return;
     setState(() => _busy = false);
     final receipt = result.valueOrNull;
     if (receipt == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result.failureOrNull?.message ?? 'Nota tidak dapat dimuat.')),
+        SnackBar(
+          content: Text(
+            result.failureOrNull?.message ?? 'Nota tidak dapat dimuat.',
+          ),
+        ),
       );
       return;
     }
@@ -289,8 +310,9 @@ class _PosOrderDetailScreenState extends ConsumerState<PosOrderDetailScreen> {
     if (reason == null || reason.isEmpty || !mounted) return;
 
     setState(() => _busy = true);
-    final result =
-        await ref.read(ordersRepositoryProvider).cancelOrder(widget.orderId, reason);
+    final result = await ref
+        .read(ordersRepositoryProvider)
+        .cancelOrder(widget.orderId, reason);
     if (!mounted) return;
     setState(() => _busy = false);
     _afterMutation(result.failureOrNull, 'Pesanan dibatalkan.');
@@ -306,8 +328,12 @@ class _PosOrderDetailScreenState extends ConsumerState<PosOrderDetailScreen> {
     _load();
   }
 
-  Widget _amountRow(BuildContext context, String label, Rupiah amount,
-      {bool emphasise = false}) {
+  Widget _amountRow(
+    BuildContext context,
+    String label,
+    Rupiah amount, {
+    bool emphasise = false,
+  }) {
     final style = emphasise
         ? Theme.of(context).textTheme.titleMedium
         : Theme.of(context).textTheme.bodyMedium;
@@ -316,7 +342,9 @@ class _PosOrderDetailScreenState extends ConsumerState<PosOrderDetailScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Expanded(child: Text(label, style: style, overflow: TextOverflow.ellipsis)),
+          Expanded(
+            child: Text(label, style: style, overflow: TextOverflow.ellipsis),
+          ),
           SizedBox(width: AishSpacing.space2),
           Text(amount.formatted, style: style),
         ],
@@ -331,7 +359,10 @@ class _PosOrderDetailScreenState extends ConsumerState<PosOrderDetailScreen> {
     if (frac == 0) {
       return '$whole ${line.unit}';
     }
-    final fracText = frac.toString().padLeft(3, '0').replaceAll(RegExp(r'0+$'), '');
+    final fracText = frac
+        .toString()
+        .padLeft(3, '0')
+        .replaceAll(RegExp(r'0+$'), '');
     return '$whole,$fracText ${line.unit}';
   }
 }
@@ -363,8 +394,9 @@ class _PaymentSheet extends StatefulWidget {
 }
 
 class _PaymentSheetState extends State<_PaymentSheet> {
-  late final TextEditingController _amount =
-      TextEditingController(text: widget.outstanding.amount.toString());
+  late final TextEditingController _amount = TextEditingController(
+    text: widget.outstanding.amount.toString(),
+  );
   PaymentMethod _method = PaymentMethod.cash;
 
   // Generated ONCE for this sheet, so a double-tap of "Catat" replays the same
@@ -391,15 +423,19 @@ class _PaymentSheetState extends State<_PaymentSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Text('Terima pembayaran',
-              style: Theme.of(context).textTheme.titleMedium),
+          Text(
+            'Terima pembayaran',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
           SizedBox(height: AishSpacing.space3),
           SegmentedButton<PaymentMethod>(
             segments: PaymentMethod.values
-                .map((m) => ButtonSegment<PaymentMethod>(
-                      value: m,
-                      label: Text(m.label),
-                    ))
+                .map(
+                  (m) => ButtonSegment<PaymentMethod>(
+                    value: m,
+                    label: Text(m.label),
+                  ),
+                )
                 .toList(growable: false),
             selected: <PaymentMethod>{_method},
             onSelectionChanged: (s) => setState(() => _method = s.first),
@@ -431,15 +467,19 @@ class _PaymentSheetState extends State<_PaymentSheet> {
     final parsed = int.tryParse(raw);
     if (parsed == null || parsed <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nominal harus bilangan bulat Rupiah lebih dari nol.')),
+        const SnackBar(
+          content: Text('Nominal harus bilangan bulat Rupiah lebih dari nol.'),
+        ),
       );
       return;
     }
-    Navigator.of(context).pop(_PaymentIntent(
-      method: _method,
-      amountRupiah: parsed,
-      clientReference: _clientReference,
-    ));
+    Navigator.of(context).pop(
+      _PaymentIntent(
+        method: _method,
+        amountRupiah: parsed,
+        clientReference: _clientReference,
+      ),
+    );
   }
 }
 
@@ -460,8 +500,10 @@ class _ReceiptSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Text('Nota ${receipt.orderNumber}',
-                style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              'Nota ${receipt.orderNumber}',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             SizedBox(height: AishSpacing.space3),
             Flexible(
               child: ListView(
@@ -495,8 +537,12 @@ class _ReceiptSheet extends StatelessWidget {
     );
   }
 
-  Widget _row(BuildContext context, String label, Rupiah amount,
-      {bool emphasise = false}) {
+  Widget _row(
+    BuildContext context,
+    String label,
+    Rupiah amount, {
+    bool emphasise = false,
+  }) {
     final style = emphasise
         ? Theme.of(context).textTheme.titleMedium
         : Theme.of(context).textTheme.bodyMedium;
@@ -505,7 +551,9 @@ class _ReceiptSheet extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Expanded(child: Text(label, style: style, overflow: TextOverflow.ellipsis)),
+          Expanded(
+            child: Text(label, style: style, overflow: TextOverflow.ellipsis),
+          ),
           SizedBox(width: AishSpacing.space2),
           Text(amount.formatted, style: style),
         ],

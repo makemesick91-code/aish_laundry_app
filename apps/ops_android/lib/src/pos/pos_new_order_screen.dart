@@ -15,19 +15,16 @@ import 'pos_providers.dart';
 /// MANY, never a price (FR-051; the server resolves the price from the active
 /// price list).
 class _DraftLine {
-  const _DraftLine({
-    required this.service,
-    required this.quantityMilli,
-  });
+  const _DraftLine({required this.service, required this.quantityMilli});
 
   final CatalogService service;
   final int quantityMilli;
 
   OrderLineInput toInput() => OrderLineInput(
-        targetType: 'service',
-        targetId: service.id,
-        quantityMilli: quantityMilli,
-      );
+    targetType: 'service',
+    targetId: service.id,
+    quantityMilli: quantityMilli,
+  );
 
   String get quantityLabel {
     if (service.unitKind == ServiceUnitKind.kiloan) {
@@ -56,7 +53,8 @@ class _PosNewOrderScreenState extends ConsumerState<PosNewOrderScreen> {
 
   // Generated ONCE per intake. Reused on every submit/retry of THIS order, so
   // the server treats a replay as the same order (FR-059/FR-062).
-  final String _clientReference = 'order-${DateTime.now().microsecondsSinceEpoch}';
+  final String _clientReference =
+      'order-${DateTime.now().microsecondsSinceEpoch}';
 
   List<CustomerSummary> _customerResults = const <CustomerSummary>[];
   CustomerSummary? _customer;
@@ -96,7 +94,9 @@ class _PosNewOrderScreenState extends ConsumerState<PosNewOrderScreen> {
         .read(masterDataRepositoryProvider)
         .customers(query: term, status: 'active');
     if (!mounted) return;
-    setState(() => _customerResults = result.valueOrNull ?? const <CustomerSummary>[]);
+    setState(
+      () => _customerResults = result.valueOrNull ?? const <CustomerSummary>[],
+    );
   }
 
   void _addLine() {
@@ -108,8 +108,9 @@ class _PosNewOrderScreenState extends ConsumerState<PosNewOrderScreen> {
       return;
     }
     // kiloan input is grams (= milli-kg); satuan input is a piece count.
-    final quantityMilli =
-        service.unitKind == ServiceUnitKind.kiloan ? qty : qty * 1000;
+    final quantityMilli = service.unitKind == ServiceUnitKind.kiloan
+        ? qty
+        : qty * 1000;
     setState(() {
       _lines.add(_DraftLine(service: service, quantityMilli: quantityMilli));
       _quantity.clear();
@@ -134,7 +135,9 @@ class _PosNewOrderScreenState extends ConsumerState<PosNewOrderScreen> {
     }
 
     setState(() => _submitting = true);
-    final result = await ref.read(ordersRepositoryProvider).createOrder(
+    final result = await ref
+        .read(ordersRepositoryProvider)
+        .createOrder(
           customerId: customer.id,
           outletId: outletId,
           clientReference: _clientReference,
@@ -153,8 +156,9 @@ class _PosNewOrderScreenState extends ConsumerState<PosNewOrderScreen> {
     context.go(OpsRoutes.counterOrderDetailFor(order.id));
   }
 
-  void _snack(String message) => ScaffoldMessenger.of(context)
-      .showSnackBar(SnackBar(content: Text(message)));
+  void _snack(String message) => ScaffoldMessenger.of(
+    context,
+  ).showSnackBar(SnackBar(content: Text(message)));
 
   @override
   Widget build(BuildContext context) {
@@ -217,10 +221,12 @@ class _PosNewOrderScreenState extends ConsumerState<PosNewOrderScreen> {
                     isExpanded: true,
                     value: _service,
                     items: _services
-                        .map((s) => DropdownMenuItem<CatalogService>(
-                              value: s,
-                              child: Text('${s.name} (${s.unitKind.label})'),
-                            ))
+                        .map(
+                          (s) => DropdownMenuItem<CatalogService>(
+                            value: s,
+                            child: Text('${s.name} (${s.unitKind.label})'),
+                          ),
+                        )
                         .toList(growable: false),
                     onChanged: (s) => setState(() => _service = s),
                   ),
@@ -246,16 +252,16 @@ class _PosNewOrderScreenState extends ConsumerState<PosNewOrderScreen> {
             ),
           SizedBox(height: AishSpacing.space2),
           ..._lines.asMap().entries.map(
-                (entry) => ListTile(
-                  dense: true,
-                  title: Text(entry.value.service.name),
-                  subtitle: Text(entry.value.quantityLabel),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete_outline),
-                    onPressed: () => setState(() => _lines.removeAt(entry.key)),
-                  ),
-                ),
+            (entry) => ListTile(
+              dense: true,
+              title: Text(entry.value.service.name),
+              subtitle: Text(entry.value.quantityLabel),
+              trailing: IconButton(
+                icon: const Icon(Icons.delete_outline),
+                onPressed: () => setState(() => _lines.removeAt(entry.key)),
               ),
+            ),
+          ),
           SizedBox(height: AishSpacing.space6),
           PrimaryAction(
             label: 'Buat pesanan',

@@ -13,7 +13,11 @@ enum PaymentMethod {
     'cash' => PaymentMethod.cash,
     'bank_transfer' => PaymentMethod.bankTransfer,
     'qris' => PaymentMethod.qris,
-    _ => throw ArgumentError.value(value, 'method', 'Metode pembayaran tidak dikenal'),
+    _ => throw ArgumentError.value(
+      value,
+      'method',
+      'Metode pembayaran tidak dikenal',
+    ),
   };
 
   String get wireValue => switch (this) {
@@ -47,7 +51,11 @@ enum PaymentStatus {
     'succeeded' => PaymentStatus.succeeded,
     'failed' => PaymentStatus.failed,
     'reversed' => PaymentStatus.reversed,
-    _ => throw ArgumentError.value(value, 'status', 'Status pembayaran tidak dikenal'),
+    _ => throw ArgumentError.value(
+      value,
+      'status',
+      'Status pembayaran tidak dikenal',
+    ),
   };
 
   String get label => switch (this) {
@@ -68,7 +76,11 @@ enum PaymentKind {
   static PaymentKind parse(String value) => switch (value) {
     'payment' => PaymentKind.payment,
     'reversal' => PaymentKind.reversal,
-    _ => throw ArgumentError.value(value, 'kind', 'Jenis transaksi tidak dikenal'),
+    _ => throw ArgumentError.value(
+      value,
+      'kind',
+      'Jenis transaksi tidak dikenal',
+    ),
   };
 
   String get label => switch (this) {

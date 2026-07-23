@@ -214,8 +214,11 @@ final class PaymentsRepository {
 
 // --- shared decode helpers (no client-side tenant filtering, ever) ----------
 
-int _boundedPerPage(int requested) =>
-    requested < 1 ? 1 : (requested > OrdersRepository.maxPerPage ? OrdersRepository.maxPerPage : requested);
+int _boundedPerPage(int requested) => requested < 1
+    ? 1
+    : (requested > OrdersRepository.maxPerPage
+          ? OrdersRepository.maxPerPage
+          : requested);
 
 Map<String, Object?> _object(ApiSuccess success, String key) {
   final raw = success.dataAsMap[key];

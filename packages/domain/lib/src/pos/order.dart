@@ -38,7 +38,11 @@ enum OrderStatus {
     'COMPLETED' => OrderStatus.completed,
     'CANCELLED' => OrderStatus.cancelled,
     'ISSUE' => OrderStatus.issue,
-    _ => throw ArgumentError.value(value, 'status', 'Status pesanan tidak dikenal'),
+    _ => throw ArgumentError.value(
+      value,
+      'status',
+      'Status pesanan tidak dikenal',
+    ),
   };
 
   /// Bahasa Indonesia label (Rule 30). The enum name is the technical id.
@@ -72,7 +76,11 @@ enum PaymentState {
     'unpaid' => PaymentState.unpaid,
     'partial' => PaymentState.partial,
     'paid' => PaymentState.paid,
-    _ => throw ArgumentError.value(value, 'payment_state', 'Status pembayaran tidak dikenal'),
+    _ => throw ArgumentError.value(
+      value,
+      'payment_state',
+      'Status pembayaran tidak dikenal',
+    ),
   };
 
   String get label => switch (this) {

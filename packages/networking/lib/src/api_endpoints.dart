@@ -142,6 +142,8 @@ abstract final class ApiEndpoints {
   // destroy path, because a correction is a reversal (a new row) and the ledger
   // is append-only (FR-066, FR-067).
   static String orderPayments(String orderId) => 'orders/$orderId/payments';
-  static String paymentConfirm(String paymentId) => 'payments/$paymentId/confirm';
-  static String paymentReverse(String paymentId) => 'payments/$paymentId/reverse';
+  static String paymentConfirm(String paymentId) =>
+      'payments/$paymentId/confirm';
+  static String paymentReverse(String paymentId) =>
+      'payments/$paymentId/reverse';
 }

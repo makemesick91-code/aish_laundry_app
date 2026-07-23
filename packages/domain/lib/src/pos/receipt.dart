@@ -83,11 +83,17 @@ final class Receipt {
   factory Receipt.fromJson(Map<String, Object?> json) {
     final rawLines = json['lines'];
     final lines = rawLines is List
-        ? rawLines.cast<Map<String, Object?>>().map(ReceiptLine.fromJson).toList(growable: false)
+        ? rawLines
+              .cast<Map<String, Object?>>()
+              .map(ReceiptLine.fromJson)
+              .toList(growable: false)
         : const <ReceiptLine>[];
     final rawPayments = json['payments'];
     final payments = rawPayments is List
-        ? rawPayments.cast<Map<String, Object?>>().map(ReceiptPayment.fromJson).toList(growable: false)
+        ? rawPayments
+              .cast<Map<String, Object?>>()
+              .map(ReceiptPayment.fromJson)
+              .toList(growable: false)
         : const <ReceiptPayment>[];
 
     return Receipt(
