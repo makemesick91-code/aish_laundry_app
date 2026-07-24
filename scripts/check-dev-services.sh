@@ -50,6 +50,29 @@ val="$(docker exec "${rd_cid}" redis-cli GET aish:devcheck | tr -d '\r')"
 docker exec "${rd_cid}" redis-cli DEL aish:devcheck >/dev/null
 ok "write/read/delete cycle succeeded"
 
+echo "== MinIO (private object storage, FR-083) =="
+mn_cid="$(docker compose -f "${COMPOSE_FILE}" ps -q minio || true)"
+[ -n "${mn_cid}" ] || die "minio container not running — run scripts/start-dev-services.sh"
+
+# Configure an explicit, authenticated alias inside the container (the built-in
+# alias cannot list a bucket). Credentials are the obviously-fake dev values.
+docker exec "${mn_cid}" mc alias set chk http://127.0.0.1:9000 aish_dev_minio CHANGEME_local_dev_only_minio >/dev/null 2>&1 \
+  || die "MinIO refused the connection"
+ok "connection accepted"
+
+# The PRIVATE evidence bucket exists...
+docker exec "${mn_cid}" mc ls chk/aish-evidence-dev >/dev/null 2>&1 \
+  || die "evidence bucket missing — run scripts/start-dev-services.sh (minio-setup)"
+ok "private evidence bucket present"
+
+# ...and grants NO anonymous access. mc reports a locked-down bucket as `private`;
+# any of public/download/upload/both would be a public bucket — an automatic NO-GO
+# (Rule 03 hard rule 13; owner constraint: no public bucket).
+anon="$(docker exec "${mn_cid}" mc anonymous get chk/aish-evidence-dev 2>/dev/null | tr -d '\r')"
+echo "${anon}" | grep -qiE '`private`|is private' || die "evidence bucket is NOT private (anonymous access is set): ${anon}"
+echo "${anon}" | grep -qiE 'download|upload|public|both' && die "evidence bucket grants public access: ${anon}"
+ok "evidence bucket is private (no anonymous access)"
+
 echo
-echo "Both development services verified by executed commands."
+echo "All three development services verified by executed commands."
 echo "This proves CONNECTIVITY only. No application, migration, or test was run here."
