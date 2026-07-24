@@ -1,6 +1,6 @@
 # Aish Laundry App — Master Source
 
-**Document version: 1.4.8**
+**Document version: 1.4.9**
 **Baseline date: 19 July 2026**
 
 Owner: Aish Tech Solution
@@ -1243,7 +1243,7 @@ The roadmap is **locked**. Step numbers are never reused or swapped without a de
 | Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | GO WITH ACCEPTED DEVIATION |
 | Step 4 | Laundry Master Data | GO |
 | Step 5 | POS, Order, and Payment Foundation | GO |
-| Step 6 | Production Operations | PLANNED |
+| Step 6 | Production Operations | IN PROGRESS |
 | Step 7 | Customer Tracking and WhatsApp | PLANNED |
 | Step 8 | Pickup and Delivery Operations | PLANNED |
 | Step 9 | Unclaimed Laundry and Cashflow Recovery | PLANNED |
@@ -1558,11 +1558,11 @@ must be claims the software can substantiate — the honesty rule (§3.1) applie
 
 ## 31. Decision records
 
-Thirty-six decisions are locked. Fifteen were locked at the 1.0.0 baseline; DEC-0016 was added at
+Thirty-seven decisions are locked. Fifteen were locked at the 1.0.0 baseline; DEC-0016 was added at
 version 1.0.1, DEC-0017 at version 1.2.0, DEC-0018 … DEC-0023 at version 1.3.0, DEC-0024 … DEC-0027 at
-version 1.4.0, DEC-0028 … DEC-0031 at version 1.4.1, DEC-0032 at version 1.4.2, DEC-0033 at version 1.4.3, DEC-0034 at version 1.4.4, DEC-0035 at version 1.4.6, and DEC-0036 at version 1.4.7. DEC-0001 … DEC-0023 carry date
+version 1.4.0, DEC-0028 … DEC-0031 at version 1.4.1, DEC-0032 at version 1.4.2, DEC-0033 at version 1.4.3, DEC-0034 at version 1.4.4, DEC-0035 at version 1.4.6, DEC-0036 at version 1.4.7, and DEC-0037 at version 1.4.9. DEC-0001 … DEC-0023 carry date
 **19 July 2026**; DEC-0024 … DEC-0027 carry **20 July 2026**; DEC-0028 … DEC-0031 carry
-**21 July 2026**; DEC-0035 and DEC-0036 carry **23 July 2026**. All carry status **ACCEPTED**. Each has a full record in
+**21 July 2026**; DEC-0035 and DEC-0036 carry **23 July 2026**; DEC-0037 carries **24 July 2026**. All carry status **ACCEPTED**. Each has a full record in
 [`decisions/`](decisions/).
 
 **This section was stale and is corrected under
@@ -1611,6 +1611,7 @@ without being listed here — or listed here without existing — fails closed.
 | DEC-0034 | Password-Reset Token Disclosure: a Step 3 Post-GO Security Correction Co-Delivered in PR #18 | ACCEPTED | [DEC-0034](decisions/DEC-0034-step-03-token-logging-correction-carried-in-step-04.md) |
 | DEC-0035 | Step 5 Runtime Scope Transition | ACCEPTED | [DEC-0035](decisions/DEC-0035-step-05-runtime-scope-transition.md) |
 | DEC-0036 | Order-Line Rounding Mode is HALF_UP (OQ-017 Ratification) | ACCEPTED | [DEC-0036](decisions/DEC-0036-oq-017-order-rounding-mode-halfup.md) |
+| DEC-0037 | Step 6 Runtime Scope Transition | ACCEPTED | [DEC-0037](decisions/DEC-0037-step-06-runtime-scope-transition.md) |
 
 ### 31.1 Decision record rules
 
@@ -1633,6 +1634,30 @@ Mapping from foundation area to rule file, decision record, and validator:
 
 The canonical changelog is [`CHANGELOG.md`](CHANGELOG.md), maintained in Keep a Changelog format with
 semantic versioning.
+
+### 32.000000 Version 1.4.9
+
+**1.4.9 — 24 July 2026 — Step 6 production-operations start and runtime scope guard transition.**
+
+Added DEC-0037, the separate canonical authorization Rule 49's precedent requires for Step 6 to begin,
+and the mechanical runtime-scope guard transition it carries: `validate-runtime-scope.py` splits its
+former `STEP6_PLUS_FEATURE_TOKENS` map so the six production-operations labels — production, washing,
+drying, finishing, quality control, rework — become permitted once the canonical current step reaches
+6, while every Step 7+ label (tracking, WhatsApp, pickup, delivery, courier settlement, the reminder
+ladder, storage fees, receivables, finance reports, loyalty, subscription billing) stays forbidden in
+a new `STEP7_PLUS_FEATURE_TOKENS`. `_common.CANONICAL_CURRENT_STEP` is raised 5 → 6 in this same change,
+which moves Step 6 to `IN PROGRESS` in §24, `ROADMAP.md`, and `STATUS.md` together. The Step 5 residual
+auditor (`validate-dec-0035-labels.py`) is made step-aware, and a new `validate-dec-0037-labels.py`
+audits the Step 6 residual — each permitted label traces to a Step 6 requirement (FR-071 … FR-085) and
+every Step 7+ label stays structurally absent. Each permitted label traces to a Step 6 requirement; the
+six move on the strength of FR-071 … FR-085 and no others.
+
+Classified MINOR under §1.2: the change is additive. No product decision was reversed, no pricing figure
+altered, no roadmap number changed, and no architectural lock touched. Step 6 delivers the production
+FOUNDATION only; **a permitted label is not an implemented feature**, and Step 7+ business features
+(customer tracking, WhatsApp, pickup, delivery, the H+1/H+3/H+7/H+14 reminder ladder, finance,
+subscription) remain `NOT IMPLEMENTED`. Deployment remains `ABSENT`. `GO` is the owner's to confer and
+is not claimed here.
 
 ### 32.00000 Version 1.4.2
 
@@ -2063,4 +2088,4 @@ was met.
 
 ---
 
-*End of Master Source, version 1.4.8, baseline date 19 July 2026.*
+*End of Master Source, version 1.4.9, baseline date 19 July 2026.*

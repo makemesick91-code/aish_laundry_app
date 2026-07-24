@@ -38,6 +38,22 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _common import CANONICAL_CURRENT_STEP  # noqa: E402
+
+# DEC-0037 GUARD TRANSITION (Rule 36 hard rule 8). DEC-0037 moved the six
+# production-operations labels — production, washing, drying, finishing, quality
+# control, rework — from unconditional prohibition to Step-6-gated, exactly as
+# DEC-0035 did for the seven POS/order/payment labels and DEC-0030 for the four
+# Step-4 labels. This audit is the Step-5 residual and must not FALSE-fail on
+# authorised Step 6 runtime, so its restated "still forbidden" set drops those six
+# once the canonical current step reaches 6. The Step-6 residual — that the six
+# permitted labels do not become the Step 7+ workflows that consume them — is
+# audited by validate-dec-0037-labels.py, not here. Nothing is weakened: the tokens
+# move to a different, step-appropriate auditor, and below Step 6 they remain
+# forbidden here exactly as before.
+_STEP6_PERMITTED_AT_6 = CANONICAL_CURRENT_STEP >= 6
+
 # ---------------------------------------------------------------------------
 # The seven labels DEC-0035 permitted, and the requirements that authorise them.
 # ---------------------------------------------------------------------------
@@ -78,10 +94,6 @@ PERMITTED_LABELS: dict[str, dict[str, object]] = {
 # `receivables`/`piutang` table of its own — the finance-reports aggregate is
 # Step 10 and stays forbidden in validate-runtime-scope.py.
 STILL_FORBIDDEN: dict[str, set[str]] = {
-    "production (Step 6)": {"production_jobs", "produksi", "washing", "pencucian",
-                            "drying", "pengeringan", "finishing", "penyelesaian"},
-    "quality control / rework (Step 6)": {"quality_controls", "qc_inspections",
-                                          "reworks", "pengerjaan_ulang"},
     "tracking (Step 7)": {"tracking_token", "tracking_tokens", "public_tracking"},
     "WhatsApp / notification (Step 7)": {"whatsapp", "wa_provider",
                                          "notification_providers"},
@@ -96,6 +108,20 @@ STILL_FORBIDDEN: dict[str, set[str]] = {
                                             "subscriptions", "subscription_invoices",
                                             "billing"},
 }
+
+# The six production-operations labels: forbidden here only WHILE the canonical
+# current step is below 6. From Step 6 (DEC-0037) they are authorised runtime and
+# are audited by validate-dec-0037-labels.py instead. Below Step 6 they remain
+# forbidden here exactly as before, so this audit cannot false-pass in an earlier
+# tree.
+_STEP6_LABELS: dict[str, set[str]] = {
+    "production (Step 6)": {"production_jobs", "produksi", "washing", "pencucian",
+                            "drying", "pengeringan", "finishing", "penyelesaian"},
+    "quality control / rework (Step 6)": {"quality_controls", "qc_inspections",
+                                          "reworks", "pengerjaan_ulang"},
+}
+if not _STEP6_PERMITTED_AT_6:
+    STILL_FORBIDDEN.update(_STEP6_LABELS)
 
 # Structural identifiers that legitimately contain a forbidden substring and are
 # NOT the feature. Each needs a stated reason; an unexplained entry would be a

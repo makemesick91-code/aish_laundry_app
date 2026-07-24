@@ -18,7 +18,7 @@ Canonical source: [`MASTER_SOURCE.md`](MASTER_SOURCE.md)
 | Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | GO WITH ACCEPTED DEVIATION |
 | Step 4 | Laundry Master Data | GO |
 | Step 5 | POS, Order, and Payment Foundation | GO |
-| Step 6 | Production Operations | PLANNED |
+| Step 6 | Production Operations | IN PROGRESS |
 | Step 7 | Customer Tracking and WhatsApp | PLANNED |
 | Step 8 | Pickup and Delivery Operations | PLANNED |
 | Step 9 | Unclaimed Laundry and Cashflow Recovery | PLANNED |
@@ -355,7 +355,7 @@ STEP_02_STATUS=GO
 STEP_03_STATUS=GO
 STEP_04_STATUS=GO
 STEP_05_STATUS=GO
-STEP_06_STATUS=PLANNED
+STEP_06_STATUS=IN_PROGRESS
 STEP_07_STATUS=PLANNED
 STEP_08_STATUS=PLANNED
 STEP_09_STATUS=PLANNED

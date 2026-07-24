@@ -84,7 +84,9 @@ EXPECTED_RULE_COUNT = 51
 # transition — the guard transition that starts Step 5 POS/order/payment runtime).
 # Raised 35 -> 36 at Master Source 1.4.7 for DEC-0036 (OQ-017 ratification: the
 # order-line rounding mode is HALF_UP).
-EXPECTED_DECISION_COUNT = 36
+# Raised 36 -> 37 at Master Source 1.4.9 for DEC-0037 (Step 6 runtime scope
+# transition — the guard transition that starts Step 6 production-operations runtime).
+EXPECTED_DECISION_COUNT = 37
 
 
 def main() -> int:
