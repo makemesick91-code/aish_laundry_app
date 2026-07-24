@@ -14,6 +14,7 @@ library;
 
 export 'src/production_command.dart';
 export 'src/production_command_queue.dart';
+export 'src/production_sync_worker.dart';
 export 'src/sync_operation.dart';
 export 'src/sync_queue.dart';
 export 'src/sync_state.dart';
