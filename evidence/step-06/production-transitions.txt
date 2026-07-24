@@ -1,0 +1,23 @@
+=== Step 6 Unit B (production state-machine services) evidence ===
+Branch feature/step-06-production-operations; captured pre-commit.
+
+--- ProductionRegistryTest (PostgreSQL) ---
+  ✓ creates job and items from a received order                          0.61s  
+  ✓ job creation is idempotent per order                                 0.04s  
+  ✓ a cancelled order cannot enter production                            0.03s  
+  ✓ cannot create job for another tenants order                          0.04s  
+  ✓ start stage moves created to in progress and bumps version           0.05s  
+  ✓ invalid transition is rejected                                       0.04s  
+  ✓ block requires a reason code                                         0.07s  
+  ✓ block then resume round trip                                         0.05s  
+  ✓ send to quality control                                              0.05s  
+  ✓ replay with same reference is exactly once                           0.05s  
+  ✓ same reference with different payload fails closed                   0.04s  
+  ✓ stale expected version is rejected                                   0.05s  
+  ✓ abandon requires a cancelled order                                   0.04s  
+  ✓ every command appends to the history                                 0.04s  
+  Tests:    14 passed (23 assertions)
+  Duration: 1.30s
+
+--- Step 5 regression unaffected (Ordering + Payments) ---
+  Tests:    60 passed (123 assertions)
