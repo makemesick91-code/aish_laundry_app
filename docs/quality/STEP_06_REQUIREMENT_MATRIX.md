@@ -4,7 +4,7 @@
 **Status:** `IN PROGRESS`
 **Authorized by:** the canonical roadmap (Master Source §24; [`ROADMAP.md`](../ROADMAP.md))
 **Runtime scope opened by:** [DEC-0037](../decisions/DEC-0037-step-06-runtime-scope-transition.md)
-**Master Source version:** 1.4.9
+**Master Source version:** 1.4.10
 **Baseline SHA:** `9c23eca41f45963b61a04f936e69bf9b71997552` (post-Step-5 canonical `main`)
 **Depends on (Step 5, delivered):** orders, order lines, server-authoritative pricing with the FR-036
 immutable snapshot, payments, the append-only ledger, receipt/nota. Depends on (Step 4): outlets, staff
@@ -62,16 +62,17 @@ offline-first Ops Android obligations (Rule 07).
 ## 4. Requirement → mechanism → verification → evidence (DISPOSITION at the candidate SHA)
 
 Statuses use the approved vocabulary (Rule 01). `TESTED` means executed output is captured at an exact
-SHA in the named evidence artefact. Two MUSTs and one SHOULD remain `NOT IMPLEMENTED` and say so plainly:
-FR-074 (batch — tables prepared, no service/API/UI), FR-083 (defect photo — not built). These are
-carried into Step 6's residual set, not silently claimed.
+SHA in the named evidence artefact. **The residual-closure branch closed the two remaining residuals:**
+FR-074 (production batch operations — full service, API, RBAC, offline queue, and Ops UI) and FR-083
+(QC defect-photo evidence — private MinIO object storage, content validation, and short-lived signed
+URLs) are now implemented and `TESTED`. Nothing is carried as a residual any longer.
 
 | FR | Title | Priority | Mechanism (implementation) | Verification | Evidence artefact | Status |
 | --- | --- | --- | --- | --- | --- | --- |
 | FR-071 | Canonical status set | MUST | Production drives the canonical statuses via the server transition registry; no non-canonical status is writable | Unit + feature transition tests | `production-transitions.txt` | TESTED |
 | FR-072 | Transition validity | MUST | Server-side transition registry (P-01…P-11); invalid transitions fail closed atomically | Positive + exhaustive negative transition tests | `production-transitions.txt` | TESTED |
 | FR-073 | Stage progress recording | MUST | `advance` command, single action from the floor; server records actor+time | Feature test + F4 one-tap advance widget test | `production-transitions.txt`, `flutter-offline.txt` | TESTED |
-| FR-074 | Batch handling | MUST | `production_batches` + `production_batch_items` tables exist (tenant/outlet-bound); no service, API or UI yet | DB constraint present; service/isolation tests NOT written | `migrations.txt` | NOT IMPLEMENTED (tables prepared) |
+| FR-074 | Batch handling | MUST | `ProductionBatchService` (create/update/add-item/remove-item/close) + `BatchController` at `/api/v1/production/batches`; append-only `production_batch_events` ledger for idempotency + timeline; tenant/outlet-safe + stage-compatible membership; closed-batch immutability (DB triggers); Ops Android batch list/detail + offline command queue | Backend suite (lifecycle, tenant/outlet isolation, duplicate/stage/eligibility, idempotency, stale-version, closed-batch, append-only) + Flutter F1/F2/F3/F5 | `batch-operations.txt`, `flutter-offline.txt` | TESTED |
 | FR-075 | Item-level flags | MUST | `ProductionItem`: kiloan quantity vs satuan discrete counts | Unit + feature tests per service type; F1 contract test | `api-rbac.txt`, `flutter-offline.txt` | TESTED |
 | FR-076 | First ready timestamp | MUST | `production_ready_events` UNIQUE(tenant,order) writes the anchor exactly once at the DB boundary; idempotent | DB-level + app-level regression, replay, concurrency | `ready-anchor.txt` | TESTED |
 | FR-077 | Aging anchor immunity to rework | MUST | Return to REWORK then READY again never rewrites the first-ready row | Regression: rework-after-ready keeps the first timestamp | `ready-anchor.txt` | TESTED |
@@ -80,7 +81,7 @@ carried into Step 6's residual set, not silently claimed.
 | FR-080 | Server-authoritative timestamps | MUST | All production timestamps set server-side (UTC); client clocks untrusted | Feature test: server sets occurred_at; client value not trusted | `production-transitions.txt` | TESTED |
 | FR-081 | Quality control gate | MUST | QC verdict server-side; PASSED/WAIVED close the job, FAILED opens rework | Feature test: verdict drives the transition | `rework.txt` | TESTED |
 | FR-082 | Rework with reason | MUST | Failed QC → REWORK with mandatory defect reason | Feature + RBAC + negative (empty reason) tests | `rework.txt` | TESTED |
-| FR-083 | Defect evidence | SHOULD | QC photo stored privately; signed expiring URL only — **not built** in Step 6 | No file/photo upload exists on the surface | — | NOT IMPLEMENTED |
+| FR-083 | Defect evidence | SHOULD | QC defect photo attached to a FAILED inspection; stored in a PRIVATE S3-compatible bucket (MinIO) under a random key; content-based MIME/dimension/size validation; SHA-256 checksum; short-lived signed-URL retrieval; append-only evidence audit; durable offline upload (Ops Android) | Backend suite (RBAC, tenant isolation, failed-QC precondition, MIME/malformed/size/dimension, idempotency, private signed URL, append-only) against real MinIO + Flutter F1/F3/F6 | `qc-evidence.txt`, `flutter-offline.txt` | TESTED |
 | FR-084 | Rework history | MUST | Every rework cycle recorded (actor, time, reason), visible in timeline, immutable | Test: repeated rework, append-only linkage | `rework.txt` | TESTED |
 | FR-085 | Rework reporting input | MUST | Rework events recorded with outlet+stage+reason to support later reporting | Test: rework event carries outlet+stage+reason | `rework.txt` | TESTED |
 
@@ -104,20 +105,28 @@ aging from it is Step 9.
 
 ## 7. Definition of Done (Step 6)
 
-Thirteen of the fifteen FRs (FR-071, 072, 073, 075, 076, 077, 078, 079, 080, 081, 082, 084, 085) are
-`TESTED` and evidenced at an exact SHA; all hard gates are proven (tenant isolation over every access
-path against PostgreSQL, financial-snapshot immutability, first-ready immutability, offline no-duplicate);
-`scripts/verify-step-06.sh` returns **FAIL 0 with no mandatory SKIP**; the governance suite is green; and
-documentation and evidence are complete.
+**All fifteen FRs (FR-071 … FR-085) are `TESTED`** and evidenced at an exact SHA; all hard gates are
+proven (tenant isolation over every access path against PostgreSQL, financial-snapshot immutability,
+first-ready immutability, offline no-duplicate); `scripts/verify-step-06.sh` returns **FAIL 0 with no
+mandatory SKIP**; the governance suite is green; and documentation and evidence are complete.
 
-**Two accepted residuals** remain `NOT IMPLEMENTED` and are stated rather than hidden — exactly as Step 4
-carried accepted residuals into its `GO`:
+**The two residuals carried at the Step 6 implementation merge are now closed** on the residual-closure
+branch, under the repository owner's decisions:
 
-- **FR-074 (Batch handling, MUST)** — the `production_batches` / `production_batch_items` tables are
-  created as Step 6-authorised infrastructure, but no batch service, HTTP surface, or UI exists. A batch
-  workflow is a candidate for a follow-up before or within a later step; it is not claimed here.
-- **FR-083 (Defect evidence, SHOULD)** — QC photo capture and private signed-URL storage are not built.
+- **FR-074 (Batch handling, MUST)** — the full batch workflow is implemented: `ProductionBatchService`,
+  the `/api/v1/production/batches` HTTP surface, RBAC (`production.operate` for writes, `production.view`
+  for reads), the append-only `production_batch_events` idempotency/timeline ledger, tenant/outlet-safe
+  and stage-compatible membership, closed-batch immutability (DB triggers), a durable offline command
+  path, and the Ops Android batch list/detail surface. Isolation, idempotency, concurrency, and
+  lifecycle are tested against PostgreSQL, plus Flutter F1/F2/F3/F5.
+- **FR-083 (Defect evidence, SHOULD)** — implemented against a PRIVATE S3-compatible object store
+  (MinIO, digest-pinned, loopback-bound, no public bucket): content-based validation, random keys,
+  SHA-256 checksum, append-only audit, short-lived signed-URL retrieval, and a durable offline upload.
+  Tested against real MinIO plus Flutter F1/F3/F6. The QC defect-photo *capture source* is an injected
+  seam exercised from fixtures — a physical camera/gallery pick is not fabricated and is classified as
+  such (owner constraint). The owner-authorised private object-storage introduction that this surface
+  relies on is recorded canonically in
+  [DEC-0038](../decisions/DEC-0038-step-06-private-object-storage-introduction.md).
 
-Whether these two residuals are acceptable for `GO`, or must be closed first, is the **repository
-owner's** decision. Authoritative CI must be green on the exact candidate SHA, and `GO` is conferred by
-the owner after merge (never self-declared).
+Authoritative CI must be green on the exact candidate SHA, and `GO` is conferred by the owner after
+merge (never self-declared) — this closure does not self-declare `GO`.

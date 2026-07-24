@@ -38,6 +38,8 @@ export 'src/membership.dart';
 export 'src/pos/order.dart';
 export 'src/pos/payment.dart';
 export 'src/pos/receipt.dart';
+export 'src/production/production_batch.dart';
+export 'src/production/production_evidence.dart';
 export 'src/production/production_job.dart';
 export 'src/outlet.dart';
 export 'src/permission.dart';

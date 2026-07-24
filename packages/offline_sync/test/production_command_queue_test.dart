@@ -175,6 +175,48 @@ void main() {
       final all = (await queueFor(store).all()).valueOrNull!;
       expect(all.single.outletId, 'out-99');
     });
+
+    // FR-074: a batch command has no jobId; it carries a batchId instead, and
+    // both survive the encrypted toJson/fromJson round-trip on device.
+    test('a batch command persists its batchId and null jobId', () async {
+      final store = InMemoryCredentialStore();
+      final queue = queueFor(store);
+      await queue.enqueue(
+        ProductionCommand(
+          clientReference: 'b1',
+          tenantId: 'ten-A',
+          userId: 'usr-1',
+          batchId: 'bat-1',
+          itemId: 'item-9',
+          type: ProductionCommandType.addBatchItem,
+          createdAtUtc: _t0,
+          expectedVersion: 1,
+        ),
+      );
+      final stored = (await queueFor(store).all()).valueOrNull!.single;
+      expect(stored.type, ProductionCommandType.addBatchItem);
+      expect(stored.batchId, 'bat-1');
+      expect(stored.itemId, 'item-9');
+      expect(stored.jobId, isNull);
+      // The ordering key falls back to the batch for a batch command.
+      expect(stored.groupKey, 'bat-1');
+    });
+
+    test('a second enqueue of a batch reference does not duplicate', () async {
+      final store = InMemoryCredentialStore();
+      final queue = queueFor(store);
+      final cmd = ProductionCommand(
+        clientReference: 'bc',
+        tenantId: 'ten-A',
+        userId: 'usr-1',
+        type: ProductionCommandType.createBatch,
+        createdAtUtc: _t0,
+        payload: const <String, Object?>{'code': 'B-1', 'stage': 'SORTING'},
+      );
+      await queue.enqueue(cmd);
+      await queue.enqueue(cmd);
+      expect((await queue.all()).valueOrNull!, hasLength(1));
+    });
   });
 
   group('guarded terminal SYNCED state', () {

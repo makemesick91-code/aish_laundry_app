@@ -172,13 +172,24 @@ class _ProductionSyncCenterScreenState
                   icon: const Icon(Icons.refresh_outlined),
                   label: const Text('Coba lagi'),
                 ),
-              if (command.status == ProductionCommandStatus.conflict)
+              if (command.status == ProductionCommandStatus.conflict &&
+                  command.jobId != null)
                 TextButton.icon(
                   onPressed: () => context.go(
-                    OpsRoutes.productionJobDetailFor(command.jobId),
+                    OpsRoutes.productionJobDetailFor(command.jobId!),
                   ),
                   icon: const Icon(Icons.open_in_new_outlined),
                   label: const Text('Buka pekerjaan'),
+                ),
+              // FR-074: a batch command in conflict opens the batch, not a job.
+              if (command.status == ProductionCommandStatus.conflict &&
+                  command.batchId != null)
+                TextButton.icon(
+                  onPressed: () => context.go(
+                    OpsRoutes.productionBatchDetailFor(command.batchId!),
+                  ),
+                  icon: const Icon(Icons.open_in_new_outlined),
+                  label: const Text('Buka batch'),
                 ),
               if (command.status.needsHuman)
                 TextButton.icon(

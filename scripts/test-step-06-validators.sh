@@ -233,6 +233,55 @@ rm -f "$F"
 echo
 
 # ---------------------------------------------------------------------------
+# DEC-0038 — private object-storage governance validator (Rule 33, Rule 47).
+# A gate is only trustworthy once it is shown to REJECT deliberately broken
+# input, not merely to ACCEPT the honest tree. Each mutation is applied at
+# runtime, its application is verified, and the file is restored immediately.
+# ---------------------------------------------------------------------------
+echo "DEC-0038 — object-storage governance validator (both directions)"
+DEC0038="scripts/validate-dec-0038-object-storage.py"
+
+expect_accept "DEC-0038 validator accepts the honest governance tree" "$DEC0038"
+
+# Break 1 — sever the FR-083 evidence -> DEC-0038 cross-reference.
+EVID="evidence/step-06/README.md"
+[ -f "$EVID" ] || abort_setup "$EVID not found"
+backup_file "$EVID"
+python3 - "$EVID" <<'PY' || abort_setup "could not mutate $EVID"
+import re, sys
+p = sys.argv[1]
+s = open(p, encoding="utf-8").read()
+new = re.sub(r"DEC-0038", "DEC-XXXX", s)
+if new == s:
+    sys.exit(1)
+open(p, "w", encoding="utf-8").write(new)
+PY
+grep -q "DEC-0038" "$EVID" && abort_setup "the DEC-0038 evidence reference was not removed"
+expect_reject "DEC-0038 validator rejects a severed FR-083 evidence link" "$DEC0038"
+cleanup
+BACKED_UP=()
+
+# Break 2 — loosen the locked contract by dropping the digest-pin (a single,
+# never-wrapped token, so the mutation and the validator agree on what changed).
+DECREC="docs/decisions/DEC-0038-step-06-private-object-storage-introduction.md"
+[ -f "$DECREC" ] || abort_setup "$DECREC not found"
+backup_file "$DECREC"
+python3 - "$DECREC" <<'PY' || abort_setup "could not mutate $DECREC"
+import re, sys
+p = sys.argv[1]
+s = open(p, encoding="utf-8").read()
+new = re.sub(r"(?i)digest-pinned", "floating-tag", s)
+if new == s:
+    sys.exit(1)
+open(p, "w", encoding="utf-8").write(new)
+PY
+grep -qi "digest-pinned" "$DECREC" && abort_setup "the digest-pin lock was not removed"
+expect_reject "DEC-0038 validator rejects a loosened object-storage contract" "$DEC0038"
+cleanup
+BACKED_UP=()
+echo
+
+# ---------------------------------------------------------------------------
 # Tree integrity + summary.
 # ---------------------------------------------------------------------------
 AFTER="$(tree_fingerprint)"

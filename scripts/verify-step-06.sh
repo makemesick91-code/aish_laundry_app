@@ -109,6 +109,7 @@ gate "governance validator suite"          bash scripts/validate-governance.sh
 gate "runtime scope guard (classify)"      python3 scripts/validate-runtime-scope.py
 gate "DEC-0037 label audit"                python3 scripts/validate-dec-0037-labels.py
 gate "DEC-0035 label audit"                python3 scripts/validate-dec-0035-labels.py
+gate "DEC-0038 object-storage governance"  python3 scripts/validate-dec-0038-object-storage.py
 gate "Step 6 validator adversarial harness" bash scripts/test-step-06-validators.sh
 gate "Step 5 validator adversarial harness (step-aware)" bash scripts/test-step-05-validators.sh
 gate "no float in any money path"          python3 scripts/validate-money-rules.py
@@ -134,13 +135,17 @@ else
   # table (assert-schema-scope.php advanced to Step 6 scope under DEC-0037).
   gate "live schema within Step 6 scope" \
     bash -c 'cd backend && set -a && . ./.env && set +a && php scripts/ci/assert-schema-scope.php'
-  # The Step 6 production suite runs against real PostgreSQL (Rule 43): the
+  # The Step 6 production suite runs against real PostgreSQL (Rule 43) and — for
+  # the FR-083 QC defect-photo evidence — the real private MinIO bucket: the
   # composite tenant-bound persistence, the server-authoritative state machine,
   # quality control and rework, the IMMUTABLE first-READY_FOR_PICKUP anchor,
-  # append-only production/QC/rework history, RBAC, cross-tenant 404, exact
-  # idempotency, changed-payload replay rejection, optimistic concurrency — and
-  # that no Step 5 financial snapshot is mutated.
-  gate "Step 6 production backend suite (state machine, QC, rework, ready, RBAC, idempotency, concurrency)" \
+  # append-only production/QC/rework/batch/evidence history, RBAC, cross-tenant
+  # 404, exact idempotency, changed-payload replay rejection, optimistic
+  # concurrency, the FR-074 batch lifecycle/isolation/membership, and the FR-083
+  # upload/validation/private-signed-URL retrieval — and that no Step 5 financial
+  # snapshot is mutated. The --filter matches the Tests\Feature\Production
+  # namespace, which includes ProductionBatchTest and QualityControlEvidenceTest.
+  gate "Step 6 production backend suite (state machine, QC, rework, ready, batch FR-074, evidence FR-083, RBAC, idempotency, concurrency)" \
     bash -c 'cd backend && php artisan test --filter=Production'
 fi
 
@@ -162,10 +167,20 @@ if [ -n "${DART_BIN}" ]; then
   # so they run from the app directory.
   gate "F4 — production operator UI widget tests" \
     bash -c 'cd apps/ops_android && flutter test test/production_test.dart'
-  # The production surface is actually wired into the real Ops entry point, not
-  # merely present as files (Rule 01 — a file is not a wired feature).
+  # F5 — FR-074 batch operator UI (list/detail/create/add-remove/close, offline
+  # honesty, RBAC-gated controls).
+  gate "F5 — FR-074 batch operator UI widget tests" \
+    bash -c 'cd apps/ops_android && flutter test test/production_batch_test.dart'
+  # F6 — FR-083 QC defect-photo flow (durable evidence upload from an injected
+  # photo seam; the photo is optional).
+  gate "F6 — FR-083 QC defect-photo UI widget tests" \
+    bash -c 'cd apps/ops_android && flutter test test/production_qc_evidence_test.dart'
+  # The production and batch surfaces are actually wired into the real Ops entry
+  # point, not merely present as files (Rule 01 — a file is not a wired feature).
   gate "production surface wired into the Ops router" \
     bash -c 'grep -q "ProductionQueueScreen" apps/ops_android/lib/src/routing/ops_router.dart'
+  gate "batch surface wired into the Ops router (FR-074)" \
+    bash -c 'grep -q "ProductionBatchListScreen" apps/ops_android/lib/src/routing/ops_router.dart'
 else
   skip "Step 6 Flutter offline-first gates (F1-F4)" "Flutter/Dart not on PATH in this environment"
 fi

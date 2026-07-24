@@ -1,6 +1,6 @@
 # Aish Laundry App — Master Source
 
-**Document version: 1.4.9**
+**Document version: 1.4.10**
 **Baseline date: 19 July 2026**
 
 Owner: Aish Tech Solution
@@ -1558,11 +1558,11 @@ must be claims the software can substantiate — the honesty rule (§3.1) applie
 
 ## 31. Decision records
 
-Thirty-seven decisions are locked. Fifteen were locked at the 1.0.0 baseline; DEC-0016 was added at
+Thirty-eight decisions are locked. Fifteen were locked at the 1.0.0 baseline; DEC-0016 was added at
 version 1.0.1, DEC-0017 at version 1.2.0, DEC-0018 … DEC-0023 at version 1.3.0, DEC-0024 … DEC-0027 at
-version 1.4.0, DEC-0028 … DEC-0031 at version 1.4.1, DEC-0032 at version 1.4.2, DEC-0033 at version 1.4.3, DEC-0034 at version 1.4.4, DEC-0035 at version 1.4.6, DEC-0036 at version 1.4.7, and DEC-0037 at version 1.4.9. DEC-0001 … DEC-0023 carry date
+version 1.4.0, DEC-0028 … DEC-0031 at version 1.4.1, DEC-0032 at version 1.4.2, DEC-0033 at version 1.4.3, DEC-0034 at version 1.4.4, DEC-0035 at version 1.4.6, DEC-0036 at version 1.4.7, DEC-0037 at version 1.4.9, and DEC-0038 at version 1.4.10. DEC-0001 … DEC-0023 carry date
 **19 July 2026**; DEC-0024 … DEC-0027 carry **20 July 2026**; DEC-0028 … DEC-0031 carry
-**21 July 2026**; DEC-0035 and DEC-0036 carry **23 July 2026**; DEC-0037 carries **24 July 2026**. All carry status **ACCEPTED**. Each has a full record in
+**21 July 2026**; DEC-0035 and DEC-0036 carry **23 July 2026**; DEC-0037 carries **24 July 2026**; DEC-0038 carries **25 July 2026**. All carry status **ACCEPTED**. Each has a full record in
 [`decisions/`](decisions/).
 
 **This section was stale and is corrected under
@@ -1612,6 +1612,7 @@ without being listed here — or listed here without existing — fails closed.
 | DEC-0035 | Step 5 Runtime Scope Transition | ACCEPTED | [DEC-0035](decisions/DEC-0035-step-05-runtime-scope-transition.md) |
 | DEC-0036 | Order-Line Rounding Mode is HALF_UP (OQ-017 Ratification) | ACCEPTED | [DEC-0036](decisions/DEC-0036-oq-017-order-rounding-mode-halfup.md) |
 | DEC-0037 | Step 6 Runtime Scope Transition | ACCEPTED | [DEC-0037](decisions/DEC-0037-step-06-runtime-scope-transition.md) |
+| DEC-0038 | Private Object-Storage Introduction (S3-Compatible Abstraction for QC Defect Evidence, FR-083) | ACCEPTED | [DEC-0038](decisions/DEC-0038-step-06-private-object-storage-introduction.md) |
 
 ### 31.1 Decision record rules
 
@@ -1634,6 +1635,27 @@ Mapping from foundation area to rule file, decision record, and validator:
 
 The canonical changelog is [`CHANGELOG.md`](CHANGELOG.md), maintained in Keep a Changelog format with
 semantic versioning.
+
+### 32.0000000 Version 1.4.10
+
+**1.4.10 — 25 July 2026 — Private object-storage introduction for QC defect evidence (FR-083).**
+
+Added DEC-0038, formalising the repository owner's explicit selection of an **S3-compatible private
+object-storage abstraction** — digest-pinned, loopback-bound MinIO for local development and CI — as the
+first private-file surface, rather than a local-disk deviation or deferral. Buckets stay private with no
+anonymous access and no permanent public URLs; retrieval is only after application-level authorization,
+through short-lived signed URLs, against random non-guessable keys; validation is content-based (server
+MIME, size, dimensions, malformed-image rejection, SHA-256 checksum); the evidence audit is append-only;
+upload is idempotent on `client_reference`; and sensitive pending uploads use the existing encrypted
+offline queue. The decision serves FR-083 (QC defect photos) and the minimum reusable abstraction it needs.
+
+Classified **PATCH** under §1.2: no product decision was reversed, no pricing figure altered, no roadmap
+number changed, and **no architectural lock was introduced or changed** — Rule 06 / §6 already locks
+S3-compatible private object storage, and this record operationalises that lock for the first surface. The
+only Master Source body edits are this §31 index row, its count, and this changelog note (the DEC-0036
+pattern). **Step 8 proof photos are a candidate future reuse but are neither implemented nor authorised
+here**, deployment remains `ABSENT`, Step 6 stays `IN PROGRESS`, and `GO` is the owner's to confer and is
+not claimed here.
 
 ### 32.000000 Version 1.4.9
 
@@ -2088,4 +2110,4 @@ was met.
 
 ---
 
-*End of Master Source, version 1.4.9, baseline date 19 July 2026.*
+*End of Master Source, version 1.4.10, baseline date 19 July 2026.*

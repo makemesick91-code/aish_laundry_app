@@ -20,9 +20,32 @@ The production-operations backend (Units A–E, pre-resume) **plus** the complet
   router — all offline-first and honest (a queued command is never rendered as committed; READY is never
   claimed before a server acknowledgement — Rule 29).
 
-The backend exposes exactly nine production endpoints; there is **no** batch or operator-assignment
-HTTP surface, so **no client capability was built for one** (no dead controls). The `production_batches`
-and `production_operator_assignments` tables exist as prepared, Step 6-authorised infrastructure.
+The operator-assignment table remains prepared, unexercised, Step 6-authorised infrastructure (no HTTP
+surface). The two residuals FR-074 and FR-083 were **closed on the residual-closure branch** — see below.
+
+## Residual closure (FR-074, FR-083)
+
+Under the repository owner's decisions, the two residuals the implementation merge carried are now
+implemented and `TESTED` (artefacts `batch-operations.txt`, `qc-evidence.txt`):
+
+- **FR-074 — production batch operations (MUST).** `ProductionBatchService` + `BatchController`
+  (`/api/v1/production/batches`: list, create, show, update, close, add-item, remove-item, timeline),
+  gated `production.operate` (writes) / `production.view` (reads). Membership is tenant- and
+  outlet-safe and stage-compatible; a closed batch is immutable (DB triggers); idempotency and the
+  append-only membership timeline live in `production_batch_events`. A durable offline command path and
+  the Ops Android batch list/detail surface complete it. Backend isolation/idempotency/concurrency/
+  lifecycle tests (`ProductionBatchTest`) + Flutter F1/F2/F3/F5.
+- **FR-083 — QC defect-photo evidence (SHOULD).** A defect photo attaches to a FAILED inspection,
+  stored in a PRIVATE S3-compatible bucket (MinIO — digest-pinned, loopback-bound, **no public
+  bucket**) under a random key, validated by content (MIME/dimensions/size, malformed rejected),
+  SHA-256-checksummed, audited append-only, and read only through a **short-lived signed URL**. Backend
+  tests (`QualityControlEvidenceTest`) run against **real MinIO**; Flutter F1/F3/F6. The owner-authorised
+  private object-storage introduction this surface relies on is recorded canonically in
+  [DEC-0038](../../docs/decisions/DEC-0038-step-06-private-object-storage-introduction.md). The photo *capture
+  source* is an injected seam exercised from fixtures — no physical-camera evidence is fabricated
+  (classified truthfully, owner constraint).
+
+`GO` remains the owner's to confer after merge; nothing here self-declares it.
 
 ## Commit map (this branch, from the baseline)
 

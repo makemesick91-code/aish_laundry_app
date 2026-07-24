@@ -11,6 +11,7 @@ use App\Modules\Authorization\Policies\DeviceSessionPolicy;
 use App\Modules\Authorization\Policies\LaundryBrandPolicy;
 use App\Modules\Authorization\Policies\MembershipPolicy;
 use App\Modules\Authorization\Policies\OrderPolicy;
+use App\Modules\Authorization\Policies\ProductionBatchPolicy;
 use App\Modules\Authorization\Policies\ProductionJobPolicy;
 use App\Modules\Authorization\Policies\OutletPolicy;
 use App\Modules\Authorization\Policies\PaymentPolicy;
@@ -19,6 +20,7 @@ use App\Modules\Authorization\Policies\ServicePolicy;
 use App\Modules\CustomerManagement\Models\Customer;
 use App\Modules\Identity\Models\User;
 use App\Modules\Ordering\Models\Order;
+use App\Modules\Production\Models\ProductionBatch;
 use App\Modules\Production\Models\ProductionJob;
 use App\Modules\Payments\Models\Payment;
 use App\Modules\Organization\Models\LaundryBrand;
@@ -78,6 +80,8 @@ final class AuthorizationServiceProvider extends ServiceProvider
         // Step 5 orders and payments (DEC-0035, canonical roadmap authorisation).
         Gate::policy(Order::class, OrderPolicy::class);
         Gate::policy(ProductionJob::class, ProductionJobPolicy::class);
+        // Step 6 batch operations (FR-074, DEC-0037).
+        Gate::policy(ProductionBatch::class, ProductionBatchPolicy::class);
         Gate::policy(Payment::class, PaymentPolicy::class);
 
         $this->defineContextGates();

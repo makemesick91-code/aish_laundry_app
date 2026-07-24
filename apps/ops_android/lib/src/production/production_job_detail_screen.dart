@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:aish_core/aish_core.dart';
 import 'package:aish_design_system/aish_design_system.dart';
@@ -12,6 +13,7 @@ import '../app.dart';
 import '../master_data/ops_master_data_scaffold.dart';
 import '../routing/ops_routes.dart';
 import 'production_ids.dart';
+import 'production_photo_source.dart';
 import 'production_providers.dart';
 import 'production_views.dart';
 
@@ -421,7 +423,8 @@ class _ProductionJobDetailScreenState
     if (outcome == null || !mounted) {
       return;
     }
-    await _enqueue(
+    setState(() => _busy = true);
+    final qc = await _enqueueResolve(
       _baseCommand(detail, ProductionCommandType.recordQc, <String, Object?>{
         'verdict': outcome.verdict.wireValue,
         if (outcome.defectReasonCode != null)
@@ -429,33 +432,86 @@ class _ProductionJobDetailScreenState
         if (outcome.defectReason != null) 'defect_reason': outcome.defectReason,
       }),
     );
-  }
 
-  Future<void> _enqueue(ProductionCommand command) async {
-    final runtime = ref.read(productionRuntimeProvider);
-    if (runtime == null) {
-      return;
-    }
-    setState(() => _busy = true);
-    final enqueued = await runtime.queue.enqueue(command);
-    if (enqueued.isErr) {
-      if (!mounted) {
-        return;
+    // FR-083 — a defect photo attaches to the inspection this FAILED verdict just
+    // created. The inspection id is server-authoritative: it is read from the QC
+    // command's SYNCED acknowledgement, never guessed. The upload is itself a
+    // durable, offline-capable command (idempotent, retried). If the verdict has
+    // not synced yet (offline), the photo is NOT silently dropped — the operator
+    // is told to attach it once the verdict syncs.
+    final photo = outcome.photo;
+    if (photo != null) {
+      String? inspectionId;
+      if (qc?.status == ProductionCommandStatus.synced) {
+        final value = qc?.acknowledgement?['inspection_id'];
+        inspectionId = value is String ? value : null;
       }
-      setState(() => _busy = false);
-      _snack('Perintah gagal disimpan di perangkat. Coba lagi.');
-      return;
+      if (inspectionId != null) {
+        await _enqueueResolve(_uploadCommand(inspectionId, photo));
+      } else {
+        _snack(
+          'Verdict tersimpan. Lampirkan foto bukti setelah verdict tersinkron.',
+        );
+      }
     }
-    // Queued and durable now. Attempt to sync, then reload and report the ACTUAL
-    // resulting state — never a fabricated success.
-    await runtime.worker.drain();
-    final resolved = await runtime.queue.byReference(command.clientReference);
+
     await _load();
     if (!mounted) {
       return;
     }
     setState(() => _busy = false);
-    _announce(resolved.valueOrNull?.status);
+    _announce(qc?.status);
+  }
+
+  ProductionCommand _uploadCommand(String inspectionId, PickedPhoto photo) {
+    final runtime = ref.read(productionRuntimeProvider)!;
+    return ProductionCommand(
+      clientReference: newClientReference(),
+      tenantId: runtime.tenantId,
+      userId: runtime.userId,
+      jobId: widget.jobId,
+      outletId: runtime.outletId,
+      type: ProductionCommandType.uploadQcEvidence,
+      createdAtUtc: DateTime.now().toUtc(),
+      payload: <String, Object?>{
+        'inspection_id': inspectionId,
+        'filename': photo.filename,
+        // The bytes travel base64 in the encrypted queue so the upload survives
+        // an app kill (a durable offline upload, owner requirement).
+        'photo_base64': base64Encode(photo.bytes),
+      },
+    );
+  }
+
+  Future<void> _enqueue(ProductionCommand command) async {
+    setState(() => _busy = true);
+    final resolved = await _enqueueResolve(command);
+    await _load();
+    if (!mounted) {
+      return;
+    }
+    setState(() => _busy = false);
+    _announce(resolved?.status);
+  }
+
+  /// Enqueue a durable command, drive one sync pass, and return the resolved
+  /// command (its true post-drain state). Never claims success from local state.
+  Future<ProductionCommand?> _enqueueResolve(ProductionCommand command) async {
+    final runtime = ref.read(productionRuntimeProvider);
+    if (runtime == null) {
+      return null;
+    }
+    final enqueued = await runtime.queue.enqueue(command);
+    if (enqueued.isErr) {
+      if (mounted) {
+        _snack('Perintah gagal disimpan di perangkat. Coba lagi.');
+      }
+      return null;
+    }
+    await runtime.worker.drain();
+    return (await runtime.queue.byReference(
+      command.clientReference,
+    )).valueOrNull;
   }
 
   void _announce(ProductionCommandStatus? status) {
@@ -630,31 +686,54 @@ class _QcOutcome {
     required this.verdict,
     this.defectReasonCode,
     this.defectReason,
+    this.photo,
   });
   final QualityControlVerdict verdict;
   final String? defectReasonCode;
   final String? defectReason;
+
+  /// An optional defect photo attached to a FAILED verdict (FR-083).
+  final PickedPhoto? photo;
 }
 
 /// The QC form. A FAILED verdict REQUIRES a defect reason code — collected here
 /// before sending, so the operator learns the requirement at the form rather
-/// than from a 422 (the server enforces it regardless).
-class _QcSheet extends StatefulWidget {
+/// than from a 422 (the server enforces it regardless). A FAILED verdict may
+/// also carry a defect PHOTO, picked through the injected [photoSourceProvider]
+/// (FR-083).
+class _QcSheet extends ConsumerStatefulWidget {
   const _QcSheet();
   @override
-  State<_QcSheet> createState() => _QcSheetState();
+  ConsumerState<_QcSheet> createState() => _QcSheetState();
 }
 
-class _QcSheetState extends State<_QcSheet> {
+class _QcSheetState extends ConsumerState<_QcSheet> {
   QualityControlVerdict _verdict = QualityControlVerdict.passed;
   final TextEditingController _reasonCode = TextEditingController();
   final TextEditingController _reason = TextEditingController();
+  PickedPhoto? _photo;
 
   @override
   void dispose() {
     _reasonCode.dispose();
     _reason.dispose();
     super.dispose();
+  }
+
+  Future<void> _attachPhoto() async {
+    final picked = await ref.read(photoSourceProvider).pick();
+    if (!mounted) {
+      return;
+    }
+    if (picked == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Pengambilan foto tidak tersedia atau dibatalkan.'),
+        ),
+      );
+      return;
+    }
+    setState(() => _photo = picked);
   }
 
   @override
@@ -702,6 +781,21 @@ class _QcSheetState extends State<_QcSheet> {
                 labelText: 'Catatan (opsional)',
               ),
             ),
+            SizedBox(height: AishSpacing.space3),
+            OutlinedButton.icon(
+              key: const Key('qc-attach-photo'),
+              onPressed: () => unawaited(_attachPhoto()),
+              icon: Icon(
+                _photo == null
+                    ? Icons.add_a_photo_outlined
+                    : Icons.check_circle_outline,
+              ),
+              label: Text(
+                _photo == null
+                    ? 'Lampirkan foto bukti (opsional)'
+                    : 'Foto bukti terlampir',
+              ),
+            ),
           ],
           SizedBox(height: AishSpacing.space4),
           PrimaryAction(
@@ -730,6 +824,7 @@ class _QcSheetState extends State<_QcSheet> {
             ? _reasonCode.text.trim()
             : null,
         defectReason: _reason.text.trim().isEmpty ? null : _reason.text.trim(),
+        photo: _verdict.requiresDefectReason ? _photo : null,
       ),
     );
   }

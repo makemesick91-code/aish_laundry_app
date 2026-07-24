@@ -16,6 +16,8 @@ import '../master_data/staff_roster_screen.dart';
 import '../pos/pos_counter_screen.dart';
 import '../pos/pos_new_order_screen.dart';
 import '../pos/pos_order_detail_screen.dart';
+import '../production/production_batch_detail_screen.dart';
+import '../production/production_batch_list_screen.dart';
 import '../production/production_job_detail_screen.dart';
 import '../production/production_queue_screen.dart';
 import '../production/production_sync_center_screen.dart';
@@ -158,6 +160,20 @@ final Provider<GoRouter> opsRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: 'sinkronisasi',
                 builder: (_, _) => const ProductionSyncCenterScreen(),
+              ),
+              // FR-074 batch operations. `batch` is a literal segment declared
+              // BEFORE `:jobId` so go_router never reads it as a job id.
+              GoRoute(
+                path: 'batch',
+                builder: (_, _) => const ProductionBatchListScreen(),
+                routes: <RouteBase>[
+                  GoRoute(
+                    path: ':batchId',
+                    builder: (_, state) => ProductionBatchDetailScreen(
+                      batchId: state.pathParameters['batchId']!,
+                    ),
+                  ),
+                ],
               ),
               GoRoute(
                 path: ':jobId',

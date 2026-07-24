@@ -4,6 +4,7 @@
 // initializer list are the correct shape here, exactly as `ApiClient` does it.
 // ignore_for_file: prefer_initializing_formals
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:aish_core/aish_core.dart';
 import 'package:aish_domain/aish_domain.dart';
@@ -187,7 +188,7 @@ final class ProductionSyncWorker {
     final commands = listResult.valueOrNull!;
     final now = _clock.nowUtc();
 
-    final blockedJobs = <String>{};
+    final blockedGroups = <String>{};
     var attempted = 0;
     var synced = 0;
     var conflicts = 0;
@@ -199,9 +200,9 @@ final class ProductionSyncWorker {
       if (!_isSyncable(command, now)) {
         continue;
       }
-      if (blockedJobs.contains(command.jobId)) {
-        // A predecessor for this job did not succeed; hold this one to preserve
-        // order (no silent reordering).
+      if (blockedGroups.contains(command.groupKey)) {
+        // A predecessor for this aggregate (job or batch) did not succeed; hold
+        // this one to preserve order (no silent reordering).
         deferred++;
         continue;
       }
@@ -255,7 +256,7 @@ final class ProductionSyncWorker {
             );
             deferred++;
           }
-          blockedJobs.add(command.jobId);
+          blockedGroups.add(command.groupKey);
 
         case _ResolutionKind.conflict:
           await _queue.updateGuarded(
@@ -267,7 +268,7 @@ final class ProductionSyncWorker {
             ),
           );
           conflicts++;
-          blockedJobs.add(command.jobId);
+          blockedGroups.add(command.groupKey);
 
         case _ResolutionKind.permanent:
           await _queue.updateGuarded(
@@ -278,7 +279,7 @@ final class ProductionSyncWorker {
             ),
           );
           permanent++;
-          blockedJobs.add(command.jobId);
+          blockedGroups.add(command.groupKey);
 
         case _ResolutionKind.reauthenticate:
           // The session is bad for EVERY command, not just this one. Return the
@@ -367,7 +368,7 @@ final class ProductionSyncWorker {
       switch (command.type) {
         case ProductionCommandType.advance:
           final r = await _repo.advance(
-            command.jobId,
+            _requiredJobId(command),
             stage: _required(command, 'stage'),
             clientReference: command.clientReference,
             expectedVersion: command.expectedVersion,
@@ -376,7 +377,7 @@ final class ProductionSyncWorker {
 
         case ProductionCommandType.block:
           final r = await _repo.block(
-            command.jobId,
+            _requiredJobId(command),
             reasonCode: _required(command, 'reason_code'),
             reason: command.payload['reason'] as String?,
             clientReference: command.clientReference,
@@ -386,7 +387,7 @@ final class ProductionSyncWorker {
 
         case ProductionCommandType.resume:
           final r = await _repo.resume(
-            command.jobId,
+            _requiredJobId(command),
             clientReference: command.clientReference,
             expectedVersion: command.expectedVersion,
           );
@@ -394,7 +395,7 @@ final class ProductionSyncWorker {
 
         case ProductionCommandType.sendToQc:
           final r = await _repo.sendToQualityControl(
-            command.jobId,
+            _requiredJobId(command),
             clientReference: command.clientReference,
             expectedVersion: command.expectedVersion,
           );
@@ -402,7 +403,7 @@ final class ProductionSyncWorker {
 
         case ProductionCommandType.recordQc:
           final r = await _repo.recordQualityControl(
-            command.jobId,
+            _requiredJobId(command),
             verdict: QualityControlVerdict.parse(_required(command, 'verdict')),
             defectReasonCode: command.payload['defect_reason_code'] as String?,
             defectReason: command.payload['defect_reason'] as String?,
@@ -423,7 +424,7 @@ final class ProductionSyncWorker {
 
         case ProductionCommandType.completeRework:
           final r = await _repo.completeRework(
-            command.jobId,
+            _requiredJobId(command),
             reasonCode: _required(command, 'reason_code'),
             clientReference: command.clientReference,
             expectedVersion: command.expectedVersion,
@@ -432,13 +433,69 @@ final class ProductionSyncWorker {
 
         case ProductionCommandType.markReady:
           final r = await _repo.markReady(
-            command.jobId,
+            _requiredJobId(command),
             clientReference: command.clientReference,
           );
           return r.map(
             (v) => _Ack(
               serverVersion: null,
               data: <String, Object?>{'order_status': v.orderStatus.name},
+            ),
+          );
+
+        // FR-074 batch commands. These target a BATCH, not a job.
+        case ProductionCommandType.createBatch:
+          final r = await _repo.createBatch(
+            code: _required(command, 'code'),
+            stage: _required(command, 'stage'),
+            clientReference: command.clientReference,
+          );
+          return r.map(_batchToAck);
+
+        case ProductionCommandType.addBatchItem:
+          final r = await _repo.addBatchItem(
+            _requiredBatchId(command),
+            productionItemId: _requiredItemId(command),
+            clientReference: command.clientReference,
+            expectedVersion: command.expectedVersion,
+          );
+          return r.map(_batchToAck);
+
+        case ProductionCommandType.removeBatchItem:
+          final r = await _repo.removeBatchItem(
+            _requiredBatchId(command),
+            _requiredItemId(command),
+            clientReference: command.clientReference,
+            expectedVersion: command.expectedVersion,
+          );
+          return r.map(_batchToAck);
+
+        case ProductionCommandType.closeBatch:
+          final r = await _repo.closeBatch(
+            _requiredBatchId(command),
+            clientReference: command.clientReference,
+            expectedVersion: command.expectedVersion,
+          );
+          return r.map(_batchToAck);
+
+        // FR-083 — a durable, offline-capable QC defect-photo upload. The photo
+        // bytes travel base64 in the command payload so they survive an app kill
+        // in the encrypted queue; here they are decoded and uploaded multipart.
+        case ProductionCommandType.uploadQcEvidence:
+          final r = await _repo.uploadQcEvidence(
+            _requiredJobId(command),
+            _required(command, 'inspection_id'),
+            bytes: base64Decode(_required(command, 'photo_base64')),
+            filename: _required(command, 'filename'),
+            clientReference: command.clientReference,
+          );
+          return r.map(
+            (e) => _Ack(
+              serverVersion: null,
+              data: <String, Object?>{
+                'evidence_id': e.id,
+                'checksum': e.checksumSha256,
+              },
             ),
           );
       }
@@ -463,9 +520,38 @@ final class ProductionSyncWorker {
     throw const _MalformedCommand();
   }
 
+  String _requiredJobId(ProductionCommand command) {
+    final value = command.jobId;
+    if (value != null && value.isNotEmpty) {
+      return value;
+    }
+    throw const _MalformedCommand();
+  }
+
+  String _requiredBatchId(ProductionCommand command) {
+    final value = command.batchId;
+    if (value != null && value.isNotEmpty) {
+      return value;
+    }
+    throw const _MalformedCommand();
+  }
+
+  String _requiredItemId(ProductionCommand command) {
+    final value = command.itemId;
+    if (value != null && value.isNotEmpty) {
+      return value;
+    }
+    throw const _MalformedCommand();
+  }
+
   _Ack _summaryToAck(ProductionJobSummary s) => _Ack(
     serverVersion: s.version,
     data: <String, Object?>{'state': s.state.wireValue, 'version': s.version},
+  );
+
+  _Ack _batchToAck(ProductionBatchSummary s) => _Ack(
+    serverVersion: s.version,
+    data: <String, Object?>{'status': s.status.wireValue, 'version': s.version},
   );
 
   _Resolution _classify(Failure failure) {

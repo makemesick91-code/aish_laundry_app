@@ -181,6 +181,32 @@ jobs:
           fi
           exit "${fail}"
 
+      # FR-083 QC defect-photo evidence tests run against a real PRIVATE MinIO
+      # bucket. GitHub Actions `services:` cannot override the minio entrypoint
+      # (it needs `server /data`), so MinIO is started as a digest-pinned step and
+      # its private bucket bootstrapped. phpunit.xml points EVIDENCE_S3_* at
+      # 127.0.0.1:59000, matching the port published here. Credentials are the
+      # obviously-fake development values (Rule 45); the bucket is private (no
+      # public bucket, owner constraint / Rule 03 hard rule 13).
+      - name: Provision the private MinIO evidence bucket (FR-083)
+        run: |
+          set -euo pipefail
+          docker run -d --name aish_ci_minio -p 127.0.0.1:59000:9000 \
+            -e MINIO_ROOT_USER=aish_dev_minio \
+            -e MINIO_ROOT_PASSWORD=CHANGEME_local_dev_only_minio \
+            minio/minio@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e \
+            server /data
+          for _ in $(seq 1 40); do
+            if curl -sf http://127.0.0.1:59000/minio/health/live >/dev/null 2>&1; then break; fi
+            sleep 1
+          done
+          docker run --rm --network host --entrypoint /bin/sh \
+            minio/mc@sha256:a7fe349ef4bd8521fb8497f55c6042871b2ae640607cf99d9bede5e9bdf11727 \
+            -c "mc alias set l http://127.0.0.1:59000 aish_dev_minio CHANGEME_local_dev_only_minio \
+                && mc mb --ignore-existing l/aish-evidence-dev \
+                && mc anonymous set none l/aish-evidence-dev \
+                && echo 'private evidence bucket ready (no anonymous access)'"
+
       - name: Full backend suite
         run: |
           set -euo pipefail

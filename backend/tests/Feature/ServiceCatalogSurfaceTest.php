@@ -742,15 +742,20 @@ final class ServiceCatalogSurfaceTest extends TestCase
             }
         }
 
-        // The ONLY Step 4 DELETE routes are: removing a role from a membership,
+        // The ONLY DELETE routes are: removing a role from a membership,
         // removing an item from a DRAFT price list (which has priced nothing),
-        // and revoking one's own session. Anything a future order could
-        // reference is deactivated, never destroyed (T-18).
+        // revoking one's own session, and — Step 6, FR-074 — removing an item
+        // from an OPEN production batch. The last deletes only the CURRENT
+        // membership row; the historical fact (added, then removed) is preserved
+        // forever in the append-only `production_batch_events` timeline, so no
+        // history is lost. Anything a future order could reference is deactivated,
+        // never destroyed (T-18).
         foreach ($deletes as $uri) {
             $this->assertTrue(
                 str_contains($uri, 'roles/')
                     || str_contains($uri, 'price-lists/{priceList}/items/')
-                    || str_contains($uri, 'sessions/'),
+                    || str_contains($uri, 'sessions/')
+                    || str_contains($uri, 'production/batches/{batch}/items/'),
                 "Unexpected DELETE route /{$uri} — master data is deactivated, not deleted."
             );
         }

@@ -2,12 +2,15 @@ import 'package:meta/meta.dart';
 
 import 'sync_state.dart';
 
-/// The seven production commands the Ops surface may queue (Step 6, DEC-0037).
+/// The production commands the Ops surface may queue (Step 6, DEC-0037; the four
+/// batch commands added for FR-074).
 ///
 /// Exactly one per WRITE endpoint the backend registers. There is deliberately
 /// NO create-job and NO abandon command, because the backend exposes neither as
 /// an operator HTTP action — a queue that could enqueue one would be a command
-/// with nowhere to go (a dead action, Rule 01).
+/// with nowhere to go (a dead action, Rule 01). The four batch commands target a
+/// BATCH rather than a job, so their [ProductionCommand.jobId] is null and their
+/// [ProductionCommand.batchId] identifies the aggregate instead.
 enum ProductionCommandType {
   advance('advance'),
   block('block'),
@@ -15,7 +18,14 @@ enum ProductionCommandType {
   sendToQc('send_to_qc'),
   recordQc('record_qc'),
   completeRework('complete_rework'),
-  markReady('mark_ready');
+  markReady('mark_ready'),
+  // FR-074 batch operations.
+  createBatch('create_batch'),
+  addBatchItem('add_batch_item'),
+  removeBatchItem('remove_batch_item'),
+  closeBatch('close_batch'),
+  // FR-083 QC defect-photo evidence — a durable, offline-capable upload.
+  uploadQcEvidence('upload_qc_evidence');
 
   const ProductionCommandType(this.wire);
 
@@ -101,9 +111,10 @@ final class ProductionCommand {
     required this.clientReference,
     required this.tenantId,
     required this.userId,
-    required this.jobId,
     required this.type,
     required this.createdAtUtc,
+    this.jobId,
+    this.batchId,
     this.outletId,
     this.orderId,
     this.itemId,
@@ -127,13 +138,26 @@ final class ProductionCommand {
 
   final String tenantId;
   final String userId;
-  final String jobId;
+
+  /// The job this command acts on. Null for a batch command (which acts on a
+  /// batch, or — for create — on no existing aggregate at all).
+  final String? jobId;
+
+  /// The batch this command acts on (FR-074). Null for a job command and for
+  /// create-batch (the batch does not exist until the server creates it).
+  final String? batchId;
+
   final ProductionCommandType type;
   final DateTime createdAtUtc;
 
   final String? outletId;
   final String? orderId;
   final String? itemId;
+
+  /// The per-aggregate ordering key the sync worker serialises on. A batch
+  /// command groups by its batch; a job command by its job; a create-batch (no
+  /// aggregate id yet) is independent, keyed by its own reference.
+  String get groupKey => jobId ?? batchId ?? clientReference;
 
   /// The optimistic-concurrency token captured when the command was enqueued.
   final int? expectedVersion;
@@ -185,6 +209,7 @@ final class ProductionCommand {
     tenantId: tenantId,
     userId: userId,
     jobId: jobId,
+    batchId: batchId,
     type: type,
     createdAtUtc: createdAtUtc,
     outletId: outletId,
@@ -219,6 +244,7 @@ final class ProductionCommand {
     'tenant_id': tenantId,
     'user_id': userId,
     'job_id': jobId,
+    'batch_id': batchId,
     'type': type.wire,
     'created_at': createdAtUtc.toUtc().toIso8601String(),
     'outlet_id': outletId,
@@ -243,7 +269,8 @@ final class ProductionCommand {
         clientReference: json['client_reference']! as String,
         tenantId: json['tenant_id']! as String,
         userId: json['user_id']! as String,
-        jobId: json['job_id']! as String,
+        jobId: json['job_id'] as String?,
+        batchId: json['batch_id'] as String?,
         type: ProductionCommandType.parse(json['type']! as String),
         createdAtUtc: DateTime.parse(json['created_at']! as String).toUtc(),
         outletId: json['outlet_id'] as String?,

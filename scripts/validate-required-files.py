@@ -86,7 +86,9 @@ EXPECTED_RULE_COUNT = 51
 # order-line rounding mode is HALF_UP).
 # Raised 36 -> 37 at Master Source 1.4.9 for DEC-0037 (Step 6 runtime scope
 # transition — the guard transition that starts Step 6 production-operations runtime).
-EXPECTED_DECISION_COUNT = 37
+# Raised 37 -> 38 at Master Source 1.4.10 for DEC-0038 (private object-storage
+# introduction for QC defect evidence, FR-083).
+EXPECTED_DECISION_COUNT = 38
 
 
 def main() -> int:

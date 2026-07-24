@@ -74,4 +74,20 @@ String productionCommandLabel(ProductionCommandType type) => switch (type) {
   ProductionCommandType.recordQc => 'Catat kendali mutu',
   ProductionCommandType.completeRework => 'Selesaikan pengerjaan ulang',
   ProductionCommandType.markReady => 'Tandai siap diambil',
+  // FR-074 batch operations.
+  ProductionCommandType.createBatch => 'Buat batch',
+  ProductionCommandType.addBatchItem => 'Tambahkan item ke batch',
+  ProductionCommandType.removeBatchItem => 'Keluarkan item dari batch',
+  ProductionCommandType.closeBatch => 'Tutup batch',
+  // FR-083 QC defect-photo evidence.
+  ProductionCommandType.uploadQcEvidence => 'Unggah bukti cacat',
 };
+
+/// The status chip for a batch's lifecycle (server-authoritative). An open batch
+/// is neutral; a closed batch is a settled, terminal success (FR-074). Meaning is
+/// carried by text + icon, never colour alone (Rule 27).
+StatusChip batchStatusChip(ProductionBatchStatus status) => StatusChip(
+  label: status.label,
+  icon: status.isOpen ? Icons.folder_open_outlined : Icons.inventory_2_outlined,
+  tone: status.isOpen ? StatusTone.neutral : StatusTone.success,
+);

@@ -173,4 +173,32 @@ abstract final class ApiEndpoints {
   static String productionJobReworkComplete(String id) =>
       'production/jobs/$id/rework/complete';
   static String productionJobReady(String id) => 'production/jobs/$id/ready';
+
+  // FR-074 batch operations. A batch groups items processed together through one
+  // stage while each order stays individually identifiable. Reads gate on
+  // production.view; writes (create/close/add/remove) on production.operate. A
+  // CLOSED batch is immutable; membership is tenant/outlet-safe and
+  // stage-compatible. Every write is idempotent on `client_reference`.
+  static const String productionBatches = 'production/batches';
+  static String productionBatch(String id) => 'production/batches/$id';
+  static String productionBatchClose(String id) =>
+      'production/batches/$id/close';
+  static String productionBatchTimeline(String id) =>
+      'production/batches/$id/timeline';
+  static String productionBatchItems(String id) =>
+      'production/batches/$id/items';
+  static String productionBatchItem(String batchId, String itemId) =>
+      'production/batches/$batchId/items/$itemId';
+
+  // FR-083 QC defect-photo evidence. Upload is multipart and gated on
+  // production.qc; the signed-URL retrieval on production.view. Files are stored
+  // privately and read only through a short-lived signed URL.
+  static String productionQcEvidence(String jobId, String inspectionId) =>
+      'production/jobs/$jobId/quality-control/$inspectionId/evidence';
+  static String productionQcEvidenceUrl(
+    String jobId,
+    String inspectionId,
+    String evidenceId,
+  ) =>
+      'production/jobs/$jobId/quality-control/$inspectionId/evidence/$evidenceId/url';
 }

@@ -1,0 +1,64 @@
+================================================================================
+FR-074 — PRODUCTION BATCH OPERATIONS · EVIDENCE (residual closure)
+================================================================================
+Commit SHA : 83ad3e6d6fb85cce914c0f12860044203e4b112d
+Command    : cd backend && php artisan test --filter=ProductionBatchTest
+Timestamp  : 2026-07-25 (Asia/Jakarta)
+Environment: PHP 8.5.4, PostgreSQL 18.4 (dev, loopback), Laravel; RefreshDatabase
+Sanitised  : yes — every fixture is fictional (Rule 23/45); no secrets, no URLs,
+             no personal data. Test NAMES and the pass tally only.
+
+This proves the FR-074 batch workflow against the AUTHORITATIVE engine (Rule 43):
+lifecycle (create/update/add/remove/close), server-side RBAC (only
+production.operate mutates; cashier/courier/QC/unauth refused), full-path tenant
+AND outlet isolation (a foreign batch/item 404s like an absent one — Rule 48),
+stage compatibility + eligibility, no duplicate membership, client_reference
+idempotency (same payload replays, different payload fails closed), optimistic
+concurrency, closed-batch immutability, and the append-only membership timeline
+(engine-enforced).
+
+--------------------------------------------------------------------------------
+   PASS  Tests\Feature\Production\ProductionBatchTest
+  ✓ operator creates an open batch
+  ✓ create requires an active outlet
+  ✓ cashier cannot create a batch
+  ✓ courier cannot create a batch
+  ✓ quality control cannot operate but can view batches
+  ✓ unauthenticated batch request is rejected
+  ✓ foreign tenant batch is not found
+  ✓ cross tenant item cannot be added
+  ✓ create is idempotent on client reference
+  ✓ create with same reference and different payload fails closed
+  ✓ duplicate code is rejected
+  ✓ add item is idempotent
+  ✓ add eligible item succeeds
+  ✓ duplicate membership is rejected
+  ✓ item from a different outlet is rejected
+  ✓ item at a different stage is rejected
+  ✓ item of a terminal job is not eligible
+  ✓ remove deletes current membership but keeps history
+  ✓ removing a non member is not found
+  ✓ close marks the batch closed
+  ✓ cannot add to a closed batch
+  ✓ cannot close an already closed batch twice but replay is idempotent
+  ✓ stale expected version on close conflicts
+  ✓ list is scoped to the active outlet
+  ✓ show returns members and timeline
+  ✓ batch events table is append only on update
+  ✓ batch events table is append only on delete
+  ✓ batch command client reference is unique at the engine
+  Tests:    28 passed (122 assertions)
+--------------------------------------------------------------------------------
+
+Flutter offline + Ops UI for FR-074 is evidenced in the verifier's F-gates at the
+same SHA (captured with the whole run in verify-step-06.txt):
+  F1 production_repository_test.dart  — batch repository methods (list/create/
+     show/update/close/add/remove) + conflict classification (batch_closed,
+     already_member -> reload).
+  F2 production_command_queue_test.dart — a batch command persists its batchId /
+     null jobId and enqueues idempotently.
+  F3 production_sync_worker_test.dart — batch commands sync, order per batch,
+     surface a batch_closed conflict, and replay idempotently after a timeout.
+  F5 apps/ops_android/test/production_batch_test.dart — batch list/detail UI:
+     create/add/remove/close, honest offline state, RBAC-gated controls.
+================================================================================

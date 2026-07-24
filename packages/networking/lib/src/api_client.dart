@@ -115,6 +115,22 @@ final class ApiClient {
     expectedVersion: expectedVersion,
   );
 
+  /// A multipart POST — used for the FR-083 QC defect-photo upload, where a file
+  /// travels alongside form fields. The [formData] is built by the repository
+  /// (same package), so the dio type never leaks past the networking boundary.
+  Future<Result<ApiSuccess>> postMultipart(
+    String path, {
+    required FormData formData,
+    CorrelationId? correlationId,
+  }) => _send(
+    correlationId,
+    (headers) => _dio.post<Object?>(
+      path,
+      data: formData,
+      options: Options(headers: headers),
+    ),
+  );
+
   /// Partial update of an existing record.
   ///
   /// [expectedVersion] is the optimistic-concurrency token the caller read with
@@ -164,10 +180,15 @@ final class ApiClient {
 
   Future<Result<ApiSuccess>> delete(
     String path, {
+    Map<String, Object?>? body,
     CorrelationId? correlationId,
   }) => _send(
     correlationId,
-    (headers) => _dio.delete<Object?>(path, options: Options(headers: headers)),
+    (headers) => _dio.delete<Object?>(
+      path,
+      data: body,
+      options: Options(headers: headers),
+    ),
   );
 
   /// The optimistic-concurrency precondition header.
