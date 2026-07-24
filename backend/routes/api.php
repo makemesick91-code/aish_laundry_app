@@ -9,7 +9,9 @@ use App\Modules\Identity\Http\Controllers\AuthController;
 use App\Modules\Identity\Http\Controllers\PasswordResetController;
 use App\Modules\Identity\Http\Controllers\SessionController;
 use App\Modules\Ordering\Http\Controllers\OrderController;
+use App\Modules\Production\Http\Controllers\BatchController;
 use App\Modules\Production\Http\Controllers\ProductionController;
+use App\Modules\Production\Http\Controllers\QualityControlEvidenceController;
 use App\Modules\Organization\Http\Controllers\OutletMasterDataController;
 use App\Modules\Organization\Http\Controllers\StaffAssignmentController;
 use App\Modules\Payments\Http\Controllers\PaymentController;
@@ -337,4 +339,24 @@ Route::middleware(['auth.api', 'tenant.context'])->group(function (): void {
     Route::post('production/jobs/{job}/quality-control', [ProductionController::class, 'recordQualityControl'])->name('api.v1.production.jobs.qc.record');
     Route::post('production/jobs/{job}/rework/complete', [ProductionController::class, 'completeRework'])->name('api.v1.production.jobs.rework.complete');
     Route::post('production/jobs/{job}/ready', [ProductionController::class, 'markReady'])->name('api.v1.production.jobs.ready');
+
+    // Step 6 · FR-083 QC defect-photo evidence. Upload gates on production.qc;
+    // reads and signed-URL retrieval on production.view. Stored privately, served
+    // only through short-lived signed URLs; a foreign job/inspection/evidence 404s
+    // like an absent one (Rule 48).
+    Route::post('production/jobs/{job}/quality-control/{inspection}/evidence', [QualityControlEvidenceController::class, 'store'])->name('api.v1.production.qc.evidence.store');
+    Route::get('production/jobs/{job}/quality-control/{inspection}/evidence', [QualityControlEvidenceController::class, 'index'])->name('api.v1.production.qc.evidence.index');
+    Route::get('production/jobs/{job}/quality-control/{inspection}/evidence/{evidence}/url', [QualityControlEvidenceController::class, 'url'])->name('api.v1.production.qc.evidence.url');
+
+    // Step 6 · FR-074 batch operations. Reads gate on production.view; writes on
+    // production.operate (PermissionRegistry — OPERATE covers "batch"). A CLOSED
+    // batch is immutable; membership is tenant/outlet-safe and stage-compatible.
+    Route::get('production/batches', [BatchController::class, 'index'])->name('api.v1.production.batches.index');
+    Route::post('production/batches', [BatchController::class, 'store'])->name('api.v1.production.batches.store');
+    Route::get('production/batches/{batch}', [BatchController::class, 'show'])->name('api.v1.production.batches.show');
+    Route::patch('production/batches/{batch}', [BatchController::class, 'update'])->name('api.v1.production.batches.update');
+    Route::post('production/batches/{batch}/close', [BatchController::class, 'close'])->name('api.v1.production.batches.close');
+    Route::get('production/batches/{batch}/timeline', [BatchController::class, 'timeline'])->name('api.v1.production.batches.timeline');
+    Route::post('production/batches/{batch}/items', [BatchController::class, 'addItem'])->name('api.v1.production.batches.items.add');
+    Route::delete('production/batches/{batch}/items/{item}', [BatchController::class, 'removeItem'])->name('api.v1.production.batches.items.remove');
 });

@@ -64,9 +64,9 @@ const STEP5_ALLOWED_TABLES = [
  */
 const STEP6_ALLOWED_TABLES = [
     'production_jobs', 'production_batches', 'production_items',
-    'production_batch_items', 'production_operator_assignments',
-    'quality_control_inspections', 'rework_cycles', 'production_events',
-    'production_ready_events',
+    'production_batch_items', 'production_batch_events', 'production_operator_assignments',
+    'quality_control_inspections', 'quality_control_evidence', 'rework_cycles',
+    'production_events', 'production_ready_events',
 ];
 
 // Step 7 and later own these. Their presence means scope leaked, however the

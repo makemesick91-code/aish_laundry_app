@@ -8,6 +8,7 @@
         "php": "^8.3",
         "laravel/framework": "13.20.0",
         "laravel/sanctum": "4.3.2",
+        "league/flysystem-aws-s3-v3": "^3.0",
         "predis/predis": "^3.2"
     },
     "require-dev": {

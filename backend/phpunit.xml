@@ -51,5 +51,20 @@
 
             Tests therefore run against the real PostgreSQL configured in .env.
         -->
+
+        <!--
+            FR-083 — QC defect-photo evidence runs against the loopback-bound
+            development MinIO (S3-compatible) provisioned in
+            infrastructure/docker-compose.dev.yml, into its PRIVATE bucket. These
+            are the SAME obviously-fake development credentials committed in that
+            compose file: they grant access to nothing beyond a throwaway local
+            service (Rule 45). CI publishes MinIO on the same loopback port.
+        -->
+        <env name="EVIDENCE_S3_KEY" value="aish_dev_minio"/>
+        <env name="EVIDENCE_S3_SECRET" value="CHANGEME_local_dev_only_minio"/>
+        <env name="EVIDENCE_S3_REGION" value="us-east-1"/>
+        <env name="EVIDENCE_S3_BUCKET" value="aish-evidence-dev"/>
+        <env name="EVIDENCE_S3_ENDPOINT" value="http://127.0.0.1:59000"/>
+        <env name="EVIDENCE_S3_PATH_STYLE" value="true"/>
     </php>
 </phpunit>

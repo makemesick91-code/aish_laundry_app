@@ -91,6 +91,64 @@ services:
       retries: 20
       start_period: 5s
 
+  minio:
+    # S3-compatible private object storage for the Step 6 QC defect-photo evidence
+    # (FR-083), added under the owner decision authorising a MinIO development
+    # service. Digest-pinned exactly like postgres and redis so a substituted image
+    # cannot silently deliver different content (Rule 37 hard rule 5). LOCAL DEV
+    # ONLY: loopback-bound, obviously-fake credentials, a PRIVATE bucket, and no
+    # anonymous access. This is never a deployment artifact and never a public
+    # bucket (owner constraints; Rule 03, Rule 06 hard rules 16-17).
+    #
+    # minio/minio is not a Docker Hub `library/` image, so it is pulled directly
+    # (mirror.gcr.io mirrors library images only); the digest is the integrity
+    # anchor regardless.
+    image: minio/minio@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e
+    container_name: aish_laundry_dev_minio
+    restart: "no"
+    command:
+      - server
+      - /data
+      - --console-address
+      - ":9001"
+    environment:
+      # DEVELOPMENT PLACEHOLDERS on a PUBLIC repository. They grant access to
+      # nothing: the service listens on loopback only and holds fake fixtures.
+      MINIO_ROOT_USER: aish_dev_minio
+      MINIO_ROOT_PASSWORD: CHANGEME_local_dev_only_minio
+    ports:
+      # Loopback only, never 0.0.0.0. 59000 = S3 API, 59001 = console.
+      - "127.0.0.1:59000:9000"
+      - "127.0.0.1:59001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 5s
+
+  minio-setup:
+    # One-shot: create the PRIVATE evidence bucket and prove it has NO anonymous
+    # access. Exits 0 once done; it is not a long-running service.
+    image: minio/mc@sha256:a7fe349ef4bd8521fb8497f55c6042871b2ae640607cf99d9bede5e9bdf11727
+    container_name: aish_laundry_dev_minio_setup
+    restart: "no"
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint:
+      - /bin/sh
+      - -c
+      - >
+        mc alias set local http://minio:9000 aish_dev_minio CHANGEME_local_dev_only_minio &&
+        mc mb --ignore-existing local/aish-evidence-dev &&
+        mc anonymous set none local/aish-evidence-dev &&
+        echo 'private evidence bucket ready (no anonymous access)'
+
 volumes:
   postgres_data:
     name: aish_laundry_dev_postgres_data
+  minio_data:
+    name: aish_laundry_dev_minio_data
