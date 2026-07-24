@@ -371,6 +371,37 @@ void main() {
       );
     });
 
+    test(
+      'a forged/malformed 200 body never fakes a SYNCED (honest acknowledgement)',
+      () async {
+        final store = InMemoryCredentialStore();
+        final queue = _queue(store);
+        await queue.enqueue(_advance());
+        // A 200 whose "job" is structurally wrong (unknown state). The repository
+        // returns an Err rather than a parsed job, so the worker must NOT store
+        // this as a canonical success.
+        final adapter = _ScriptedAdapter(<_Step>[
+          const _Step.ok(
+            200,
+            '{"data":{"job":{"id":"job-1","order_id":"o1","outlet_id":"out-1",'
+            '"state":"FORGED","version":9,"block_reason_code":null,'
+            '"updated_at":null}},"meta":{}}',
+          ),
+        ]);
+        final pass = await workerWith(
+          adapter: adapter,
+          queue: queue,
+          clock: _TestClock(_t0),
+        ).drain();
+
+        expect(pass.synced, 0);
+        expect(
+          (await queue.byReference('r1')).valueOrNull!.status,
+          isNot(ProductionCommandStatus.synced),
+        );
+      },
+    );
+
     test('a 422 validation refusal is permanent, not retried', () async {
       final store = InMemoryCredentialStore();
       final queue = _queue(store);
