@@ -130,7 +130,7 @@ custom cryptography** (Rule 03 hard rule 7, Rule 07 hard rule 8).
 | Advance stage / block / resume / assign | `operator_produksi`, `manager_outlet` |
 | Record QC verdict | `quality_control`, `manager_outlet` (distinct from production where policy requires) |
 | Start/complete rework | `operator_produksi`, `manager_outlet` |
-| Close/open batch | `manager_outlet` |
+| Batch operations (create/update/add-item/remove-item/close) | `production.operate` — `operator_produksi`, `manager_outlet` (batch reads: `production.view`) |
 | Mark `READY_FOR_PICKUP` | reached only via a `PASSED`/`WAIVED` QC verdict, never a direct client write |
 | View production queue | outlet-scoped operational roles |
 
