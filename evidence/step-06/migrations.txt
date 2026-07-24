@@ -1,0 +1,22 @@
+Step 6 Unit A (production persistence) evidence
+Baseline: 9c23eca / branch feature/step-06-production-operations
+Captured at pre-commit tree; SHA recorded on commit.
+
+=== migrate up / rollback / re-apply ===
+  2026_07_24_100000_create_production_tables ......................... [1] Ran  
+
+=== ProductionSchemaTest (PostgreSQL) ===
+   PASS  Tests\Feature\Production\ProductionSchemaTest
+  ✓ all production tables exist                                          0.59s  
+  ✓ only one open job per order                                          0.05s  
+  ✓ production job cannot reference another tenants order                0.04s  
+  ✓ first ready event is recorded at most once                           0.03s  
+  ✓ first ready event is immutable update                                0.04s  
+  ✓ first ready event cannot be deleted                                  0.04s  
+  ✓ production event is append only                                      0.03s  
+  ✓ duplicate client reference is refused                                0.03s  
+  ✓ closed batch refuses new members                                     0.04s  
+  ✓ qc verdict is append only                                            0.04s  
+  ✓ failed qc requires a defect reason                                   0.03s  
+  Tests:    11 passed (19 assertions)
+  Duration: 1.04s
