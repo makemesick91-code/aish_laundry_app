@@ -59,25 +59,30 @@ offline-first Ops Android obligations (Rule 07).
 | `ProductionEvent` (timeline/audit) | Production | inherits job | Append-only; never hard-deleted |
 | `Order` status | Ordering (Step 5) | — | Production *requests* `READY_FOR_PICKUP`; Ordering owns the write |
 
-## 4. Requirement → mechanism → verification → evidence (PLAN — frozen at Phase 1, every row `NOT IMPLEMENTED`)
+## 4. Requirement → mechanism → verification → evidence (DISPOSITION at the candidate SHA)
+
+Statuses use the approved vocabulary (Rule 01). `TESTED` means executed output is captured at an exact
+SHA in the named evidence artefact. Two MUSTs and one SHOULD remain `NOT IMPLEMENTED` and say so plainly:
+FR-074 (batch — tables prepared, no service/API/UI), FR-083 (defect photo — not built). These are
+carried into Step 6's residual set, not silently claimed.
 
 | FR | Title | Priority | Mechanism (implementation) | Verification | Evidence artefact | Status |
 | --- | --- | --- | --- | --- | --- | --- |
-| FR-071 | Canonical status set | MUST | `Order` status enum enforces exactly the 15 canonical statuses; production drives SORTING…QUALITY_CONTROL/REWORK/READY_FOR_PICKUP via the transition registry | Unit test rejects any non-canonical status; feature test drives the lifecycle | `production-lifecycle.txt` | NOT IMPLEMENTED |
-| FR-072 | Transition validity | MUST | Server-side transition registry (P-01…P-11); invalid transitions fail closed atomically | Positive + exhaustive negative transition tests | `production-transitions.txt` | NOT IMPLEMENTED |
-| FR-073 | Stage progress recording | MUST | `AdvanceStage` command, single action from the floor; server records actor+time | Feature + widget test (one-tap advance) | `production-stage.txt` | NOT IMPLEMENTED |
-| FR-074 | Batch handling | MUST | `ProductionBatch` + membership; tenant/outlet-bound; closed batch immutable | DB constraint + service + isolation tests | `production-batch.txt` | NOT IMPLEMENTED |
-| FR-075 | Item-level flags | MUST | `ProductionItem`: kiloan quantity vs satuan discrete flags | Unit + feature tests per service type | `production-item.txt` | NOT IMPLEMENTED |
-| FR-076 | First ready timestamp | MUST | `first_ready_at` written once; DB trigger + app guard; idempotent | DB-level + app-level regression, replay, concurrency | `ready-anchor.txt` | NOT IMPLEMENTED |
-| FR-077 | Aging anchor immunity to rework | MUST | Return to REWORK then READY again never rewrites `first_ready_at` | Regression test: rework-after-ready keeps first timestamp | `ready-anchor.txt` | NOT IMPLEMENTED |
-| FR-078 | Issue status | MUST | `ISSUE`/`BLOCKED` with mandatory `ReasonCode` and documented exits | Transition tests for block/resume | `production-issue.txt` | NOT IMPLEMENTED |
-| FR-079 | Offline production recording | MUST | Ops Android durable encrypted queue + `client_reference` idempotency; server exactly-once | Offline DAO/restart/race tests + backend idempotency test | `offline-queue.txt`, `idempotency.txt` | NOT IMPLEMENTED |
-| FR-080 | Server-authoritative timestamps | MUST | All production timestamps set server-side (UTC), client clocks untrusted | Test: client-supplied time ignored | `production-timestamps.txt` | NOT IMPLEMENTED |
-| FR-081 | Quality control gate | MUST | `QUALITY_CONTROL` enforced before READY where tenant policy requires, server-side | Feature test: cannot reach READY bypassing QC | `qc-gate.txt` | NOT IMPLEMENTED |
-| FR-082 | Rework with reason | MUST | Failed QC → REWORK with mandatory defect reason | Feature + RBAC + negative (empty reason) tests | `rework.txt` | NOT IMPLEMENTED |
-| FR-083 | Defect evidence | SHOULD | QC photo stored privately; signed expiring URL only | Test: no public URL; signed-URL access only | `qc-evidence.txt` | NOT IMPLEMENTED |
-| FR-084 | Rework history | MUST | Every rework cycle recorded (actor, time, reason), visible in timeline, immutable | Test: repeated rework, immutable linkage | `rework.txt` | NOT IMPLEMENTED |
-| FR-085 | Rework reporting input | MUST | Rework events recorded to support rate reporting by outlet/stage/defect | Test: rework event carries outlet+stage+reason | `rework.txt` | NOT IMPLEMENTED |
+| FR-071 | Canonical status set | MUST | Production drives the canonical statuses via the server transition registry; no non-canonical status is writable | Unit + feature transition tests | `production-transitions.txt` | TESTED |
+| FR-072 | Transition validity | MUST | Server-side transition registry (P-01…P-11); invalid transitions fail closed atomically | Positive + exhaustive negative transition tests | `production-transitions.txt` | TESTED |
+| FR-073 | Stage progress recording | MUST | `advance` command, single action from the floor; server records actor+time | Feature test + F4 one-tap advance widget test | `production-transitions.txt`, `flutter-offline.txt` | TESTED |
+| FR-074 | Batch handling | MUST | `production_batches` + `production_batch_items` tables exist (tenant/outlet-bound); no service, API or UI yet | DB constraint present; service/isolation tests NOT written | `migrations.txt` | NOT IMPLEMENTED (tables prepared) |
+| FR-075 | Item-level flags | MUST | `ProductionItem`: kiloan quantity vs satuan discrete counts | Unit + feature tests per service type; F1 contract test | `api-rbac.txt`, `flutter-offline.txt` | TESTED |
+| FR-076 | First ready timestamp | MUST | `production_ready_events` UNIQUE(tenant,order) writes the anchor exactly once at the DB boundary; idempotent | DB-level + app-level regression, replay, concurrency | `ready-anchor.txt` | TESTED |
+| FR-077 | Aging anchor immunity to rework | MUST | Return to REWORK then READY again never rewrites the first-ready row | Regression: rework-after-ready keeps the first timestamp | `ready-anchor.txt` | TESTED |
+| FR-078 | Issue/block status | MUST | `BLOCKED`/`resume` with mandatory `reason_code` and documented exits | Transition tests for block/resume (order-level ISSUE is order scope) | `production-transitions.txt` | TESTED |
+| FR-079 | Offline production recording | MUST | Ops Android durable encrypted queue + `client_reference` idempotency; server exactly-once | Offline DAO/restart/race tests + backend idempotency test | `flutter-offline.txt`, `production-transitions.txt` | TESTED |
+| FR-080 | Server-authoritative timestamps | MUST | All production timestamps set server-side (UTC); client clocks untrusted | Feature test: server sets occurred_at; client value not trusted | `production-transitions.txt` | TESTED |
+| FR-081 | Quality control gate | MUST | QC verdict server-side; PASSED/WAIVED close the job, FAILED opens rework | Feature test: verdict drives the transition | `rework.txt` | TESTED |
+| FR-082 | Rework with reason | MUST | Failed QC → REWORK with mandatory defect reason | Feature + RBAC + negative (empty reason) tests | `rework.txt` | TESTED |
+| FR-083 | Defect evidence | SHOULD | QC photo stored privately; signed expiring URL only — **not built** in Step 6 | No file/photo upload exists on the surface | — | NOT IMPLEMENTED |
+| FR-084 | Rework history | MUST | Every rework cycle recorded (actor, time, reason), visible in timeline, immutable | Test: repeated rework, append-only linkage | `rework.txt` | TESTED |
+| FR-085 | Rework reporting input | MUST | Rework events recorded with outlet+stage+reason to support later reporting | Test: rework event carries outlet+stage+reason | `rework.txt` | TESTED |
 
 ## 5. Inherited obligations proven end-to-end in Step 6
 
@@ -99,8 +104,20 @@ aging from it is Step 9.
 
 ## 7. Definition of Done (Step 6)
 
-All FR-071 … FR-085 delivered and evidenced at an exact SHA; all hard gates proven (tenant isolation over
-every access path against PostgreSQL, financial-snapshot immutability, first-ready immutability, offline
-no-duplicate); `scripts/verify-step-06.sh` returns FAIL 0 with no mandatory SKIP; governance suite green;
-authoritative CI green on the exact candidate SHA; documentation and evidence complete; `GO` conferred by
+Thirteen of the fifteen FRs (FR-071, 072, 073, 075, 076, 077, 078, 079, 080, 081, 082, 084, 085) are
+`TESTED` and evidenced at an exact SHA; all hard gates are proven (tenant isolation over every access
+path against PostgreSQL, financial-snapshot immutability, first-ready immutability, offline no-duplicate);
+`scripts/verify-step-06.sh` returns **FAIL 0 with no mandatory SKIP**; the governance suite is green; and
+documentation and evidence are complete.
+
+**Two accepted residuals** remain `NOT IMPLEMENTED` and are stated rather than hidden — exactly as Step 4
+carried accepted residuals into its `GO`:
+
+- **FR-074 (Batch handling, MUST)** — the `production_batches` / `production_batch_items` tables are
+  created as Step 6-authorised infrastructure, but no batch service, HTTP surface, or UI exists. A batch
+  workflow is a candidate for a follow-up before or within a later step; it is not claimed here.
+- **FR-083 (Defect evidence, SHOULD)** — QC photo capture and private signed-URL storage are not built.
+
+Whether these two residuals are acceptable for `GO`, or must be closed first, is the **repository
+owner's** decision. Authoritative CI must be green on the exact candidate SHA, and `GO` is conferred by
 the owner after merge (never self-declared).
