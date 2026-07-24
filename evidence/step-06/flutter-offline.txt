@@ -1,0 +1,11 @@
+STEP 6 FLUTTER OFFLINE-FIRST TEST EVIDENCE (F1-F4)
+captured: eab80d087b1ff028beb28d1aeefd5d624f071077
+======================================================================
+--- F1 production contract + repository (packages/networking) ---
+00:00 +19: All tests passed!
+--- F2 durable offline queue (packages/offline_sync) ---
+00:00 +18: All tests passed!
+--- F3 sync worker + reconciliation (packages/offline_sync) ---
+00:00 +19: All tests passed!
+--- F4 production operator UI (apps/ops_android) ---
+00:02 +12: All tests passed!

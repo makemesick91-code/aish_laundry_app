@@ -1,0 +1,20 @@
+STEP 6 REGRESSION TOTALS
+captured near SHA: eab80d087b1ff028beb28d1aeefd5d624f071077
+environment: PHP + PostgreSQL 18.4 + Redis 8.2.7 (loopback dev), Flutter/Dart 3.12.2
+======================================================================
+[backend] php artisan test (full suite, PostgreSQL):
+  586 passed (5195 assertions) — includes the Step 6 Production suite (see filter below)
+
+[backend] production suite only (--filter=Production):
+  Tests:    51 passed (96 assertions)
+
+[dart] pure-Dart package suites:
+  packages/networking : +66: All tests passed
+  packages/offline_sync: +37: All tests passed
+  packages/domain     : +12: All tests passed
+
+[flutter] ops_android widget suite (from app dir):
++125: All tests passed
+
+[format] dart format --set-exit-if-changed packages apps: clean
+[analyze] dart analyze packages apps: No issues found
