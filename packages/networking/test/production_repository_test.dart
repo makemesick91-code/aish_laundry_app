@@ -401,6 +401,218 @@ void main() {
         expect(c!.isPermanent, isFalse);
       },
     );
+
+    // FR-074 batch state conflicts both mean "reload and reconcile".
+    test('batch_closed (status) -> invalidState', () {
+      expect(classify('status', 'batch_closed'), ProductionConflict.invalidState);
+    });
+
+    test('already_member (production_item_id) -> invalidState', () {
+      expect(
+        classify('production_item_id', 'already_member'),
+        ProductionConflict.invalidState,
+      );
+    });
+  });
+
+  group('ProductionRepository — batch operations (FR-074)', () {
+    const batchSummary =
+        '{"id":"b1","code":"BATCH-1","stage":"SORTING","status":"open",'
+        '"version":1,"outlet_id":"ot1","item_count":0,"closed_at":null,'
+        '"updated_at":"2026-07-24T10:00:00+00:00"}';
+    const batchCommandBody = '{"data":{"batch":$batchSummary},"meta":{}}';
+
+    test('createBatch() posts code/stage/client_reference and parses the summary',
+        () async {
+      final adapter = _Adapter(201, batchCommandBody);
+      final repo = ProductionRepository(clientWith(adapter));
+
+      final result = await repo.createBatch(
+        code: 'BATCH-1',
+        stage: 'SORTING',
+        clientReference: 'ref-b1',
+      );
+      expect(result.isOk, isTrue);
+      expect(result.valueOrNull!.status, ProductionBatchStatus.open);
+      expect(result.valueOrNull!.code, 'BATCH-1');
+      final body = adapter.last!.data as Map<String, Object?>;
+      expect(adapter.last!.path, contains('production/batches'));
+      expect(body['code'], 'BATCH-1');
+      expect(body['stage'], 'SORTING');
+      expect(body['client_reference'], 'ref-b1');
+    });
+
+    test('addBatchItem() posts production_item_id and expected_version in the BODY',
+        () async {
+      final adapter = _Adapter(201, batchCommandBody);
+      final repo = ProductionRepository(clientWith(adapter));
+
+      await repo.addBatchItem(
+        'b1',
+        productionItemId: 'i1',
+        clientReference: 'ref-b2',
+        expectedVersion: 1,
+      );
+      final body = adapter.last!.data as Map<String, Object?>;
+      expect(adapter.last!.path, contains('production/batches/b1/items'));
+      expect(body['production_item_id'], 'i1');
+      expect(body['expected_version'], 1);
+    });
+
+    test('removeBatchItem() DELETEs with the client_reference in the body',
+        () async {
+      final adapter = _Adapter(200, batchCommandBody);
+      final repo = ProductionRepository(clientWith(adapter));
+
+      final result = await repo.removeBatchItem(
+        'b1',
+        'i1',
+        clientReference: 'ref-b3',
+      );
+      expect(result.isOk, isTrue);
+      expect(adapter.last!.method, 'DELETE');
+      expect(adapter.last!.path, contains('production/batches/b1/items/i1'));
+      expect((adapter.last!.data as Map)['client_reference'], 'ref-b3');
+    });
+
+    test('closeBatch() parses the closed status', () async {
+      final adapter = _Adapter(
+        200,
+        '{"data":{"batch":{"id":"b1","code":"BATCH-1","stage":"SORTING",'
+        '"status":"closed","version":2,"outlet_id":"ot1","item_count":0,'
+        '"closed_at":"2026-07-24T11:00:00+00:00","updated_at":null}},"meta":{}}',
+      );
+      final repo = ProductionRepository(clientWith(adapter));
+
+      final result = await repo.closeBatch('b1', clientReference: 'ref-b4');
+      expect(result.isOk, isTrue);
+      expect(result.valueOrNull!.status, ProductionBatchStatus.closed);
+      expect(adapter.last!.path, contains('production/batches/b1/close'));
+    });
+
+    test('batches() sends the status filter and bounds per_page', () async {
+      final adapter = _Adapter(
+        200,
+        '{"data":{"batches":[$batchSummary]},'
+        '"meta":{"page":1,"per_page":100,"total":1}}',
+      );
+      final repo = ProductionRepository(clientWith(adapter));
+
+      final result = await repo.batches(
+        status: ProductionBatchStatus.open,
+        perPage: 9999,
+      );
+      expect(result.isOk, isTrue);
+      expect(result.valueOrNull!.single.id, 'b1');
+      expect(adapter.last!.queryParameters['status'], 'open');
+      expect(adapter.last!.queryParameters['per_page'], 100);
+    });
+
+    test('batch() parses members and the sibling timeline', () async {
+      final adapter = _Adapter(
+        200,
+        '{"data":{"batch":{"id":"b1","code":"BATCH-1","stage":"SORTING",'
+        '"status":"open","version":1,"outlet_id":"ot1","item_count":1,'
+        '"closed_at":null,"updated_at":null,"items":['
+        '{"production_item_id":"i1","service_type":"kiloan","stage":"SORTING",'
+        '"added_at":"2026-07-24T10:00:00+00:00"}]},'
+        '"timeline":[{"type":"BatchItemAdded","actor_membership_id":"m1",'
+        '"production_item_id":"i1","occurred_at":"2026-07-24T10:00:00+00:00"}]},'
+        '"meta":{}}',
+      );
+      final repo = ProductionRepository(clientWith(adapter));
+
+      final result = await repo.batch('b1');
+      expect(result.isOk, isTrue);
+      final detail = result.valueOrNull!;
+      expect(detail.items.single.productionItemId, 'i1');
+      expect(detail.items.single.serviceType, ProductionServiceType.kiloan);
+      expect(detail.timeline.single.type, 'BatchItemAdded');
+      expect(detail.timeline.single.productionItemId, 'i1');
+    });
+
+    test('an unknown batch status fails SAFE — an Err, not a thrown error',
+        () async {
+      final adapter = _Adapter(
+        200,
+        '{"data":{"batches":[{"id":"b1","code":"B","stage":"SORTING",'
+        '"status":"VAPORISED","version":1,"outlet_id":"ot1","item_count":0,'
+        '"closed_at":null,"updated_at":null}]},"meta":{}}',
+      );
+      final repo = ProductionRepository(clientWith(adapter));
+
+      final result = await repo.batches();
+      expect(result.isErr, isTrue);
+      expect(result.failureOrNull!.kind, FailureKind.unexpected);
+    });
+  });
+
+  group('ProductionRepository — QC defect-photo evidence (FR-083)', () {
+    test('uploadQcEvidence() posts multipart to the inspection path', () async {
+      final adapter = _Adapter(
+        201,
+        '{"data":{"evidence":{"id":"ev1","inspection_id":"insp-1",'
+        '"content_type":"image/png","byte_size":9,"checksum_sha256":"abc",'
+        '"status":"stored","uploaded_at":null}},"meta":{}}',
+      );
+      final repo = ProductionRepository(clientWith(adapter));
+
+      final result = await repo.uploadQcEvidence(
+        'job-1',
+        'insp-1',
+        bytes: const <int>[1, 2, 3, 4, 5, 6, 7, 8, 9],
+        filename: 'defect.png',
+        clientReference: 'ref-e1',
+      );
+      expect(result.isOk, isTrue);
+      final evidence = result.valueOrNull!;
+      expect(evidence.id, 'ev1');
+      expect(evidence.contentType, 'image/png');
+      expect(evidence.checksumSha256, 'abc');
+      expect(
+        adapter.last!.path,
+        contains('jobs/job-1/quality-control/insp-1/evidence'),
+      );
+      // A multipart body carries the file, not a JSON map.
+      expect(adapter.last!.data, isA<FormData>());
+    });
+
+    test('qcEvidenceUrl() returns the short-lived signed URL', () async {
+      final adapter = _Adapter(
+        200,
+        '{"data":{"url":"https://minio.local/aish-evidence-dev/x?X-Amz-Signature=y",'
+        '"expires_in":300},"meta":{}}',
+      );
+      final repo = ProductionRepository(clientWith(adapter));
+
+      final result = await repo.qcEvidenceUrl('job-1', 'insp-1', 'ev1');
+      expect(result.isOk, isTrue);
+      expect(result.valueOrNull!.expiresInSeconds, 300);
+      expect(result.valueOrNull!.url, contains('X-Amz-Signature'));
+      expect(
+        adapter.last!.path,
+        contains('quality-control/insp-1/evidence/ev1/url'),
+      );
+    });
+
+    test('an upload authorization failure becomes an Err, not an exception',
+        () async {
+      final adapter = _Adapter(
+        403,
+        '{"error":{"code":"FORBIDDEN","message":"tidak boleh"},"meta":{}}',
+      );
+      final repo = ProductionRepository(clientWith(adapter));
+
+      final result = await repo.uploadQcEvidence(
+        'job-1',
+        'insp-1',
+        bytes: const <int>[1, 2, 3],
+        filename: 'x.png',
+        clientReference: 'r',
+      );
+      expect(result.isErr, isTrue);
+      expect(result.failureOrNull!.kind, FailureKind.authorization);
+    });
   });
 }
 

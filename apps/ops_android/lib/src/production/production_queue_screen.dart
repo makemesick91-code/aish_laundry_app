@@ -120,6 +120,11 @@ class _ProductionQueueScreenState extends ConsumerState<ProductionQueueScreen> {
       onBack: () => context.go(OpsRoutes.home),
       actions: <Widget>[
         IconButton(
+          tooltip: 'Batch produksi',
+          icon: const Icon(Icons.dynamic_feed_outlined),
+          onPressed: () => context.go(OpsRoutes.productionBatches),
+        ),
+        IconButton(
           tooltip: 'Sinkronkan sekarang',
           icon: _syncing
               ? const SizedBox(
