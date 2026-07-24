@@ -183,14 +183,20 @@ CLOSURE_END = "<!-- STEP_03_CLOSURE_END -->"
 CLOSURE_LINE = re.compile(r"^([A-Z0-9_]+)=(.+)$")
 
 
-def parse_closure_block(text: str) -> tuple[dict[str, str], list[str]]:
-    """Parse the STEP_03_CLOSURE_* block. FAILS CLOSED on any structural fault."""
-    begins, ends = text.count(CLOSURE_BEGIN), text.count(CLOSURE_END)
+def parse_closure_block(
+    text: str, begin: str = CLOSURE_BEGIN, end: str = CLOSURE_END
+) -> tuple[dict[str, str], list[str]]:
+    """Parse a STEP_NN_CLOSURE_* block. FAILS CLOSED on any structural fault.
+
+    The markers default to the Step 3 block so existing callers are unchanged; a
+    later step's closure passes its own begin/end markers.
+    """
+    begins, ends = text.count(begin), text.count(end)
     if begins == 0 or ends == 0:
-        return {}, [f"closure block missing ({CLOSURE_BEGIN} x{begins}, {CLOSURE_END} x{ends})"]
+        return {}, [f"closure block missing ({begin} x{begins}, {end} x{ends})"]
     if begins != 1 or ends != 1:
         return {}, [f"exactly one closure block required (found {begins} begin, {ends} end)"]
-    body = text.split(CLOSURE_BEGIN, 1)[1].split(CLOSURE_END, 1)[0]
+    body = text.split(begin, 1)[1].split(end, 1)[0]
     kv: dict[str, str] = {}
     errors: list[str] = []
     for raw in body.splitlines():
@@ -274,6 +280,149 @@ def check_step3_closure(root, rep) -> None:
               "real local tag object matches the recorded tag object")
     rep.check(peeled_real.stdout.strip() == STEP3_RUNTIME_MERGE_SHA,
               "real local tag peels to the recorded runtime merge SHA")
+
+
+# ---------------------------------------------------------------------------
+# Step 6 GO-tag closure facts (committed constants).
+#
+# Step 6 (Production Operations) reached GO. Unlike Step 3, the immutable GO tag
+# does NOT exist yet while the governance-closure pull request is open: the tag is
+# the owner's to create after this closure merges. So the block records the RUNTIME
+# merge SHA (the PR #24 / #25 merge) and the INTENDED tag and peel target, and the
+# live tag check is TOLERANT of the tag being absent — but once a real tag exists it
+# must be ANNOTATED and peel to the runtime merge SHA, never to the later closure
+# merge. The two are distinct commits, which is the whole point of the block.
+# ---------------------------------------------------------------------------
+STEP6_GO_TAG = "aish-laundry-step-06-production-operations-v1.0.0-go"
+STEP6_RUNTIME_MERGE_SHA = "82f162f25a39cc9501c6ee35a9728f0e01999725"
+STEP6_CLOSURE_BEGIN = "<!-- STEP_06_CLOSURE_BEGIN -->"
+STEP6_CLOSURE_END = "<!-- STEP_06_CLOSURE_END -->"
+
+# Historical GO tags and their immutable peel targets. When any is present in the
+# local checkout it must still peel to exactly this commit — a moved historical tag
+# is a governance incident this catches. Absence (a fresh clone) is tolerated.
+HISTORICAL_GO_TAGS = {
+    "aish-laundry-step-03-runtime-auth-multitenancy-rbac-v1.4.0-go":
+        "0e2554338812b05eba8411afeb099212b05f9761",
+    "aish-laundry-step-04-laundry-master-data-v1.0.0-go":
+        "af31ea3b0945b274b249ff21cf30918cb2d17a5f",
+    "aish-laundry-step-05-pos-order-payment-foundation-v1.0.0-go":
+        "f0524b3a07f5306ec8b5c0584f94f865ec9f9346",
+}
+
+STEP6_FR_MATRIX = "docs/quality/STEP_06_REQUIREMENT_MATRIX.md"
+STEP6_DECISIONS = {
+    "DEC-0037": "docs/decisions/DEC-0037-step-06-runtime-scope-transition.md",
+    "DEC-0038": "docs/decisions/DEC-0038-step-06-private-object-storage-introduction.md",
+}
+
+
+def check_step6_closure(root, rep) -> None:
+    """The Step 6 GO closure facts must match the committed constants; the intended
+    tag must peel to the runtime merge SHA (not the later closure merge); FR-071 …
+    FR-085 must all be TESTED; DEC-0037/0038 must remain ACCEPTED and indexed; and
+    any present GO tag — Step 6 or a historical one — must be unchanged."""
+    rep.info("--- Step 6 GO-tag closure (status advancement) ---")
+    text = read_text(root / STATUS)
+    kv, errors = parse_closure_block(text, STEP6_CLOSURE_BEGIN, STEP6_CLOSURE_END)
+    for e in errors:
+        rep.fail(f"step 6 closure block: {e}")
+    if errors:
+        return
+
+    expected = {
+        "STEP_06_CLOSURE_CLASSIFICATION": "GO",
+        "STEP_06_RUNTIME_MERGE_SHA": STEP6_RUNTIME_MERGE_SHA,
+        "STEP_06_GO_TAG": STEP6_GO_TAG,
+        "STEP_06_GO_TAG_PEELED_EXPECTED": STEP6_RUNTIME_MERGE_SHA,
+        "DEPLOYMENT": "ABSENT",
+    }
+    for key, want in expected.items():
+        got = kv.get(key)
+        rep.check(got == want, f"step 6 closure {key} == {want!r} (found {got!r})")
+
+    # The intended tag peels to the RUNTIME merge, and the governance-closure merge
+    # that records this advance is a DIFFERENT, later commit the tag must never point
+    # to. Encoded as an equality against the runtime merge SHA constant.
+    rep.check(kv.get("STEP_06_GO_TAG_PEELED_EXPECTED") == STEP6_RUNTIME_MERGE_SHA,
+              "Step 6 GO tag is intended to peel to the runtime merge SHA")
+
+    # The machine-readable canonical state must actually declare Step 6 GO, and the
+    # step after it must not be started — proven here against the closure block.
+    state, state_errors = parse_canonical_state(text)
+    if not state_errors:
+        rep.check(state.get(6) == "GO",
+                  f"STEP_06_STATUS is GO in the canonical state block (found {state.get(6)!r})")
+        rep.check(state.get(7) == "PLANNED",
+                  f"Step 7 remains PLANNED (found {state.get(7)!r})")
+
+    # FR-071 … FR-085 are all TESTED in the requirement matrix.
+    matrix = root / STEP6_FR_MATRIX
+    if rep.check(matrix.is_file(), f"{STEP6_FR_MATRIX} exists"):
+        mtext = read_text(matrix)
+        problems: list[str] = []
+        for i in range(71, 86):
+            fr = f"FR-{i:03d}"
+            row = re.search(rf"^\|\s*{re.escape(fr)}\b.*$", mtext, re.MULTILINE)
+            if row is None:
+                problems.append(f"{fr} (absent)")
+            elif "TESTED" not in row.group(0).upper():
+                problems.append(f"{fr} (not TESTED)")
+        rep.check(not problems,
+                  f"FR-071 … FR-085 are all TESTED in the requirement matrix "
+                  f"(problems: {problems})")
+
+    # DEC-0037 and DEC-0038 remain ACCEPTED and indexed in Master Source §31.
+    ms_text = read_text(root / "docs" / "MASTER_SOURCE.md")
+    for dec, decfile in STEP6_DECISIONS.items():
+        rep.check(dec in ms_text, f"{dec} remains indexed in MASTER_SOURCE.md")
+        p = root / decfile
+        accepted = (
+            p.is_file()
+            and re.search(
+                r"^(?:[-*+]\s+)?\*\*Status:\*\*\s*ACCEPTED",
+                read_text(p), re.MULTILINE,
+            ) is not None
+        )
+        rep.check(accepted, f"{dec} decision record exists and is ACCEPTED")
+
+    # Live tag checks — only when a real .git tree is present. Tolerant of the Step 6
+    # tag being absent while this closure PR is open; strict once it exists.
+    if not (root / ".git").exists():
+        return
+    import subprocess
+
+    def peel(tag: str) -> str | None:
+        r = subprocess.run(
+            ["git", "-C", str(root), "rev-parse", f"{tag}^{{commit}}"],
+            capture_output=True, text=True,
+        )
+        return r.stdout.strip() if r.returncode == 0 else None
+
+    typ = subprocess.run(
+        ["git", "-C", str(root), "cat-file", "-t", STEP6_GO_TAG],
+        capture_output=True, text=True,
+    )
+    if typ.returncode != 0:
+        rep.info(
+            "Step 6 GO tag not present in this checkout; tolerated while the closure "
+            "PR is open (the owner creates it after merge)"
+        )
+    else:
+        rep.check(typ.stdout.strip() == "tag",
+                  "Step 6 GO tag is annotated (not a lightweight tag)")
+        peeled = peel(STEP6_GO_TAG)
+        if peeled is not None:
+            rep.check(peeled == STEP6_RUNTIME_MERGE_SHA,
+                      "Step 6 GO tag peels to the recorded runtime merge SHA")
+
+    for tag, sha in HISTORICAL_GO_TAGS.items():
+        peeled = peel(tag)
+        if peeled is None:
+            rep.info(f"historical GO tag {tag} not present; skipping unchanged check")
+        else:
+            rep.check(peeled == sha,
+                      f"historical GO tag {tag} still peels unchanged to {sha[:12]}")
 
 
 def check_runtime_matches_reality(root, rep) -> None:
@@ -717,6 +866,7 @@ def main() -> int:
     check_infrastructure_consistency(root, rep)
     check_cross_document_consistency(root, rep)
     check_step3_closure(root, rep)
+    check_step6_closure(root, rep)
 
     return rep.finish()
 

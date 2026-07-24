@@ -282,6 +282,91 @@ BACKED_UP=()
 echo
 
 # ---------------------------------------------------------------------------
+# STEP 6 GO-CLOSURE facts — validate-status.py check_step6_closure (Rule 33/47).
+# The closure block records the runtime merge SHA and the intended GO-tag peel
+# target, and FR-071..085 must all be TESTED. Each is a gate, so each must be shown
+# to REJECT deliberately broken input, not merely to ACCEPT the honest tree. Every
+# mutation is applied at runtime, its application verified, then restored.
+# ---------------------------------------------------------------------------
+echo "STEP 6 GO-closure — status/closure validator (both directions)"
+STATUSVAL="scripts/validate-status.py"
+STATUSDOC="docs/STATUS.md"
+MATRIX="docs/quality/STEP_06_REQUIREMENT_MATRIX.md"
+
+expect_accept "validate-status accepts the honest Step 6 closure block" "$STATUSVAL"
+
+# Break A — corrupt the recorded runtime merge SHA in the closure block.
+backup_file "$STATUSDOC"
+python3 - "$STATUSDOC" <<'PY' || abort_setup "could not mutate the runtime merge SHA"
+import sys
+p = sys.argv[1]; s = open(p, encoding="utf-8").read()
+new = s.replace(
+    "STEP_06_RUNTIME_MERGE_SHA=82f162f25a39cc9501c6ee35a9728f0e01999725",
+    "STEP_06_RUNTIME_MERGE_SHA=deadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+)
+if new == s: sys.exit(1)
+open(p, "w", encoding="utf-8").write(new)
+PY
+grep -q "STEP_06_RUNTIME_MERGE_SHA=82f162f" "$STATUSDOC" && abort_setup "runtime merge SHA not mutated"
+expect_reject "validate-status rejects a corrupted Step 6 runtime merge SHA" "$STATUSVAL"
+cleanup
+BACKED_UP=()
+
+# Break B — point the intended GO-tag peel at a DIFFERENT commit (peel != runtime).
+backup_file "$STATUSDOC"
+python3 - "$STATUSDOC" <<'PY' || abort_setup "could not mutate the peel target"
+import sys
+p = sys.argv[1]; s = open(p, encoding="utf-8").read()
+new = s.replace(
+    "STEP_06_GO_TAG_PEELED_EXPECTED=82f162f25a39cc9501c6ee35a9728f0e01999725",
+    "STEP_06_GO_TAG_PEELED_EXPECTED=0e2554338812b05eba8411afeb099212b05f9761",
+)
+if new == s: sys.exit(1)
+open(p, "w", encoding="utf-8").write(new)
+PY
+grep -q "STEP_06_GO_TAG_PEELED_EXPECTED=82f162f" "$STATUSDOC" && abort_setup "peel target not mutated"
+expect_reject "validate-status rejects a Step 6 tag peel that is not the runtime merge" "$STATUSVAL"
+cleanup
+BACKED_UP=()
+
+# Break C — understate the closure classification.
+backup_file "$STATUSDOC"
+python3 - "$STATUSDOC" <<'PY' || abort_setup "could not mutate the classification"
+import sys
+p = sys.argv[1]; s = open(p, encoding="utf-8").read()
+new = s.replace(
+    "STEP_06_CLOSURE_CLASSIFICATION=GO",
+    "STEP_06_CLOSURE_CLASSIFICATION=IN_PROGRESS",
+)
+if new == s: sys.exit(1)
+open(p, "w", encoding="utf-8").write(new)
+PY
+grep -q "STEP_06_CLOSURE_CLASSIFICATION=GO$" "$STATUSDOC" && abort_setup "classification not mutated"
+expect_reject "validate-status rejects a downgraded Step 6 closure classification" "$STATUSVAL"
+cleanup
+BACKED_UP=()
+
+# Break D — flip an FR-071..085 disposition away from TESTED.
+[ -f "$MATRIX" ] || abort_setup "$MATRIX not found"
+backup_file "$MATRIX"
+python3 - "$MATRIX" <<'PY' || abort_setup "could not mutate an FR disposition"
+import re, sys
+p = sys.argv[1]; lines = open(p, encoding="utf-8").read().splitlines(keepends=True)
+done = False; out = []
+for ln in lines:
+    if not done and re.match(r"^\|\s*FR-071\b", ln) and "TESTED" in ln:
+        ln = ln.replace("TESTED", "PENDING"); done = True
+    out.append(ln)
+if not done: sys.exit(1)
+open(p, "w", encoding="utf-8").write("".join(out))
+PY
+grep -qE "^\|\s*FR-071\b.*PENDING" "$MATRIX" || abort_setup "FR-071 disposition not mutated"
+expect_reject "validate-status rejects an FR-071..085 row that is not TESTED" "$STATUSVAL"
+cleanup
+BACKED_UP=()
+echo
+
+# ---------------------------------------------------------------------------
 # Tree integrity + summary.
 # ---------------------------------------------------------------------------
 AFTER="$(tree_fingerprint)"

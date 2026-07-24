@@ -18,8 +18,9 @@ Canonical status: [`../../docs/STATUS.md`](../../docs/STATUS.md). Master Source 
 | Step 3 — Runtime, Authentication, Multi-Tenancy, and RBAC | **GO WITH ACCEPTED DEVIATION** |
 | Step 4 — Laundry Master Data | **GO** |
 | Step 5 — POS, Order, and Payment Foundation | **GO** |
-| Steps 6–14 | **PLANNED** |
-| Step 6+ product business features | **NOT IMPLEMENTED** |
+| Step 6 — Production Operations | **GO** |
+| Steps 7–14 | **PLANNED** |
+| Step 7+ product business features | **NOT IMPLEMENTED** |
 | Deployment | **ABSENT** |
 | UAT | **NOT STARTED** |
 

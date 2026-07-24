@@ -18,7 +18,7 @@ Canonical source: [`MASTER_SOURCE.md`](MASTER_SOURCE.md)
 | Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | GO WITH ACCEPTED DEVIATION |
 | Step 4 | Laundry Master Data | GO |
 | Step 5 | POS, Order, and Payment Foundation | GO |
-| Step 6 | Production Operations | IN PROGRESS |
+| Step 6 | Production Operations | GO |
 | Step 7 | Customer Tracking and WhatsApp | PLANNED |
 | Step 8 | Pickup and Delivery Operations | PLANNED |
 | Step 9 | Unclaimed Laundry and Cashflow Recovery | PLANNED |
@@ -204,7 +204,7 @@ is a false claim rather than a conservative one (Rule 01, DEC-0029).
 
 | Item | Status |
 | --- | --- |
-| Step 6+ product business features | NOT IMPLEMENTED |
+| Step 7+ product business features | NOT IMPLEMENTED |
 | Backend runtime | PRESENT — STEP 3 FOUNDATION ONLY |
 | PostgreSQL runtime foundation | PRESENT |
 | Redis runtime foundation | PRESENT |
@@ -355,7 +355,7 @@ STEP_02_STATUS=GO
 STEP_03_STATUS=GO
 STEP_04_STATUS=GO
 STEP_05_STATUS=GO
-STEP_06_STATUS=IN_PROGRESS
+STEP_06_STATUS=GO
 STEP_07_STATUS=PLANNED
 STEP_08_STATUS=PLANNED
 STEP_09_STATUS=PLANNED
@@ -385,6 +385,28 @@ STEP_03_GO_TAG_PEELED=0e2554338812b05eba8411afeb099212b05f9761
 STEP_04_STATUS_NOTE=GO_MERGE_af31ea3_TAG_step-04-v1.0.0-go
 DEPLOYMENT=ABSENT
 <!-- STEP_03_CLOSURE_END -->
+
+<!--
+Step 6 closure facts, machine-readable. `scripts/validate-status.py` checks these
+against its own committed constants and for internal consistency: the intended GO
+tag must peel to the RUNTIME merge SHA (the PR #24 / #25 merge on `main`), never to
+the later governance-closure merge that records this status advance — the two are
+distinct commits. While this closure pull request is open the immutable GO tag does
+not yet exist; its absence is tolerated. Once a local tag is present the validator
+additionally verifies it is ANNOTATED and peels to the recorded runtime merge SHA,
+and fails if it is lightweight or mis-pointed. FAILS CLOSED. Editing these lines
+never creates or moves the real immutable tag — the tag is the owner's to create
+after this closure merges (Rule 01, Rule 11).
+-->
+<!-- STEP_06_CLOSURE_BEGIN -->
+STEP_06_CLOSURE_CLASSIFICATION=GO
+STEP_06_RUNTIME_MERGE_SHA=82f162f25a39cc9501c6ee35a9728f0e01999725
+STEP_06_IMPLEMENTATION_PRS=#24,#25
+STEP_06_GO_TAG=aish-laundry-step-06-production-operations-v1.0.0-go
+STEP_06_GO_TAG_PEELED_EXPECTED=82f162f25a39cc9501c6ee35a9728f0e01999725
+STEP_06_GO_TAG_STATE=NOT_YET_CREATED_OWNER_TO_CREATE_AFTER_CLOSURE_MERGE
+DEPLOYMENT=ABSENT
+<!-- STEP_06_CLOSURE_END -->
 
 ---
 
