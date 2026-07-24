@@ -1,0 +1,16 @@
+=== Step 6 Unit E (production API + RBAC) evidence ===
+--- ProductionApiTest (HTTP, PostgreSQL) ---
+  ✓ unauthenticated request is rejected                                  0.79s  
+  ✓ cashier cannot operate production                                    0.18s  
+  ✓ production operator can advance a stage                              0.16s  
+  ✓ quality control role cannot operate                                  0.15s  
+  ✓ foreign tenant job is not found                                      0.16s  
+  ✓ advance is idempotent over http                                      0.16s  
+  ✓ missing client reference is a validation error                       0.16s  
+  ✓ queue lists jobs for the operator                                    0.16s  
+  Tests:    8 passed (22 assertions)
+
+--- full Production suite ---
+  Tests:    48 passed (89 assertions)
+--- Step 5 + Security regression ---
+  Tests:    210 passed (2215 assertions)
