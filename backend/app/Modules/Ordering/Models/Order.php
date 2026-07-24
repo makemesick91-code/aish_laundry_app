@@ -54,6 +54,9 @@ class Order extends Model
 
     public const STATUS_RECEIVED = 'RECEIVED';
 
+    /** Set by production (Step 6) when the order first becomes ready (FR-076). */
+    public const STATUS_READY_FOR_PICKUP = 'READY_FOR_PICKUP';
+
     public const STATUS_CANCELLED = 'CANCELLED';
 
     /** The fifteen canonical order statuses (Rule 19); mirrors the DB CHECK. */
