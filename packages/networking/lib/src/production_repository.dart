@@ -148,14 +148,11 @@ final class ProductionRepository {
     required String stage,
     required String clientReference,
     int? expectedVersion,
-  }) => _command(
-    ApiEndpoints.productionJobAdvance(id),
-    <String, Object?>{
-      'stage': stage,
-      'client_reference': clientReference,
-      'expected_version': ?expectedVersion,
-    },
-  );
+  }) => _command(ApiEndpoints.productionJobAdvance(id), <String, Object?>{
+    'stage': stage,
+    'client_reference': clientReference,
+    'expected_version': ?expectedVersion,
+  });
 
   /// Place a job on hold with a mandatory reason code: IN_PROGRESS → BLOCKED.
   Future<Result<ProductionJobSummary>> block(
@@ -164,41 +161,32 @@ final class ProductionRepository {
     required String clientReference,
     String? reason,
     int? expectedVersion,
-  }) => _command(
-    ApiEndpoints.productionJobBlock(id),
-    <String, Object?>{
-      'reason_code': reasonCode,
-      if (reason != null && reason.isNotEmpty) 'reason': reason,
-      'client_reference': clientReference,
-      'expected_version': ?expectedVersion,
-    },
-  );
+  }) => _command(ApiEndpoints.productionJobBlock(id), <String, Object?>{
+    'reason_code': reasonCode,
+    if (reason != null && reason.isNotEmpty) 'reason': reason,
+    'client_reference': clientReference,
+    'expected_version': ?expectedVersion,
+  });
 
   /// Resume a held job: BLOCKED → IN_PROGRESS.
   Future<Result<ProductionJobSummary>> resume(
     String id, {
     required String clientReference,
     int? expectedVersion,
-  }) => _command(
-    ApiEndpoints.productionJobResume(id),
-    <String, Object?>{
-      'client_reference': clientReference,
-      'expected_version': ?expectedVersion,
-    },
-  );
+  }) => _command(ApiEndpoints.productionJobResume(id), <String, Object?>{
+    'client_reference': clientReference,
+    'expected_version': ?expectedVersion,
+  });
 
   /// Send a job to quality control: IN_PROGRESS → AWAITING_QC.
   Future<Result<ProductionJobSummary>> sendToQualityControl(
     String id, {
     required String clientReference,
     int? expectedVersion,
-  }) => _command(
-    ApiEndpoints.productionJobQcSend(id),
-    <String, Object?>{
-      'client_reference': clientReference,
-      'expected_version': ?expectedVersion,
-    },
-  );
+  }) => _command(ApiEndpoints.productionJobQcSend(id), <String, Object?>{
+    'client_reference': clientReference,
+    'expected_version': ?expectedVersion,
+  });
 
   /// Record a QC verdict against an AWAITING_QC job. A FAILED verdict requires
   /// [defectReasonCode] (the server rejects it otherwise); PASSED/WAIVED close
@@ -226,7 +214,8 @@ final class ProductionRepository {
     );
     return _decode(
       result,
-      (ApiSuccess success) => QcInspectionResult.fromResponse(success.dataAsMap),
+      (ApiSuccess success) =>
+          QcInspectionResult.fromResponse(success.dataAsMap),
     );
   }
 
@@ -237,14 +226,12 @@ final class ProductionRepository {
     required String reasonCode,
     required String clientReference,
     int? expectedVersion,
-  }) => _command(
-    ApiEndpoints.productionJobReworkComplete(id),
-    <String, Object?>{
-      'reason_code': reasonCode,
-      'client_reference': clientReference,
-      'expected_version': ?expectedVersion,
-    },
-  );
+  }) =>
+      _command(ApiEndpoints.productionJobReworkComplete(id), <String, Object?>{
+        'reason_code': reasonCode,
+        'client_reference': clientReference,
+        'expected_version': ?expectedVersion,
+      });
 
   /// Mark a CLOSED job READY_FOR_PICKUP, writing the immutable first-ready
   /// anchor (FR-076). Returns the order's authoritative new status. Idempotent
@@ -303,9 +290,8 @@ final class ProductionRepository {
     }
   });
 
-  static int _boundedPerPage(int requested) => requested < 1
-      ? 1
-      : (requested > maxPerPage ? maxPerPage : requested);
+  static int _boundedPerPage(int requested) =>
+      requested < 1 ? 1 : (requested > maxPerPage ? maxPerPage : requested);
 
   static Map<String, Object?> _object(ApiSuccess success, String key) {
     final raw = success.dataAsMap[key];

@@ -87,8 +87,9 @@ class _Adapter implements HttpClientAdapter {
   );
 }
 
-FakeAuthService ownerAuth() =>
-    FakeAuthService(initial: AuthState.authenticated(ApiFixtures.fullContext()));
+FakeAuthService ownerAuth() => FakeAuthService(
+  initial: AuthState.authenticated(ApiFixtures.fullContext()),
+);
 
 /// A cashier holds NO production permission (matching the real RBAC): the
 /// production surface must render no operator action for them.
@@ -176,7 +177,14 @@ const String _forbidden =
 void main() {
   group('production queue', () {
     testWidgets('lists a job with its state chip', (tester) async {
-      final s = scripted([on('GET', 200, queueBody('IN_PROGRESS'), pathContains: 'production/queue')]);
+      final s = scripted([
+        on(
+          'GET',
+          200,
+          queueBody('IN_PROGRESS'),
+          pathContains: 'production/queue',
+        ),
+      ]);
       await pump(tester, const ProductionQueueScreen(), s.client, ownerAuth());
 
       expect(find.text('Pesanan o1'), findsOneWidget);
@@ -185,101 +193,176 @@ void main() {
     });
 
     testWidgets('shows the empty state when there is no work', (tester) async {
-      final s = scripted([on('GET', 200, _queueEmpty, pathContains: 'production/queue')]);
+      final s = scripted([
+        on('GET', 200, _queueEmpty, pathContains: 'production/queue'),
+      ]);
       await pump(tester, const ProductionQueueScreen(), s.client, ownerAuth());
       expect(find.text('Belum ada pekerjaan produksi'), findsOneWidget);
     });
   });
 
-  group('job detail — state-valid, permission-gated actions (no dead buttons)', () {
-    testWidgets('an IN_PROGRESS job offers advance, send-to-QC and block', (tester) async {
-      final s = scripted([on('GET', 200, detailBody('IN_PROGRESS'), pathContains: 'production/jobs')]);
-      await pump(tester, const ProductionJobDetailScreen(jobId: 'j1'), s.client, ownerAuth());
+  group(
+    'job detail — state-valid, permission-gated actions (no dead buttons)',
+    () {
+      testWidgets('an IN_PROGRESS job offers advance, send-to-QC and block', (
+        tester,
+      ) async {
+        final s = scripted([
+          on(
+            'GET',
+            200,
+            detailBody('IN_PROGRESS'),
+            pathContains: 'production/jobs',
+          ),
+        ]);
+        await pump(
+          tester,
+          const ProductionJobDetailScreen(jobId: 'j1'),
+          s.client,
+          ownerAuth(),
+        );
 
-      expect(find.text('Lanjutkan tahap'), findsOneWidget);
-      expect(find.text('Kirim ke kendali mutu'), findsOneWidget);
-      expect(find.text('Tahan pekerjaan'), findsOneWidget);
-      // NOT offered in this state — the transitions the server does not allow
-      // are simply not rendered.
-      expect(find.text('Tandai siap diambil'), findsNothing);
-      expect(find.text('Catat kendali mutu'), findsNothing);
-    });
+        expect(find.text('Lanjutkan tahap'), findsOneWidget);
+        expect(find.text('Kirim ke kendali mutu'), findsOneWidget);
+        expect(find.text('Tahan pekerjaan'), findsOneWidget);
+        // NOT offered in this state — the transitions the server does not allow
+        // are simply not rendered.
+        expect(find.text('Tandai siap diambil'), findsNothing);
+        expect(find.text('Catat kendali mutu'), findsNothing);
+      });
 
-    testWidgets('a CLOSED job offers only mark-ready', (tester) async {
-      final s = scripted([on('GET', 200, detailBody('CLOSED'), pathContains: 'production/jobs')]);
-      await pump(tester, const ProductionJobDetailScreen(jobId: 'j1'), s.client, ownerAuth());
+      testWidgets('a CLOSED job offers only mark-ready', (tester) async {
+        final s = scripted([
+          on('GET', 200, detailBody('CLOSED'), pathContains: 'production/jobs'),
+        ]);
+        await pump(
+          tester,
+          const ProductionJobDetailScreen(jobId: 'j1'),
+          s.client,
+          ownerAuth(),
+        );
 
-      expect(find.text('Tandai siap diambil'), findsOneWidget);
-      expect(find.text('Lanjutkan tahap'), findsNothing);
-    });
+        expect(find.text('Tandai siap diambil'), findsOneWidget);
+        expect(find.text('Lanjutkan tahap'), findsNothing);
+      });
 
-    testWidgets('an AWAITING_QC job offers the QC action', (tester) async {
-      final s = scripted([on('GET', 200, detailBody('AWAITING_QC'), pathContains: 'production/jobs')]);
-      await pump(tester, const ProductionJobDetailScreen(jobId: 'j1'), s.client, ownerAuth());
-      expect(find.text('Catat kendali mutu'), findsOneWidget);
-    });
+      testWidgets('an AWAITING_QC job offers the QC action', (tester) async {
+        final s = scripted([
+          on(
+            'GET',
+            200,
+            detailBody('AWAITING_QC'),
+            pathContains: 'production/jobs',
+          ),
+        ]);
+        await pump(
+          tester,
+          const ProductionJobDetailScreen(jobId: 'j1'),
+          s.client,
+          ownerAuth(),
+        );
+        expect(find.text('Catat kendali mutu'), findsOneWidget);
+      });
 
-    testWidgets('a cashier (no production permission) sees no operator action', (tester) async {
-      final s = scripted([on('GET', 200, detailBody('IN_PROGRESS'), pathContains: 'production/jobs')]);
-      await pump(tester, const ProductionJobDetailScreen(jobId: 'j1'), s.client, cashierAuth());
-      expect(find.text('Lanjutkan tahap'), findsNothing);
-      expect(find.text('Kirim ke kendali mutu'), findsNothing);
-      // The read-only detail still renders.
-      expect(find.text('Sedang Dikerjakan'), findsOneWidget);
-    });
-  });
+      testWidgets(
+        'a cashier (no production permission) sees no operator action',
+        (tester) async {
+          final s = scripted([
+            on(
+              'GET',
+              200,
+              detailBody('IN_PROGRESS'),
+              pathContains: 'production/jobs',
+            ),
+          ]);
+          await pump(
+            tester,
+            const ProductionJobDetailScreen(jobId: 'j1'),
+            s.client,
+            cashierAuth(),
+          );
+          expect(find.text('Lanjutkan tahap'), findsNothing);
+          expect(find.text('Kirim ke kendali mutu'), findsNothing);
+          // The read-only detail still renders.
+          expect(find.text('Sedang Dikerjakan'), findsOneWidget);
+        },
+      );
+    },
+  );
 
   group('offline-first honesty', () {
-    testWidgets('an offline action is queued and shown as pending, never as success', (tester) async {
+    testWidgets(
+      'an offline action is queued and shown as pending, never as success',
+      (tester) async {
+        final s = scripted([
+          on(
+            'GET',
+            200,
+            detailBody('BLOCKED'),
+            pathContains: 'production/jobs',
+          ),
+        ]);
+        // Worker is OFFLINE: the command enqueues locally but cannot sync.
+        final store = await pump(
+          tester,
+          const ProductionJobDetailScreen(jobId: 'j1'),
+          s.client,
+          ownerAuth(),
+          online: false,
+        );
+
+        await tester.tap(find.text('Lanjutkan kembali')); // resume
+        await tester.pumpAndSettle();
+
+        // Honest state: an offline command is stored on device, NEVER synced.
+        expect(find.text(SyncState.storedOnDevice.label), findsWidgets);
+        expect(find.text(SyncState.synced.label), findsNothing);
+        // No POST was made while offline; the command persisted on device.
+        expect(s.adapter.requests.where((r) => r.method == 'POST'), isEmpty);
+        final queued = await ProductionCommandQueue(
+          store: store,
+          userId: ApiFixtures.owner.id,
+          tenantId: ApiFixtures.tenantMelati.id,
+        ).all();
+        expect(queued.valueOrNull, hasLength(1));
+      },
+    );
+
+    testWidgets(
+      'mark-ready never renders READY before a server acknowledgement',
+      (tester) async {
+        final s = scripted([
+          on('GET', 200, detailBody('CLOSED'), pathContains: 'production/jobs'),
+        ]);
+        await pump(
+          tester,
+          const ProductionJobDetailScreen(jobId: 'j1'),
+          s.client,
+          ownerAuth(),
+          online: false,
+        );
+
+        await tester.tap(find.text('Tandai siap diambil'));
+        await tester.pumpAndSettle();
+
+        // The command is stored on device; the surface makes no "siap diambil"
+        // success claim before the server acknowledges it.
+        expect(find.text(SyncState.storedOnDevice.label), findsWidgets);
+        expect(s.adapter.requests.where((r) => r.method == 'POST'), isEmpty);
+      },
+    );
+
+    testWidgets('advancing opens a stage picker of the canonical stages', (
+      tester,
+    ) async {
       final s = scripted([
-        on('GET', 200, detailBody('BLOCKED'), pathContains: 'production/jobs'),
+        on(
+          'GET',
+          200,
+          detailBody('IN_PROGRESS'),
+          pathContains: 'production/jobs',
+        ),
       ]);
-      // Worker is OFFLINE: the command enqueues locally but cannot sync.
-      final store = await pump(
-        tester,
-        const ProductionJobDetailScreen(jobId: 'j1'),
-        s.client,
-        ownerAuth(),
-        online: false,
-      );
-
-      await tester.tap(find.text('Lanjutkan kembali')); // resume
-      await tester.pumpAndSettle();
-
-      // Honest state: an offline command is stored on device, NEVER synced.
-      expect(find.text(SyncState.storedOnDevice.label), findsWidgets);
-      expect(find.text(SyncState.synced.label), findsNothing);
-      // No POST was made while offline; the command persisted on device.
-      expect(s.adapter.requests.where((r) => r.method == 'POST'), isEmpty);
-      final queued = await ProductionCommandQueue(
-        store: store,
-        userId: ApiFixtures.owner.id,
-        tenantId: ApiFixtures.tenantMelati.id,
-      ).all();
-      expect(queued.valueOrNull, hasLength(1));
-    });
-
-    testWidgets('mark-ready never renders READY before a server acknowledgement', (tester) async {
-      final s = scripted([on('GET', 200, detailBody('CLOSED'), pathContains: 'production/jobs')]);
-      await pump(
-        tester,
-        const ProductionJobDetailScreen(jobId: 'j1'),
-        s.client,
-        ownerAuth(),
-        online: false,
-      );
-
-      await tester.tap(find.text('Tandai siap diambil'));
-      await tester.pumpAndSettle();
-
-      // The command is stored on device; the surface makes no "siap diambil"
-      // success claim before the server acknowledges it.
-      expect(find.text(SyncState.storedOnDevice.label), findsWidgets);
-      expect(s.adapter.requests.where((r) => r.method == 'POST'), isEmpty);
-    });
-
-    testWidgets('advancing opens a stage picker of the canonical stages', (tester) async {
-      final s = scripted([on('GET', 200, detailBody('IN_PROGRESS'), pathContains: 'production/jobs')]);
       await pump(
         tester,
         const ProductionJobDetailScreen(jobId: 'j1'),
@@ -297,10 +380,70 @@ void main() {
   });
 
   group('conflict and QC validation', () {
-    testWidgets('a version conflict is surfaced with a reload, not a silent retry', (tester) async {
+    testWidgets(
+      'a version conflict is surfaced with a reload, not a silent retry',
+      (tester) async {
+        final s = scripted([
+          on('POST', 409, _conflictVersion, pathContains: 'resume'),
+          on(
+            'GET',
+            200,
+            detailBody('BLOCKED'),
+            pathContains: 'production/jobs',
+          ),
+        ]);
+        await pump(
+          tester,
+          const ProductionJobDetailScreen(jobId: 'j1'),
+          s.client,
+          ownerAuth(),
+        );
+
+        await tester.tap(find.text('Lanjutkan kembali'));
+        await tester.pumpAndSettle();
+
+        // The conflict is shown; the recovery is reload, never an automatic retry.
+        expect(find.textContaining('sudah berubah'), findsWidgets);
+        expect(find.text('Muat ulang'), findsWidgets);
+      },
+    );
+
+    testWidgets(
+      'QC FAILED requires a defect reason before it can be submitted',
+      (tester) async {
+        final s = scripted([
+          on(
+            'GET',
+            200,
+            detailBody('AWAITING_QC'),
+            pathContains: 'production/jobs',
+          ),
+        ]);
+        await pump(
+          tester,
+          const ProductionJobDetailScreen(jobId: 'j1'),
+          s.client,
+          ownerAuth(),
+        );
+
+        await tester.tap(find.text('Catat kendali mutu'));
+        await tester.pumpAndSettle();
+        // Choose FAILED, then try to submit with no reason.
+        await tester.tap(find.text('Gagal — Perlu Pengerjaan Ulang'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Simpan verdict'));
+        await tester.pumpAndSettle();
+        expect(find.textContaining('Kode alasan cacat wajib'), findsOneWidget);
+      },
+    );
+  });
+
+  group('access states', () {
+    testWidgets('a forbidden job renders a denied state (foreign == absent)', (
+      tester,
+    ) async {
       final s = scripted([
-        on('POST', 409, _conflictVersion, pathContains: 'resume'),
-        on('GET', 200, detailBody('BLOCKED'), pathContains: 'production/jobs'),
+        on('GET', 403, _forbidden, pathContains: 'production/jobs'),
       ]);
       await pump(
         tester,
@@ -308,34 +451,6 @@ void main() {
         s.client,
         ownerAuth(),
       );
-
-      await tester.tap(find.text('Lanjutkan kembali'));
-      await tester.pumpAndSettle();
-
-      // The conflict is shown; the recovery is reload, never an automatic retry.
-      expect(find.textContaining('sudah berubah'), findsWidgets);
-      expect(find.text('Muat ulang'), findsWidgets);
-    });
-
-    testWidgets('QC FAILED requires a defect reason before it can be submitted', (tester) async {
-      final s = scripted([on('GET', 200, detailBody('AWAITING_QC'), pathContains: 'production/jobs')]);
-      await pump(tester, const ProductionJobDetailScreen(jobId: 'j1'), s.client, ownerAuth());
-
-      await tester.tap(find.text('Catat kendali mutu'));
-      await tester.pumpAndSettle();
-      // Choose FAILED, then try to submit with no reason.
-      await tester.tap(find.text('Gagal — Perlu Pengerjaan Ulang'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Simpan verdict'));
-      await tester.pumpAndSettle();
-      expect(find.textContaining('Kode alasan cacat wajib'), findsOneWidget);
-    });
-  });
-
-  group('access states', () {
-    testWidgets('a forbidden job renders a denied state (foreign == absent)', (tester) async {
-      final s = scripted([on('GET', 403, _forbidden, pathContains: 'production/jobs')]);
-      await pump(tester, const ProductionJobDetailScreen(jobId: 'j1'), s.client, ownerAuth());
       expect(find.textContaining('tidak memiliki akses'), findsOneWidget);
     });
   });

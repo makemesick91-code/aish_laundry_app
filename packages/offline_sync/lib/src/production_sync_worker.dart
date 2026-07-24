@@ -332,19 +332,19 @@ final class ProductionSyncWorker {
     return drain();
   }
 
-  bool _isSyncable(ProductionCommand command, DateTime now) =>
-      switch (command.status) {
-        // `syncing` is included so a command left mid-flight by an app kill is
-        // re-driven; the idempotent replay makes that safe.
-        ProductionCommandStatus.pending ||
-        ProductionCommandStatus.syncing => true,
-        ProductionCommandStatus.retryWait =>
-          command.nextRetryAtUtc == null ||
-              !command.nextRetryAtUtc!.isAfter(now),
-        ProductionCommandStatus.synced ||
-        ProductionCommandStatus.conflict ||
-        ProductionCommandStatus.failedPermanent => false,
-      };
+  bool _isSyncable(
+    ProductionCommand command,
+    DateTime now,
+  ) => switch (command.status) {
+    // `syncing` is included so a command left mid-flight by an app kill is
+    // re-driven; the idempotent replay makes that safe.
+    ProductionCommandStatus.pending || ProductionCommandStatus.syncing => true,
+    ProductionCommandStatus.retryWait =>
+      command.nextRetryAtUtc == null || !command.nextRetryAtUtc!.isAfter(now),
+    ProductionCommandStatus.synced ||
+    ProductionCommandStatus.conflict ||
+    ProductionCommandStatus.failedPermanent => false,
+  };
 
   Duration _backoff(int attempt) {
     // Pure exponential (base * 2^(attempt-1)), capped. Deterministic — the tests
@@ -503,10 +503,12 @@ final class ProductionSyncWorker {
       FailureKind.timeout ||
       FailureKind.rateLimited ||
       FailureKind.serviceUnavailable ||
-      FailureKind.unexpected => const _Resolution(_ResolutionKind.transient, ''),
+      FailureKind.unexpected => const _Resolution(
+        _ResolutionKind.transient,
+        '',
+      ),
       // A local storage/configuration failure is not the server's doing; retry.
-      FailureKind.storage ||
-      FailureKind.configuration => const _Resolution(
+      FailureKind.storage || FailureKind.configuration => const _Resolution(
         _ResolutionKind.transient,
         '',
       ),

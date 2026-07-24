@@ -326,7 +326,8 @@ void main() {
       expect(
         find.bySemanticsLabel('Produksi'),
         findsOneWidget,
-        reason: 'The Step 6 production surface is built; it is not a placeholder.',
+        reason:
+            'The Step 6 production surface is built; it is not a placeholder.',
       );
       // A genuine Step 8 placeholder still announces that it is unavailable.
       await tester.scrollUntilVisible(find.text('Kurir'), 200);

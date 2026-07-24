@@ -148,54 +148,66 @@ void main() {
   );
 
   group('happy path and acknowledgement', () {
-    test('a queued command syncs and stores the canonical server version', () async {
-      final store = InMemoryCredentialStore();
-      final queue = _queue(store);
-      await queue.enqueue(_advance());
-      final adapter = _ScriptedAdapter(<_Step>[const _Step.ok(200, _summaryOk)]);
-      final clock = _TestClock(_t0);
+    test(
+      'a queued command syncs and stores the canonical server version',
+      () async {
+        final store = InMemoryCredentialStore();
+        final queue = _queue(store);
+        await queue.enqueue(_advance());
+        final adapter = _ScriptedAdapter(<_Step>[
+          const _Step.ok(200, _summaryOk),
+        ]);
+        final clock = _TestClock(_t0);
 
-      final pass = await workerWith(
-        adapter: adapter,
-        queue: queue,
-        clock: clock,
-      ).drain();
+        final pass = await workerWith(
+          adapter: adapter,
+          queue: queue,
+          clock: clock,
+        ).drain();
 
-      expect(pass.synced, 1);
-      final stored = (await queue.byReference('r1')).valueOrNull!;
-      expect(stored.status, ProductionCommandStatus.synced);
-      expect(stored.serverVersion, 4);
-      expect(stored.acknowledgement, isNotNull);
-    });
+        expect(pass.synced, 1);
+        final stored = (await queue.byReference('r1')).valueOrNull!;
+        expect(stored.status, ProductionCommandStatus.synced);
+        expect(stored.serverVersion, 4);
+        expect(stored.acknowledgement, isNotNull);
+      },
+    );
   });
 
   group('connectivity', () {
-    test('offline: nothing is attempted and the command stays pending', () async {
-      final store = InMemoryCredentialStore();
-      final queue = _queue(store);
-      await queue.enqueue(_advance());
-      final adapter = _ScriptedAdapter(<_Step>[const _Step.ok(200, _summaryOk)]);
+    test(
+      'offline: nothing is attempted and the command stays pending',
+      () async {
+        final store = InMemoryCredentialStore();
+        final queue = _queue(store);
+        await queue.enqueue(_advance());
+        final adapter = _ScriptedAdapter(<_Step>[
+          const _Step.ok(200, _summaryOk),
+        ]);
 
-      final pass = await workerWith(
-        adapter: adapter,
-        queue: queue,
-        clock: _TestClock(_t0),
-        conn: _Conn(online: false),
-      ).drain();
+        final pass = await workerWith(
+          adapter: adapter,
+          queue: queue,
+          clock: _TestClock(_t0),
+          conn: _Conn(online: false),
+        ).drain();
 
-      expect(pass.offline, isTrue);
-      expect(adapter.requests, isEmpty);
-      expect(
-        (await queue.byReference('r1')).valueOrNull!.status,
-        ProductionCommandStatus.pending,
-      );
-    });
+        expect(pass.offline, isTrue);
+        expect(adapter.requests, isEmpty);
+        expect(
+          (await queue.byReference('r1')).valueOrNull!.status,
+          ProductionCommandStatus.pending,
+        );
+      },
+    );
 
     test('reconnect: draining once back online syncs the command', () async {
       final store = InMemoryCredentialStore();
       final queue = _queue(store);
       await queue.enqueue(_advance());
-      final adapter = _ScriptedAdapter(<_Step>[const _Step.ok(200, _summaryOk)]);
+      final adapter = _ScriptedAdapter(<_Step>[
+        const _Step.ok(200, _summaryOk),
+      ]);
       final conn = _Conn(online: false);
       final worker = workerWith(
         adapter: adapter,
@@ -234,50 +246,56 @@ void main() {
       expect(stored.nextRetryAtUtc, _t0.add(const Duration(seconds: 2)));
     });
 
-    test('a not-yet-due retryWait command is skipped, then backoff doubles', () async {
-      final store = InMemoryCredentialStore();
-      final queue = _queue(store);
-      await queue.enqueue(_advance());
-      final adapter = _ScriptedAdapter(<_Step>[
-        const _Step.throwing(DioExceptionType.connectionError),
-      ]);
-      final clock = _TestClock(_t0);
-      final worker = workerWith(adapter: adapter, queue: queue, clock: clock);
+    test(
+      'a not-yet-due retryWait command is skipped, then backoff doubles',
+      () async {
+        final store = InMemoryCredentialStore();
+        final queue = _queue(store);
+        await queue.enqueue(_advance());
+        final adapter = _ScriptedAdapter(<_Step>[
+          const _Step.throwing(DioExceptionType.connectionError),
+        ]);
+        final clock = _TestClock(_t0);
+        final worker = workerWith(adapter: adapter, queue: queue, clock: clock);
 
-      await worker.drain(); // attempt 1 -> next at t0+2s
-      // Not yet due: a drain at t0 attempts nothing.
-      final skipped = await worker.drain();
-      expect(skipped.attempted, 0);
+        await worker.drain(); // attempt 1 -> next at t0+2s
+        // Not yet due: a drain at t0 attempts nothing.
+        final skipped = await worker.drain();
+        expect(skipped.attempted, 0);
 
-      // Advance past the window; attempt 2 -> delay doubles to 4s.
-      clock.set(_t0.add(const Duration(seconds: 2)));
-      await worker.drain();
-      final stored = (await queue.byReference('r1')).valueOrNull!;
-      expect(stored.attemptCount, 2);
-      expect(
-        stored.nextRetryAtUtc,
-        _t0.add(const Duration(seconds: 2)).add(const Duration(seconds: 4)),
-      );
-    });
-
-    test('bounded retries: exhausting maxAttempts becomes a permanent failure', () async {
-      final store = InMemoryCredentialStore();
-      final queue = _queue(store);
-      await queue.enqueue(_advance());
-      final adapter = _ScriptedAdapter(<_Step>[
-        const _Step.throwing(DioExceptionType.connectionError),
-      ]);
-      final clock = _TestClock(_t0);
-      final worker = workerWith(adapter: adapter, queue: queue, clock: clock);
-
-      // maxAttempts = 4. Drain repeatedly, advancing past each backoff window.
-      for (var i = 0; i < 4; i++) {
+        // Advance past the window; attempt 2 -> delay doubles to 4s.
+        clock.set(_t0.add(const Duration(seconds: 2)));
         await worker.drain();
-        clock.advance(const Duration(minutes: 10));
-      }
-      final stored = (await queue.byReference('r1')).valueOrNull!;
-      expect(stored.status, ProductionCommandStatus.failedPermanent);
-    });
+        final stored = (await queue.byReference('r1')).valueOrNull!;
+        expect(stored.attemptCount, 2);
+        expect(
+          stored.nextRetryAtUtc,
+          _t0.add(const Duration(seconds: 2)).add(const Duration(seconds: 4)),
+        );
+      },
+    );
+
+    test(
+      'bounded retries: exhausting maxAttempts becomes a permanent failure',
+      () async {
+        final store = InMemoryCredentialStore();
+        final queue = _queue(store);
+        await queue.enqueue(_advance());
+        final adapter = _ScriptedAdapter(<_Step>[
+          const _Step.throwing(DioExceptionType.connectionError),
+        ]);
+        final clock = _TestClock(_t0);
+        final worker = workerWith(adapter: adapter, queue: queue, clock: clock);
+
+        // maxAttempts = 4. Drain repeatedly, advancing past each backoff window.
+        for (var i = 0; i < 4; i++) {
+          await worker.drain();
+          clock.advance(const Duration(minutes: 10));
+        }
+        final stored = (await queue.byReference('r1')).valueOrNull!;
+        expect(stored.status, ProductionCommandStatus.failedPermanent);
+      },
+    );
 
     test(
       'timeout AFTER a server commit reconciles via idempotent replay (same reference)',
@@ -332,44 +350,53 @@ void main() {
   });
 
   group('conflict and permanent classification', () {
-    test('a stale version -> CONFLICT (needs human), server state not overwritten', () async {
-      final store = InMemoryCredentialStore();
-      final queue = _queue(store);
-      await queue.enqueue(_advance());
-      final adapter = _ScriptedAdapter(<_Step>[
-        _Step.ok(409, _conflict('version', 'version_conflict')),
-      ]);
-      final pass = await workerWith(
-        adapter: adapter,
-        queue: queue,
-        clock: _TestClock(_t0),
-      ).drain();
+    test(
+      'a stale version -> CONFLICT (needs human), server state not overwritten',
+      () async {
+        final store = InMemoryCredentialStore();
+        final queue = _queue(store);
+        await queue.enqueue(_advance());
+        final adapter = _ScriptedAdapter(<_Step>[
+          _Step.ok(409, _conflict('version', 'version_conflict')),
+        ]);
+        final pass = await workerWith(
+          adapter: adapter,
+          queue: queue,
+          clock: _TestClock(_t0),
+        ).drain();
 
-      expect(pass.conflicts, 1);
-      final stored = (await queue.byReference('r1')).valueOrNull!;
-      expect(stored.status, ProductionCommandStatus.conflict);
-      expect(stored.conflictCode, ProductionConflict.staleVersion.name);
-    });
+        expect(pass.conflicts, 1);
+        final stored = (await queue.byReference('r1')).valueOrNull!;
+        expect(stored.status, ProductionCommandStatus.conflict);
+        expect(stored.conflictCode, ProductionConflict.staleVersion.name);
+      },
+    );
 
-    test('a reused reference with a different payload -> permanent, never retried', () async {
-      final store = InMemoryCredentialStore();
-      final queue = _queue(store);
-      await queue.enqueue(_advance());
-      final adapter = _ScriptedAdapter(<_Step>[
-        _Step.ok(409, _conflict('client_reference', 'reused_different_payload')),
-      ]);
-      final pass = await workerWith(
-        adapter: adapter,
-        queue: queue,
-        clock: _TestClock(_t0),
-      ).drain();
+    test(
+      'a reused reference with a different payload -> permanent, never retried',
+      () async {
+        final store = InMemoryCredentialStore();
+        final queue = _queue(store);
+        await queue.enqueue(_advance());
+        final adapter = _ScriptedAdapter(<_Step>[
+          _Step.ok(
+            409,
+            _conflict('client_reference', 'reused_different_payload'),
+          ),
+        ]);
+        final pass = await workerWith(
+          adapter: adapter,
+          queue: queue,
+          clock: _TestClock(_t0),
+        ).drain();
 
-      expect(pass.permanentFailures, 1);
-      expect(
-        (await queue.byReference('r1')).valueOrNull!.status,
-        ProductionCommandStatus.failedPermanent,
-      );
-    });
+        expect(pass.permanentFailures, 1);
+        expect(
+          (await queue.byReference('r1')).valueOrNull!.status,
+          ProductionCommandStatus.failedPermanent,
+        );
+      },
+    );
 
     test(
       'a forged/malformed 200 body never fakes a SYNCED (honest acknowledgement)',
@@ -434,26 +461,29 @@ void main() {
   });
 
   group('authentication and work protection', () {
-    test('a 401 stops the drain and returns the command to pending (work kept)', () async {
-      final store = InMemoryCredentialStore();
-      final queue = _queue(store);
-      await queue.enqueue(_advance());
-      final adapter = _ScriptedAdapter(<_Step>[
-        const _Step.ok(401, _sessionExpired),
-      ]);
-      final pass = await workerWith(
-        adapter: adapter,
-        queue: queue,
-        clock: _TestClock(_t0),
-      ).drain();
+    test(
+      'a 401 stops the drain and returns the command to pending (work kept)',
+      () async {
+        final store = InMemoryCredentialStore();
+        final queue = _queue(store);
+        await queue.enqueue(_advance());
+        final adapter = _ScriptedAdapter(<_Step>[
+          const _Step.ok(401, _sessionExpired),
+        ]);
+        final pass = await workerWith(
+          adapter: adapter,
+          queue: queue,
+          clock: _TestClock(_t0),
+        ).drain();
 
-      expect(pass.authenticationRequired, isTrue);
-      // The queued work is NOT discarded on session expiry (Rule 29).
-      expect(
-        (await queue.byReference('r1')).valueOrNull!.status,
-        ProductionCommandStatus.pending,
-      );
-    });
+        expect(pass.authenticationRequired, isTrue);
+        // The queued work is NOT discarded on session expiry (Rule 29).
+        expect(
+          (await queue.byReference('r1')).valueOrNull!.status,
+          ProductionCommandStatus.pending,
+        );
+      },
+    );
   });
 
   group('ordering and races', () {
@@ -461,9 +491,7 @@ void main() {
       final store = InMemoryCredentialStore();
       final queue = _queue(store);
       // Two commands for the SAME job; the first (older) fails transiently.
-      await queue.enqueue(
-        _advance(reference: 'first'),
-      );
+      await queue.enqueue(_advance(reference: 'first'));
       await queue.enqueue(
         ProductionCommand(
           clientReference: 'second',
@@ -517,20 +545,25 @@ void main() {
       },
     );
 
-    test('a fresh worker over a revived queue drains it (app restart)', () async {
-      final store = InMemoryCredentialStore();
-      await _queue(store).enqueue(_advance());
+    test(
+      'a fresh worker over a revived queue drains it (app restart)',
+      () async {
+        final store = InMemoryCredentialStore();
+        await _queue(store).enqueue(_advance());
 
-      // Restart: brand-new queue + worker over the same store.
-      final revived = _queue(store);
-      final adapter = _ScriptedAdapter(<_Step>[const _Step.ok(200, _summaryOk)]);
-      final pass = await workerWith(
-        adapter: adapter,
-        queue: revived,
-        clock: _TestClock(_t0),
-      ).drain();
-      expect(pass.synced, 1);
-    });
+        // Restart: brand-new queue + worker over the same store.
+        final revived = _queue(store);
+        final adapter = _ScriptedAdapter(<_Step>[
+          const _Step.ok(200, _summaryOk),
+        ]);
+        final pass = await workerWith(
+          adapter: adapter,
+          queue: revived,
+          clock: _TestClock(_t0),
+        ).drain();
+        expect(pass.synced, 1);
+      },
+    );
   });
 
   group('manual retry', () {
@@ -551,25 +584,28 @@ void main() {
       expect(pass.synced, 1);
     });
 
-    test('retryNow refuses a conflicted command (reload-and-reissue, not resend)', () async {
-      final store = InMemoryCredentialStore();
-      final queue = _queue(store);
-      await queue.enqueue(_advance());
-      final adapter = _ScriptedAdapter(<_Step>[
-        _Step.ok(409, _conflict('version', 'version_conflict')),
-      ]);
-      final worker = workerWith(
-        adapter: adapter,
-        queue: queue,
-        clock: _TestClock(_t0),
-      );
-      await worker.drain(); // -> conflict
+    test(
+      'retryNow refuses a conflicted command (reload-and-reissue, not resend)',
+      () async {
+        final store = InMemoryCredentialStore();
+        final queue = _queue(store);
+        await queue.enqueue(_advance());
+        final adapter = _ScriptedAdapter(<_Step>[
+          _Step.ok(409, _conflict('version', 'version_conflict')),
+        ]);
+        final worker = workerWith(
+          adapter: adapter,
+          queue: queue,
+          clock: _TestClock(_t0),
+        );
+        await worker.drain(); // -> conflict
 
-      final before = adapter.requests.length;
-      final pass = await worker.retryNow('r1');
-      // No new request: a conflict is not silently re-sent.
-      expect(adapter.requests.length, before);
-      expect(pass.attempted, 0);
-    });
+        final before = adapter.requests.length;
+        final pass = await worker.retryNow('r1');
+        // No new request: a conflict is not silently re-sent.
+        expect(adapter.requests.length, before);
+        expect(pass.attempted, 0);
+      },
+    );
   });
 }

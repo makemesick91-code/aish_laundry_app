@@ -120,17 +120,21 @@ gate "STATUS.md auth claims match the repository" python3 scripts/validate-auth-
 gate "production composition guard adversarial" bash scripts/test-production-composition-guard.sh
 
 # The absence of an out-of-scope route is asserted, not assumed. DEC-0035
-# authorised the Step 5 order/payment/receipt surface, so from canonical step 5
-# those tokens are permitted and their presence is verified by verify-step-05.sh;
-# the still-forbidden Step 6+/never-scoped tokens are asserted absent here at both
-# steps. The boundary is derived from CANONICAL_CURRENT_STEP, never hardcoded.
+# authorised the Step 5 order/payment/receipt surface and DEC-0037 authorised the
+# Step 6 production surface, so from those canonical steps those tokens are
+# permitted and their presence is verified by verify-step-05.sh/verify-step-06.sh;
+# the still-forbidden Step 7+/never-scoped tokens are asserted absent here. The
+# boundary is derived from CANONICAL_CURRENT_STEP, never hardcoded.
 VS4_STEP="$(python3 -c 'import sys; sys.path.insert(0, "scripts"); import _common; print(_common.CANONICAL_CURRENT_STEP)' 2>/dev/null || echo 4)"
 if [ "${VS4_STEP}" -lt 5 ]; then
   gate "no Step 5 route registered"     bash -c '! grep -qE "Route::(get|post|patch|put|delete)\(\s*.(orders|payments|invoices|receipts|checkout|pickups|deliveries)" backend/routes/api.php'
   gate "no Step 5 endpoint constant"    bash -c '! grep -qiE "String (order|payment|invoice|receipt|checkout|pickup|delivery)" packages/networking/lib/src/api_endpoints.dart'
-else
+elif [ "${VS4_STEP}" -lt 6 ]; then
   gate "no Step 6+ route registered (orders/payments authorised by DEC-0035)"     bash -c '! grep -qE "Route::(get|post|patch|put|delete)\(\s*.(invoices|checkout|pickups|penjemputan|deliveries|pengantaran|production|produksi|tracking|reminders|subscriptions)" backend/routes/api.php'
   gate "no Step 6+ endpoint constant"    bash -c '! grep -qiE "String (invoice|checkout|pickup|delivery|production|tracking|reminder|subscription)" packages/networking/lib/src/api_endpoints.dart 2>/dev/null'
+else
+  gate "no Step 7+ route registered (production authorised by DEC-0037)"     bash -c '! grep -qE "Route::(get|post|patch|put|delete)\(\s*.(invoices|checkout|pickups|penjemputan|deliveries|pengantaran|tracking|whatsapp|reminders|subscriptions)" backend/routes/api.php'
+  gate "no Step 7+ endpoint constant"    bash -c '! grep -qiE "String (invoice|checkout|pickup|delivery|tracking|whatsapp|reminder|subscription)" packages/networking/lib/src/api_endpoints.dart 2>/dev/null'
 fi
 
 # ---------------------------------------------------------------------------

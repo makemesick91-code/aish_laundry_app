@@ -251,7 +251,9 @@ final class ProductionCommand {
         itemId: json['item_id'] as String?,
         expectedVersion: (json['expected_version'] as num?)?.toInt(),
         payload: _map(json['payload']),
-        status: ProductionCommandStatus.values.byName(json['status']! as String),
+        status: ProductionCommandStatus.values.byName(
+          json['status']! as String,
+        ),
         attemptCount: (json['attempt_count'] as num?)?.toInt() ?? 0,
         nextRetryAtUtc: _dateOrNull(json['next_retry_at']),
         acknowledgement: _mapOrNull(json['acknowledgement']),

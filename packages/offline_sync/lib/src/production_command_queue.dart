@@ -129,8 +129,7 @@ final class ProductionCommandQueue {
   /// rather than crashing the queue: a queue that could be bricked by one bad
   /// record is a queue that loses everything after it (fail closed on the row,
   /// not on the queue).
-  Future<Result<List<ProductionCommand>>> all() =>
-      _synchronized(_allLocked);
+  Future<Result<List<ProductionCommand>>> all() => _synchronized(_allLocked);
 
   Future<Result<List<ProductionCommand>>> _allLocked() async {
     final indexRead = await _readIndexLocked();
@@ -204,10 +203,7 @@ final class ProductionCommandQueue {
           );
         } on Object {
           return const Result<ProductionCommand?>.err(
-            Failure(
-              kind: FailureKind.storage,
-              message: 'Queue read failed.',
-            ),
+            Failure(kind: FailureKind.storage, message: 'Queue read failed.'),
           );
         }
       });

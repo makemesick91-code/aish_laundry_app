@@ -21,7 +21,11 @@ import 'production_views.dart';
 /// screen drives the sync worker and shows, honestly, what is pending, syncing,
 /// or needs a human (Rule 29 rule 2).
 class ProductionQueueScreen extends ConsumerStatefulWidget {
-  const ProductionQueueScreen({this.initialFilter, this.title = 'Produksi', super.key});
+  const ProductionQueueScreen({
+    this.initialFilter,
+    this.title = 'Produksi',
+    super.key,
+  });
 
   /// When set, the queue opens pre-filtered — the quality-control worklist opens
   /// on [ProductionState.awaitingQc].
@@ -236,9 +240,7 @@ class _PendingBanner extends StatelessWidget {
           child: Row(
             children: <Widget>[
               Icon(
-                needsHuman
-                    ? Icons.priority_high_outlined
-                    : Icons.sync_outlined,
+                needsHuman ? Icons.priority_high_outlined : Icons.sync_outlined,
               ),
               SizedBox(width: AishSpacing.space2),
               Expanded(

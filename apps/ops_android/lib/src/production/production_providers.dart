@@ -46,37 +46,37 @@ final Provider<Clock> productionClockProvider = Provider<Clock>(
 /// in the NEW tenant's namespace and a worker bound to it — a drain can never be
 /// attributed to the tenant the user just switched away from (Rule 02, Rule 20
 /// rule 6). Returns null before a tenant context exists.
-final Provider<ProductionRuntime?> productionRuntimeProvider =
-    Provider<ProductionRuntime?>((ref) {
-      // Rebuild trigger: the auth state stream emits on login, tenant switch and
-      // revocation. The session itself is read from `current`, always up to date.
-      ref.watch(authStatesProvider);
-      final session = ref.watch(authServiceProvider).current.session;
-      if (session == null || !session.hasTenantContext) {
-        return null;
-      }
+final Provider<ProductionRuntime?>
+productionRuntimeProvider = Provider<ProductionRuntime?>((ref) {
+  // Rebuild trigger: the auth state stream emits on login, tenant switch and
+  // revocation. The session itself is read from `current`, always up to date.
+  ref.watch(authStatesProvider);
+  final session = ref.watch(authServiceProvider).current.session;
+  if (session == null || !session.hasTenantContext) {
+    return null;
+  }
 
-      final queue = ProductionCommandQueue(
-        store: ref.watch(secureCredentialStoreProvider),
-        userId: session.user.id,
-        tenantId: session.activeTenant!.id,
-      );
-      final worker = ProductionSyncWorker(
-        repository: ref.watch(productionRepositoryProvider),
-        queue: queue,
-        clock: ref.watch(productionClockProvider),
-        connectivity: ref.watch(productionConnectivityProvider),
-      );
-      ref.onDispose(worker.stop);
+  final queue = ProductionCommandQueue(
+    store: ref.watch(secureCredentialStoreProvider),
+    userId: session.user.id,
+    tenantId: session.activeTenant!.id,
+  );
+  final worker = ProductionSyncWorker(
+    repository: ref.watch(productionRepositoryProvider),
+    queue: queue,
+    clock: ref.watch(productionClockProvider),
+    connectivity: ref.watch(productionConnectivityProvider),
+  );
+  ref.onDispose(worker.stop);
 
-      return ProductionRuntime(
-        queue: queue,
-        worker: worker,
-        userId: session.user.id,
-        tenantId: session.activeTenant!.id,
-        outletId: session.activeOutlet?.id,
-      );
-    });
+  return ProductionRuntime(
+    queue: queue,
+    worker: worker,
+    userId: session.user.id,
+    tenantId: session.activeTenant!.id,
+    outletId: session.activeOutlet?.id,
+  );
+});
 
 /// Rebuild trigger for the runtime: the raw auth-state stream.
 final StreamProvider<Object?> authStatesProvider = StreamProvider<Object?>(

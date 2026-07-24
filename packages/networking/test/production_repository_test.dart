@@ -77,21 +77,24 @@ String conflict(String detailKey, String marker) =>
 
 void main() {
   group('ProductionRepository — reads', () {
-    test('queue() sends the state filter and parses the summary list', () async {
-      final adapter = _Adapter(200, _queueBody);
-      final repo = ProductionRepository(clientWith(adapter));
+    test(
+      'queue() sends the state filter and parses the summary list',
+      () async {
+        final adapter = _Adapter(200, _queueBody);
+        final repo = ProductionRepository(clientWith(adapter));
 
-      final result = await repo.queue(state: ProductionState.inProgress);
+        final result = await repo.queue(state: ProductionState.inProgress);
 
-      expect(result.isOk, isTrue);
-      final jobs = result.valueOrNull!;
-      expect(jobs.single.id, 'j1');
-      expect(jobs.single.state, ProductionState.inProgress);
-      // The version is an int, preserved exactly for optimistic concurrency.
-      expect(jobs.single.version, 3);
-      expect(adapter.last!.queryParameters['state'], 'IN_PROGRESS');
-      expect(adapter.last!.path, contains('production/queue'));
-    });
+        expect(result.isOk, isTrue);
+        final jobs = result.valueOrNull!;
+        expect(jobs.single.id, 'j1');
+        expect(jobs.single.state, ProductionState.inProgress);
+        // The version is an int, preserved exactly for optimistic concurrency.
+        expect(jobs.single.version, 3);
+        expect(adapter.last!.queryParameters['state'], 'IN_PROGRESS');
+        expect(adapter.last!.path, contains('production/queue'));
+      },
+    );
 
     test('queue() bounds per_page to the server maximum', () async {
       final adapter = _Adapter(200, _queueBody);
@@ -172,21 +175,24 @@ void main() {
       expect(body['reason'], 'Satu item hilang');
     });
 
-    test('resume() and sendToQualityControl() post the client_reference', () async {
-      final adapter = _Adapter(200, _commandBody);
-      final repo = ProductionRepository(clientWith(adapter));
+    test(
+      'resume() and sendToQualityControl() post the client_reference',
+      () async {
+        final adapter = _Adapter(200, _commandBody);
+        final repo = ProductionRepository(clientWith(adapter));
 
-      await repo.resume('j1', clientReference: 'ref-3');
-      expect(adapter.last!.path, contains('production/jobs/j1/resume'));
-      expect((adapter.last!.data as Map)['client_reference'], 'ref-3');
+        await repo.resume('j1', clientReference: 'ref-3');
+        expect(adapter.last!.path, contains('production/jobs/j1/resume'));
+        expect((adapter.last!.data as Map)['client_reference'], 'ref-3');
 
-      await repo.sendToQualityControl('j1', clientReference: 'ref-4');
-      expect(
-        adapter.last!.path,
-        contains('production/jobs/j1/quality-control/send'),
-      );
-      expect((adapter.last!.data as Map)['client_reference'], 'ref-4');
-    });
+        await repo.sendToQualityControl('j1', clientReference: 'ref-4');
+        expect(
+          adapter.last!.path,
+          contains('production/jobs/j1/quality-control/send'),
+        );
+        expect((adapter.last!.data as Map)['client_reference'], 'ref-4');
+      },
+    );
 
     test(
       'recordQualityControl() PASSED parses the inspection and new job summary',
@@ -256,20 +262,23 @@ void main() {
       expect((adapter.last!.data as Map)['reason_code'], 'REDONE');
     });
 
-    test('markReady() posts the client_reference and parses order status', () async {
-      final adapter = _Adapter(
-        200,
-        '{"data":{"order":{"id":"o1","status":"READY_FOR_PICKUP"}},"meta":{}}',
-      );
-      final repo = ProductionRepository(clientWith(adapter));
+    test(
+      'markReady() posts the client_reference and parses order status',
+      () async {
+        final adapter = _Adapter(
+          200,
+          '{"data":{"order":{"id":"o1","status":"READY_FOR_PICKUP"}},"meta":{}}',
+        );
+        final repo = ProductionRepository(clientWith(adapter));
 
-      final result = await repo.markReady('j1', clientReference: 'ref-8');
-      expect(result.isOk, isTrue);
-      final ready = result.valueOrNull!;
-      expect(ready.orderId, 'o1');
-      expect(ready.orderStatus, OrderStatus.readyForPickup);
-      expect(adapter.last!.path, contains('production/jobs/j1/ready'));
-    });
+        final result = await repo.markReady('j1', clientReference: 'ref-8');
+        expect(result.isOk, isTrue);
+        final ready = result.valueOrNull!;
+        expect(ready.orderId, 'o1');
+        expect(ready.orderStatus, OrderStatus.readyForPickup);
+        expect(adapter.last!.path, contains('production/jobs/j1/ready'));
+      },
+    );
 
     test(
       'advance() omits expected_version from the body when none is supplied',
@@ -285,21 +294,24 @@ void main() {
   });
 
   group('ProductionRepository — error and malformed handling', () {
-    test('a server error envelope becomes an Err, never an exception', () async {
-      final adapter = _Adapter(
-        403,
-        '{"error":{"code":"FORBIDDEN","message":"tidak boleh"},"meta":{}}',
-      );
-      final repo = ProductionRepository(clientWith(adapter));
+    test(
+      'a server error envelope becomes an Err, never an exception',
+      () async {
+        final adapter = _Adapter(
+          403,
+          '{"error":{"code":"FORBIDDEN","message":"tidak boleh"},"meta":{}}',
+        );
+        final repo = ProductionRepository(clientWith(adapter));
 
-      final result = await repo.advance(
-        'j1',
-        stage: 'WASHING',
-        clientReference: 'r',
-      );
-      expect(result.isErr, isTrue);
-      expect(result.failureOrNull!.kind, FailureKind.authorization);
-    });
+        final result = await repo.advance(
+          'j1',
+          stage: 'WASHING',
+          clientReference: 'r',
+        );
+        expect(result.isErr, isTrue);
+        expect(result.failureOrNull!.kind, FailureKind.authorization);
+      },
+    );
 
     test('a NOT_FOUND is authorization-shaped (foreign == absent)', () async {
       final adapter = _Adapter(
@@ -381,11 +393,14 @@ void main() {
       expect(ProductionConflict.fromFailure(failure), isNull);
     });
 
-    test('an unclassifiable conflict fails safe to unknown (not permanent)', () {
-      final c = classify('mystery', 'something_new');
-      expect(c, ProductionConflict.unknown);
-      expect(c!.isPermanent, isFalse);
-    });
+    test(
+      'an unclassifiable conflict fails safe to unknown (not permanent)',
+      () {
+        final c = classify('mystery', 'something_new');
+        expect(c, ProductionConflict.unknown);
+        expect(c!.isPermanent, isFalse);
+      },
+    );
   });
 }
 

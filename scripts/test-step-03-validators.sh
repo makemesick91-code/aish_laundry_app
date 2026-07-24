@@ -213,8 +213,8 @@ expect_red 28 "runtime present but Master Source rolled back below 1.4.0" \
 # These were pinned to Steps 4/5 at Step 3, moved to 5/6 at DEC-0028, and move to
 # Step 6 now that DEC-0035 made Step 5 the current step and its GO the reality.
 # The next transition moves them forward again. Same strength, boundary +1.
-expect_red 29 "Step 6 claimed IN PROGRESS"                   "step3_base; printf '\n| Step 6 | Production Operations | IN PROGRESS |\n' >> docs/STATUS.md"
-expect_red 30 "Step 6 claimed GO"                            "step3_base; printf '\n| Step 6 | Production Operations | GO |\n' >> docs/STATUS.md"
+expect_red 29 "Step 7 claimed IN PROGRESS"                   "step3_base; printf '\n| Step 7 | Customer Tracking and WhatsApp | IN PROGRESS |\n' >> docs/STATUS.md"
+expect_red 30 "Step 7 claimed GO"                            "step3_base; printf '\n| Step 7 | Customer Tracking and WhatsApp | GO |\n' >> docs/STATUS.md"
 expect_red 31 "symlink escaping the repository"              "step3_base; ln -s /etc backend/escape"
 
 echo

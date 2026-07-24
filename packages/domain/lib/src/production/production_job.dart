@@ -254,7 +254,9 @@ final class ProductionJobDetail {
   /// `job` (the detail projection) and `timeline` (a sibling list).
   factory ProductionJobDetail.fromResponse(Map<String, Object?> data) {
     final job = data['job'];
-    final jobMap = job is Map<String, Object?> ? job : const <String, Object?>{};
+    final jobMap = job is Map<String, Object?>
+        ? job
+        : const <String, Object?>{};
 
     final rawItems = jobMap['items'];
     final items = rawItems is List
@@ -305,7 +307,9 @@ final class QcInspectionResult {
         ? inspection
         : const <String, Object?>{};
     final job = data['job'];
-    final jobMap = job is Map<String, Object?> ? job : const <String, Object?>{};
+    final jobMap = job is Map<String, Object?>
+        ? job
+        : const <String, Object?>{};
 
     return QcInspectionResult(
       inspectionId: inspectionMap['id']! as String,
@@ -325,7 +329,10 @@ final class QcInspectionResult {
 /// (FR-076), and the client never claims it before this acknowledgement.
 @immutable
 final class ProductionReadyResult {
-  const ProductionReadyResult({required this.orderId, required this.orderStatus});
+  const ProductionReadyResult({
+    required this.orderId,
+    required this.orderStatus,
+  });
 
   factory ProductionReadyResult.fromResponse(Map<String, Object?> data) {
     final order = data['order'];

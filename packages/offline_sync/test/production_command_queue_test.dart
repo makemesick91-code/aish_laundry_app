@@ -32,11 +32,7 @@ ProductionCommandQueue queueFor(
   SecureCredentialStore store, {
   String userId = 'usr-1',
   String tenantId = 'ten-A',
-}) => ProductionCommandQueue(
-  store: store,
-  userId: userId,
-  tenantId: tenantId,
-);
+}) => ProductionCommandQueue(store: store, userId: userId, tenantId: tenantId);
 
 void main() {
   group('schema / local migration', () {
@@ -47,10 +43,7 @@ void main() {
       final result = await queue.ensureSchema();
       expect(result.isOk, isTrue);
       // The version marker is persisted through the secure store.
-      expect(
-        store.keys.any((k) => k.contains('prod_schema_version')),
-        isTrue,
-      );
+      expect(store.keys.any((k) => k.contains('prod_schema_version')), isTrue);
     });
 
     test(
@@ -70,33 +63,41 @@ void main() {
   });
 
   group('DAO operations and durability', () {
-    test('enqueue persists through the secure store (encrypted-at-rest boundary)', () async {
-      final store = InMemoryCredentialStore();
-      final queue = queueFor(store);
+    test(
+      'enqueue persists through the secure store (encrypted-at-rest boundary)',
+      () async {
+        final store = InMemoryCredentialStore();
+        final queue = queueFor(store);
 
-      await queue.enqueue(advanceCommand(reference: 'r1'));
+        await queue.enqueue(advanceCommand(reference: 'r1'));
 
-      // Persistence flows through the SecureCredentialStore — on device this IS
-      // the keystore-backed encrypted boundary. Nothing is written elsewhere.
-      final commandKey = store.keys.firstWhere((k) => k.contains('prod_cmd/r1'));
-      // Namespaced per user+tenant, so a cross-context read is impossible to
-      // write by accident.
-      expect(commandKey, contains('user:usr-1:tenant:ten-A'));
-    });
+        // Persistence flows through the SecureCredentialStore — on device this IS
+        // the keystore-backed encrypted boundary. Nothing is written elsewhere.
+        final commandKey = store.keys.firstWhere(
+          (k) => k.contains('prod_cmd/r1'),
+        );
+        // Namespaced per user+tenant, so a cross-context read is impossible to
+        // write by accident.
+        expect(commandKey, contains('user:usr-1:tenant:ten-A'));
+      },
+    );
 
-    test('a command survives a fresh queue instance (process restart)', () async {
-      final store = InMemoryCredentialStore();
-      await queueFor(store).enqueue(advanceCommand(reference: 'r1'));
+    test(
+      'a command survives a fresh queue instance (process restart)',
+      () async {
+        final store = InMemoryCredentialStore();
+        await queueFor(store).enqueue(advanceCommand(reference: 'r1'));
 
-      // A brand-new queue object over the SAME store — as after an app kill.
-      final revived = queueFor(store);
-      final all = (await revived.all()).valueOrNull!;
-      expect(all.single.clientReference, 'r1');
-      expect(all.single.payload['stage'], 'WASHING');
-      // The optimistic token and outlet round-trip exactly.
-      expect(all.single.expectedVersion, 3);
-      expect(all.single.outletId, 'out-1');
-    });
+        // A brand-new queue object over the SAME store — as after an app kill.
+        final revived = queueFor(store);
+        final all = (await revived.all()).valueOrNull!;
+        expect(all.single.clientReference, 'r1');
+        expect(all.single.payload['stage'], 'WASHING');
+        // The optimistic token and outlet round-trip exactly.
+        expect(all.single.expectedVersion, 3);
+        expect(all.single.outletId, 'out-1');
+      },
+    );
 
     test('all() returns commands oldest-first', () async {
       final store = InMemoryCredentialStore();
@@ -136,10 +137,14 @@ void main() {
   group('tenant / user / outlet separation', () {
     test('a queue for tenant A cannot see tenant B commands', () async {
       final store = InMemoryCredentialStore();
-      await queueFor(store, tenantId: 'ten-A')
-          .enqueue(advanceCommand(reference: 'a1', tenantId: 'ten-A'));
-      await queueFor(store, tenantId: 'ten-B')
-          .enqueue(advanceCommand(reference: 'b1', tenantId: 'ten-B'));
+      await queueFor(
+        store,
+        tenantId: 'ten-A',
+      ).enqueue(advanceCommand(reference: 'a1', tenantId: 'ten-A'));
+      await queueFor(
+        store,
+        tenantId: 'ten-B',
+      ).enqueue(advanceCommand(reference: 'b1', tenantId: 'ten-B'));
 
       final a = (await queueFor(store, tenantId: 'ten-A').all()).valueOrNull!;
       final b = (await queueFor(store, tenantId: 'ten-B').all()).valueOrNull!;
@@ -149,10 +154,14 @@ void main() {
 
     test('a queue for user 1 cannot see user 2 commands', () async {
       final store = InMemoryCredentialStore();
-      await queueFor(store, userId: 'usr-1')
-          .enqueue(advanceCommand(reference: 'u1', userId: 'usr-1'));
-      await queueFor(store, userId: 'usr-2')
-          .enqueue(advanceCommand(reference: 'u2', userId: 'usr-2'));
+      await queueFor(
+        store,
+        userId: 'usr-1',
+      ).enqueue(advanceCommand(reference: 'u1', userId: 'usr-1'));
+      await queueFor(
+        store,
+        userId: 'usr-2',
+      ).enqueue(advanceCommand(reference: 'u2', userId: 'usr-2'));
 
       final one = (await queueFor(store, userId: 'usr-1').all()).valueOrNull!;
       expect(one.single.clientReference, 'u1');
@@ -162,9 +171,7 @@ void main() {
     test('a command carries its outlet through persistence', () async {
       final store = InMemoryCredentialStore();
       final queue = queueFor(store);
-      await queue.enqueue(
-        advanceCommand(reference: 'r1', outletId: 'out-99'),
-      );
+      await queue.enqueue(advanceCommand(reference: 'r1', outletId: 'out-99'));
       final all = (await queueFor(store).all()).valueOrNull!;
       expect(all.single.outletId, 'out-99');
     });
@@ -265,20 +272,23 @@ void main() {
       expect((await queue.all()).valueOrNull!, isEmpty);
     });
 
-    test('hasUnacknowledged reflects pending work for the logout flow', () async {
-      final store = InMemoryCredentialStore();
-      final queue = queueFor(store);
-      expect((await queue.hasUnacknowledged()).valueOrNull, isFalse);
+    test(
+      'hasUnacknowledged reflects pending work for the logout flow',
+      () async {
+        final store = InMemoryCredentialStore();
+        final queue = queueFor(store);
+        expect((await queue.hasUnacknowledged()).valueOrNull, isFalse);
 
-      await queue.enqueue(advanceCommand(reference: 'r1'));
-      expect((await queue.hasUnacknowledged()).valueOrNull, isTrue);
+        await queue.enqueue(advanceCommand(reference: 'r1'));
+        expect((await queue.hasUnacknowledged()).valueOrNull, isTrue);
 
-      await queue.updateGuarded(
-        'r1',
-        (c) => c.copyWith(status: ProductionCommandStatus.synced),
-      );
-      expect((await queue.hasUnacknowledged()).valueOrNull, isFalse);
-    });
+        await queue.updateGuarded(
+          'r1',
+          (c) => c.copyWith(status: ProductionCommandStatus.synced),
+        );
+        expect((await queue.hasUnacknowledged()).valueOrNull, isFalse);
+      },
+    );
 
     test(
       'clearing the credential namespace leaves the tenant queue intact',
@@ -331,16 +341,19 @@ void main() {
       expect((jsonDecode(prunedIndex) as List).contains('bad'), isFalse);
     });
 
-    test('a secure-storage failure fails closed (Err, never a false empty)', () async {
-      final store = InMemoryCredentialStore()..failEverything = true;
-      final queue = queueFor(store);
+    test(
+      'a secure-storage failure fails closed (Err, never a false empty)',
+      () async {
+        final store = InMemoryCredentialStore()..failEverything = true;
+        final queue = queueFor(store);
 
-      final enqueue = await queue.enqueue(advanceCommand(reference: 'r1'));
-      expect(enqueue.isErr, isTrue);
-      expect(enqueue.failureOrNull!.kind, FailureKind.storage);
+        final enqueue = await queue.enqueue(advanceCommand(reference: 'r1'));
+        expect(enqueue.isErr, isTrue);
+        expect(enqueue.failureOrNull!.kind, FailureKind.storage);
 
-      final all = await queue.all();
-      expect(all.isErr, isTrue);
-    });
+        final all = await queue.all();
+        expect(all.isErr, isTrue);
+      },
+    );
   });
 }

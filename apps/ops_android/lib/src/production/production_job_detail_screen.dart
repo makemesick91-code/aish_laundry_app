@@ -17,7 +17,12 @@ import 'production_views.dart';
 
 /// The canonical item stages an operator may advance through (Rule 19 production
 /// stages). These are the exact strings the backend records and its tests use.
-const List<String> _stages = <String>['SORTING', 'WASHING', 'DRYING', 'FINISHING'];
+const List<String> _stages = <String>[
+  'SORTING',
+  'WASHING',
+  'DRYING',
+  'FINISHING',
+];
 
 /// ONE PRODUCTION JOB — its state, items, append-only timeline, and the
 /// state-valid, permission-gated actions an operator may take against it.
@@ -156,7 +161,11 @@ class _ProductionJobDetailScreenState
           ],
           if (_pending != null) ...<Widget>[
             SizedBox(height: AishSpacing.space3),
-            _PendingCommandCard(command: _pending!, onReload: _load, onOpenSync: () => context.go(OpsRoutes.productionSync)),
+            _PendingCommandCard(
+              command: _pending!,
+              onReload: _load,
+              onOpenSync: () => context.go(OpsRoutes.productionSync),
+            ),
           ],
           SizedBox(height: AishSpacing.space4),
           Text('Item', style: Theme.of(context).textTheme.titleMedium),
@@ -217,20 +226,44 @@ class _ProductionJobDetailScreenState
         case ProductionState.created:
         case ProductionState.inProgress:
           buttons.add(
-            _action('Lanjutkan tahap', Icons.arrow_forward, () => _advance(detail)),
+            _action(
+              'Lanjutkan tahap',
+              Icons.arrow_forward,
+              () => _advance(detail),
+            ),
           );
           if (state == ProductionState.inProgress) {
             buttons.add(
-              _action('Kirim ke kendali mutu', Icons.fact_check_outlined, () => _sendToQc(detail)),
+              _action(
+                'Kirim ke kendali mutu',
+                Icons.fact_check_outlined,
+                () => _sendToQc(detail),
+              ),
             );
             buttons.add(
-              _action('Tahan pekerjaan', Icons.pause_circle_outline, () => _block(detail)),
+              _action(
+                'Tahan pekerjaan',
+                Icons.pause_circle_outline,
+                () => _block(detail),
+              ),
             );
           }
         case ProductionState.blocked:
-          buttons.add(_action('Lanjutkan kembali', Icons.play_arrow_outlined, () => _resume(detail)));
+          buttons.add(
+            _action(
+              'Lanjutkan kembali',
+              Icons.play_arrow_outlined,
+              () => _resume(detail),
+            ),
+          );
         case ProductionState.closed:
-          buttons.add(_action('Tandai siap diambil', Icons.inventory_2_outlined, () => _markReady(detail)));
+          buttons.add(
+            _action(
+              'Tandai siap diambil',
+              Icons.inventory_2_outlined,
+              () => _markReady(detail),
+            ),
+          );
         case ProductionState.awaitingQc:
         case ProductionState.reworkInProgress:
         case ProductionState.abandoned:
@@ -241,9 +274,21 @@ class _ProductionJobDetailScreenState
     if (canQc) {
       switch (state) {
         case ProductionState.awaitingQc:
-          buttons.add(_action('Catat kendali mutu', Icons.rule_folder_outlined, () => _recordQc(detail)));
+          buttons.add(
+            _action(
+              'Catat kendali mutu',
+              Icons.rule_folder_outlined,
+              () => _recordQc(detail),
+            ),
+          );
         case ProductionState.reworkInProgress:
-          buttons.add(_action('Selesaikan pengerjaan ulang', Icons.restart_alt_outlined, () => _completeRework(detail)));
+          buttons.add(
+            _action(
+              'Selesaikan pengerjaan ulang',
+              Icons.restart_alt_outlined,
+              () => _completeRework(detail),
+            ),
+          );
         default:
           break;
       }
@@ -256,7 +301,10 @@ class _ProductionJobDetailScreenState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        for (final b in buttons) ...<Widget>[b, SizedBox(height: AishSpacing.space2)],
+        for (final b in buttons) ...<Widget>[
+          b,
+          SizedBox(height: AishSpacing.space2),
+        ],
       ],
     );
   }
@@ -294,22 +342,43 @@ class _ProductionJobDetailScreenState
   Future<void> _advance(ProductionJobDetail detail) async {
     final stage = await showModalBottomSheet<String>(
       context: context,
-      builder: (_) => _StagePicker(current: detail.items.isEmpty ? null : detail.items.first.stage),
+      builder: (_) => _StagePicker(
+        current: detail.items.isEmpty ? null : detail.items.first.stage,
+      ),
     );
     if (stage == null || !mounted) {
       return;
     }
-    await _enqueue(_baseCommand(detail, ProductionCommandType.advance, <String, Object?>{'stage': stage}));
+    await _enqueue(
+      _baseCommand(detail, ProductionCommandType.advance, <String, Object?>{
+        'stage': stage,
+      }),
+    );
   }
 
-  Future<void> _sendToQc(ProductionJobDetail detail) =>
-      _enqueue(_baseCommand(detail, ProductionCommandType.sendToQc, const <String, Object?>{}));
+  Future<void> _sendToQc(ProductionJobDetail detail) => _enqueue(
+    _baseCommand(
+      detail,
+      ProductionCommandType.sendToQc,
+      const <String, Object?>{},
+    ),
+  );
 
-  Future<void> _resume(ProductionJobDetail detail) =>
-      _enqueue(_baseCommand(detail, ProductionCommandType.resume, const <String, Object?>{}));
+  Future<void> _resume(ProductionJobDetail detail) => _enqueue(
+    _baseCommand(
+      detail,
+      ProductionCommandType.resume,
+      const <String, Object?>{},
+    ),
+  );
 
-  Future<void> _markReady(ProductionJobDetail detail) =>
-      _enqueue(_baseCommand(detail, ProductionCommandType.markReady, const <String, Object?>{}));
+  Future<void> _markReady(ProductionJobDetail detail) => _enqueue(
+    _baseCommand(
+      detail,
+      ProductionCommandType.markReady,
+      const <String, Object?>{},
+    ),
+  );
 
   Future<void> _block(ProductionJobDetail detail) async {
     final reason = await _promptReason(
@@ -320,7 +389,9 @@ class _ProductionJobDetailScreenState
       return;
     }
     await _enqueue(
-      _baseCommand(detail, ProductionCommandType.block, <String, Object?>{'reason_code': reason}),
+      _baseCommand(detail, ProductionCommandType.block, <String, Object?>{
+        'reason_code': reason,
+      }),
     );
   }
 
@@ -333,7 +404,11 @@ class _ProductionJobDetailScreenState
       return;
     }
     await _enqueue(
-      _baseCommand(detail, ProductionCommandType.completeRework, <String, Object?>{'reason_code': reason}),
+      _baseCommand(
+        detail,
+        ProductionCommandType.completeRework,
+        <String, Object?>{'reason_code': reason},
+      ),
     );
   }
 
@@ -551,7 +626,11 @@ class _StagePicker extends StatelessWidget {
 }
 
 class _QcOutcome {
-  const _QcOutcome({required this.verdict, this.defectReasonCode, this.defectReason});
+  const _QcOutcome({
+    required this.verdict,
+    this.defectReasonCode,
+    this.defectReason,
+  });
   final QualityControlVerdict verdict;
   final String? defectReasonCode;
   final String? defectReason;
@@ -592,7 +671,10 @@ class _QcSheetState extends State<_QcSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Text('Catat kendali mutu', style: Theme.of(context).textTheme.titleMedium),
+          Text(
+            'Catat kendali mutu',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
           SizedBox(height: AishSpacing.space3),
           for (final verdict in QualityControlVerdict.values)
             ListTile(
@@ -616,11 +698,17 @@ class _QcSheetState extends State<_QcSheet> {
             SizedBox(height: AishSpacing.space2),
             TextField(
               controller: _reason,
-              decoration: const InputDecoration(labelText: 'Catatan (opsional)'),
+              decoration: const InputDecoration(
+                labelText: 'Catatan (opsional)',
+              ),
             ),
           ],
           SizedBox(height: AishSpacing.space4),
-          PrimaryAction(label: 'Simpan verdict', icon: Icons.check, onPressed: _submit),
+          PrimaryAction(
+            label: 'Simpan verdict',
+            icon: Icons.check,
+            onPressed: _submit,
+          ),
         ],
       ),
     );
