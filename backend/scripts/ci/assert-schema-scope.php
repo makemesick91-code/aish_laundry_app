@@ -53,7 +53,23 @@ const STEP5_ALLOWED_TABLES = [
     'payments', 'refunds', 'receipts', 'nota',
 ];
 
-// Step 6 and later own these. Their presence means scope leaked, however the
+/**
+ * Tables Step 6 is authorised to create (DEC-0037), matching the production
+ * operations surface. The DB-level twin of the STEP6 tokens in
+ * validate-runtime-scope.py: both moved together when Step 6 was authorised,
+ * exactly as the Step 4 and Step 5 sets moved before them. Leaving this pinned
+ * to "no Step 6 table" would block the very tables DEC-0037 authorised while
+ * claiming to guard Step 7. The batch and operator-assignment tables are
+ * prepared infrastructure (no HTTP surface yet) but are Step 6-authorised.
+ */
+const STEP6_ALLOWED_TABLES = [
+    'production_jobs', 'production_batches', 'production_items',
+    'production_batch_items', 'production_operator_assignments',
+    'quality_control_inspections', 'rework_cycles', 'production_events',
+    'production_ready_events',
+];
+
+// Step 7 and later own these. Their presence means scope leaked, however the
 // migration that created them was named (Rule 36 hard rule 4, Rule 42).
 //
 // `services` stays forbidden while `service_catalog` is allowed: the Step 4
@@ -61,11 +77,11 @@ const STEP5_ALLOWED_TABLES = [
 // that step created.
 const FORBIDDEN_TABLES = [
     'services',
-    'production_jobs', 'quality_controls', 'reworks',
     'tracking_tokens', 'deliveries', 'pickups', 'courier_routes',
     'delivery_proofs', 'reminders', 'reminder_stages', 'storage_fees',
     'receivables', 'finance_reports', 'loyalty', 'loyalty_points',
     'subscriptions', 'subscription_invoices',
+    'whatsapp_messages', 'notifications',
 ];
 
 function env_or_fail(string $key, ?string $default = null): string
@@ -105,7 +121,7 @@ $tables = $pdo
 echo "  tables present: " . count($tables) . "\n";
 
 $violations = array_values(array_intersect(FORBIDDEN_TABLES, $tables));
-echo "  forbidden Step 6+ tables: " . count($violations) . "\n";
+echo "  forbidden Step 7+ tables: " . count($violations) . "\n";
 
 $step4Present = array_values(array_intersect(STEP4_ALLOWED_TABLES, $tables));
 echo "  authorised Step 4 tables present: " . count($step4Present) . "\n";
@@ -113,9 +129,12 @@ echo "  authorised Step 4 tables present: " . count($step4Present) . "\n";
 $step5Present = array_values(array_intersect(STEP5_ALLOWED_TABLES, $tables));
 echo "  authorised Step 5 tables present: " . count($step5Present) . "\n";
 
+$step6Present = array_values(array_intersect(STEP6_ALLOWED_TABLES, $tables));
+echo "  authorised Step 6 tables present: " . count($step6Present) . "\n";
+
 if ($violations !== []) {
     fwrite(STDERR, "  SCOPE LEAK: " . implode(', ', $violations) . "\n");
-    fwrite(STDERR, "  These belong to Step 6 or later. Remove them; renaming to\n");
+    fwrite(STDERR, "  These belong to Step 7 or later. Remove them; renaming to\n");
     fwrite(STDERR, "  evade detection is the same violation (Rule 36).\n");
     exit(1);
 }
@@ -142,5 +161,5 @@ if (in_array('--check-seeded-passwords', $argv, true)) {
     echo "  every seeded credential is distinct and hashed\n";
 }
 
-echo "schema is within Step 5 scope\n";
+echo "schema is within Step 6 scope\n";
 exit(0);
