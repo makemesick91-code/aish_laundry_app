@@ -205,7 +205,7 @@ is a false claim rather than a conservative one (Rule 01, DEC-0029).
 | Item | Status |
 | --- | --- |
 | Step 7+ product business features | NOT IMPLEMENTED |
-| Backend runtime | PRESENT — STEP 3 FOUNDATION ONLY |
+| Backend runtime | PRESENT — STEPS 3–6 (auth · tenancy · RBAC · master data · POS/order/payment · production operations) |
 | PostgreSQL runtime foundation | PRESENT |
 | Redis runtime foundation | PRESENT |
 | Flutter workspace | PRESENT |
@@ -412,26 +412,28 @@ DEPLOYMENT=ABSENT
 
 ## 3. Feature status
 
-Every product feature is **NOT IMPLEMENTED**.
+Product features delivered through Step 6 carry their step's owner-conferred `GO`; every
+feature from Step 7 onward remains **NOT IMPLEMENTED**. A step `GO` is not a deployment or a
+launch — deployment is **ABSENT** (§2), and runtime present is not runtime working.
 
-| Feature | Status |
+| Feature (delivering step) | Status |
 | --- | --- |
-| Authentication and phone + OTP login | NOT IMPLEMENTED |
-| Tenancy, brands, outlets, memberships, tenant switcher | NOT IMPLEMENTED |
-| RBAC and server-side authorisation | NOT IMPLEMENTED |
-| Customer management | NOT IMPLEMENTED |
-| Service and price list master data | NOT IMPLEMENTED |
-| POS and order intake | NOT IMPLEMENTED |
-| Payment, refund, and void | NOT IMPLEMENTED |
-| Production operations and quality control | NOT IMPLEMENTED |
-| Public tracking portal | NOT IMPLEMENTED |
-| WhatsApp and notifications | NOT IMPLEMENTED |
-| Pickup and delivery | NOT IMPLEMENTED |
-| Unclaimed laundry H+1/H+3/H+7/H+14 | NOT IMPLEMENTED |
-| Finance, reporting, and owner portfolio | NOT IMPLEMENTED |
-| Customer Android experience | NOT IMPLEMENTED |
-| Subscription and platform administration | NOT IMPLEMENTED |
-| Offline-first synchronisation | NOT IMPLEMENTED |
+| Authentication and phone + OTP login (Step 3) | GO WITH ACCEPTED DEVIATION |
+| Tenancy, brands, outlets, memberships, tenant switcher (Step 3) | GO WITH ACCEPTED DEVIATION |
+| RBAC and server-side authorisation (Step 3) | GO WITH ACCEPTED DEVIATION |
+| Customer management (Step 4) | GO |
+| Service and price list master data (Step 4) | GO |
+| POS and order intake (Step 5) | GO |
+| Payment, refund, and void (Step 5) | GO |
+| Production operations and quality control (Step 6) | GO |
+| Public tracking portal (Step 7) | NOT IMPLEMENTED |
+| WhatsApp and notifications (Step 7) | NOT IMPLEMENTED |
+| Pickup and delivery (Step 8) | NOT IMPLEMENTED |
+| Unclaimed laundry H+1/H+3/H+7/H+14 (Step 9) | NOT IMPLEMENTED |
+| Finance, reporting, and owner portfolio (Step 10) | NOT IMPLEMENTED |
+| Customer Android experience (Step 11) | NOT IMPLEMENTED |
+| Subscription and platform administration (Step 12) | NOT IMPLEMENTED |
+| Offline-first synchronisation, Ops (Steps 5–6) | GO |
 | Observability | NOT IMPLEMENTED |
 
 ---

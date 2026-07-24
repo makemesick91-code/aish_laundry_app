@@ -40,7 +40,7 @@ date **19 July 2026**).
 | Step 6 — Production Operations | **GO** (owner-conferred 25 July 2026; merged PRs #24 and #25, tag `…step-06…v1.0.0-go`) |
 | Step 7–14 | **PLANNED** |
 | Step 7+ product business features | **NOT IMPLEMENTED** |
-| Backend runtime | **PRESENT — STEP 3 FOUNDATION ONLY** |
+| Backend runtime | **PRESENT — STEPS 3–6 (auth · tenancy · RBAC · master data · POS/order/payment · production operations)** |
 | PostgreSQL runtime foundation | **PRESENT** |
 | Redis runtime foundation | **PRESENT** |
 | Flutter workspace | **PRESENT** |

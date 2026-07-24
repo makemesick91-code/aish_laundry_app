@@ -133,6 +133,125 @@ STATUS_VOCABULARY = [
     "GO",
 ]
 
+# ---------------------------------------------------------------------------
+# Step 6 GO-tag lifecycle (shared by validate-roadmap.py and validate-status.py).
+#
+# The immutable Step 6 GO tag is created by the owner only AFTER the governance
+# closure merges, so there is an authorised window in which the step is canonically
+# GO but the tag is legitimately absent. That window is expressed as a DETERMINISTIC
+# CANONICAL FACT — the STATUS.md STEP_06_GO_TAG_STATE marker for the canonical
+# current step — not as an environmental coincidence (which tags happen to be
+# fetched) and not as a branch-name bypass. The verdict functions below are PURE so
+# the lifecycle can be adversarially tested without touching real git tags.
+# ---------------------------------------------------------------------------
+STEP6_GO_TAG_NAME = "aish-laundry-step-06-production-operations-v1.0.0-go"
+STEP6_RUNTIME_MERGE_SHA = "82f162f25a39cc9501c6ee35a9728f0e01999725"
+
+#: Historical GO tags and their immutable peel targets. A present tag whose peel
+#: differs is a move/corruption incident.
+HISTORICAL_GO_TAGS = {
+    "aish-laundry-step-03-runtime-auth-multitenancy-rbac-v1.4.0-go":
+        "0e2554338812b05eba8411afeb099212b05f9761",
+    "aish-laundry-step-04-laundry-master-data-v1.0.0-go":
+        "af31ea3b0945b274b249ff21cf30918cb2d17a5f",
+    "aish-laundry-step-05-pos-order-payment-foundation-v1.0.0-go":
+        "f0524b3a07f5306ec8b5c0584f94f865ec9f9346",
+}
+
+
+def step6_tag_verdict(step6_tags, pretag_authorised):
+    """Pure Step 6 GO-tag lifecycle verdict — no git, no environment.
+
+    ``step6_tags`` is the list of tags whose name matches
+    ``aish-laundry-step-06-*-go`` present in the checkout, each a dict
+    ``{"name": str, "annotated": bool, "peeled": str | None}``.
+    ``pretag_authorised`` is the deterministic canonical fact that the step is in
+    its authorised pre-tag closure window.
+
+    Returns a list of ``(ok: bool, message: str)`` results (fails closed):
+
+    * no tag + authorised pre-tag  -> PASS (the whole point of the lifecycle);
+    * no tag + NOT authorised       -> FAIL (a GO with no tag and no authorisation);
+    * exactly the canonical annotated tag peeling to the runtime merge -> PASS;
+    * lightweight / wrong-peel / wrong-name / duplicate                 -> FAIL.
+    """
+    results: list[tuple[bool, str]] = []
+    if not step6_tags:
+        if pretag_authorised:
+            results.append((
+                True,
+                "Step 6 GO tag absent during the authorised pre-tag closure window "
+                "(deterministic STATUS.md STEP_06_GO_TAG_STATE=NOT_YET_CREATED)",
+            ))
+        else:
+            results.append((
+                False,
+                "Step 6 is declared GO but its GO tag is absent and no authorised "
+                "pre-tag closure state is declared",
+            ))
+        return results
+
+    names = sorted(t["name"] for t in step6_tags)
+    if len(step6_tags) != 1 or names[0] != STEP6_GO_TAG_NAME:
+        results.append((
+            False,
+            f"exactly one Step 6 GO tag named {STEP6_GO_TAG_NAME} is permitted "
+            f"(found {names})",
+        ))
+        return results
+
+    tag = step6_tags[0]
+    results.append((
+        bool(tag.get("annotated")),
+        f"Step 6 GO tag {STEP6_GO_TAG_NAME} is annotated (not lightweight)",
+    ))
+    results.append((
+        tag.get("peeled") == STEP6_RUNTIME_MERGE_SHA,
+        f"Step 6 GO tag peels to the runtime merge {STEP6_RUNTIME_MERGE_SHA[:12]} "
+        f"(found {str(tag.get('peeled'))[:12]})",
+    ))
+    return results
+
+
+def historical_tag_verdict(present, expected=None):
+    """Pure verdict for historical GO tags. ``present`` maps tag name -> peeled sha
+    for the historical tags actually present in the checkout; ``expected`` maps
+    name -> required sha (defaults to HISTORICAL_GO_TAGS). A present tag whose peel
+    differs from expected is a move/corruption and fails closed. Absent tags are not
+    judged (a fresh clone has none)."""
+    if expected is None:
+        expected = HISTORICAL_GO_TAGS
+    results: list[tuple[bool, str]] = []
+    for name, want in expected.items():
+        if name in present:
+            results.append((
+                present[name] == want,
+                f"historical GO tag {name} still peels unchanged to {want[:12]} "
+                f"(found {str(present[name])[:12]})",
+            ))
+    return results
+
+
+def authorised_pretag_go_steps(root):
+    """Steps whose GO tag may legitimately be ABSENT because the step is in an
+    authorised pre-tag closure window, expressed as a DETERMINISTIC canonical fact
+    in STATUS.md: a ``STEP_<nn>_GO_TAG_STATE=...NOT_YET_CREATED...`` marker in a
+    closure block, for the canonical current step declared GO. Not environmental,
+    not branch-based, not dependent on which tags are fetched."""
+    import re as _re
+
+    try:
+        text = (root / "docs" / "STATUS.md").read_text(encoding="utf-8")
+    except OSError:
+        return set()
+    out: set[int] = set()
+    n = CANONICAL_CURRENT_STEP
+    declares_go = _re.search(rf"^STEP_{n:02d}_STATUS=GO\b", text, _re.MULTILINE)
+    marker = _re.search(rf"^STEP_{n:02d}_GO_TAG_STATE=\S*NOT_YET_CREATED", text, _re.MULTILINE)
+    if declares_go and marker:
+        out.add(n)
+    return out
+
 
 def declared_statuses(block: "str | None") -> list[str]:
     """Extract status words that a roadmap/status block actually *declares*.

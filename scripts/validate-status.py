@@ -15,11 +15,17 @@ from _common import (  # noqa: E402
     CANONICAL_CURRENT_STEP,
     CURRENT_STEP_ALLOWED,
     FORWARD_LEAK_STATUSES,
+    HISTORICAL_GO_TAGS,
     Reporter,
+    STEP6_GO_TAG_NAME,
+    STEP6_RUNTIME_MERGE_SHA,
+    authorised_pretag_go_steps,
     declared_statuses,
+    historical_tag_verdict,
     read_text,
     repo_root,
     run_main,
+    step6_tag_verdict,
 )
 
 STATUS = "docs/STATUS.md"
@@ -283,32 +289,20 @@ def check_step3_closure(root, rep) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Step 6 GO-tag closure facts (committed constants).
+# Step 6 GO-tag closure facts.
 #
 # Step 6 (Production Operations) reached GO. Unlike Step 3, the immutable GO tag
-# does NOT exist yet while the governance-closure pull request is open: the tag is
-# the owner's to create after this closure merges. So the block records the RUNTIME
-# merge SHA (the PR #24 / #25 merge) and the INTENDED tag and peel target, and the
-# live tag check is TOLERANT of the tag being absent — but once a real tag exists it
-# must be ANNOTATED and peel to the runtime merge SHA, never to the later closure
-# merge. The two are distinct commits, which is the whole point of the block.
+# does NOT exist yet while the governance-closure pull request is open and during the
+# short post-merge/pre-tag window: the tag is the owner's to create after this
+# closure merges. The pre-tag window is an authorised, DETERMINISTIC canonical fact
+# (STATUS.md STEP_06_GO_TAG_STATE), never an environmental coincidence. Once a real
+# tag exists it must be ANNOTATED, be exactly the canonical name, and peel to the
+# RUNTIME merge SHA (never the later closure merge) — a lightweight, mis-pointed,
+# misnamed, or duplicate tag fails closed. The lifecycle verdict is a pure function
+# in _common so it is adversarially testable without touching real git tags.
 # ---------------------------------------------------------------------------
-STEP6_GO_TAG = "aish-laundry-step-06-production-operations-v1.0.0-go"
-STEP6_RUNTIME_MERGE_SHA = "82f162f25a39cc9501c6ee35a9728f0e01999725"
 STEP6_CLOSURE_BEGIN = "<!-- STEP_06_CLOSURE_BEGIN -->"
 STEP6_CLOSURE_END = "<!-- STEP_06_CLOSURE_END -->"
-
-# Historical GO tags and their immutable peel targets. When any is present in the
-# local checkout it must still peel to exactly this commit — a moved historical tag
-# is a governance incident this catches. Absence (a fresh clone) is tolerated.
-HISTORICAL_GO_TAGS = {
-    "aish-laundry-step-03-runtime-auth-multitenancy-rbac-v1.4.0-go":
-        "0e2554338812b05eba8411afeb099212b05f9761",
-    "aish-laundry-step-04-laundry-master-data-v1.0.0-go":
-        "af31ea3b0945b274b249ff21cf30918cb2d17a5f",
-    "aish-laundry-step-05-pos-order-payment-foundation-v1.0.0-go":
-        "f0524b3a07f5306ec8b5c0584f94f865ec9f9346",
-}
 
 STEP6_FR_MATRIX = "docs/quality/STEP_06_REQUIREMENT_MATRIX.md"
 STEP6_DECISIONS = {
@@ -333,7 +327,7 @@ def check_step6_closure(root, rep) -> None:
     expected = {
         "STEP_06_CLOSURE_CLASSIFICATION": "GO",
         "STEP_06_RUNTIME_MERGE_SHA": STEP6_RUNTIME_MERGE_SHA,
-        "STEP_06_GO_TAG": STEP6_GO_TAG,
+        "STEP_06_GO_TAG": STEP6_GO_TAG_NAME,
         "STEP_06_GO_TAG_PEELED_EXPECTED": STEP6_RUNTIME_MERGE_SHA,
         "DEPLOYMENT": "ABSENT",
     }
@@ -386,43 +380,102 @@ def check_step6_closure(root, rep) -> None:
         )
         rep.check(accepted, f"{dec} decision record exists and is ACCEPTED")
 
-    # Live tag checks — only when a real .git tree is present. Tolerant of the Step 6
-    # tag being absent while this closure PR is open; strict once it exists.
+    # Tag lifecycle — deterministic and identical in a tagged local checkout, a
+    # fresh clone, and CI. The pre-tag window is an AUTHORISED CANONICAL FACT
+    # (STATUS.md STEP_06_GO_TAG_STATE for the current step), not an environmental
+    # coincidence. Enumerate every tag in the Step 6 GO-tag family so a misnamed or
+    # duplicate tag cannot slip past an exact-name lookup, then apply the pure
+    # lifecycle verdict; a lightweight, mis-pointed, misnamed, or duplicate tag fails
+    # closed once any tag exists.
+    pretag_authorised = 6 in authorised_pretag_go_steps(root)
+
     if not (root / ".git").exists():
+        for ok, msg in step6_tag_verdict([], pretag_authorised):
+            rep.check(ok, msg)
         return
+
     import subprocess
 
-    def peel(tag: str) -> str | None:
-        r = subprocess.run(
-            ["git", "-C", str(root), "rev-parse", f"{tag}^{{commit}}"],
-            capture_output=True, text=True,
+    def _git(*args):
+        return subprocess.run(
+            ["git", "-C", str(root), *args], capture_output=True, text=True
         )
-        return r.stdout.strip() if r.returncode == 0 else None
 
-    typ = subprocess.run(
-        ["git", "-C", str(root), "cat-file", "-t", STEP6_GO_TAG],
-        capture_output=True, text=True,
+    listed = _git("tag", "--list", "aish-laundry-step-06-*-go")
+    tag_names = (
+        [t.strip() for t in listed.stdout.splitlines() if t.strip()]
+        if listed.returncode == 0 else []
     )
-    if typ.returncode != 0:
-        rep.info(
-            "Step 6 GO tag not present in this checkout; tolerated while the closure "
-            "PR is open (the owner creates it after merge)"
-        )
-    else:
-        rep.check(typ.stdout.strip() == "tag",
-                  "Step 6 GO tag is annotated (not a lightweight tag)")
-        peeled = peel(STEP6_GO_TAG)
-        if peeled is not None:
-            rep.check(peeled == STEP6_RUNTIME_MERGE_SHA,
-                      "Step 6 GO tag peels to the recorded runtime merge SHA")
+    step6_tags = []
+    for name in tag_names:
+        typ = _git("cat-file", "-t", name)
+        peeled = _git("rev-parse", f"{name}^{{commit}}")
+        step6_tags.append({
+            "name": name,
+            "annotated": typ.returncode == 0 and typ.stdout.strip() == "tag",
+            "peeled": peeled.stdout.strip() if peeled.returncode == 0 else None,
+        })
+    for ok, msg in step6_tag_verdict(step6_tags, pretag_authorised):
+        rep.check(ok, msg)
 
-    for tag, sha in HISTORICAL_GO_TAGS.items():
-        peeled = peel(tag)
-        if peeled is None:
-            rep.info(f"historical GO tag {tag} not present; skipping unchanged check")
+    # Historical GO tags, if present, must peel unchanged.
+    present = {}
+    for name in HISTORICAL_GO_TAGS:
+        peeled = _git("rev-parse", f"{name}^{{commit}}")
+        if peeled.returncode == 0:
+            present[name] = peeled.stdout.strip()
         else:
-            rep.check(peeled == sha,
-                      f"historical GO tag {tag} still peels unchanged to {sha[:12]}")
+            rep.info(f"historical GO tag {name} not present; skipping unchanged check")
+    for ok, msg in historical_tag_verdict(present):
+        rep.check(ok, msg)
+
+
+# ---------------------------------------------------------------------------
+# Post-Step-6 truthfulness. Once Step 6 is canonically GO, certain ABSOLUTE claims
+# are materially false and must never reappear in the live canonical-status
+# documents:
+#   - "Every product feature is NOT IMPLEMENTED" — Steps 3-6 features reached GO;
+#   - backend runtime scoped to "STEP 3 FOUNDATION ONLY" — Step 4-6 runtime exists.
+# These are NEGATIVE checks (they look for a stale absolute the canonical state
+# refutes) and fire ONLY while Step 6 is actually GO, so they cannot themselves
+# become the next stale assertion. This is the anti-recurrence guard for the drift
+# the Step 6 GO closure removed.
+# ---------------------------------------------------------------------------
+TRUTHFULNESS_DOCS = [
+    "docs/STATUS.md",
+    "CLAUDE.md",
+    ".claude/rules/15-current-product-status.md",
+]
+STALE_ABSOLUTE_CLAIMS: list[tuple[str, re.Pattern]] = [
+    (
+        '"Every product feature is NOT IMPLEMENTED"',
+        re.compile(r"every\s+product\s+feature\s+is[\s*_]+not[\s*_]+implemented", re.IGNORECASE),
+    ),
+    (
+        'backend runtime scoped to "STEP 3 FOUNDATION ONLY"',
+        re.compile(r"step[\s\-]*3\s+foundation\s+only", re.IGNORECASE),
+    ),
+]
+
+
+def check_post_step6_truthfulness(root, rep) -> None:
+    """No live canonical-status document may carry a stale absolute claim that the
+    Step 6 GO state refutes."""
+    rep.info("--- post-Step-6 truthfulness (Step 6 GO closure) ---")
+    state, errors = parse_canonical_state(read_text(root / STATUS))
+    if errors or state.get(6) != "GO":
+        rep.ok("Step 6 is not GO; post-Step-6 truthfulness checks not applicable")
+        return
+    for rel in TRUTHFULNESS_DOCS:
+        p = root / rel
+        if not p.is_file():
+            continue
+        text = read_text(p)
+        for label, rx in STALE_ABSOLUTE_CLAIMS:
+            rep.check(
+                rx.search(text) is None,
+                f"{rel} carries no stale absolute claim now that Step 6 is GO: {label}",
+            )
 
 
 def check_runtime_matches_reality(root, rep) -> None:
@@ -867,6 +920,7 @@ def main() -> int:
     check_cross_document_consistency(root, rep)
     check_step3_closure(root, rep)
     check_step6_closure(root, rep)
+    check_post_step6_truthfulness(root, rep)
 
     return rep.finish()
 

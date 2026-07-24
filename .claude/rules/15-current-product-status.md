@@ -28,7 +28,7 @@ Master Source version **1.4.0**, baseline date **19 July 2026**.
 | Step 13 — Security, Performance, Backup, and Recovery | **PLANNED** |
 | Step 14 — Pilot and Commercial Launch | **PLANNED** |
 | **Step 7+ product business features** | **NOT IMPLEMENTED** |
-| **Backend runtime** | **PRESENT — STEP 3 FOUNDATION ONLY** |
+| **Backend runtime** | **PRESENT — STEPS 3–6 (auth · tenancy · RBAC · master data · POS/order/payment · production operations)** |
 | **Flutter workspace** | **PRESENT** |
 | **Deployment** | **ABSENT** |
 | **Application CI** | **ACTIVE** |

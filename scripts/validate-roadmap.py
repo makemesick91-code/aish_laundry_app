@@ -16,6 +16,7 @@ from _common import (  # noqa: E402
     CURRENT_STEP_ALLOWED,
     FORWARD_LEAK_STATUSES,
     Reporter,
+    authorised_pretag_go_steps,
     declared_statuses,
     read_text,
     repo_root,
@@ -234,12 +235,32 @@ def check_go_tags(root, rep, machine: dict[int, str]) -> None:
             tagged.add(int(m.group(1)))
 
     rep.info(f"GO tags present for steps: {sorted(tagged)}")
+
+    # A step may be canonically GO while its immutable tag is not yet created — the
+    # authorised pre-tag closure window, expressed as a DETERMINISTIC canonical fact
+    # (STATUS.md STEP_<nn>_GO_TAG_STATE for the current step), never as which tags
+    # happen to be fetched. A GO step whose tag is absent AND which is NOT in that
+    # authorised set still fails closed, so a fabricated GO is still caught. The
+    # detailed tag validation (annotated, exact name, peel target, no duplicate) is
+    # enforced in validate-status.py check_step6_closure.
+    pretag = authorised_pretag_go_steps(root)
     for n in range(0, 15):
         declared = machine.get(n)
         if declared is None:
             continue
         if declared == "GO":
-            rep.check(n in tagged, f"Step {n} is declared GO and its GO tag exists")
+            if n in tagged:
+                rep.ok(f"Step {n} is declared GO and its GO tag exists")
+            elif n in pretag:
+                rep.ok(
+                    f"Step {n} is declared GO; its immutable GO tag is not yet created "
+                    f"(authorised pre-tag closure — deterministic STATUS.md canonical fact)"
+                )
+            else:
+                rep.fail(
+                    f"Step {n} is declared GO but has no GO tag and is not in an "
+                    f"authorised pre-tag closure state"
+                )
         else:
             rep.check(
                 n not in tagged,

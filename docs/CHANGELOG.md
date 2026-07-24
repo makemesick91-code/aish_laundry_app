@@ -40,6 +40,14 @@ added; DEC-0037 and DEC-0038 remain `ACCEPTED` and indexed.
   Step-5 verifier version pins (`scripts/verify-step-06.sh`, `scripts/verify-step-05.sh`),
   and the Master Source checksum (`MASTER_SOURCE.sha256`) were moved together. Closure
   evidence: [`../evidence/step-06/GO-CLOSURE.md`](../evidence/step-06/GO-CLOSURE.md).
+- The Step 6 GO-tag cross-check is **pre-tag-safe** through a deterministic canonical fact
+  (STATUS.md `STEP_06_GO_TAG_STATE`), so the ordinary tagged local checkout passes
+  `validate-roadmap.py` and `verify-step-06.sh` before the owner creates the tag — while a
+  lightweight, mis-pointed, misnamed, or duplicate tag, or a moved historical tag, still fails
+  closed (pure verdicts in `_common.py`, adversarially tested). STATUS.md §2/§3 are rescoped
+  truthfully (features through Step 6 are `GO`, Step 7+ `NOT IMPLEMENTED`), and a new
+  anti-drift check keeps the stale absolutes ("every product feature NOT IMPLEMENTED",
+  backend "STEP 3 FOUNDATION ONLY") from recurring once Step 6 is GO.
 
 ## [1.4.10] — 25 July 2026 — Private object-storage introduction for QC defect evidence (FR-083)
 
