@@ -1,14 +1,19 @@
-/// Offline synchronization INTERFACES and state taxonomy.
+/// Offline synchronization interfaces, state taxonomy, AND the Step 6 production
+/// implementation.
 ///
-/// SCOPE, stated plainly: this package contains no queue implementation, no
-/// persistence, no retry engine, and no order or payment operation of any kind.
-/// Step 3 defines the shape that Step 5 and later must fill; defining the shape
-/// now is what stops each surface inventing its own.
+/// Step 3 defined the shape (`SyncOperation`, `SyncQueue`, `SyncState`) so that
+/// each surface could not invent its own. Step 6 (DEC-0037) fills it for the Ops
+/// production surface: a durable, encrypted-at-rest [ProductionCommandQueue] and
+/// the connectivity-aware [ProductionSyncWorker] that drains it against the
+/// server-authoritative production API, reusing each command's original
+/// `client_reference` on every retry.
 ///
-/// **NOT IMPLEMENTED.** Nothing here synchronises anything. A declared interface
-/// is an obligation, never an achievement.
+/// The order and payment operations remain unbuilt here: Step 5's POS surface is
+/// online-only, and a queued financial operation is Step 7+ scope.
 library;
 
+export 'src/production_command.dart';
+export 'src/production_command_queue.dart';
 export 'src/sync_operation.dart';
 export 'src/sync_queue.dart';
 export 'src/sync_state.dart';
