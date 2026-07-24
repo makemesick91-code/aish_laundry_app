@@ -146,6 +146,12 @@ abstract final class ApiFixtures {
           Permission(Permission.priceListPublish),
           Permission(Permission.outletMasterDataManage),
           Permission(Permission.staffAssignmentManage),
+
+          // Step 6 production (DEC-0037). The real `tenant_owner` role holds
+          // every one, so the owner's production screens render their actions.
+          Permission(Permission.productionView),
+          Permission(Permission.productionOperate),
+          Permission(Permission.productionQc),
         },
       );
 

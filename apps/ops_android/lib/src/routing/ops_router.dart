@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:aish_auth/aish_auth.dart';
 import 'package:aish_design_system/aish_design_system.dart';
+import 'package:aish_domain/aish_domain.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -15,6 +16,9 @@ import '../master_data/staff_roster_screen.dart';
 import '../pos/pos_counter_screen.dart';
 import '../pos/pos_new_order_screen.dart';
 import '../pos/pos_order_detail_screen.dart';
+import '../production/production_job_detail_screen.dart';
+import '../production/production_queue_screen.dart';
+import '../production/production_sync_center_screen.dart';
 import '../screens/ops_home_screen.dart';
 import '../screens/ops_session_screens.dart';
 import '../screens/select_outlet_screen.dart';
@@ -144,20 +148,30 @@ final Provider<GoRouter> opsRouterProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
+          // Step 6 — production operations (DEC-0037). Real screens. `baru`-style
+          // literal segments (`sinkronisasi`) are declared BEFORE the `:jobId`
+          // pattern so go_router does not read them as a job id.
           GoRoute(
             path: 'produksi',
-            builder: (_, _) => const _FuturePage(
-              title: 'Produksi',
-              feature: 'Operasi produksi cucian',
-              step: 'Step 6',
-            ),
+            builder: (_, _) => const ProductionQueueScreen(),
+            routes: <RouteBase>[
+              GoRoute(
+                path: 'sinkronisasi',
+                builder: (_, _) => const ProductionSyncCenterScreen(),
+              ),
+              GoRoute(
+                path: ':jobId',
+                builder: (_, state) => ProductionJobDetailScreen(
+                  jobId: state.pathParameters['jobId']!,
+                ),
+              ),
+            ],
           ),
           GoRoute(
             path: 'kendali-mutu',
-            builder: (_, _) => const _FuturePage(
+            builder: (_, _) => const ProductionQueueScreen(
+              initialFilter: ProductionState.awaitingQc,
               title: 'Kendali mutu',
-              feature: 'Kendali mutu dan pengerjaan ulang',
-              step: 'Step 6',
             ),
           ),
           GoRoute(

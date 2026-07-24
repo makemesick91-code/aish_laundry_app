@@ -129,22 +129,29 @@ class OpsHomeScreen extends ConsumerWidget {
               route: OpsRoutes.counter,
               available: true,
             ),
+          // Step 6 — production and quality control are now real features
+          // (DEC-0037). Gated on the server-reported production permissions,
+          // which is a courtesy: the ProductionJobPolicy re-checks every request
+          // (Rule 28 hard rule 6). A cashier holds none of these, so the tiles
+          // do not render for them.
+          if (session.allows(Permission.productionView))
+            _NavEntry(
+              label: 'Produksi',
+              icon: Icons.local_laundry_service_outlined,
+              route: OpsRoutes.production,
+              available: true,
+            ),
+          if (session.allows(Permission.productionQc))
+            _NavEntry(
+              label: 'Kendali mutu',
+              icon: Icons.fact_check_outlined,
+              route: OpsRoutes.qualityControl,
+              available: true,
+            ),
 
           SizedBox(height: AishSpacing.space6),
           Text('Belum tersedia', style: textTheme.titleMedium),
           SizedBox(height: AishSpacing.space2),
-          if (session.allows(Permission.outletView))
-            _NavEntry(
-              label: 'Produksi',
-              icon: Icons.local_laundry_service_outlined,
-              route: OpsRoutes.futureProduction,
-            ),
-          if (session.allows(Permission.outletView))
-            _NavEntry(
-              label: 'Kendali mutu',
-              icon: Icons.fact_check_outlined,
-              route: OpsRoutes.futureQualityControl,
-            ),
           if (session.allows(Permission.outletView))
             _NavEntry(
               label: 'Kurir',

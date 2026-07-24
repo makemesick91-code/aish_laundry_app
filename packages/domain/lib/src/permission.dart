@@ -46,6 +46,14 @@ final class Permission {
   static const String outletMasterDataManage = 'outlet.master_data.manage';
   static const String staffAssignmentManage = 'staff.assignment.manage';
 
+  // Step 6 production permission keys (DEC-0037). They mirror the server
+  // `PermissionRegistry::PRODUCTION_*` exactly, so a nav tile or an operator
+  // action is drawn only where the server reported the matching permission.
+  // Still a rendering hint: the ProductionJobPolicy re-checks on every request.
+  static const String productionView = 'production.view';
+  static const String productionOperate = 'production.operate';
+  static const String productionQc = 'production.qc';
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) || (other is Permission && other.key == key);
