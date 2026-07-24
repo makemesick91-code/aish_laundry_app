@@ -1,0 +1,12 @@
+STEP 6 VERIFIER ADVERSARIAL HARNESS
+command: bash scripts/test-verify-step-06.sh
+======
+  ok    1. a required failure makes the verifier's final-exit rule return non-zero
+  ok    2. a skipped (exit 78) gate increments SKIP, not PASS
+  ok    4. the final exit is FAIL-count-gated AND runs after the checksum gate
+  ok    3. a Step 7 advancement leaves the Step 6 production scope still permitted
+  ok    5. a stale Master Source version pin fails closed
+  ok    6. missing composer/.env/DB prerequisites are each reported as an explicit SKIP
+------------------------------------------------------------------------
+SUMMARY [verify-step-06 adversarial]: 6/6 expectations met, 0 failed
+RESULT: PASS (verify-step-06 adversarial)

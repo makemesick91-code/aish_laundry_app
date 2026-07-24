@@ -116,6 +116,24 @@ final class Step04AuditCoverageTest extends TestCase
             'api.v1.payments.confirm' => AuditAction::PAYMENT_CONFIRMED,
             'api.v1.payments.reverse' => AuditAction::PAYMENT_REVERSED,
 
+            // --- Step 6: production operations (DEC-0037) -----------------
+            //
+            // DELIBERATELY NOT in the central audit_entries vocabulary, with the
+            // reason in the open. Every production mutation appends a row to the
+            // APPEND-ONLY `production_events` table, which is tenant-aware and
+            // actor-aware (tenant_id + actor_membership_id) and immutable at the
+            // database boundary — the production module's own domain audit and
+            // idempotency log (FR-084, Rule 46). That is a stronger, not weaker,
+            // record than a central audit row; declaring it here as an exemption
+            // is a decision recorded in the open, not a gap.
+            'api.v1.production.jobs.advance' => null,
+            'api.v1.production.jobs.block' => null,
+            'api.v1.production.jobs.resume' => null,
+            'api.v1.production.jobs.qc.send' => null,
+            'api.v1.production.jobs.qc.record' => null,
+            'api.v1.production.jobs.rework.complete' => null,
+            'api.v1.production.jobs.ready' => null,
+
             // --- Framework routes outside /api/v1 -------------------------
             //
             // DELIBERATELY NOT AUDITED, with the reason in the open.

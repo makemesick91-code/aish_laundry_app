@@ -54,6 +54,12 @@ from _common import CANONICAL_CURRENT_STEP  # noqa: E402
 # Nothing is weakened: the tokens move to a different, step-appropriate auditor,
 # and below Step 5 they remain forbidden here exactly as before.
 _STEP5_PERMITTED_AT_5 = CANONICAL_CURRENT_STEP >= 5
+# DEC-0037 GUARD TRANSITION (Rule 36 hard rule 8). DEC-0037 moved the production
+# labels from forbidden to authorised runtime. The mechanism mirrors the DEC-0035
+# transition above: from Step 6 the production labels are no longer forbidden
+# here (validate-dec-0037-labels.py audits them), and below Step 6 they remain
+# forbidden exactly as before.
+_STEP6_PERMITTED_AT_6 = CANONICAL_CURRENT_STEP >= 6
 
 # ---------------------------------------------------------------------------
 # The four labels DEC-0030 permitted, and the requirements that authorise them.
@@ -95,7 +101,6 @@ PERMITTED_LABELS: dict[str, dict[str, object]] = {
 STILL_FORBIDDEN: dict[str, set[str]] = {
     "invoice (not Step 5 scope; the nota is FR-052)": {"invoice", "faktur"},
     "checkout / cart (not laundry-POS vocabulary)": {"checkout", "cart", "keranjang"},
-    "production (Step 6)": {"produksi", "washing", "drying", "finishing"},
     "tracking (Step 7)": {"tracking_token", "public_tracking"},
     "pickup / delivery (Step 8)": {"pickup", "penjemputan", "delivery", "pengantaran"},
     "reminder ladder (Step 9)": {"reminder", "pengingat"},
@@ -112,6 +117,17 @@ _STEP5_LABELS: dict[str, set[str]] = {
 }
 if not _STEP5_PERMITTED_AT_5:
     STILL_FORBIDDEN.update(_STEP5_LABELS)
+
+# The production labels: forbidden here only WHILE the canonical current step is
+# below 6. From Step 6 (DEC-0037) they are authorised runtime and are audited by
+# validate-dec-0037-labels.py instead — exactly as the Step 5 labels moved under
+# DEC-0035. Leaving production unconditionally forbidden here would FALSE-fail on
+# the authorised Step 6 route `/beranda/produksi` and the production module.
+_STEP6_LABELS: dict[str, set[str]] = {
+    "production (Step 6)": {"produksi", "washing", "drying", "finishing"},
+}
+if not _STEP6_PERMITTED_AT_6:
+    STILL_FORBIDDEN.update(_STEP6_LABELS)
 
 # Structural identifiers that legitimately contain a forbidden substring and are
 # NOT the feature. Each needs a reason; an unexplained entry here would be a

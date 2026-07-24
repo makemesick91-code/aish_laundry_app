@@ -189,6 +189,19 @@ final class PermissionRegistry
     // and withheld from the admin deputy exactly as PRICE_OVERRIDE is.
     public const PAYMENT_REFUND = 'payment.refund';
 
+    // --- Step 6: production operations (FR-071 … FR-085) -----------------
+    /** Read the production queue, a job, its items, and its timeline. */
+    public const PRODUCTION_VIEW = 'production.view';
+
+    // Advance a stage, block/resume, assign work, manage batches, and mark an
+    // order ready (reached only via a passing QC verdict). A cashier holds none
+    // of these — access to an order never confers production mutation.
+    public const PRODUCTION_OPERATE = 'production.operate';
+
+    // Record a quality-control verdict and drive rework. Distinct from OPERATE so
+    // a tenant may separate the inspector from the operator being inspected.
+    public const PRODUCTION_QC = 'production.qc';
+
     /** Manage outlet master data: hours, capacity, zones, shifts, printers. */
     public const OUTLET_MASTER_DATA_MANAGE = 'outlet.master_data.manage';
 
@@ -281,6 +294,9 @@ final class PermissionRegistry
             self::PAYMENT_VIEW => ['description' => 'Melihat pembayaran pada tenant aktif', 'category' => self::CATEGORY_TENANT],
             self::PAYMENT_RECORD => ['description' => 'Mencatat pembayaran pada pesanan', 'category' => self::CATEGORY_TENANT],
             self::PAYMENT_REFUND => ['description' => 'Membalik atau mengembalikan pembayaran dengan alasan tercatat', 'category' => self::CATEGORY_TENANT],
+            self::PRODUCTION_VIEW => ['description' => 'Melihat antrean produksi, pekerjaan, item, dan riwayatnya', 'category' => self::CATEGORY_TENANT],
+            self::PRODUCTION_OPERATE => ['description' => 'Menjalankan produksi: tahap, tahan/lanjut, penugasan, batch, dan penandaan siap diambil', 'category' => self::CATEGORY_TENANT],
+            self::PRODUCTION_QC => ['description' => 'Mencatat verdict quality control dan mengelola rework', 'category' => self::CATEGORY_TENANT],
             self::OUTLET_MASTER_DATA_MANAGE => ['description' => 'Mengelola data induk outlet: jam, kapasitas, zona, shift, printer', 'category' => self::CATEGORY_TENANT],
             self::STAFF_ASSIGNMENT_MANAGE => ['description' => 'Menugaskan keanggotaan ke outlet pada tenant aktif', 'category' => self::CATEGORY_TENANT],
 
@@ -424,6 +440,12 @@ final class PermissionRegistry
                     self::PAYMENT_VIEW,
                     self::PAYMENT_RECORD,
                     self::PAYMENT_REFUND,
+
+                    // Step 6. The outlet manager oversees production: view,
+                    // operate, and QC/rework across the outlet's jobs.
+                    self::PRODUCTION_VIEW,
+                    self::PRODUCTION_OPERATE,
+                    self::PRODUCTION_QC,
                 ]),
             ],
             self::ROLE_CASHIER => [
@@ -464,6 +486,13 @@ final class PermissionRegistry
                 'permissions' => self::merge($baseline, [
                     self::OUTLET_VIEW,
                     self::OUTLET_SWITCH,
+
+                    // Step 6. The floor runs production: view the queue, advance
+                    // stages, block/resume, assign, manage batches, and mark an
+                    // order ready. It does NOT hold PRODUCTION_QC — inspecting
+                    // one's own work is the separation FR-081 exists to keep.
+                    self::PRODUCTION_VIEW,
+                    self::PRODUCTION_OPERATE,
                 ]),
             ],
             self::ROLE_QUALITY_CONTROL => [
@@ -472,6 +501,11 @@ final class PermissionRegistry
                 'permissions' => self::merge($baseline, [
                     self::OUTLET_VIEW,
                     self::OUTLET_SWITCH,
+
+                    // Step 6. QC reads the queue and records verdicts / drives
+                    // rework. It does NOT hold PRODUCTION_OPERATE.
+                    self::PRODUCTION_VIEW,
+                    self::PRODUCTION_QC,
                 ]),
             ],
             self::ROLE_COURIER => [

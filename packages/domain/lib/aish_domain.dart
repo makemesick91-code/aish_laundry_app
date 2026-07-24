@@ -2,16 +2,17 @@
 /// payment projections.
 ///
 /// SCOPE BOUNDARY, stated so it cannot be crossed by accident: this package
-/// carries NO invoice, production, tracking, delivery, reminder, finance,
-/// loyalty or subscription type. Those belong to Step 6 and later, and a type
-/// added here early is roadmap leakage rather than a head start (CLAUDE.md §3,
-/// Rule 42). Order, payment, and receipt projections ARE carried now: DEC-0035
-/// authorised the Step 5 runtime.
+/// carries NO invoice, tracking, delivery, reminder, finance, loyalty or
+/// subscription type. Those belong to Step 7 and later, and a type added here
+/// early is roadmap leakage rather than a head start (CLAUDE.md §3, Rule 42).
+/// Order, payment, and receipt projections ARE carried now (DEC-0035, Step 5),
+/// and the PRODUCTION projections are carried now (DEC-0037, Step 6).
 ///
 /// Step 3 delivered the identity and tenancy projections. Step 4 added master
 /// data under DEC-0028 and DEC-0030: customers, the service catalogue, price
 /// lists, outlet configuration, and staff assignment. Step 5 adds the order,
-/// payment, and receipt projections under DEC-0035.
+/// payment, and receipt projections under DEC-0035. Step 6 adds the production
+/// job, item, timeline, and quality-control projections under DEC-0037.
 ///
 /// Every type here is a PROJECTION of server state. The backend is the
 /// authorization authority; these classes describe what the client was TOLD,
@@ -37,6 +38,7 @@ export 'src/membership.dart';
 export 'src/pos/order.dart';
 export 'src/pos/payment.dart';
 export 'src/pos/receipt.dart';
+export 'src/production/production_job.dart';
 export 'src/outlet.dart';
 export 'src/permission.dart';
 export 'src/role.dart';

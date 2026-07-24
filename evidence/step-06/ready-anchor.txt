@@ -1,0 +1,12 @@
+=== Step 6 Unit D (immutable first READY_FOR_PICKUP anchor) evidence ===
+--- ProductionReadyTest (PostgreSQL) ---
+  ✓ mark ready transitions order and writes one anchor                   0.67s  
+  ✓ first ready timestamp is server set and recorded once                0.06s  
+  ✓ replay with same reference is exactly once                           0.06s  
+  ✓ cannot mark ready before the job is closed                           0.04s  
+  ✓ marking ready is indistinguishable across tenants                    0.06s  
+  ✓ ready anchor cannot be mutated at the database                       0.06s  
+  Tests:    6 passed (10 assertions)
+
+--- full Production suite ---
+  Tests:    40 passed (67 assertions)

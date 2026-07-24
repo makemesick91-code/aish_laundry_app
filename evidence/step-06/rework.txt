@@ -1,0 +1,12 @@
+=== Step 6 Unit C (QC + rework) evidence ===
+--- QualityControlTest (PostgreSQL) ---
+  ✓ pass verdict closes the job                                          0.61s  
+  ✓ waived verdict closes the job                                        0.05s  
+  ✓ fail verdict opens rework                                            0.05s  
+  ✓ fail without defect reason is rejected                               0.05s  
+  ✓ qc only when awaiting qc                                             0.04s  
+  ✓ complete rework returns to awaiting qc                               0.07s  
+  ✓ repeated rework increments cycle number                              0.06s  
+  ✓ cross tenant qc is not found                                         0.05s  
+  ✓ qc replay is exactly once                                            0.06s  
+  Tests:    9 passed (15 assertions)

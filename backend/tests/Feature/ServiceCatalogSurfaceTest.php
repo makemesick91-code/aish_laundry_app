@@ -708,16 +708,17 @@ final class ServiceCatalogSurfaceTest extends TestCase
 
     public function test_no_out_of_scope_business_route_exists(): void
     {
-        // DEC-0035 authorised the Step 5 order/payment/receipt surface, so those
+        // DEC-0035 authorised the Step 5 order/payment/receipt surface and
+        // DEC-0037 authorised the Step 6 production-operations surface, so those
         // tokens are no longer forbidden. This assertion now guards the CURRENT
-        // forward boundary: Step 6+ business features (production, tracking,
-        // pickup, delivery, reminders, subscription) and features never in Step 5
-        // scope (invoice, export, bulk, checkout, cart) must still have no route.
+        // forward boundary: Step 7+ business features (customer tracking,
+        // WhatsApp, pickup, delivery, reminders, subscription) and features never
+        // in Step 5/6 scope (invoice, export, bulk, checkout, cart) must still
+        // have no route.
         $forbidden = [
             'invoice', 'export', 'bulk', 'checkout', 'cart',
-            'produksi', 'production', 'washing', 'drying', 'tracking',
-            'whatsapp', 'pickup', 'penjemputan', 'delivery', 'pengantaran',
-            'reminder', 'subscription',
+            'tracking', 'whatsapp', 'pickup', 'penjemputan', 'delivery',
+            'pengantaran', 'reminder', 'subscription',
         ];
 
         foreach (app('router')->getRoutes() as $route) {

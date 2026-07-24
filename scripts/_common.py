@@ -106,8 +106,11 @@ def tracked_files(root: Path) -> list[Path]:
 #:
 #: History: 2 through Step 2. Raised to 3 for Step 3 (DEC-0024), LATE — runtime was
 #: already committed while it still read 2 (DEC-0027). Raised to 4 for Step 4
-#: (DEC-0028), in the same change that moved the status everywhere.
-CANONICAL_CURRENT_STEP = 5
+#: (DEC-0028), in the same change that moved the status everywhere. Raised to 5 for
+#: Step 5 (DEC-0035), likewise moving the status in §24, ROADMAP, and STATUS together.
+#: Raised to 6 for Step 6 — Production Operations (DEC-0037), in the same change that
+#: split STEP6_PLUS_FEATURE_TOKENS and moved the status everywhere.
+CANONICAL_CURRENT_STEP = 6
 
 #: Statuses the current step may legitimately carry.
 CURRENT_STEP_ALLOWED = ["IN PROGRESS", "TESTED", "WATCH", "GO"]

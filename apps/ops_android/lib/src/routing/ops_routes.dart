@@ -62,9 +62,20 @@ abstract final class OpsRoutes {
   static String counterOrderDetailFor(String orderId) =>
       '/beranda/kasir/$orderId';
 
+  // Step 6 — production operations (DEC-0037). The queue, one job's detail, and
+  // the offline sync centre. `sinkronisasi` is declared BEFORE the `:jobId`
+  // pattern in the router so it is not read as a job id.
+  static const String production = '/beranda/produksi';
+  static const String productionSync = '/beranda/produksi/sinkronisasi';
+  static const String productionJobDetail = '/beranda/produksi/:jobId';
+  static String productionJobDetailFor(String jobId) =>
+      '/beranda/produksi/$jobId';
+
+  /// The quality-control worklist — the same production queue, pre-filtered to
+  /// jobs awaiting QC. Not a separate data source (no dead route).
+  static const String qualityControl = '/beranda/kendali-mutu';
+
   // Future canonical Steps — placeholder only.
-  static const String futureProduction = '/beranda/produksi';
-  static const String futureQualityControl = '/beranda/kendali-mutu';
   static const String futureCourier = '/beranda/kurir';
   static const String futureReports = '/beranda/laporan';
 }

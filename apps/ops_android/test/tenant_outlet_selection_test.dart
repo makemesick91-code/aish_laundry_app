@@ -313,20 +313,28 @@ void main() {
         reason: 'A built destination announces its plain label.',
       );
 
-      // The Step 5 POS counter is now BUILT (DEC-0035): it announces its plain
-      // label, exactly like the Step 4 destinations.
+      // The Step 5 POS counter and the Step 6 production surface are now BUILT
+      // (DEC-0035, DEC-0037): they announce their plain labels, exactly like the
+      // Step 4 destinations.
       await tester.scrollUntilVisible(find.text('Kasir'), 200);
       expect(
         find.bySemanticsLabel('Kasir'),
         findsOneWidget,
         reason: 'A built destination announces its plain label.',
       );
-      // A genuine Step 6 placeholder still announces that it is unavailable.
       await tester.scrollUntilVisible(find.text('Produksi'), 200);
       expect(
-        find.bySemanticsLabel('Produksi. Belum tersedia.'),
+        find.bySemanticsLabel('Produksi'),
         findsOneWidget,
-        reason: 'A Step 6 placeholder still announces that it is unavailable.',
+        reason:
+            'The Step 6 production surface is built; it is not a placeholder.',
+      );
+      // A genuine Step 8 placeholder still announces that it is unavailable.
+      await tester.scrollUntilVisible(find.text('Kurir'), 200);
+      expect(
+        find.bySemanticsLabel('Kurir. Belum tersedia.'),
+        findsOneWidget,
+        reason: 'A Step 8 placeholder still announces that it is unavailable.',
       );
     });
   });
@@ -442,10 +450,11 @@ void main() {
         ApiFixtures.fullContext(),
       );
       await pumpApp(tester, auth);
-      // 'Kasir' is now the real Step 5 POS counter (DEC-0035); 'Produksi' remains
-      // a genuine future-step placeholder (Step 6).
-      await tester.scrollUntilVisible(find.text('Produksi'), 200);
-      await tester.tap(find.text('Produksi'));
+      // 'Kasir' is the real Step 5 POS counter (DEC-0035) and 'Produksi' is the
+      // real Step 6 production surface (DEC-0037); 'Kurir' remains a genuine
+      // future-step placeholder (Step 8).
+      await tester.scrollUntilVisible(find.text('Kurir'), 200);
+      await tester.tap(find.text('Kurir'));
       await tester.pumpAndSettle();
       expect(find.text(kFutureStepNotice), findsOneWidget);
       // Even a placeholder carries visible tenant context.

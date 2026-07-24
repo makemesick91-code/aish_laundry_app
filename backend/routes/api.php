@@ -9,6 +9,7 @@ use App\Modules\Identity\Http\Controllers\AuthController;
 use App\Modules\Identity\Http\Controllers\PasswordResetController;
 use App\Modules\Identity\Http\Controllers\SessionController;
 use App\Modules\Ordering\Http\Controllers\OrderController;
+use App\Modules\Production\Http\Controllers\ProductionController;
 use App\Modules\Organization\Http\Controllers\OutletMasterDataController;
 use App\Modules\Organization\Http\Controllers\StaffAssignmentController;
 use App\Modules\Payments\Http\Controllers\PaymentController;
@@ -31,10 +32,11 @@ use Illuminate\Support\Facades\Route;
 | addresses and consent, the service catalogue, price lists, outlet master data,
 | and staff assignment.
 |
-| There is still deliberately no route here for an order, a payment, a receipt,
-| production, tracking, a pickup, a delivery, a reminder, a receivable, or a
-| subscription: every one of those belongs to Step 5 or later, and adding it
-| early is scope leakage (CLAUDE.md §3 — roadmap lock).
+| Step 5 adds orders and payments; Step 6 adds production operations (FR-071 …
+| FR-085) under DEC-0037. There is still deliberately no route here for tracking,
+| a pickup, a delivery, a reminder, a receivable, or a subscription: every one of
+| those belongs to Step 7 or later, and adding it early is scope leakage
+| (CLAUDE.md §3 — roadmap lock).
 |
 | Note what is ABSENT from the Step 4 block below and is absent on purpose: no
 | bulk-mutation route and no export route (threats T-19, T-20). Their absence is
@@ -320,4 +322,19 @@ Route::middleware(['auth.api', 'tenant.context'])->group(function (): void {
     Route::post('orders/{order}/payments', [PaymentController::class, 'store'])->name('api.v1.orders.payments.store');
     Route::post('payments/{payment}/confirm', [PaymentController::class, 'confirm'])->name('api.v1.payments.confirm');
     Route::post('payments/{payment}/reverse', [PaymentController::class, 'reverse'])->name('api.v1.payments.reverse');
+
+    // Step 6 — production operations (FR-071 … FR-085), authorised by DEC-0037.
+    // Each write is RBAC-gated (ProductionJobPolicy), idempotent on
+    // client_reference, and optimistic on expected_version. A cashier/courier/
+    // customer holds no production permission; a foreign job 404s like an absent
+    // one (Rule 48).
+    Route::get('production/queue', [ProductionController::class, 'index'])->name('api.v1.production.queue');
+    Route::get('production/jobs/{job}', [ProductionController::class, 'show'])->name('api.v1.production.jobs.show');
+    Route::post('production/jobs/{job}/advance', [ProductionController::class, 'advance'])->name('api.v1.production.jobs.advance');
+    Route::post('production/jobs/{job}/block', [ProductionController::class, 'block'])->name('api.v1.production.jobs.block');
+    Route::post('production/jobs/{job}/resume', [ProductionController::class, 'resume'])->name('api.v1.production.jobs.resume');
+    Route::post('production/jobs/{job}/quality-control/send', [ProductionController::class, 'sendToQualityControl'])->name('api.v1.production.jobs.qc.send');
+    Route::post('production/jobs/{job}/quality-control', [ProductionController::class, 'recordQualityControl'])->name('api.v1.production.jobs.qc.record');
+    Route::post('production/jobs/{job}/rework/complete', [ProductionController::class, 'completeRework'])->name('api.v1.production.jobs.rework.complete');
+    Route::post('production/jobs/{job}/ready', [ProductionController::class, 'markReady'])->name('api.v1.production.jobs.ready');
 });

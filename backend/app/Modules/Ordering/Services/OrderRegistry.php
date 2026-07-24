@@ -246,6 +246,40 @@ final class OrderRegistry
         return $order;
     }
 
+    /**
+     * RECEIVED → READY_FOR_PICKUP, driven by production (Step 6, FR-076). The
+     * order status is Ordering-owned; production reaches it only through this
+     * interface (Rule 06 hard rule 6), never by writing the orders table. The
+     * canonical immutable first-ready anchor is `production_ready_events`, written
+     * by ProductionReadyService in the same transaction as this call; the trail
+     * lives in production_events, so no central AuditAction case is added here.
+     *
+     * Idempotent: an order already READY_FOR_PICKUP is returned unchanged, so a
+     * retried readiness transition never advances the version or re-runs.
+     */
+    public function markReadyForPickup(TenantContext $context, Order $order): Order
+    {
+        $this->assertSameTenant($context, $order);
+
+        if ($order->status === Order::STATUS_READY_FOR_PICKUP) {
+            return $order; // already ready — first-ready is preserved (FR-077)
+        }
+
+        if ($order->status !== Order::STATUS_RECEIVED) {
+            throw ApiException::of(
+                ErrorCode::CONFLICT,
+                'Pesanan pada status ini tidak dapat ditandai siap diambil.',
+                ['status' => [$order->status]],
+            );
+        }
+
+        $order->status = Order::STATUS_READY_FOR_PICKUP;
+        $order->updated_by_membership_id = $context->membershipId();
+        $order->save();
+
+        return $order;
+    }
+
     // --- resolution & guards ------------------------------------------------
 
     private function resolveOutlet(string $tenantId, string $outletId): object

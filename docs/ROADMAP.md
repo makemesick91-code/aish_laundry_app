@@ -171,7 +171,7 @@ next step nor authorises deployment.**
 
 ## Step 6 — Production Operations
 
-**Status: PLANNED**
+**Status: IN PROGRESS**
 
 - Production stages, batches, and per-item tracking.
 - Quality control and rework.

@@ -8,13 +8,15 @@
 /// MASTER DATA under DEC-0028 and DEC-0030 — customers, consent, the service
 /// catalogue, price lists, outlet master data, and staff assignment. Step 5 adds
 /// the ORDER and PAYMENT surface under DEC-0035 — order intake, the nota, and the
-/// append-only payment ledger.
+/// append-only payment ledger. Step 6 adds the PRODUCTION surface under DEC-0037
+/// — the production queue, job detail, the server-authoritative stage/hold/QC/
+/// rework transitions, and the READY_FOR_PICKUP anchor.
 ///
-/// STILL ABSENT, AND ABSENT ON PURPOSE: any path for an invoice, production,
-/// tracking, a pickup, a delivery, a reminder, or a subscription. Those belong to
-/// Step 6 and later (CLAUDE.md §3 — roadmap lock, Rule 42). There is likewise no
-/// export and no bulk path, because the backend registers neither (threats T-19,
-/// T-20).
+/// STILL ABSENT, AND ABSENT ON PURPOSE: any path for an invoice, customer
+/// tracking, WhatsApp, a pickup, a delivery, a reminder, or a subscription. Those
+/// belong to Step 7 and later (CLAUDE.md §3 — roadmap lock, Rule 42). There is
+/// likewise no export and no bulk path, because the backend registers neither
+/// (threats T-19, T-20).
 abstract final class ApiEndpoints {
   // Operational probes.
   static const String health = 'health';
@@ -146,4 +148,29 @@ abstract final class ApiEndpoints {
       'payments/$paymentId/confirm';
   static String paymentReverse(String paymentId) =>
       'payments/$paymentId/reverse';
+
+  // -------------------------------------------------------------------------
+  // STEP 6 — PRODUCTION OPERATIONS (FR-071 … FR-085, DEC-0037)
+  // -------------------------------------------------------------------------
+
+  // The production queue and one job's detail. Every write below is a COMMAND
+  // the server may refuse: it is RBAC-gated, idempotent on `client_reference`,
+  // and optimistic on `expected_version` (both sent in the BODY, not a header —
+  // production differs from master data here). A foreign job 404s exactly like
+  // an absent one (Rule 48). There is deliberately NO job-create path and NO
+  // abandon path here, because the backend registers neither: a job is created
+  // by the order lifecycle, and abandonment is not an operator HTTP action.
+  static const String productionQueue = 'production/queue';
+  static String productionJob(String id) => 'production/jobs/$id';
+  static String productionJobAdvance(String id) =>
+      'production/jobs/$id/advance';
+  static String productionJobBlock(String id) => 'production/jobs/$id/block';
+  static String productionJobResume(String id) => 'production/jobs/$id/resume';
+  static String productionJobQcSend(String id) =>
+      'production/jobs/$id/quality-control/send';
+  static String productionJobQcRecord(String id) =>
+      'production/jobs/$id/quality-control';
+  static String productionJobReworkComplete(String id) =>
+      'production/jobs/$id/rework/complete';
+  static String productionJobReady(String id) => 'production/jobs/$id/ready';
 }

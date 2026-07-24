@@ -1,7 +1,8 @@
 name: aish_offline_sync
 description: >-
-  Offline synchronization INTERFACES and state taxonomy only. Step 3 defines no
-  queue implementation and carries no order or payment operation.
+  Offline synchronization for the Ops surface. Step 3 defined the interfaces and
+  state taxonomy; Step 6 (DEC-0037) fills them with the durable, encrypted
+  production command queue and its connectivity-aware sync worker.
 publish_to: none
 version: 0.1.0
 resolution: workspace
@@ -11,8 +12,13 @@ environment:
 
 dependencies:
   aish_core: 0.1.0
+  aish_domain: 0.1.0
+  aish_networking: 0.1.0
   meta: 1.18.0
 
 dev_dependencies:
+  # Test-only: the scripted HTTP adapter that lets a worker test exercise a real
+  # ApiClient/ProductionRepository without a network. Never a runtime dependency.
+  dio: 5.10.0
   flutter_lints: 6.0.0
   test: 1.31.0

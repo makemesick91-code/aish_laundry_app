@@ -179,15 +179,28 @@ echo
 # ---------------------------------------------------------------------------
 echo "FORWARD-LEAK GUARD — a Step 6+ feature must still be REJECTED"
 
+# Production is a Step 6 label. It was a forward-leak while step < 6 and became
+# authorised runtime when DEC-0037 raised the canonical step to 6. This harness
+# asserts whichever the current step makes true, so it stays correct across the
+# transition rather than going stale the moment Step 6 starts (Rule 49).
 PRODUKSI="$(printf '%s%s' 'produk' 'si')"
 F="$(migration_fixture "$PRODUKSI")"
-expect_reject "scope guard rejects a Step 6 production table" "$SCOPE_GUARD"
-expect_reject "DEC-0035 label audit rejects a Step 6 production table" "$LABEL_0035"
+if [ "$STEP" -lt 6 ]; then
+  expect_reject "scope guard rejects a Step 6 production table (step < 6)" "$SCOPE_GUARD"
+  expect_reject "DEC-0035 label audit rejects a Step 6 production table (step < 6)" "$LABEL_0035"
+else
+  expect_accept "scope guard accepts a Step 6 production table (DEC-0037, step >= 6)" "$SCOPE_GUARD"
+  expect_accept "DEC-0035 label audit (step-aware) accepts a Step 6 production table (step >= 6)" "$LABEL_0035"
+fi
 rm -f "$F"
 
 # Rename-evasion (Rule 36 hard rule 4): an Indonesian compound of the token.
 F="$(migration_fixture "laporan_${PRODUKSI}")"
-expect_reject "DEC-0035 label audit rejects a compound-renamed production table" "$LABEL_0035"
+if [ "$STEP" -lt 6 ]; then
+  expect_reject "DEC-0035 label audit rejects a compound-renamed production table (step < 6)" "$LABEL_0035"
+else
+  expect_accept "DEC-0035 label audit accepts a compound production table once permitted (step >= 6)" "$LABEL_0035"
+fi
 rm -f "$F"
 
 DELIVERY="$(printf '%s%s' 'pengan' 'taran')"
