@@ -1,0 +1,58 @@
+================================================================================
+FR-083 — QC DEFECT-PHOTO EVIDENCE · EVIDENCE (residual closure)
+================================================================================
+Commit SHA : 83ad3e6d6fb85cce914c0f12860044203e4b112d
+Command    : cd backend && php artisan test --filter=QualityControlEvidenceTest
+Timestamp  : 2026-07-25 (Asia/Jakarta)
+Environment: PHP 8.5.4, PostgreSQL 18.4, and a PRIVATE MinIO (S3-compatible)
+             bucket — all loopback-bound dev services (Rule 43); RefreshDatabase
+Sanitised  : yes — every fixture is a generated, recognisably-fake image
+             (Rule 23/45); no secrets, no signed URLs, no personal data are
+             printed. Test NAMES and the pass tally only.
+
+This proves FR-083 against a REAL private object store (owner decision): the
+upload is authenticated and RBAC-gated (only production.qc; operator, cashier,
+and unauthenticated are refused), tenant-isolated (a foreign job/inspection/
+evidence 404s like an absent one — Rule 48), gated on a FAILED-QC precondition,
+content-validated (server-detected MIME, not the client-declared type; a
+non-image, a malformed image, an undersized image, and an oversize file are all
+refused), SHA-256-checksummed, idempotent on client_reference, stored PRIVATELY,
+read only through a SHORT-LIVED signed URL, and append-only at the engine. The
+`check-dev-services.sh` gate separately proves the bucket grants NO anonymous
+access (no public bucket).
+
+--------------------------------------------------------------------------------
+   PASS  Tests\Feature\Production\QualityControlEvidenceTest
+  ✓ qc can upload a valid defect photo
+  ✓ content type is server detected not client declared
+  ✓ production operator cannot upload
+  ✓ cashier cannot upload
+  ✓ unauthenticated upload is rejected
+  ✓ foreign tenant job is not found
+  ✓ evidence cannot attach to a non failed inspection
+  ✓ a non image file is rejected by content
+  ✓ a malformed image is rejected
+  ✓ an image below the minimum dimensions is rejected
+  ✓ an oversize file is rejected
+  ✓ upload is idempotent on client reference
+  ✓ retrieval returns a short lived signed url only
+  ✓ index lists metadata without urls or keys
+  ✓ foreign tenant cannot retrieve evidence
+  ✓ evidence row is append only on update
+  ✓ evidence row cannot be deleted
+  Tests:    17 passed (65 assertions)
+--------------------------------------------------------------------------------
+
+Flutter offline + Ops UI for FR-083 is evidenced in the verifier's F-gates at the
+same SHA (captured in verify-step-06.txt):
+  F1 production_repository_test.dart — uploadQcEvidence() posts multipart to the
+     inspection path; qcEvidenceUrl() returns the short-lived signed URL; an
+     auth failure becomes an Err, not an exception.
+  F3 production_sync_worker_test.dart — a queued upload syncs to a durable,
+     server-confirmed evidence record and survives a restart + idempotent replay
+     after a timeout (the photo bytes persist encrypted-at-rest in the queue).
+  F6 apps/ops_android/test/production_qc_evidence_test.dart — a FAILED verdict
+     with a photo enqueues a durable evidence upload to the inspection; the photo
+     is optional; the capture SOURCE is an injected seam driven from fixtures
+     (no fabricated physical-camera evidence — classified truthfully).
+================================================================================

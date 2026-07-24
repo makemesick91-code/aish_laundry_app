@@ -1,19 +1,17 @@
-STEP 6 VERIFIER OUTPUT
-captured SHA : eab80d087b1ff028beb28d1aeefd5d624f071077
-timestamp    : 2026-07-24T21:06:42+0700 (Asia/Jakarta)
-command      : bash scripts/verify-step-06.sh
-environment  : PHP + PostgreSQL 18.4 + Redis 8.2.7 (loopback dev), Flutter/Dart 3.12.2
+================================================================================
+STEP 6 CANONICAL VERIFICATION — verify-step-06.sh (residual closure)
+================================================================================
+Commit SHA : 83ad3e6d6fb85cce914c0f12860044203e4b112d
+Command    : bash scripts/verify-step-06.sh
+Timestamp  : 2026-07-25 (Asia/Jakarta)
+Environment: PHP 8.5.4 + PostgreSQL 18.4 + Redis 8.2 + private MinIO (dev,
+             loopback); Flutter 3.44.6 / Dart 3.12.2 (pinned)
+Result     : PASS 28 / FAIL 0 / SKIP 0 — no mandatory skip
+--------------------------------------------------------------------------------
 ========================================================================
 ========================================================================
-STEP 6 CANONICAL VERIFICATION — PRODUCTION OPERATIONS
-========================================================================
-  commit    : eab80d087b1ff028beb28d1aeefd5d624f071077
-  timestamp : 2026-07-24T14:06:42Z (UTC)
-  authorised: canonical roadmap (Master Source §24), guard transition DEC-0037
-
 == 1. Step 0-5 regression (delegated, not restated) ==
   PASS  Step 0-5 regression (verify-step-05.sh)
-
 == 2. Step 6 authorization and governance ==
   PASS  DEC-0037 present and ACCEPTED
   PASS  Master Source header matches the pinned canonical version
@@ -28,27 +26,23 @@ STEP 6 CANONICAL VERIFICATION — PRODUCTION OPERATIONS
   PASS  Step 6 validator adversarial harness
   PASS  Step 5 validator adversarial harness (step-aware)
   PASS  no float in any money path
-
 == 3. Step 6 backend runtime (production operations) ==
   PASS  live schema within Step 6 scope
-  PASS  Step 6 production backend suite (state machine, QC, rework, ready, RBAC, idempotency, concurrency)
-
+  PASS  Step 6 production backend suite (state machine, QC, rework, ready, batch FR-074, evidence FR-083, RBAC, idempotency, concurrency)
 == 4. Step 6 Flutter offline-first surface (F1-F4) ==
   PASS  Flutter analyze (domain, networking, offline_sync, ops_android)
   PASS  F1 — production contract + repository tests
   PASS  F2 — durable offline queue tests
   PASS  F3 — sync worker + reconciliation tests
   PASS  F4 — production operator UI widget tests
+  PASS  F5 — FR-074 batch operator UI widget tests
+  PASS  F6 — FR-083 QC defect-photo UI widget tests
   PASS  production surface wired into the Ops router
-
+  PASS  batch surface wired into the Ops router (FR-074)
 == 5. Public repository safety and working tree ==
   PASS  secret scan
   PASS  public repository safety (canonical scan)
   PASS  working tree clean
-
 ========================================================================
-STEP 6 VERIFICATION SUMMARY
 ========================================================================
-  commit : eab80d087b1ff028beb28d1aeefd5d624f071077
-  PASS 25   FAIL 0   SKIP 0
-------------------------------------------------------------------------
+--------------------------------------------------------------------------------
