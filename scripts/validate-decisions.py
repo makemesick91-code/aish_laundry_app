@@ -22,7 +22,9 @@ FIRST_DEC = 1
 # canonical authorization), DEC-0029 (canonical status drift remediation and
 # cross-document validation), and DEC-0030 (Step 4 runtime scope transition).
 # Raised 36 -> 37 at Master Source 1.4.9 for DEC-0037 (Step 6 runtime scope transition).
-LAST_DEC = 37
+# Raised 37 -> 38 at Master Source 1.4.10 for DEC-0038 (private object-storage introduction
+# for QC defect evidence, FR-083).
+LAST_DEC = 38
 
 # label -> list of accepted heading keywords (lowercase, substring match)
 REQUIRED_HEADINGS: list[tuple[str, list[str]]] = [

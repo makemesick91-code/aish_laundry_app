@@ -1,7 +1,8 @@
 # Step 6 — Production Operations: Runtime Design and Contracts
 
-**Step:** 6 — Production Operations · **Status:** `IN PROGRESS` · **Master Source:** 1.4.9 ·
-**Scope opened by:** [DEC-0037](../decisions/DEC-0037-step-06-runtime-scope-transition.md) ·
+**Step:** 6 — Production Operations · **Status:** `IN PROGRESS` · **Master Source:** 1.4.10 ·
+**Scope opened by:** [DEC-0037](../decisions/DEC-0037-step-06-runtime-scope-transition.md) · **Private
+object storage (FR-083):** [DEC-0038](../decisions/DEC-0038-step-06-private-object-storage-introduction.md) ·
 **Baseline:** `9c23eca41f45963b61a04f936e69bf9b71997552`
 
 This document fixes the runtime contracts the Step 6 backend and the Ops Android surface implement. The

@@ -10,6 +10,57 @@ Version numbers in this file track the **Master Source** document version
 
 ---
 
+## [1.4.10] — 25 July 2026 — Private object-storage introduction for QC defect evidence (FR-083)
+
+**Master Source 1.4.9 → 1.4.10, classified PATCH under §1.2** — no product decision
+is reversed, no pricing figure, roadmap number, hierarchy level, reminder stage, or
+architectural lock changes. Rule 06 / §6 already locks S3-compatible private object
+storage; this record operationalises that lock for the first surface. The only Master
+Source content edits are the §31 index row, its count, and the §32 changelog note (the
+DEC-0036 pattern).
+
+- **Added [DEC-0038](decisions/DEC-0038-step-06-private-object-storage-introduction.md)**,
+  formalising the repository owner's explicit selection of an **S3-compatible private
+  object-storage abstraction** — digest-pinned, loopback-bound MinIO for local
+  development and CI — as the first private-file surface, rather than a local-disk
+  deviation or deferral. Buckets stay private with **no anonymous access and no permanent
+  public URLs**; retrieval is only after application-level authorization, through
+  short-lived signed URLs, against random non-guessable keys; validation is content-based
+  (server-detected MIME, size, dimensions, malformed-image rejection, SHA-256 checksum);
+  the evidence audit is append-only; upload is idempotent on `client_reference`; and
+  sensitive pending uploads use the existing encrypted offline queue.
+- The decision serves **FR-083** (QC defect photos) and the minimum reusable
+  private-object-storage abstraction it needs. **Step 8 proof photos are a candidate
+  future reuse but are neither implemented nor authorised here.**
+- The pinned validator version (`scripts/validate-master-source.py`), the decision-count
+  pins (`validate-decisions.py`, `validate-required-files.py`), and the Master Source
+  checksum were all moved together, and `scripts/validate-dec-0038-object-storage.py` was
+  added and adversarially tested (`test-step-06-validators.sh`).
+- **Step 6 remains `IN PROGRESS`, deployment remains `ABSENT`, and no GO tag is created.**
+  `GO` is the owner's to confer and is not claimed here.
+
+## [1.4.9] — 24 July 2026 — Step 6 production-operations start and runtime scope guard transition
+
+**Master Source 1.4.8 → 1.4.9, classified MINOR under §1.2** — additive new canonical
+scope. No product decision was reversed, no pricing figure altered, no roadmap number
+changed, and no architectural lock touched. *(This entry backfills the changelog record
+for 1.4.9, which was recorded in Master Source §32 but omitted from this file when
+PR #24 landed; the omission is corrected here, not restated as a fresh change.)*
+
+- **Added [DEC-0037](decisions/DEC-0037-step-06-runtime-scope-transition.md)**, the
+  separate canonical authorization Rule 49's precedent requires for Step 6 to begin, and
+  the mechanical runtime-scope guard transition it carries. `validate-runtime-scope.py`
+  splits its former `STEP6_PLUS_FEATURE_TOKENS` map so the six production-operations
+  labels — production, washing, drying, finishing, quality control, rework — become
+  permitted once the canonical current step reaches 6, while every Step 7+ label stays
+  forbidden in a new `STEP7_PLUS_FEATURE_TOKENS`.
+- `_common.CANONICAL_CURRENT_STEP` was raised 5 → 6, moving Step 6 to `IN PROGRESS` in
+  §24, `ROADMAP.md`, and `STATUS.md` together. A new `validate-dec-0037-labels.py` audits
+  the Step 6 residual; each permitted label traces to a Step 6 requirement (FR-071 …
+  FR-085).
+- **A permitted label is not an implemented feature.** Step 7+ business features remain
+  `NOT IMPLEMENTED`, deployment remains `ABSENT`, and `GO` was not claimed.
+
 ## [1.4.8] — 23 July 2026 — Step 5 (POS, Order, and Payment Foundation) reaches GO
 
 **Master Source 1.4.7 → 1.4.8, classified PATCH under §1.2** — no product decision

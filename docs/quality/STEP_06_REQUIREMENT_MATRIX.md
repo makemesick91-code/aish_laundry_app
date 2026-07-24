@@ -4,7 +4,7 @@
 **Status:** `IN PROGRESS`
 **Authorized by:** the canonical roadmap (Master Source §24; [`ROADMAP.md`](../ROADMAP.md))
 **Runtime scope opened by:** [DEC-0037](../decisions/DEC-0037-step-06-runtime-scope-transition.md)
-**Master Source version:** 1.4.9
+**Master Source version:** 1.4.10
 **Baseline SHA:** `9c23eca41f45963b61a04f936e69bf9b71997552` (post-Step-5 canonical `main`)
 **Depends on (Step 5, delivered):** orders, order lines, server-authoritative pricing with the FR-036
 immutable snapshot, payments, the append-only ledger, receipt/nota. Depends on (Step 4): outlets, staff
@@ -124,7 +124,9 @@ branch, under the repository owner's decisions:
   SHA-256 checksum, append-only audit, short-lived signed-URL retrieval, and a durable offline upload.
   Tested against real MinIO plus Flutter F1/F3/F6. The QC defect-photo *capture source* is an injected
   seam exercised from fixtures — a physical camera/gallery pick is not fabricated and is classified as
-  such (owner constraint).
+  such (owner constraint). The owner-authorised private object-storage introduction that this surface
+  relies on is recorded canonically in
+  [DEC-0038](../decisions/DEC-0038-step-06-private-object-storage-introduction.md).
 
 Authoritative CI must be green on the exact candidate SHA, and `GO` is conferred by the owner after
 merge (never self-declared) — this closure does not self-declare `GO`.

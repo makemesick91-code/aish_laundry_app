@@ -109,6 +109,7 @@ gate "governance validator suite"          bash scripts/validate-governance.sh
 gate "runtime scope guard (classify)"      python3 scripts/validate-runtime-scope.py
 gate "DEC-0037 label audit"                python3 scripts/validate-dec-0037-labels.py
 gate "DEC-0035 label audit"                python3 scripts/validate-dec-0035-labels.py
+gate "DEC-0038 object-storage governance"  python3 scripts/validate-dec-0038-object-storage.py
 gate "Step 6 validator adversarial harness" bash scripts/test-step-06-validators.sh
 gate "Step 5 validator adversarial harness (step-aware)" bash scripts/test-step-05-validators.sh
 gate "no float in any money path"          python3 scripts/validate-money-rules.py

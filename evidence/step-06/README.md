@@ -39,7 +39,9 @@ implemented and `TESTED` (artefacts `batch-operations.txt`, `qc-evidence.txt`):
   stored in a PRIVATE S3-compatible bucket (MinIO — digest-pinned, loopback-bound, **no public
   bucket**) under a random key, validated by content (MIME/dimensions/size, malformed rejected),
   SHA-256-checksummed, audited append-only, and read only through a **short-lived signed URL**. Backend
-  tests (`QualityControlEvidenceTest`) run against **real MinIO**; Flutter F1/F3/F6. The photo *capture
+  tests (`QualityControlEvidenceTest`) run against **real MinIO**; Flutter F1/F3/F6. The owner-authorised
+  private object-storage introduction this surface relies on is recorded canonically in
+  [DEC-0038](../../docs/decisions/DEC-0038-step-06-private-object-storage-introduction.md). The photo *capture
   source* is an injected seam exercised from fixtures — no physical-camera evidence is fabricated
   (classified truthfully, owner constraint).
 
