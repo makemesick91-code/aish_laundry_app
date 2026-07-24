@@ -174,9 +174,19 @@ void main() {
       tester,
     ) async {
       final s = scripted(<(bool Function(RequestOptions), int, String)>[
-        on('GET', 200, batchListBody('open'), pathContains: 'production/batches'),
+        on(
+          'GET',
+          200,
+          batchListBody('open'),
+          pathContains: 'production/batches',
+        ),
       ]);
-      await pump(tester, const ProductionBatchListScreen(), s.client, ownerAuth());
+      await pump(
+        tester,
+        const ProductionBatchListScreen(),
+        s.client,
+        ownerAuth(),
+      );
 
       expect(find.text('BATCH-1'), findsOneWidget);
       expect(find.text('Terbuka'), findsWidgets);
@@ -184,15 +194,25 @@ void main() {
       expect(find.byKey(const Key('batch-create-fab')), findsOneWidget);
     });
 
-    testWidgets('a cashier is offered no create control (RBAC)', (tester) async {
+    testWidgets('a cashier is offered no create control (RBAC)', (
+      tester,
+    ) async {
       // A cashier holds no production permission; the list read is denied and the
       // create FAB is not rendered — a control the operator may not use is absent.
       final s = scripted(<(bool Function(RequestOptions), int, String)>[
-        on('GET', 403,
-            '{"error":{"code":"FORBIDDEN","message":"x"},"meta":{}}',
-            pathContains: 'production/batches'),
+        on(
+          'GET',
+          403,
+          '{"error":{"code":"FORBIDDEN","message":"x"},"meta":{}}',
+          pathContains: 'production/batches',
+        ),
       ]);
-      await pump(tester, const ProductionBatchListScreen(), s.client, cashierAuth());
+      await pump(
+        tester,
+        const ProductionBatchListScreen(),
+        s.client,
+        cashierAuth(),
+      );
 
       expect(find.byKey(const Key('batch-create-fab')), findsNothing);
     });
@@ -203,7 +223,12 @@ void main() {
       final s = scripted(<(bool Function(RequestOptions), int, String)>[
         on('GET', 200, _batchListEmpty, pathContains: 'production/batches'),
       ]);
-      await pump(tester, const ProductionBatchListScreen(), s.client, ownerAuth());
+      await pump(
+        tester,
+        const ProductionBatchListScreen(),
+        s.client,
+        ownerAuth(),
+      );
 
       expect(find.text('Belum ada batch'), findsOneWidget);
     });
@@ -212,7 +237,12 @@ void main() {
       final s = scripted(<(bool Function(RequestOptions), int, String)>[
         on('GET', 200, _batchListEmpty, pathContains: 'production/batches'),
       ]);
-      await pump(tester, const ProductionBatchListScreen(), s.client, ownerAuth());
+      await pump(
+        tester,
+        const ProductionBatchListScreen(),
+        s.client,
+        ownerAuth(),
+      );
 
       await tester.tap(find.byKey(const Key('batch-create-fab')));
       await tester.pumpAndSettle();
@@ -227,8 +257,12 @@ void main() {
       tester,
     ) async {
       final s = scripted(<(bool Function(RequestOptions), int, String)>[
-        on('GET', 200, batchDetailBody('open'),
-            pathContains: 'production/batches/b1'),
+        on(
+          'GET',
+          200,
+          batchDetailBody('open'),
+          pathContains: 'production/batches/b1',
+        ),
       ]);
       await pump(
         tester,
@@ -247,8 +281,12 @@ void main() {
       tester,
     ) async {
       final s = scripted(<(bool Function(RequestOptions), int, String)>[
-        on('GET', 200, batchDetailBody('closed'),
-            pathContains: 'production/batches/b1'),
+        on(
+          'GET',
+          200,
+          batchDetailBody('closed'),
+          pathContains: 'production/batches/b1',
+        ),
       ]);
       await pump(
         tester,
@@ -271,8 +309,12 @@ void main() {
       'a close enqueued while offline is shown as pending, never as success',
       (tester) async {
         final s = scripted(<(bool Function(RequestOptions), int, String)>[
-          on('GET', 200, batchDetailBody('open'),
-              pathContains: 'production/batches/b1'),
+          on(
+            'GET',
+            200,
+            batchDetailBody('open'),
+            pathContains: 'production/batches/b1',
+          ),
         ]);
         await pump(
           tester,

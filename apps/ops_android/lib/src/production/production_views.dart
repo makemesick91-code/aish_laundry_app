@@ -88,8 +88,6 @@ String productionCommandLabel(ProductionCommandType type) => switch (type) {
 /// carried by text + icon, never colour alone (Rule 27).
 StatusChip batchStatusChip(ProductionBatchStatus status) => StatusChip(
   label: status.label,
-  icon: status.isOpen
-      ? Icons.folder_open_outlined
-      : Icons.inventory_2_outlined,
+  icon: status.isOpen ? Icons.folder_open_outlined : Icons.inventory_2_outlined,
   tone: status.isOpen ? StatusTone.neutral : StatusTone.success,
 );

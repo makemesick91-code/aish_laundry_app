@@ -91,7 +91,9 @@ class _ProductionBatchDetailScreenState
       return const SizedBox.shrink();
     }
     return OpsMasterDataScaffold(
-      title: _detail == null ? 'Batch produksi' : 'Batch ${_detail!.summary.code}',
+      title: _detail == null
+          ? 'Batch produksi'
+          : 'Batch ${_detail!.summary.code}',
       session: session,
       onBack: () => context.go(OpsRoutes.productionBatches),
       body: _buildBody(context, session),
@@ -144,7 +146,9 @@ class _ProductionBatchDetailScreenState
             ],
           ),
           SizedBox(height: AishSpacing.space1),
-          Text('Tahap ${detail.summary.stage} · versi ${detail.summary.version}'),
+          Text(
+            'Tahap ${detail.summary.stage} · versi ${detail.summary.version}',
+          ),
           if (_pending != null) ...<Widget>[
             SizedBox(height: AishSpacing.space3),
             _PendingBatchCommandCard(
@@ -183,8 +187,9 @@ class _ProductionBatchDetailScreenState
                     ? IconButton(
                         tooltip: 'Keluarkan item ${item.productionItemId}',
                         icon: const Icon(Icons.remove_circle_outline),
-                        onPressed: () =>
-                            unawaited(_removeItem(detail, item.productionItemId)),
+                        onPressed: () => unawaited(
+                          _removeItem(detail, item.productionItemId),
+                        ),
                       )
                     : null,
               ),

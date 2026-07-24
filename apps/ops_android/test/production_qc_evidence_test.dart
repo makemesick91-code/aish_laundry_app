@@ -163,8 +163,12 @@ void main() {
     'a FAILED verdict with a photo uploads durable evidence to the inspection',
     (tester) async {
       final s = scripted(<(bool Function(RequestOptions), int, String)>[
-        on('GET', 200, detailBody('AWAITING_QC'),
-            pathContains: 'production/jobs/j1'),
+        on(
+          'GET',
+          200,
+          detailBody('AWAITING_QC'),
+          pathContains: 'production/jobs/j1',
+        ),
         // The evidence rule is MORE specific and must be matched before the
         // quality-control verdict rule (its path also contains quality-control).
         on('POST', 201, _evidenceOk, pathContains: 'evidence'),
@@ -207,8 +211,12 @@ void main() {
     'a FAILED verdict without a photo uploads nothing (photo is optional)',
     (tester) async {
       final s = scripted(<(bool Function(RequestOptions), int, String)>[
-        on('GET', 200, detailBody('AWAITING_QC'),
-            pathContains: 'production/jobs/j1'),
+        on(
+          'GET',
+          200,
+          detailBody('AWAITING_QC'),
+          pathContains: 'production/jobs/j1',
+        ),
         on('POST', 201, _qcFailedBody, pathContains: 'quality-control'),
       ]);
       await pump(

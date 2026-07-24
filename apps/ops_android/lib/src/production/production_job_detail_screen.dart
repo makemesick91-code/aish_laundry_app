@@ -447,9 +447,7 @@ class _ProductionJobDetailScreenState
         inspectionId = value is String ? value : null;
       }
       if (inspectionId != null) {
-        await _enqueueResolve(
-          _uploadCommand(inspectionId, photo),
-        );
+        await _enqueueResolve(_uploadCommand(inspectionId, photo));
       } else {
         _snack(
           'Verdict tersimpan. Lampirkan foto bukti setelah verdict tersinkron.',
@@ -511,7 +509,9 @@ class _ProductionJobDetailScreenState
       return null;
     }
     await runtime.worker.drain();
-    return (await runtime.queue.byReference(command.clientReference)).valueOrNull;
+    return (await runtime.queue.byReference(
+      command.clientReference,
+    )).valueOrNull;
   }
 
   void _announce(ProductionCommandStatus? status) {

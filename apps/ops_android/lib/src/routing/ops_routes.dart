@@ -71,7 +71,8 @@ abstract final class OpsRoutes {
   // FR-074 batch operations. `batch` is a literal segment declared BEFORE the
   // `:jobId` pattern in the router, so it is never read as a job id.
   static const String productionBatches = '/beranda/produksi/batch';
-  static const String productionBatchDetail = '/beranda/produksi/batch/:batchId';
+  static const String productionBatchDetail =
+      '/beranda/produksi/batch/:batchId';
   static String productionBatchDetailFor(String batchId) =>
       '/beranda/produksi/batch/$batchId';
 

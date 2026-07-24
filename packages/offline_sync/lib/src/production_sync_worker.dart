@@ -551,10 +551,7 @@ final class ProductionSyncWorker {
 
   _Ack _batchToAck(ProductionBatchSummary s) => _Ack(
     serverVersion: s.version,
-    data: <String, Object?>{
-      'status': s.status.wireValue,
-      'version': s.version,
-    },
+    data: <String, Object?>{'status': s.status.wireValue, 'version': s.version},
   );
 
   _Resolution _classify(Failure failure) {

@@ -659,25 +659,29 @@ void main() {
   });
 
   group('FR-074 batch commands', () {
-    test('a queued create-batch syncs and stores the canonical version',
-        () async {
-      final store = InMemoryCredentialStore();
-      final queue = _queue(store);
-      await queue.enqueue(_createBatch());
-      final adapter = _ScriptedAdapter(<_Step>[const _Step.ok(201, _batchOk)]);
+    test(
+      'a queued create-batch syncs and stores the canonical version',
+      () async {
+        final store = InMemoryCredentialStore();
+        final queue = _queue(store);
+        await queue.enqueue(_createBatch());
+        final adapter = _ScriptedAdapter(<_Step>[
+          const _Step.ok(201, _batchOk),
+        ]);
 
-      final pass = await workerWith(
-        adapter: adapter,
-        queue: queue,
-        clock: _TestClock(_t0),
-      ).drain();
+        final pass = await workerWith(
+          adapter: adapter,
+          queue: queue,
+          clock: _TestClock(_t0),
+        ).drain();
 
-      expect(pass.synced, 1);
-      final stored = (await queue.byReference('cb')).valueOrNull!;
-      expect(stored.status, ProductionCommandStatus.synced);
-      expect(stored.serverVersion, 2);
-      expect(adapter.requests.single.path, contains('production/batches'));
-    });
+        expect(pass.synced, 1);
+        final stored = (await queue.byReference('cb')).valueOrNull!;
+        expect(stored.status, ProductionCommandStatus.synced);
+        expect(stored.serverVersion, 2);
+        expect(adapter.requests.single.path, contains('production/batches'));
+      },
+    );
 
     test('a same-batch successor is held when its predecessor fails', () async {
       final store = InMemoryCredentialStore();
@@ -685,7 +689,10 @@ void main() {
       // add then close for the SAME batch; the older add fails transiently.
       await queue.enqueue(_addBatchItem(reference: 'add'));
       await queue.enqueue(
-        _closeBatch(reference: 'close', at: _t0.add(const Duration(minutes: 1))),
+        _closeBatch(
+          reference: 'close',
+          at: _t0.add(const Duration(minutes: 1)),
+        ),
       );
       final adapter = _ScriptedAdapter(<_Step>[
         const _Step.throwing(DioExceptionType.connectionError),
@@ -705,27 +712,29 @@ void main() {
       );
     });
 
-    test('a batch_closed conflict surfaces for a human (reload and reconcile)',
-        () async {
-      final store = InMemoryCredentialStore();
-      final queue = _queue(store);
-      await queue.enqueue(_addBatchItem());
-      final adapter = _ScriptedAdapter(<_Step>[
-        _Step.ok(409, _conflict('status', 'batch_closed')),
-      ]);
+    test(
+      'a batch_closed conflict surfaces for a human (reload and reconcile)',
+      () async {
+        final store = InMemoryCredentialStore();
+        final queue = _queue(store);
+        await queue.enqueue(_addBatchItem());
+        final adapter = _ScriptedAdapter(<_Step>[
+          _Step.ok(409, _conflict('status', 'batch_closed')),
+        ]);
 
-      final pass = await workerWith(
-        adapter: adapter,
-        queue: queue,
-        clock: _TestClock(_t0),
-      ).drain();
+        final pass = await workerWith(
+          adapter: adapter,
+          queue: queue,
+          clock: _TestClock(_t0),
+        ).drain();
 
-      expect(pass.conflicts, 1);
-      expect(
-        (await queue.byReference('add')).valueOrNull!.status,
-        ProductionCommandStatus.conflict,
-      );
-    });
+        expect(pass.conflicts, 1);
+        expect(
+          (await queue.byReference('add')).valueOrNull!.status,
+          ProductionCommandStatus.conflict,
+        );
+      },
+    );
 
     test(
       'a batch command timeout AFTER commit reconciles via idempotent replay',
@@ -753,21 +762,25 @@ void main() {
       },
     );
 
-    test('a fresh worker drains a persisted batch command (app restart)',
-        () async {
-      final store = InMemoryCredentialStore();
-      await _queue(store).enqueue(_createBatch());
-      // Restart: brand-new queue + worker over the same store. This also proves
-      // batchId/payload survive the toJson/fromJson round-trip on device.
-      final revived = _queue(store);
-      final adapter = _ScriptedAdapter(<_Step>[const _Step.ok(201, _batchOk)]);
-      final pass = await workerWith(
-        adapter: adapter,
-        queue: revived,
-        clock: _TestClock(_t0),
-      ).drain();
-      expect(pass.synced, 1);
-    });
+    test(
+      'a fresh worker drains a persisted batch command (app restart)',
+      () async {
+        final store = InMemoryCredentialStore();
+        await _queue(store).enqueue(_createBatch());
+        // Restart: brand-new queue + worker over the same store. This also proves
+        // batchId/payload survive the toJson/fromJson round-trip on device.
+        final revived = _queue(store);
+        final adapter = _ScriptedAdapter(<_Step>[
+          const _Step.ok(201, _batchOk),
+        ]);
+        final pass = await workerWith(
+          adapter: adapter,
+          queue: revived,
+          clock: _TestClock(_t0),
+        ).drain();
+        expect(pass.synced, 1);
+      },
+    );
   });
 
   group('FR-083 QC defect-photo upload', () {
@@ -792,53 +805,63 @@ void main() {
           },
         );
 
-    test('a queued upload syncs to a durable, server-confirmed evidence record',
-        () async {
-      final store = InMemoryCredentialStore();
-      final queue = _queue(store);
-      await queue.enqueue(uploadCommand());
-      final adapter = _ScriptedAdapter(<_Step>[const _Step.ok(201, evidenceOk)]);
+    test(
+      'a queued upload syncs to a durable, server-confirmed evidence record',
+      () async {
+        final store = InMemoryCredentialStore();
+        final queue = _queue(store);
+        await queue.enqueue(uploadCommand());
+        final adapter = _ScriptedAdapter(<_Step>[
+          const _Step.ok(201, evidenceOk),
+        ]);
 
-      final pass = await workerWith(
-        adapter: adapter,
-        queue: queue,
-        clock: _TestClock(_t0),
-      ).drain();
+        final pass = await workerWith(
+          adapter: adapter,
+          queue: queue,
+          clock: _TestClock(_t0),
+        ).drain();
 
-      expect(pass.synced, 1);
-      final stored = (await queue.byReference('up')).valueOrNull!;
-      expect(stored.status, ProductionCommandStatus.synced);
-      expect(stored.acknowledgement?['evidence_id'], 'ev1');
-      expect(
-        adapter.requests.single.path,
-        contains('quality-control/insp-1/evidence'),
-      );
-    });
+        expect(pass.synced, 1);
+        final stored = (await queue.byReference('up')).valueOrNull!;
+        expect(stored.status, ProductionCommandStatus.synced);
+        expect(stored.acknowledgement?['evidence_id'], 'ev1');
+        expect(
+          adapter.requests.single.path,
+          contains('quality-control/insp-1/evidence'),
+        );
+      },
+    );
 
-    test('an upload survives a restart and replays idempotently after a timeout',
-        () async {
-      final store = InMemoryCredentialStore();
-      await _queue(store).enqueue(uploadCommand());
-      // Restart: a fresh queue+worker over the same store proves the photo
-      // payload persisted encrypted-at-rest.
-      final revived = _queue(store);
-      final adapter = _ScriptedAdapter(<_Step>[
-        const _Step.throwing(DioExceptionType.receiveTimeout),
-        const _Step.ok(201, evidenceOk),
-      ]);
-      final clock = _TestClock(_t0);
-      final worker = workerWith(adapter: adapter, queue: revived, clock: clock);
+    test(
+      'an upload survives a restart and replays idempotently after a timeout',
+      () async {
+        final store = InMemoryCredentialStore();
+        await _queue(store).enqueue(uploadCommand());
+        // Restart: a fresh queue+worker over the same store proves the photo
+        // payload persisted encrypted-at-rest.
+        final revived = _queue(store);
+        final adapter = _ScriptedAdapter(<_Step>[
+          const _Step.throwing(DioExceptionType.receiveTimeout),
+          const _Step.ok(201, evidenceOk),
+        ]);
+        final clock = _TestClock(_t0);
+        final worker = workerWith(
+          adapter: adapter,
+          queue: revived,
+          clock: clock,
+        );
 
-      await worker.drain(); // times out -> retryWait
-      clock.advance(const Duration(seconds: 5));
-      final pass = await worker.drain(); // replay -> synced
+        await worker.drain(); // times out -> retryWait
+        clock.advance(const Duration(seconds: 5));
+        final pass = await worker.drain(); // replay -> synced
 
-      expect(pass.synced, 1);
-      // BOTH attempts reused the SAME client_reference (idempotent upload).
-      final refs = adapter.requests
-          .map((r) => r.uri.pathSegments.contains('evidence'))
-          .toList();
-      expect(refs.every((hit) => hit), isTrue);
-    });
+        expect(pass.synced, 1);
+        // BOTH attempts reused the SAME client_reference (idempotent upload).
+        final refs = adapter.requests
+            .map((r) => r.uri.pathSegments.contains('evidence'))
+            .toList();
+        expect(refs.every((hit) => hit), isTrue);
+      },
+    );
   });
 }

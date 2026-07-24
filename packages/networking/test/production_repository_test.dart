@@ -404,7 +404,10 @@ void main() {
 
     // FR-074 batch state conflicts both mean "reload and reconcile".
     test('batch_closed (status) -> invalidState', () {
-      expect(classify('status', 'batch_closed'), ProductionConflict.invalidState);
+      expect(
+        classify('status', 'batch_closed'),
+        ProductionConflict.invalidState,
+      );
     });
 
     test('already_member (production_item_id) -> invalidState', () {
@@ -422,58 +425,64 @@ void main() {
         '"updated_at":"2026-07-24T10:00:00+00:00"}';
     const batchCommandBody = '{"data":{"batch":$batchSummary},"meta":{}}';
 
-    test('createBatch() posts code/stage/client_reference and parses the summary',
-        () async {
-      final adapter = _Adapter(201, batchCommandBody);
-      final repo = ProductionRepository(clientWith(adapter));
+    test(
+      'createBatch() posts code/stage/client_reference and parses the summary',
+      () async {
+        final adapter = _Adapter(201, batchCommandBody);
+        final repo = ProductionRepository(clientWith(adapter));
 
-      final result = await repo.createBatch(
-        code: 'BATCH-1',
-        stage: 'SORTING',
-        clientReference: 'ref-b1',
-      );
-      expect(result.isOk, isTrue);
-      expect(result.valueOrNull!.status, ProductionBatchStatus.open);
-      expect(result.valueOrNull!.code, 'BATCH-1');
-      final body = adapter.last!.data as Map<String, Object?>;
-      expect(adapter.last!.path, contains('production/batches'));
-      expect(body['code'], 'BATCH-1');
-      expect(body['stage'], 'SORTING');
-      expect(body['client_reference'], 'ref-b1');
-    });
+        final result = await repo.createBatch(
+          code: 'BATCH-1',
+          stage: 'SORTING',
+          clientReference: 'ref-b1',
+        );
+        expect(result.isOk, isTrue);
+        expect(result.valueOrNull!.status, ProductionBatchStatus.open);
+        expect(result.valueOrNull!.code, 'BATCH-1');
+        final body = adapter.last!.data as Map<String, Object?>;
+        expect(adapter.last!.path, contains('production/batches'));
+        expect(body['code'], 'BATCH-1');
+        expect(body['stage'], 'SORTING');
+        expect(body['client_reference'], 'ref-b1');
+      },
+    );
 
-    test('addBatchItem() posts production_item_id and expected_version in the BODY',
-        () async {
-      final adapter = _Adapter(201, batchCommandBody);
-      final repo = ProductionRepository(clientWith(adapter));
+    test(
+      'addBatchItem() posts production_item_id and expected_version in the BODY',
+      () async {
+        final adapter = _Adapter(201, batchCommandBody);
+        final repo = ProductionRepository(clientWith(adapter));
 
-      await repo.addBatchItem(
-        'b1',
-        productionItemId: 'i1',
-        clientReference: 'ref-b2',
-        expectedVersion: 1,
-      );
-      final body = adapter.last!.data as Map<String, Object?>;
-      expect(adapter.last!.path, contains('production/batches/b1/items'));
-      expect(body['production_item_id'], 'i1');
-      expect(body['expected_version'], 1);
-    });
+        await repo.addBatchItem(
+          'b1',
+          productionItemId: 'i1',
+          clientReference: 'ref-b2',
+          expectedVersion: 1,
+        );
+        final body = adapter.last!.data as Map<String, Object?>;
+        expect(adapter.last!.path, contains('production/batches/b1/items'));
+        expect(body['production_item_id'], 'i1');
+        expect(body['expected_version'], 1);
+      },
+    );
 
-    test('removeBatchItem() DELETEs with the client_reference in the body',
-        () async {
-      final adapter = _Adapter(200, batchCommandBody);
-      final repo = ProductionRepository(clientWith(adapter));
+    test(
+      'removeBatchItem() DELETEs with the client_reference in the body',
+      () async {
+        final adapter = _Adapter(200, batchCommandBody);
+        final repo = ProductionRepository(clientWith(adapter));
 
-      final result = await repo.removeBatchItem(
-        'b1',
-        'i1',
-        clientReference: 'ref-b3',
-      );
-      expect(result.isOk, isTrue);
-      expect(adapter.last!.method, 'DELETE');
-      expect(adapter.last!.path, contains('production/batches/b1/items/i1'));
-      expect((adapter.last!.data as Map)['client_reference'], 'ref-b3');
-    });
+        final result = await repo.removeBatchItem(
+          'b1',
+          'i1',
+          clientReference: 'ref-b3',
+        );
+        expect(result.isOk, isTrue);
+        expect(adapter.last!.method, 'DELETE');
+        expect(adapter.last!.path, contains('production/batches/b1/items/i1'));
+        expect((adapter.last!.data as Map)['client_reference'], 'ref-b3');
+      },
+    );
 
     test('closeBatch() parses the closed status', () async {
       final adapter = _Adapter(
@@ -531,20 +540,22 @@ void main() {
       expect(detail.timeline.single.productionItemId, 'i1');
     });
 
-    test('an unknown batch status fails SAFE — an Err, not a thrown error',
-        () async {
-      final adapter = _Adapter(
-        200,
-        '{"data":{"batches":[{"id":"b1","code":"B","stage":"SORTING",'
-        '"status":"VAPORISED","version":1,"outlet_id":"ot1","item_count":0,'
-        '"closed_at":null,"updated_at":null}]},"meta":{}}',
-      );
-      final repo = ProductionRepository(clientWith(adapter));
+    test(
+      'an unknown batch status fails SAFE — an Err, not a thrown error',
+      () async {
+        final adapter = _Adapter(
+          200,
+          '{"data":{"batches":[{"id":"b1","code":"B","stage":"SORTING",'
+          '"status":"VAPORISED","version":1,"outlet_id":"ot1","item_count":0,'
+          '"closed_at":null,"updated_at":null}]},"meta":{}}',
+        );
+        final repo = ProductionRepository(clientWith(adapter));
 
-      final result = await repo.batches();
-      expect(result.isErr, isTrue);
-      expect(result.failureOrNull!.kind, FailureKind.unexpected);
-    });
+        final result = await repo.batches();
+        expect(result.isErr, isTrue);
+        expect(result.failureOrNull!.kind, FailureKind.unexpected);
+      },
+    );
   });
 
   group('ProductionRepository — QC defect-photo evidence (FR-083)', () {
@@ -595,24 +606,26 @@ void main() {
       );
     });
 
-    test('an upload authorization failure becomes an Err, not an exception',
-        () async {
-      final adapter = _Adapter(
-        403,
-        '{"error":{"code":"FORBIDDEN","message":"tidak boleh"},"meta":{}}',
-      );
-      final repo = ProductionRepository(clientWith(adapter));
+    test(
+      'an upload authorization failure becomes an Err, not an exception',
+      () async {
+        final adapter = _Adapter(
+          403,
+          '{"error":{"code":"FORBIDDEN","message":"tidak boleh"},"meta":{}}',
+        );
+        final repo = ProductionRepository(clientWith(adapter));
 
-      final result = await repo.uploadQcEvidence(
-        'job-1',
-        'insp-1',
-        bytes: const <int>[1, 2, 3],
-        filename: 'x.png',
-        clientReference: 'r',
-      );
-      expect(result.isErr, isTrue);
-      expect(result.failureOrNull!.kind, FailureKind.authorization);
-    });
+        final result = await repo.uploadQcEvidence(
+          'job-1',
+          'insp-1',
+          bytes: const <int>[1, 2, 3],
+          filename: 'x.png',
+          clientReference: 'r',
+        );
+        expect(result.isErr, isTrue);
+        expect(result.failureOrNull!.kind, FailureKind.authorization);
+      },
+    );
   });
 }
 

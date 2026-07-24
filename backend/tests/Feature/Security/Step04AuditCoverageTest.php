@@ -133,6 +133,22 @@ final class Step04AuditCoverageTest extends TestCase
             'api.v1.production.jobs.qc.record' => null,
             'api.v1.production.jobs.rework.complete' => null,
             'api.v1.production.jobs.ready' => null,
+            // FR-074 batch operations: same exemption as the production job
+            // writes above. Every batch mutation appends a row to the
+            // APPEND-ONLY `production_batch_events` table (tenant_id +
+            // actor_membership_id, immutable at the DB boundary) — the batch
+            // domain audit and idempotency log. A stronger record than a central
+            // audit row; the exemption is recorded here in the open.
+            'api.v1.production.batches.store' => null,
+            'api.v1.production.batches.update' => null,
+            'api.v1.production.batches.close' => null,
+            'api.v1.production.batches.items.add' => null,
+            'api.v1.production.batches.items.remove' => null,
+            // FR-083 QC defect-photo evidence: the upload appends a row to the
+            // APPEND-ONLY `quality_control_evidence` table (tenant_id +
+            // uploaded_by_membership_id, immutable) — the evidence audit trail.
+            // Same exemption reasoning as the production writes above.
+            'api.v1.production.qc.evidence.store' => null,
 
             // --- Framework routes outside /api/v1 -------------------------
             //
