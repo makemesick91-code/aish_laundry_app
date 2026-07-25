@@ -1,30 +1,31 @@
 #!/usr/bin/env python3
-"""Audit the six feature labels DEC-0037 moved from forbidden to permitted.
+"""Audit the four feature labels DEC-0039 moved from forbidden to permitted.
 
 WHY THIS VALIDATOR EXISTS
 -------------------------
-`validate-runtime-scope.py` answers "is a Step 7+ feature present?". DEC-0037
-made that question narrower by permitting six labels — production, washing,
-drying, finishing, quality control, rework — because Step 6 (Production
-Operations) is authorised to build them and they trace to FR-071 … FR-085.
+`validate-runtime-scope.py` answers "is a Step 8+ feature present?". DEC-0039
+made that question narrower by permitting four labels — tracking portal, tracking
+token, WhatsApp, notification provider — because Step 7 (Customer Tracking and
+WhatsApp) is authorised to build them and they trace to FR-086 … FR-099.
 
-This is the exact mirror of validate-dec-0035-labels.py (seven Step 5 labels) and
-validate-dec-0030-labels.py (four Step 4 labels). Narrowing a guard reduces what
-it protects; this validator audits the residual: each permitted label must still
-trace to a requirement the PRD carries, and the Step 7+ labels DEC-0037 did NOT
-permit must stay absent from every structural position — so a production module
-cannot quietly grow the tracking, WhatsApp, pickup, delivery, reminder, or
-subscription workflow that a later step owns.
+This is the exact mirror of validate-dec-0037-labels.py (six Step 6 labels),
+validate-dec-0035-labels.py (seven Step 5 labels), and validate-dec-0030-labels.py
+(four Step 4 labels). Narrowing a guard reduces what it protects; this validator
+audits the residual: each permitted label must still trace to a requirement the PRD
+carries, and the Step 8+ labels DEC-0039 did NOT permit must stay absent from every
+structural position — so a tracking/notification module cannot quietly grow the
+pickup, delivery, courier, reminder, unclaimed-laundry, finance, or subscription
+workflow that a later step owns.
 
 Rule 36 hard rule 8 permits narrowing the scope guard only through a decision
 record. This file does not narrow anything — it adds a check that the narrowing
-DEC-0037 already took is still bounded.
+DEC-0039 already took is still bounded.
 
 DETECTION IS STRUCTURAL, never prose (Rule 36 hard rule 4): migration filenames,
 `Schema::create` table arguments, route path segments, Eloquent model class names,
 and module/feature directory names. Renaming a later-step feature to evade
 detection is the same violation as building it under its plain name; compound and
-affixed forms are matched, so `pickup_requests` and `whatsapp_dispatch` are caught.
+affixed forms are matched, so `pickup_requests` and `reminder_schedules` are caught.
 
 Exit 0 = PASS, 1 = FAIL.
 """
@@ -37,53 +38,44 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from _common import CANONICAL_CURRENT_STEP  # noqa: E402
-
-# The Step 7 customer-tracking + notification/WhatsApp labels (FR-086 … FR-099) are
-# forbidden here only WHILE the canonical current step is below 7. From Step 7
-# (DEC-0039) they are authorised runtime and are audited by
-# validate-dec-0039-labels.py instead. Below Step 7 they remain forbidden here
-# exactly as before, so this Step-6 residual audit cannot false-pass in an earlier
-# tree. Nothing is weakened — the tokens move to a step-appropriate auditor.
-_STEP7_PERMITTED_AT_7 = CANONICAL_CURRENT_STEP >= 7
-
 # ---------------------------------------------------------------------------
-# The six labels DEC-0037 permitted, and the requirements that authorise them.
+# The four labels DEC-0039 permitted, and the requirements that authorise them.
 # ---------------------------------------------------------------------------
 PERMITTED_LABELS: dict[str, dict[str, object]] = {
-    "production stages": {
-        "tokens": {"production_jobs", "produksi", "washing", "pencucian",
-                   "drying", "pengeringan", "finishing", "penyelesaian"},
-        "requirements": ["FR-071", "FR-072", "FR-073", "FR-074", "FR-079"],
-        "boundary": "Production produces the laundry an order describes. Telling "
-                    "the customer about it over WhatsApp is Step 7.",
+    "tracking portal": {
+        "tokens": {"tracking_portal", "public_tracking"},
+        "requirements": ["FR-089", "FR-090", "FR-091", "FR-092"],
+        "boundary": "The portal shows an order's safe-by-default status to the "
+                    "customer. Scheduling a pickup or delivery from it is Step 8.",
     },
-    "ready anchor": {
-        "tokens": {"production_ready_events"},
-        "requirements": ["FR-075", "FR-076", "FR-077", "FR-078"],
-        "boundary": "The first READY_FOR_PICKUP timestamp anchors aging. Computing "
-                    "H+1/H+3/H+7 from it and reminding on it is Step 9.",
+    "tracking token": {
+        "tokens": {"tracking_tokens", "tracking_token"},
+        "requirements": ["FR-086", "FR-087", "FR-088"],
+        "boundary": "A high-entropy hashed token gates the portal view. The "
+                    "external-courier guest link is a different credential, Step 8.",
     },
-    "quality control": {
-        "tokens": {"quality_controls", "qc_inspections"},
-        "requirements": ["FR-080", "FR-081", "FR-083"],
-        "boundary": "QC gates readiness inside the outlet. The public tracking "
-                    "portal that would show the result is Step 7.",
+    "WhatsApp": {
+        "tokens": {"whatsapp", "wa_provider", "whatsapp_messages"},
+        "requirements": ["FR-093", "FR-094", "FR-095"],
+        "boundary": "WhatsApp notifies a customer about an order. The H+1/H+3/H+7 "
+                    "reminder LADDER that decides WHEN to chase unclaimed laundry is "
+                    "Step 9.",
     },
-    "rework": {
-        "tokens": {"reworks", "pengerjaan_ulang"},
-        "requirements": ["FR-082", "FR-084", "FR-085"],
-        "boundary": "A rework cycle re-processes an order in the outlet. A failed "
-                    "delivery that returns the laundry is Step 8.",
+    "notification provider": {
+        "tokens": {"notification_providers", "notification_dispatch"},
+        "requirements": ["FR-096", "FR-097", "FR-098", "FR-099"],
+        "boundary": "The notification subsystem sends transactional/marketing "
+                    "messages with consent, quiet hours, and dedup. Delivery-proof "
+                    "and courier-settlement messaging is Step 8.",
     },
 }
 
-# Labels DEC-0037 did NOT permit, restated so the audit is self-contained. These
-# are the Step 7+ workflows that consume production output. `routes` is deliberately
-# NOT a bare token here: it would false-match the `backend/routes/` directory. The
-# courier-routing feature is caught by its specific `route_stops`/`courier_routes`
-# tokens instead — the same conservative choice validate-dec-0035-labels.py made.
+# Labels DEC-0039 did NOT permit, restated so the audit is self-contained. These are
+# the Step 8+ workflows that consume the tracking/notification foundation. `routes`
+# is deliberately NOT a bare token here: it would false-match the `backend/routes/`
+# directory. The courier-routing feature is caught by its specific
+# `route_stops`/`courier_routes` tokens instead — the same conservative choice the
+# earlier DEC label audits made.
 STILL_FORBIDDEN: dict[str, set[str]] = {
     "pickup / delivery (Step 8)": {"pickups", "pickup_requests", "penjemputan",
                                    "deliveries", "delivery_requests", "pengantaran"},
@@ -100,19 +92,6 @@ STILL_FORBIDDEN: dict[str, set[str]] = {
         "loyalty", "loyalty_points", "poin_loyalitas", "membership_programs",
         "loyalty_memberships", "subscriptions", "subscription_invoices", "billing"},
 }
-
-# The Step 7 customer-tracking + notification labels: forbidden here only WHILE the
-# canonical current step is below 7. From Step 7 (DEC-0039) they are authorised and
-# audited by validate-dec-0039-labels.py instead.
-_STEP7_LABELS: dict[str, set[str]] = {
-    "tracking portal (Step 7)": {"tracking_portal", "public_tracking",
-                                 "tracking_tokens", "tracking_token"},
-    "WhatsApp / notification (Step 7)": {"whatsapp", "wa_provider",
-                                         "whatsapp_messages", "notification_providers",
-                                         "notification_dispatch"},
-}
-if not _STEP7_PERMITTED_AT_7:
-    STILL_FORBIDDEN.update(_STEP7_LABELS)
 
 # Structural identifiers that legitimately contain a forbidden substring and are
 # NOT the feature. Each needs a stated reason; an unexplained entry would be a
@@ -210,7 +189,7 @@ def check_permitted_labels_trace_to_requirements() -> list[str]:
 
 
 def check_still_forbidden_labels_absent() -> tuple[list[str], int]:
-    """No structural identifier may carry a label DEC-0037 did not permit."""
+    """No structural identifier may carry a label DEC-0039 did not permit."""
     failures: list[str] = []
     examined = 0
     for path in iter_source_files():
@@ -228,14 +207,14 @@ def check_still_forbidden_labels_absent() -> tuple[list[str], int]:
                         failures.append(
                             f"{path.relative_to(REPO)}: structural identifier "
                             f"'{identifier}' carries the token '{token}' "
-                            f"({label}). DEC-0037 did not permit this label."
+                            f"({label}). DEC-0039 did not permit this label."
                         )
     return failures, examined
 
 
 def main() -> int:
     print("=" * 72)
-    print("DEC-0037 LABEL AUDIT — the residual after six labels were permitted")
+    print("DEC-0039 LABEL AUDIT — the residual after four labels were permitted")
     print("=" * 72)
     print()
 
@@ -248,7 +227,7 @@ def main() -> int:
 
     forbidden_failures, examined = check_still_forbidden_labels_absent()
     status = "PASS" if not forbidden_failures else "FAIL"
-    print(f"{status}  no structural identifier carries a label DEC-0037 did not permit")
+    print(f"{status}  no structural identifier carries a label DEC-0039 did not permit")
     all_failures += forbidden_failures
 
     print()
@@ -258,11 +237,11 @@ def main() -> int:
     print(f"  source files examined    : {examined}")
     print(f"  structural allowlist     : {len(STRUCTURAL_ALLOWLIST)} entries, each with a reason")
     print()
-    print("  RESIDUAL RISK, stated rather than implied: DEC-0037 reduced token")
-    print("  protection for six labels. A Step 7+ workflow built INSIDE a permitted")
-    print("  production/QC module, under a permitted name, would not be caught here")
-    print("  by name alone — it is caught by review and by the absence of any")
-    print("  tracking/WhatsApp/pickup/delivery route.")
+    print("  RESIDUAL RISK, stated rather than implied: DEC-0039 reduced token")
+    print("  protection for four labels. A Step 8+ workflow built INSIDE a permitted")
+    print("  tracking/notification module, under a permitted name, would not be caught")
+    print("  here by name alone — it is caught by review and by the absence of any")
+    print("  pickup/delivery/courier/reminder route or table.")
     print("-" * 72)
 
     if all_failures:
@@ -271,13 +250,13 @@ def main() -> int:
         for failure in all_failures:
             print(f"  - {failure}")
         print()
-        print(f"SUMMARY [dec-0037-labels]: {len(all_failures)} failure(s)")
-        print("RESULT: FAIL (dec-0037-labels)")
+        print(f"SUMMARY [dec-0039-labels]: {len(all_failures)} failure(s)")
+        print("RESULT: FAIL (dec-0039-labels)")
         return 1
 
     print()
-    print("SUMMARY [dec-0037-labels]: 2/2 checks passed, 0 failed")
-    print("RESULT: PASS (dec-0037-labels)")
+    print("SUMMARY [dec-0039-labels]: 0 failures")
+    print("RESULT: PASS (dec-0039-labels)")
     return 0
 
 

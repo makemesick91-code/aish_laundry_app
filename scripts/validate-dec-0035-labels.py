@@ -53,6 +53,13 @@ from _common import CANONICAL_CURRENT_STEP  # noqa: E402
 # move to a different, step-appropriate auditor, and below Step 6 they remain
 # forbidden here exactly as before.
 _STEP6_PERMITTED_AT_6 = CANONICAL_CURRENT_STEP >= 6
+# The four customer-tracking + notification/WhatsApp labels (FR-086 … FR-099) are
+# forbidden here only WHILE the canonical current step is below 7. From Step 7
+# (DEC-0039) they are authorised runtime and are audited by
+# validate-dec-0039-labels.py instead. Below Step 7 they remain forbidden here
+# exactly as before, so this Step-5 residual audit cannot false-pass in an earlier
+# tree. Nothing is weakened: the tokens move to a different, step-appropriate auditor.
+_STEP7_PERMITTED_AT_7 = CANONICAL_CURRENT_STEP >= 7
 
 # ---------------------------------------------------------------------------
 # The seven labels DEC-0035 permitted, and the requirements that authorise them.
@@ -94,9 +101,6 @@ PERMITTED_LABELS: dict[str, dict[str, object]] = {
 # `receivables`/`piutang` table of its own — the finance-reports aggregate is
 # Step 10 and stays forbidden in validate-runtime-scope.py.
 STILL_FORBIDDEN: dict[str, set[str]] = {
-    "tracking (Step 7)": {"tracking_token", "tracking_tokens", "public_tracking"},
-    "WhatsApp / notification (Step 7)": {"whatsapp", "wa_provider",
-                                         "notification_providers"},
     "pickup / delivery (Step 8)": {"pickups", "pickup_requests", "penjemputan",
                                    "deliveries", "delivery_requests", "pengantaran"},
     "courier settlement (Step 8)": {"courier_settlements", "cash_settlements"},
@@ -122,6 +126,17 @@ _STEP6_LABELS: dict[str, set[str]] = {
 }
 if not _STEP6_PERMITTED_AT_6:
     STILL_FORBIDDEN.update(_STEP6_LABELS)
+
+# The Step 7 customer-tracking + notification labels: forbidden here only WHILE the
+# canonical current step is below 7. From Step 7 (DEC-0039) they are authorised and
+# audited by validate-dec-0039-labels.py instead.
+_STEP7_LABELS: dict[str, set[str]] = {
+    "tracking (Step 7)": {"tracking_token", "tracking_tokens", "public_tracking"},
+    "WhatsApp / notification (Step 7)": {"whatsapp", "wa_provider",
+                                         "notification_providers"},
+}
+if not _STEP7_PERMITTED_AT_7:
+    STILL_FORBIDDEN.update(_STEP7_LABELS)
 
 # Structural identifiers that legitimately contain a forbidden substring and are
 # NOT the feature. Each needs a stated reason; an unexplained entry would be a

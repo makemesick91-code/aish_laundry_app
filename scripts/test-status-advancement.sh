@@ -103,15 +103,15 @@ expect_red 2  "$STATUS_VALIDATOR" "STEP_03_STATUS is GO" "Step 3 machine reverte
   "sed -i 's/^STEP_03_STATUS=GO$/STEP_03_STATUS=IN_PROGRESS/' $STATUS"
 # The forward-leak boundary follows _common.CANONICAL_CURRENT_STEP: one step past
 # the current one. It was Step 4 at Step 3, moved to Step 5 at DEC-0028, to Step 6
-# at DEC-0035, and moves to Step 7 now that DEC-0037 made Step 6 current and its
-# IN PROGRESS the reality — a fixture that seds STEP_06=PLANNED after Step 6 started
-# silently matches nothing and asserts a mutation that never applied, which is the
-# stale-fixture defect this transition fixes. Same strength, boundary +1. The next
-# transition moves it again.
-expect_red 3  "$STATUS_VALIDATOR" "PLANNED" "Step 7 machine marked IN_PROGRESS (forward leak)" \
-  "sed -i 's/^STEP_07_STATUS=PLANNED$/STEP_07_STATUS=IN_PROGRESS/' $STATUS"
-expect_red 4  "$STATUS_VALIDATOR" "PLANNED" "Step 7 machine marked GO (forward leak)" \
-  "sed -i 's/^STEP_07_STATUS=PLANNED$/STEP_07_STATUS=GO/' $STATUS"
+# at DEC-0035, to Step 7 at DEC-0037, and moves to Step 8 now that DEC-0039 made
+# Step 7 current and its IN PROGRESS the reality — a fixture that seds STEP_07=PLANNED
+# after Step 7 started silently matches nothing and asserts a mutation that never
+# applied, which is the stale-fixture defect this transition fixes. Same strength,
+# boundary +1. The next transition moves it again.
+expect_red 3  "$STATUS_VALIDATOR" "PLANNED" "Step 8 machine marked IN_PROGRESS (forward leak)" \
+  "sed -i 's/^STEP_08_STATUS=PLANNED$/STEP_08_STATUS=IN_PROGRESS/' $STATUS"
+expect_red 4  "$STATUS_VALIDATOR" "PLANNED" "Step 8 machine marked GO (forward leak)" \
+  "sed -i 's/^STEP_08_STATUS=PLANNED$/STEP_08_STATUS=GO/' $STATUS"
 # Step 4 is now GO; the analogous revert is GO -> PLANNED, caught as a human/machine
 # disagreement (the human table still reads GO). Needle updated to that reason.
 expect_red 20 "$STATUS_VALIDATOR" "Step 4: machine=PLANNED" "Step 4 machine reverted to PLANNED after GO" \
@@ -144,8 +144,8 @@ expect_red 14 "$STATUS_VALIDATOR" "Application CI NOT APPLICABLE" "Rule 49 re-in
   "printf '\n| Application CI | NOT APPLICABLE |\n' >> $RULE49"
 expect_red 15 "$STATUS_VALIDATOR" "backend runtime ABSENT" "Rule 15 re-introduces a backend-ABSENT claim" \
   "printf '\n| Backend runtime | ABSENT |\n' >> $RULE15"
-expect_red 16 "$STATUS_VALIDATOR" "Step 7 started" "CLAUDE.md declares Step 7 IN PROGRESS" \
-  "printf '\n| Step 7 | Customer Tracking and WhatsApp | IN PROGRESS |\n' >> $CLAUDEMD"
+expect_red 16 "$STATUS_VALIDATOR" "Step 8 started" "CLAUDE.md declares Step 8 IN PROGRESS" \
+  "printf '\n| Step 8 | Pickup and Delivery Operations | IN PROGRESS |\n' >> $CLAUDEMD"
 
 echo
 echo "-- DEC-0029: cross-source roadmap agreement --"
@@ -155,8 +155,8 @@ expect_red 21 "$ROADMAP_VALIDATOR" "MASTER_SOURCE" "MASTER_SOURCE §24 reverts S
   "sed -i 's/^| Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | GO WITH ACCEPTED DEVIATION |/| Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | PLANNED |/' $MASTER; grep -q '^| Step 3 |.*| PLANNED |' $MASTER"
 expect_red 22 "$ROADMAP_VALIDATOR" "MASTER_SOURCE" "MASTER_SOURCE §24 reverts Step 2 to IN PROGRESS (the original defect)" \
   "sed -i 's/^| Step 2 | Design System and UX Foundation | GO WITH ACCEPTED DEVIATION |/| Step 2 | Design System and UX Foundation | IN PROGRESS |/' $MASTER; grep -q '^| Step 2 |.*| IN PROGRESS |' $MASTER"
-expect_red 23 "$ROADMAP_VALIDATOR" "MASTER_SOURCE" "MASTER_SOURCE §24 claims Step 7 GO (fabricated forward GO)" \
-  "sed -i 's/^| Step 7 | Customer Tracking and WhatsApp | PLANNED |/| Step 7 | Customer Tracking and WhatsApp | GO |/' $MASTER; grep -q '^| Step 7 |.*| GO |' $MASTER"
+expect_red 23 "$ROADMAP_VALIDATOR" "MASTER_SOURCE" "MASTER_SOURCE §24 claims Step 8 GO (fabricated forward GO)" \
+  "sed -i 's/^| Step 8 | Pickup and Delivery Operations | PLANNED |/| Step 8 | Pickup and Delivery Operations | GO |/' $MASTER; grep -q '^| Step 8 |.*| GO |' $MASTER"
 
 echo
 echo "-- DEC-0029: infrastructure self-consistency --"

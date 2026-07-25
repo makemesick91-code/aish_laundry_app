@@ -10,6 +10,38 @@ Version numbers in this file track the **Master Source** document version
 
 ---
 
+## [1.4.12] — 25 July 2026 — Step 7 (Customer Tracking and WhatsApp) start and runtime scope guard transition
+
+**Master Source 1.4.11 → 1.4.12, classified MINOR under §1.2** — an additive change
+that opens new canonical runtime scope. No product decision was reversed and no pricing
+figure, roadmap number, hierarchy level, reminder stage, or architectural lock was
+changed.
+
+- **Step 7 (Customer Tracking and WhatsApp) advances `PLANNED → IN PROGRESS`** in the
+  three canonical sources — Master Source §24, [`ROADMAP.md`](ROADMAP.md), and
+  [`STATUS.md`](STATUS.md) (human table and machine-readable block) — and in the derived
+  snapshots (`CLAUDE.md` §2 and Rule 15; the per-step status-rule pattern stopped at
+  Rule 50/Step 4, so Step 7 adds no new rule file, exactly as Steps 5 and 6 added none),
+  under the separate canonical authorization **DEC-0039** that Rule 49's precedent requires.
+- **Runtime-scope guard transition (DEC-0039).** `scripts/validate-runtime-scope.py`
+  splits the former `STEP7_PLUS_FEATURE_TOKENS` into a Step-7-gated `STEP7_FEATURE_TOKENS`
+  — the four customer-tracking + notification/WhatsApp labels (tracking portal, tracking
+  token, WhatsApp, notification provider), tracing to **FR-086 … FR-099** — and a residual
+  `STEP8_PLUS_FEATURE_TOKENS` that stays unconditionally forbidden (pickup, delivery,
+  courier, unclaimed laundry, reminder ladder, storage fee, receivables, finance reports,
+  loyalty, membership, subscription). `CANONICAL_CURRENT_STEP` advances `6 → 7`.
+- New label-audit validator `scripts/validate-dec-0039-labels.py` mirrors the Step 6
+  audit: each permitted label traces to a PRD requirement, and no Step 8+ label appears
+  in any structural position. The Step 5/6 label audits drop the tracking/WhatsApp tokens
+  from their residual once the current step reaches 7 — the tokens move to the
+  step-appropriate auditor; nothing is weakened.
+- Step 6's GO tag is demoted into the historical-tag set (it is now a prior step); its
+  immutable peel target is unchanged.
+- **Advancing the guard boundary is not building the feature.** FR-086 … FR-099 remain
+  `NOT IMPLEMENTED` until real tracking-token, portal, OTP, and notification runtime is
+  implemented, verified, and evidenced at an exact SHA (Rule 01, Rule 36 hard rule 6).
+  Deployment remains `ABSENT`; DEC-0039 does not authorise it and does not start Step 8.
+
 ## [1.4.11] — 25 July 2026 — Step 6 (Production Operations) GO closure
 
 **Master Source 1.4.10 → 1.4.11, classified PATCH under §1.2** — a roadmap-lifecycle

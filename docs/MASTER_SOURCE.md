@@ -1,6 +1,6 @@
 # Aish Laundry App — Master Source
 
-**Document version: 1.4.11**
+**Document version: 1.4.12**
 **Baseline date: 19 July 2026**
 
 Owner: Aish Tech Solution
@@ -1244,7 +1244,7 @@ The roadmap is **locked**. Step numbers are never reused or swapped without a de
 | Step 4 | Laundry Master Data | GO |
 | Step 5 | POS, Order, and Payment Foundation | GO |
 | Step 6 | Production Operations | GO |
-| Step 7 | Customer Tracking and WhatsApp | PLANNED |
+| Step 7 | Customer Tracking and WhatsApp | IN PROGRESS |
 | Step 8 | Pickup and Delivery Operations | PLANNED |
 | Step 9 | Unclaimed Laundry and Cashflow Recovery | PLANNED |
 | Step 10 | Finance, Reports, and Owner Portfolio | PLANNED |
@@ -1558,7 +1558,7 @@ must be claims the software can substantiate — the honesty rule (§3.1) applie
 
 ## 31. Decision records
 
-Thirty-eight decisions are locked. Fifteen were locked at the 1.0.0 baseline; DEC-0016 was added at
+Thirty-nine decisions are locked. Fifteen were locked at the 1.0.0 baseline; DEC-0016 was added at
 version 1.0.1, DEC-0017 at version 1.2.0, DEC-0018 … DEC-0023 at version 1.3.0, DEC-0024 … DEC-0027 at
 version 1.4.0, DEC-0028 … DEC-0031 at version 1.4.1, DEC-0032 at version 1.4.2, DEC-0033 at version 1.4.3, DEC-0034 at version 1.4.4, DEC-0035 at version 1.4.6, DEC-0036 at version 1.4.7, DEC-0037 at version 1.4.9, and DEC-0038 at version 1.4.10. DEC-0001 … DEC-0023 carry date
 **19 July 2026**; DEC-0024 … DEC-0027 carry **20 July 2026**; DEC-0028 … DEC-0031 carry
@@ -1613,6 +1613,7 @@ without being listed here — or listed here without existing — fails closed.
 | DEC-0036 | Order-Line Rounding Mode is HALF_UP (OQ-017 Ratification) | ACCEPTED | [DEC-0036](decisions/DEC-0036-oq-017-order-rounding-mode-halfup.md) |
 | DEC-0037 | Step 6 Runtime Scope Transition | ACCEPTED | [DEC-0037](decisions/DEC-0037-step-06-runtime-scope-transition.md) |
 | DEC-0038 | Private Object-Storage Introduction (S3-Compatible Abstraction for QC Defect Evidence, FR-083) | ACCEPTED | [DEC-0038](decisions/DEC-0038-step-06-private-object-storage-introduction.md) |
+| DEC-0039 | Step 7 Runtime Scope Transition (Customer Tracking and WhatsApp/Notification, FR-086 … FR-099) | ACCEPTED | [DEC-0039](decisions/DEC-0039-step-07-runtime-scope-transition.md) |
 
 ### 31.1 Decision record rules
 
@@ -1635,6 +1636,37 @@ Mapping from foundation area to rule file, decision record, and validator:
 
 The canonical changelog is [`CHANGELOG.md`](CHANGELOG.md), maintained in Keep a Changelog format with
 semantic versioning.
+
+### 32.000000000 Version 1.4.12
+
+**1.4.12 — 25 July 2026 — Step 7 customer-tracking and WhatsApp start and runtime scope guard transition.**
+
+Added DEC-0039, the separate canonical authorization Rule 49's precedent requires for Step 7 to begin,
+and the mechanical runtime-scope guard transition it carries: `validate-runtime-scope.py` splits its
+former unconditional `STEP7_PLUS_FEATURE_TOKENS` into a Step-7-gated `STEP7_FEATURE_TOKENS` (the four
+customer-tracking + notification/WhatsApp labels — tracking portal, tracking token, WhatsApp,
+notification provider, tracing to FR-086 … FR-099) and a residual `STEP8_PLUS_FEATURE_TOKENS` that stays
+unconditionally forbidden (pickup, delivery, courier routing/proof/settlement, unclaimed laundry, the
+reminder ladder, storage fees, receivables, finance reports, loyalty, membership, subscription billing).
+`CANONICAL_CURRENT_STEP` advances `6 → 7`. Step 7 moves `PLANNED → IN PROGRESS` in the three canonical
+sources — §24, [`ROADMAP.md`](ROADMAP.md), and [`STATUS.md`](STATUS.md) (human table and machine-readable
+block) — and in the derived snapshots (`CLAUDE.md` §2 and Rule 15; the per-step status-rule pattern
+stopped at Rule 50/Step 4, so Step 7 adds no new rule file, exactly as Steps 5 and 6 added none). Step
+6's GO tag is demoted into the historical-tag set (it is now a prior step). A new label-audit validator
+`scripts/validate-dec-0039-labels.py` mirrors `validate-dec-0037-labels.py`: it checks each permitted
+Step 7 label still traces to a PRD requirement and that no Step 8+ label appears in any structural
+position. The Step 5 and Step 6 label audits (`validate-dec-0035-labels.py`, `validate-dec-0037-labels.py`)
+drop the tracking/WhatsApp tokens from their "still forbidden" residual once the canonical current step
+reaches 7 — the tokens move to the step-appropriate DEC-0039 auditor, nothing is weakened.
+
+Classified **MINOR** under §1.2: the change is additive and opens new canonical runtime scope. No product
+decision was reversed, no pricing figure altered, no roadmap number changed, and no architectural lock was
+touched. **Advancing the guard boundary is not building the feature:** FR-086 … FR-099 remain
+`NOT IMPLEMENTED` until real tracking-token, portal, OTP, and notification runtime is implemented,
+verified, and evidenced at an exact SHA (Rule 01, Rule 36 hard rule 6). Deployment remains `ABSENT`;
+DEC-0039 does not authorise it and does not start Step 8, whose labels stay forbidden by construction.
+Single-maintainer governance with no independent human review remains a standing accepted deviation
+(DEC-0017); the compensating controls are load-bearing and are not equivalent to an independent reviewer.
 
 ### 32.00000000 Version 1.4.11
 
@@ -2136,4 +2168,4 @@ was met.
 
 ---
 
-*End of Master Source, version 1.4.11, baseline date 19 July 2026.*
+*End of Master Source, version 1.4.12, baseline date 19 July 2026.*

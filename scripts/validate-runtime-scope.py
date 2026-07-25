@@ -176,14 +176,28 @@ STEP6_FEATURE_TOKENS = {
     "rework":               {"reworks", "pengerjaan_ulang"},
 }
 
-#: Labels owned by Step 7 and later. Forbidden unconditionally at Step 6. Production
-#: (FR-071 … FR-085) moved to Step 6 above; customer tracking begins the Step 7 band.
-#: DEC-0037 left every one of these unchanged.
-STEP7_PLUS_FEATURE_TOKENS = {
+#: Labels Step 7 delivers (FR-086 … FR-099). Permitted once the canonical current
+#: step reaches 7, and forbidden before it. DEC-0039 authorises exactly these four —
+#: the customer-tracking + notification/WhatsApp cluster — and no others. Each traces
+#: to a Step 7 requirement: high-entropy hashed tracking tokens and the public portal
+#: (FR-086 … FR-092), and the provider-abstracted WhatsApp notification subsystem
+#: (FR-093 … FR-099).
+#:
+#: Splitting this out of the former STEP7_PLUS set is the DEC-0039 guard transition —
+#: the exact mechanism DEC-0030 used for Step 4, DEC-0035 used for Step 5, and DEC-0037
+#: used for Step 6. Editing either set to unblock work is a governance breach, not a
+#: fix (DEC-0037 / DEC-0039 supersession policy, Rule 36 hard rule 8).
+STEP7_FEATURE_TOKENS = {
     "tracking portal":      {"tracking_portal", "public_tracking"},
     "tracking token":       {"tracking_tokens"},
     "WhatsApp":             {"whatsapp", "wa_provider", "whatsapp_messages"},
     "notification provider":{"notification_providers", "notification_dispatch"},
+}
+
+#: Labels owned by Step 8 and later. Forbidden unconditionally at Step 7. Customer
+#: tracking + notification (FR-086 … FR-099) moved to Step 7 above; pickup and delivery
+#: begins the Step 8 band. DEC-0039 left every one of these unchanged.
+STEP8_PLUS_FEATURE_TOKENS = {
     "pickup":               {"pickups", "pickup_requests", "penjemputan"},
     "delivery":             {"deliveries", "delivery_requests", "pengantaran"},
     "courier routing":      {"routes", "route_stops", "courier_routes"},
@@ -327,15 +341,18 @@ FORBIDDEN_LABEL = f"Step {CANONICAL_CURRENT_STEP + 1}+"
 def forbidden_feature_map() -> dict[str, set[str]]:
     """Feature labels that are forbidden AT THE CURRENT CANONICAL STEP.
 
-    Step 7+ labels are always forbidden. The six Step 6 labels are forbidden only
-    while the canonical current step is below 6 (DEC-0037); the seven Step 5 labels
-    only while it is below 5 (DEC-0035); the four Step 4 labels only while it is
-    below 4 (DEC-0030). Deriving each band from CANONICAL_CURRENT_STEP means this
-    guard can never retroactively permit anything in an earlier tree, and a step's
-    own labels can never be unblocked by editing the guard — they need that step's
-    authorisation and its own record.
+    Step 8+ labels are always forbidden. The four Step 7 labels are forbidden only
+    while the canonical current step is below 7 (DEC-0039); the six Step 6 labels
+    only while it is below 6 (DEC-0037); the seven Step 5 labels only while it is
+    below 5 (DEC-0035); the four Step 4 labels only while it is below 4 (DEC-0030).
+    Deriving each band from CANONICAL_CURRENT_STEP means this guard can never
+    retroactively permit anything in an earlier tree, and a step's own labels can
+    never be unblocked by editing the guard — they need that step's authorisation
+    and its own record.
     """
-    forbidden = dict(STEP7_PLUS_FEATURE_TOKENS)
+    forbidden = dict(STEP8_PLUS_FEATURE_TOKENS)
+    if CANONICAL_CURRENT_STEP < 7:
+        forbidden.update(STEP7_FEATURE_TOKENS)
     if CANONICAL_CURRENT_STEP < 6:
         forbidden.update(STEP6_FEATURE_TOKENS)
     if CANONICAL_CURRENT_STEP < 5:
