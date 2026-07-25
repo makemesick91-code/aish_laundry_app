@@ -19,7 +19,7 @@ Master Source version **1.4.0**, baseline date **19 July 2026**.
 | Step 4 — Laundry Master Data | **GO** (owner-conferred 22 July 2026, with accepted deviations) |
 | Step 5 — POS, Order, and Payment Foundation | **GO** (owner-conferred 23 July 2026, with accepted deviations) |
 | Step 6 — Production Operations | **GO** (owner-conferred 25 July 2026; merged PRs #24 and #25) |
-| Step 7 — Customer Tracking and WhatsApp | **IN PROGRESS** (started 25 July 2026 under DEC-0039; FR-086 … FR-099 still `NOT IMPLEMENTED`) |
+| Step 7 — Customer Tracking and WhatsApp | **IN PROGRESS** (started 25 July 2026 under DEC-0039; FR-086 … FR-099 built and `TESTED`; `GO` not conferred) |
 | Step 8 — Pickup and Delivery Operations | **PLANNED** |
 | Step 9 — Unclaimed Laundry and Cashflow Recovery | **PLANNED** |
 | Step 10 — Finance, Reports, and Owner Portfolio | **PLANNED** |
@@ -27,8 +27,8 @@ Master Source version **1.4.0**, baseline date **19 July 2026**.
 | Step 12 — Subscription and Platform Administration | **PLANNED** |
 | Step 13 — Security, Performance, Backup, and Recovery | **PLANNED** |
 | Step 14 — Pilot and Commercial Launch | **PLANNED** |
-| **Step 7+ product business features** | **NOT IMPLEMENTED** |
-| **Backend runtime** | **PRESENT — STEPS 3–6 (auth · tenancy · RBAC · master data · POS/order/payment · production operations)** |
+| **Step 8+ product business features** | **NOT IMPLEMENTED** |
+| **Backend runtime** | **PRESENT — STEPS 3–7 (auth · tenancy · RBAC · master data · POS/order/payment · production operations · customer tracking/notification)** |
 | **Flutter workspace** | **PRESENT** |
 | **Deployment** | **ABSENT** |
 | **Application CI** | **ACTIVE** |
@@ -46,10 +46,17 @@ Master Source version **1.4.0**, baseline date **19 July 2026**.
 - **Step 5 (the POS, order, and payment FOUNDATION) reached `GO`, and Step 6 (Production Operations)
   reached `GO`** (owner-conferred 25 July 2026; merged PRs #24 and #25, runtime merge
   `82f162f25a39cc9501c6ee35a9728f0e01999725`) — production stages, batches, per-item tracking, quality
-  control, and rework across FR-071 … FR-085. **Step 7+ product business features remain `NOT
-  IMPLEMENTED`** — tracking, WhatsApp, pickup/delivery, unclaimed-laundry reminders, reporting, and
-  subscription. A foundation or a delivered workflow existing is never the same as a later step's
-  workflow existing (Rule 42).
+  control, and rework across FR-071 … FR-085.
+- **Step 7 (Customer Tracking and WhatsApp) is `IN PROGRESS` with its runtime built and `TESTED`.**
+  FR-086 … FR-099 exist as runtime — the tracking-token lifecycle, the public portal at `/lacak/{token}`,
+  the allow-list projection, the OTP gate, and the notification outbox with provider abstraction,
+  consent, quiet hours, and deduplication — and their verification is captured at an exact SHA under
+  [`../../evidence/step-07/`](../../evidence/step-07/). **`TESTED` is not `GO`:** the pull request is
+  open, `GO` is the owner's to confer (Rule 01), and two open questions (OQ-014, OQ-018) await an owner
+  decision.
+- **Step 8+ product business features remain `NOT IMPLEMENTED`** — pickup/delivery, courier settlement,
+  unclaimed-laundry reminders, reporting, loyalty, and subscription. A foundation or a delivered
+  workflow existing is never the same as a later step's workflow existing (Rule 42).
 - Nothing is deployed anywhere. Deployment is **ABSENT**; neither Step 3 `GO` nor Step 6 `GO` authorises
   it.
 - Application CI is **ACTIVE**: the Step 3 runtime workflows run on every change to `main`.
