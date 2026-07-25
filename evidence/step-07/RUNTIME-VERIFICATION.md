@@ -2,7 +2,7 @@
 
 **Step:** 7 — Customer Tracking and WhatsApp
 **Status:** `IN PROGRESS` — runtime built and `TESTED`; **`GO` is NOT conferred and is the owner's to give** (Rule 01)
-**Master Source version:** 1.4.12
+**Master Source version:** 1.4.13
 **Runtime scope opened by:** [DEC-0039](../../docs/decisions/DEC-0039-step-07-runtime-scope-transition.md)
 **Branch:** `feature/step-07-runtime-customer-tracking-whatsapp`
 **Branch base:** `47356042cce926abd8d75b9f29388b8403af140b` (Step 7 START merge, PR #28)
@@ -84,7 +84,8 @@ and 68 by `--filter=Notification`, which are the two gates the verifier runs:
 | `PublicTrackingApiTest` | 15 | unknown, malformed, expired, revoked, superseded, and order-number-as-token produce ONE byte-identical body, and a throttled valid token joins them; `noindex`/`no-store`/`no-referrer`/CSP headers; robots meta tag; tenant markup escaped; no script, no remote asset, no app-install prompt |
 | `TrackingOtpTest` | 15 | brute force exhausts the challenge; replay after consumption refused; cross-action and cross-token reuse refused; expiry; resend cooldown; per-token issuance limit; a wrong guess never written to an audit payload; the HTTP surface answers identically for live and dead links |
 | `NotificationOutboxTest` | 14 | dedup returns the original intent, survives a replay after a successful send, and is refused at the UNIQUE constraint even from direct SQL; a rejection is permanent immediately while a timeout backs off; retry bounded and visible; terminal intents never re-dispatched; attempt rows carry no personal data; the due-query is tenant-scoped |
-| `NotificationPolicyTest` | 17 | marketing with no consent row is BLOCKED; opt-out re-evaluated at dispatch; the category is proved un-passable by reflection; quiet hours exact at 19:59/20:00/07:59/08:00, wrapping midnight to the SAME morning, evaluated in the outlet's zone (Jayapura sends at 09:00 WIT while Jakarta defers at 07:00 WIB); unusable timezone fails closed; EVERY template defers, proving no exception path |
+| `NotificationPolicyTest` | 18 | marketing with no consent row is BLOCKED; opt-out re-evaluated at dispatch; the category is proved un-passable by reflection; quiet hours exact at 19:59/20:00/07:59/08:00, wrapping midnight to the SAME morning, evaluated in the outlet's zone (Jayapura sends at 09:00 WIT while Jakarta defers at 07:00 WIB); unusable timezone fails closed; **every template the outbox carries defers**, and the outbox refuses an OTP-carrying template outright — so the DEC-0040 exemption is provably not reachable from this path |
+| `OtpQuietHoursExemptionTest` | 18 | the DEC-0040 exemption and its fences: a customer request at 19:59 is eligible, and at 20:00, 00:00, and 07:59 is eligible IMMEDIATELY with `deferred_for_quiet_hours` false and `scheduled_for` unmoved; evaluated in the outlet's own zone; an automated origin is REFUSED with `otp_not_customer_initiated` at every hour, never deferred; the outbox refuses OTP templates; marketing and ordinary transactional messages still defer; marketing opt-out is still honoured and does NOT block a customer-requested OTP; per-token rate limit and resend cooldown still refuse inside quiet hours; dedup still applies; the classification is recorded on both the intent and the tracking access event and neither carries the code; the database refuses an exempt row marked deferred and refuses an unrecognised classification; an unavailable or rejecting provider is reported as a failure with no acceptance timestamp |
 | `ProviderAbstractionTest` | 22 | no file outside `Providers/` names a vendor or an HTTP client; no other module imports an adapter; `OutboundMessage` carries no internal identifier; the official adapter is unavailable with absent, partial, or disabled credentials and fabricates nothing; exactly three adapters, none a browser-automation client; no template combines an OTP with a tracking link; nothing promises unlimited WhatsApp |
 | `MessagingDoesNotGateOrderStateTest` | 10 | the order, its total, and its ledger balance are byte-identical after timeout, 4xx, 5xx, malformed, and unavailable; enqueue never throws into a business caller; a contract-violating provider that throws is absorbed; the ledger and the immutable first-ready anchor untouched; structurally, no business module imports Notification and the module writes to no business table |
 | `TrackingApiRbacTest` | 18 | cashier may issue/rotate/revoke; production operator and **courier** hold nothing; finance reads but does not send; suspended membership loses access on the next request; foreign order/link/notification indistinguishable from absent; a client-supplied tenant id is never authorization proof; no list-all or export route; the plaintext is unretrievable after issuance |
@@ -124,7 +125,10 @@ $ cd apps/ops_android && flutter test
 
 ```
 $ bash scripts/test-verify-step-07.sh
-SUMMARY [verify-step-07 adversarial]: 12/12 expectations met, 0 failed
+SUMMARY [verify-step-07 adversarial]: 14/14 expectations met, 0 failed
+
+$ bash scripts/test-step-07-validators.sh
+SUMMARY [test-step-07-validators]: 57 passed, 0 failed
 ```
 
 It proves, among other things, that a **missing** Tracking module, a **missing** backend test suite,
@@ -132,17 +136,34 @@ or a **missing** operator UI test now **FAILS** rather than skipping — which i
 replacing the two transitional SKIPs. Its removal tests run in a disposable copy, and it asserts the
 canonical repository is unchanged afterwards.
 
+Expectations 10 and 11 were added for this ratification round: that the DEC-0040 and DEC-0041 presence
+checks and the portal-stack audit are **mandatory gates** rather than comments or skips, and that the
+portal-stack audit actually **discriminates** broken input from clean input.
+
+`test-step-07-validators.sh` §4 drives the DEC-0041 audit's pure functions with synthetic broken markup
+— a script tag, an inline handler, a remote asset, a Vite bundle, an inline PHP block, a database call,
+an Eloquent query, `localStorage`, a session read, an auth facade call, and five Step 8/9 control
+shapes — and asserts each is rejected while legitimate portal markup, including the FR-091 OTP control,
+is accepted. It also asserts the comment-stripping narrowing is bounded: a `<script>` **mentioned in a
+Blade comment** is not flagged, but a real script tag beside that comment still is. **Nothing is written
+to disk**, which is the specific defect that invalidated the superseded Step 3 "31/31 mutations caught"
+figure (Rule 49).
+
 ## 4. The canonical Step 7 verification
 
-The authoritative result and its exact SHA are recorded in
-[`VERIFY-STEP-07-FINAL.md`](VERIFY-STEP-07-FINAL.md), captured from a clean tree at
-`ca3476ae31bf718b78523dc982948c54626413aa`:
+The authoritative result, its exact command, and the 40-character SHA it measured are recorded in
+[`VERIFY-STEP-07-FINAL.md`](VERIFY-STEP-07-FINAL.md), captured verbatim from a clean tree. **That file
+is the evidence; this section is a pointer to it and is not itself a result** (Rule 01).
 
-```
-PASS 28   FAIL 0   SKIP 0
-```
+The earlier `PASS 28 / FAIL 0 / SKIP 0` figure quoted here was produced at
+`ca3476ae31bf718b78523dc982948c54626413aa` and **does not carry over**: the DEC-0040 and DEC-0041
+ratification added three mandatory gates to the verifier, so the total moved. Evidence produced at one
+SHA is never evidence at another (Rule 01, DEC-0013), and quoting the old number beside a changed gate
+set would have been exactly that error.
 
-**SKIP is 0.** Both transitional skips are gone.
+**SKIP is 0, and that remains the claim that matters.** Both transitional skips are gone; nothing in
+this run reports green by not having run.
+
 
 ## 5. Requirement → evidence traceability
 
@@ -180,21 +201,39 @@ PASS 28   FAIL 0   SKIP 0
 - **`GO` is not claimed.** The step is `IN PROGRESS`; `GO` is conferred by the repository owner after
   merge and is never self-declared by an agent (Rule 01).
 
-## 7. Open questions raised to the owner
+## 7. Open questions raised to the owner — BOTH NOW RESOLVED
 
-Neither is closed by invention (Rule 00 hard rule 6, Rule 12).
+Neither was closed by invention (Rule 00 hard rule 6, Rule 12). Both were raised to the repository
+owner, and the owner decided them on **26 July 2026**.
 
-- **OQ-018 (new).** Is a customer-initiated tracking OTP "urgent" for quiet-hours purposes? Master
-  Source §14.1 rule 6 holds **non-urgent** messages until quiet hours end, and §14.2's catalogue
-  carries **no OTP entry at all**, so the canonical text neither classifies it nor grants it an
-  exception. Step 7 took the conservative reading and **defers**. The consequence is stated plainly:
-  because a challenge lives five minutes, the FR-091 sensitive-action flow is **unavailable between
-  20.00 and 08.00 outlet local time**. That is a real usability limitation awaiting a decision.
-- **OQ-014.** Which web stack the public portal uses. Step 7 implemented the zero-dependency option —
-  server-rendered Blade, no new dependency, no new toolchain, no third-party asset, no script on the
-  page — but OQ-014 requires the choice to be recorded in a decision record by the step that builds
-  it, and an agent does not accept a product decision on the owner's behalf. **A decision record is
-  outstanding.**
+- **OQ-018 → [DEC-0040](../../docs/decisions/DEC-0040-oq-018-user-initiated-security-transaction-quiet-hours-exemption.md).**
+  The question was whether a customer-initiated tracking OTP is "urgent" for quiet-hours purposes.
+  Master Source §14.1 rule 6 holds **non-urgent** messages until quiet hours end, and §14.2's catalogue
+  carries **no OTP entry at all**, so the canonical text neither classified it nor granted it an
+  exception. Step 7 originally took the conservative reading and deferred, which left the FR-091
+  sensitive-action flow **unavailable between 20.00 and 08.00 outlet local time** — a five-minute
+  challenge deferred to 08.00 is a message that verifies a challenge which already expired.
+
+  **The owner classified it a `USER_INITIATED_SECURITY_TRANSACTION` and exempted it from quiet hours.**
+  This is the exception `NOT-022` reserves to a decision record, and it is the first one granted. The
+  implementation was changed accordingly and the conservative deferral is superseded. The exemption is
+  gated on an explicit customer request and on nothing else; an automated origin is **refused**, not
+  deferred; the ordinary outbox refuses OTP-carrying templates outright; and two database CHECK
+  constraints close the classification set to one value and forbid a row from carrying the exemption
+  together with `deferred_for_quiet_hours`. Rate limits, resend cooldown, expiry, attempt limit,
+  single-use consumption, dedup, opt-out, and the account-takeover rule are all unchanged.
+
+- **OQ-014 → [DEC-0041](../../docs/decisions/DEC-0041-oq-014-laravel-blade-as-the-public-tracking-portal-stack.md).**
+  The question was which web stack the public portal uses. Step 7 implemented the zero-dependency
+  option — server-rendered Blade, no new dependency, no new toolchain, no third-party asset, no script
+  on the page — but OQ-014 required the choice to be recorded in a decision record by the step that
+  builds it, and an agent does not accept a product decision on the owner's behalf.
+
+  **The owner ratified Blade for this surface only**, with written boundaries: no parallel admin or
+  operations application, no business rule duplicated in a view, no persistent browser storage of the
+  token, no public authentication session, the transport controls mandatory, and no Step 8 or Step 9
+  control on the surface. **No behaviour changed**; what changed is that the choice is now a ratified
+  decision with a structural audit behind it (`scripts/validate-dec-0041-portal-stack.py`).
 
 ## 8. Residual audit correction made during this sprint
 
