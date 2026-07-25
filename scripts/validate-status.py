@@ -15,11 +15,17 @@ from _common import (  # noqa: E402
     CANONICAL_CURRENT_STEP,
     CURRENT_STEP_ALLOWED,
     FORWARD_LEAK_STATUSES,
+    HISTORICAL_GO_TAGS,
     Reporter,
+    STEP6_GO_TAG_NAME,
+    STEP6_RUNTIME_MERGE_SHA,
+    authorised_pretag_go_steps,
     declared_statuses,
+    historical_tag_verdict,
     read_text,
     repo_root,
     run_main,
+    step6_tag_verdict,
 )
 
 STATUS = "docs/STATUS.md"
@@ -183,14 +189,20 @@ CLOSURE_END = "<!-- STEP_03_CLOSURE_END -->"
 CLOSURE_LINE = re.compile(r"^([A-Z0-9_]+)=(.+)$")
 
 
-def parse_closure_block(text: str) -> tuple[dict[str, str], list[str]]:
-    """Parse the STEP_03_CLOSURE_* block. FAILS CLOSED on any structural fault."""
-    begins, ends = text.count(CLOSURE_BEGIN), text.count(CLOSURE_END)
+def parse_closure_block(
+    text: str, begin: str = CLOSURE_BEGIN, end: str = CLOSURE_END
+) -> tuple[dict[str, str], list[str]]:
+    """Parse a STEP_NN_CLOSURE_* block. FAILS CLOSED on any structural fault.
+
+    The markers default to the Step 3 block so existing callers are unchanged; a
+    later step's closure passes its own begin/end markers.
+    """
+    begins, ends = text.count(begin), text.count(end)
     if begins == 0 or ends == 0:
-        return {}, [f"closure block missing ({CLOSURE_BEGIN} x{begins}, {CLOSURE_END} x{ends})"]
+        return {}, [f"closure block missing ({begin} x{begins}, {end} x{ends})"]
     if begins != 1 or ends != 1:
         return {}, [f"exactly one closure block required (found {begins} begin, {ends} end)"]
-    body = text.split(CLOSURE_BEGIN, 1)[1].split(CLOSURE_END, 1)[0]
+    body = text.split(begin, 1)[1].split(end, 1)[0]
     kv: dict[str, str] = {}
     errors: list[str] = []
     for raw in body.splitlines():
@@ -274,6 +286,196 @@ def check_step3_closure(root, rep) -> None:
               "real local tag object matches the recorded tag object")
     rep.check(peeled_real.stdout.strip() == STEP3_RUNTIME_MERGE_SHA,
               "real local tag peels to the recorded runtime merge SHA")
+
+
+# ---------------------------------------------------------------------------
+# Step 6 GO-tag closure facts.
+#
+# Step 6 (Production Operations) reached GO. Unlike Step 3, the immutable GO tag
+# does NOT exist yet while the governance-closure pull request is open and during the
+# short post-merge/pre-tag window: the tag is the owner's to create after this
+# closure merges. The pre-tag window is an authorised, DETERMINISTIC canonical fact
+# (STATUS.md STEP_06_GO_TAG_STATE), never an environmental coincidence. Once a real
+# tag exists it must be ANNOTATED, be exactly the canonical name, and peel to the
+# RUNTIME merge SHA (never the later closure merge) — a lightweight, mis-pointed,
+# misnamed, or duplicate tag fails closed. The lifecycle verdict is a pure function
+# in _common so it is adversarially testable without touching real git tags.
+# ---------------------------------------------------------------------------
+STEP6_CLOSURE_BEGIN = "<!-- STEP_06_CLOSURE_BEGIN -->"
+STEP6_CLOSURE_END = "<!-- STEP_06_CLOSURE_END -->"
+
+STEP6_FR_MATRIX = "docs/quality/STEP_06_REQUIREMENT_MATRIX.md"
+STEP6_DECISIONS = {
+    "DEC-0037": "docs/decisions/DEC-0037-step-06-runtime-scope-transition.md",
+    "DEC-0038": "docs/decisions/DEC-0038-step-06-private-object-storage-introduction.md",
+}
+
+
+def check_step6_closure(root, rep) -> None:
+    """The Step 6 GO closure facts must match the committed constants; the intended
+    tag must peel to the runtime merge SHA (not the later closure merge); FR-071 …
+    FR-085 must all be TESTED; DEC-0037/0038 must remain ACCEPTED and indexed; and
+    any present GO tag — Step 6 or a historical one — must be unchanged."""
+    rep.info("--- Step 6 GO-tag closure (status advancement) ---")
+    text = read_text(root / STATUS)
+    kv, errors = parse_closure_block(text, STEP6_CLOSURE_BEGIN, STEP6_CLOSURE_END)
+    for e in errors:
+        rep.fail(f"step 6 closure block: {e}")
+    if errors:
+        return
+
+    expected = {
+        "STEP_06_CLOSURE_CLASSIFICATION": "GO",
+        "STEP_06_RUNTIME_MERGE_SHA": STEP6_RUNTIME_MERGE_SHA,
+        "STEP_06_GO_TAG": STEP6_GO_TAG_NAME,
+        "STEP_06_GO_TAG_PEELED_EXPECTED": STEP6_RUNTIME_MERGE_SHA,
+        "DEPLOYMENT": "ABSENT",
+    }
+    for key, want in expected.items():
+        got = kv.get(key)
+        rep.check(got == want, f"step 6 closure {key} == {want!r} (found {got!r})")
+
+    # The intended tag peels to the RUNTIME merge, and the governance-closure merge
+    # that records this advance is a DIFFERENT, later commit the tag must never point
+    # to. Encoded as an equality against the runtime merge SHA constant.
+    rep.check(kv.get("STEP_06_GO_TAG_PEELED_EXPECTED") == STEP6_RUNTIME_MERGE_SHA,
+              "Step 6 GO tag is intended to peel to the runtime merge SHA")
+
+    # The machine-readable canonical state must actually declare Step 6 GO, and the
+    # step after it must not be started — proven here against the closure block.
+    state, state_errors = parse_canonical_state(text)
+    if not state_errors:
+        rep.check(state.get(6) == "GO",
+                  f"STEP_06_STATUS is GO in the canonical state block (found {state.get(6)!r})")
+        rep.check(state.get(7) == "PLANNED",
+                  f"Step 7 remains PLANNED (found {state.get(7)!r})")
+
+    # FR-071 … FR-085 are all TESTED in the requirement matrix.
+    matrix = root / STEP6_FR_MATRIX
+    if rep.check(matrix.is_file(), f"{STEP6_FR_MATRIX} exists"):
+        mtext = read_text(matrix)
+        problems: list[str] = []
+        for i in range(71, 86):
+            fr = f"FR-{i:03d}"
+            row = re.search(rf"^\|\s*{re.escape(fr)}\b.*$", mtext, re.MULTILINE)
+            if row is None:
+                problems.append(f"{fr} (absent)")
+            elif "TESTED" not in row.group(0).upper():
+                problems.append(f"{fr} (not TESTED)")
+        rep.check(not problems,
+                  f"FR-071 … FR-085 are all TESTED in the requirement matrix "
+                  f"(problems: {problems})")
+
+    # DEC-0037 and DEC-0038 remain ACCEPTED and indexed in Master Source §31.
+    ms_text = read_text(root / "docs" / "MASTER_SOURCE.md")
+    for dec, decfile in STEP6_DECISIONS.items():
+        rep.check(dec in ms_text, f"{dec} remains indexed in MASTER_SOURCE.md")
+        p = root / decfile
+        accepted = (
+            p.is_file()
+            and re.search(
+                r"^(?:[-*+]\s+)?\*\*Status:\*\*\s*ACCEPTED",
+                read_text(p), re.MULTILINE,
+            ) is not None
+        )
+        rep.check(accepted, f"{dec} decision record exists and is ACCEPTED")
+
+    # Tag lifecycle — deterministic and identical in a tagged local checkout, a
+    # fresh clone, and CI. The pre-tag window is an AUTHORISED CANONICAL FACT
+    # (STATUS.md STEP_06_GO_TAG_STATE for the current step), not an environmental
+    # coincidence. Enumerate every tag in the Step 6 GO-tag family so a misnamed or
+    # duplicate tag cannot slip past an exact-name lookup, then apply the pure
+    # lifecycle verdict; a lightweight, mis-pointed, misnamed, or duplicate tag fails
+    # closed once any tag exists.
+    pretag_authorised = 6 in authorised_pretag_go_steps(root)
+
+    if not (root / ".git").exists():
+        for ok, msg in step6_tag_verdict([], pretag_authorised):
+            rep.check(ok, msg)
+        return
+
+    import subprocess
+
+    def _git(*args):
+        return subprocess.run(
+            ["git", "-C", str(root), *args], capture_output=True, text=True
+        )
+
+    listed = _git("tag", "--list", "aish-laundry-step-06-*-go")
+    tag_names = (
+        [t.strip() for t in listed.stdout.splitlines() if t.strip()]
+        if listed.returncode == 0 else []
+    )
+    step6_tags = []
+    for name in tag_names:
+        typ = _git("cat-file", "-t", name)
+        peeled = _git("rev-parse", f"{name}^{{commit}}")
+        step6_tags.append({
+            "name": name,
+            "annotated": typ.returncode == 0 and typ.stdout.strip() == "tag",
+            "peeled": peeled.stdout.strip() if peeled.returncode == 0 else None,
+        })
+    for ok, msg in step6_tag_verdict(step6_tags, pretag_authorised):
+        rep.check(ok, msg)
+
+    # Historical GO tags, if present, must peel unchanged.
+    present = {}
+    for name in HISTORICAL_GO_TAGS:
+        peeled = _git("rev-parse", f"{name}^{{commit}}")
+        if peeled.returncode == 0:
+            present[name] = peeled.stdout.strip()
+        else:
+            rep.info(f"historical GO tag {name} not present; skipping unchanged check")
+    for ok, msg in historical_tag_verdict(present):
+        rep.check(ok, msg)
+
+
+# ---------------------------------------------------------------------------
+# Post-Step-6 truthfulness. Once Step 6 is canonically GO, certain ABSOLUTE claims
+# are materially false and must never reappear in the live canonical-status
+# documents:
+#   - "Every product feature is NOT IMPLEMENTED" — Steps 3-6 features reached GO;
+#   - backend runtime scoped to "STEP 3 FOUNDATION ONLY" — Step 4-6 runtime exists.
+# These are NEGATIVE checks (they look for a stale absolute the canonical state
+# refutes) and fire ONLY while Step 6 is actually GO, so they cannot themselves
+# become the next stale assertion. This is the anti-recurrence guard for the drift
+# the Step 6 GO closure removed.
+# ---------------------------------------------------------------------------
+TRUTHFULNESS_DOCS = [
+    "docs/STATUS.md",
+    "CLAUDE.md",
+    ".claude/rules/15-current-product-status.md",
+]
+STALE_ABSOLUTE_CLAIMS: list[tuple[str, re.Pattern]] = [
+    (
+        '"Every product feature is NOT IMPLEMENTED"',
+        re.compile(r"every\s+product\s+feature\s+is[\s*_]+not[\s*_]+implemented", re.IGNORECASE),
+    ),
+    (
+        'backend runtime scoped to "STEP 3 FOUNDATION ONLY"',
+        re.compile(r"step[\s\-]*3\s+foundation\s+only", re.IGNORECASE),
+    ),
+]
+
+
+def check_post_step6_truthfulness(root, rep) -> None:
+    """No live canonical-status document may carry a stale absolute claim that the
+    Step 6 GO state refutes."""
+    rep.info("--- post-Step-6 truthfulness (Step 6 GO closure) ---")
+    state, errors = parse_canonical_state(read_text(root / STATUS))
+    if errors or state.get(6) != "GO":
+        rep.ok("Step 6 is not GO; post-Step-6 truthfulness checks not applicable")
+        return
+    for rel in TRUTHFULNESS_DOCS:
+        p = root / rel
+        if not p.is_file():
+            continue
+        text = read_text(p)
+        for label, rx in STALE_ABSOLUTE_CLAIMS:
+            rep.check(
+                rx.search(text) is None,
+                f"{rel} carries no stale absolute claim now that Step 6 is GO: {label}",
+            )
 
 
 def check_runtime_matches_reality(root, rep) -> None:
@@ -717,6 +919,8 @@ def main() -> int:
     check_infrastructure_consistency(root, rep)
     check_cross_document_consistency(root, rep)
     check_step3_closure(root, rep)
+    check_step6_closure(root, rep)
+    check_post_step6_truthfulness(root, rep)
 
     return rep.finish()
 

@@ -1,10 +1,10 @@
 # Step 6 — Production Operations: Requirement Matrix and Acceptance Criteria
 
 **Step:** 6 — Production Operations
-**Status:** `IN PROGRESS`
+**Status:** `GO` — owner-conferred 25 July 2026; runtime merged PRs #24 and #25 (`82f162f25a39cc9501c6ee35a9728f0e01999725`)
 **Authorized by:** the canonical roadmap (Master Source §24; [`ROADMAP.md`](../ROADMAP.md))
 **Runtime scope opened by:** [DEC-0037](../decisions/DEC-0037-step-06-runtime-scope-transition.md)
-**Master Source version:** 1.4.10
+**Master Source version:** 1.4.11
 **Baseline SHA:** `9c23eca41f45963b61a04f936e69bf9b71997552` (post-Step-5 canonical `main`)
 **Depends on (Step 5, delivered):** orders, order lines, server-authoritative pricing with the FR-036
 immutable snapshot, payments, the append-only ledger, receipt/nota. Depends on (Step 4): outlets, staff

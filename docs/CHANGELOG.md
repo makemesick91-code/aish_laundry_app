@@ -10,6 +10,45 @@ Version numbers in this file track the **Master Source** document version
 
 ---
 
+## [1.4.11] — 25 July 2026 — Step 6 (Production Operations) GO closure
+
+**Master Source 1.4.10 → 1.4.11, classified PATCH under §1.2** — a roadmap-lifecycle
+status advance that reverses no product decision and alters no pricing figure, roadmap
+number, hierarchy level, reminder stage, or architectural lock. No new decision record is
+added; DEC-0037 and DEC-0038 remain `ACCEPTED` and indexed.
+
+- **Step 6 (Production Operations) advances `IN PROGRESS → GO`** in the three canonical
+  sources — Master Source §24, [`ROADMAP.md`](ROADMAP.md), and [`STATUS.md`](STATUS.md)
+  (human table and machine-readable block) — and in the derived snapshots (`CLAUDE.md` §2,
+  Rule 15, Rule 50), after the repository owner conferred GO against exact-SHA evidence.
+- Step 6 runtime — production, washing, drying, finishing, quality control, and rework,
+  delivering **FR-071 … FR-085** with FR-074 batch operations and FR-083 QC defect-photo
+  evidence — was implemented, verified, and merged to `main` as **PRs #24 and #25**, the
+  merge commit `82f162f25a39cc9501c6ee35a9728f0e01999725`. The exact-SHA authoritative CI
+  was green on that commit and `scripts/verify-step-06.sh` reports **PASS 29 / FAIL 0 /
+  SKIP 0**.
+- A machine-readable `STEP_06_CLOSURE` block was added to `STATUS.md`, validated by
+  `scripts/validate-status.py`: it records the runtime merge SHA and the intended annotated
+  GO tag `aish-laundry-step-06-production-operations-v1.0.0-go`, which must peel to the
+  runtime merge commit and never to the later governance-closure merge — the two are
+  distinct commits. The immutable GO tag is the owner's to create after this closure
+  merges; **it is not created here.**
+- The blanket "product business features `NOT IMPLEMENTED`" claims are scoped to **Step 7+**,
+  because Step 6's production-operations workflow is now implemented. **Step 7 remains
+  `PLANNED`, deployment remains `ABSENT`**, and Step 6 `GO` authorises neither.
+- The pinned Master Source version (`scripts/validate-master-source.py`), the Step-6 and
+  Step-5 verifier version pins (`scripts/verify-step-06.sh`, `scripts/verify-step-05.sh`),
+  and the Master Source checksum (`MASTER_SOURCE.sha256`) were moved together. Closure
+  evidence: [`../evidence/step-06/GO-CLOSURE.md`](../evidence/step-06/GO-CLOSURE.md).
+- The Step 6 GO-tag cross-check is **pre-tag-safe** through a deterministic canonical fact
+  (STATUS.md `STEP_06_GO_TAG_STATE`), so the ordinary tagged local checkout passes
+  `validate-roadmap.py` and `verify-step-06.sh` before the owner creates the tag — while a
+  lightweight, mis-pointed, misnamed, or duplicate tag, or a moved historical tag, still fails
+  closed (pure verdicts in `_common.py`, adversarially tested). STATUS.md §2/§3 are rescoped
+  truthfully (features through Step 6 are `GO`, Step 7+ `NOT IMPLEMENTED`), and a new
+  anti-drift check keeps the stale absolutes ("every product feature NOT IMPLEMENTED",
+  backend "STEP 3 FOUNDATION ONLY") from recurring once Step 6 is GO.
+
 ## [1.4.10] — 25 July 2026 — Private object-storage introduction for QC defect evidence (FR-083)
 
 **Master Source 1.4.9 → 1.4.10, classified PATCH under §1.2** — no product decision

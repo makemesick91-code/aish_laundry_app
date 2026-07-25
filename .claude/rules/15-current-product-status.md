@@ -18,7 +18,7 @@ Master Source version **1.4.0**, baseline date **19 July 2026**.
 | Step 3 — Runtime, Authentication, Multi-Tenancy, and RBAC | **GO WITH ACCEPTED DEVIATION** |
 | Step 4 — Laundry Master Data | **GO** (owner-conferred 22 July 2026, with accepted deviations) |
 | Step 5 — POS, Order, and Payment Foundation | **GO** (owner-conferred 23 July 2026, with accepted deviations) |
-| Step 6 — Production Operations | **PLANNED** |
+| Step 6 — Production Operations | **GO** (owner-conferred 25 July 2026; merged PRs #24 and #25) |
 | Step 7 — Customer Tracking and WhatsApp | **PLANNED** |
 | Step 8 — Pickup and Delivery Operations | **PLANNED** |
 | Step 9 — Unclaimed Laundry and Cashflow Recovery | **PLANNED** |
@@ -27,8 +27,8 @@ Master Source version **1.4.0**, baseline date **19 July 2026**.
 | Step 12 — Subscription and Platform Administration | **PLANNED** |
 | Step 13 — Security, Performance, Backup, and Recovery | **PLANNED** |
 | Step 14 — Pilot and Commercial Launch | **PLANNED** |
-| **Step 6+ product business features** | **NOT IMPLEMENTED** |
-| **Backend runtime** | **PRESENT — STEP 3 FOUNDATION ONLY** |
+| **Step 7+ product business features** | **NOT IMPLEMENTED** |
+| **Backend runtime** | **PRESENT — STEPS 3–6 (auth · tenancy · RBAC · master data · POS/order/payment · production operations)** |
 | **Flutter workspace** | **PRESENT** |
 | **Deployment** | **ABSENT** |
 | **Application CI** | **ACTIVE** |
@@ -43,11 +43,15 @@ Master Source version **1.4.0**, baseline date **19 July 2026**.
 - The Laravel backend, PostgreSQL, and Redis foundation **exist** (auth, tenancy, RBAC, audit only);
   the Flutter workspace and three application shells **exist**. This is Step 3 **foundation** —
   `composer.json`, `pubspec.yaml`, migrations, and runtime CI are present and verified.
-- **Step 5 (the POS, order, and payment FOUNDATION) reached `GO`.** **Step 6+ product business
-  features remain `NOT IMPLEMENTED`** — production, tracking, WhatsApp, pickup/delivery,
-  unclaimed-laundry reminders, reporting, and subscription. A foundation existing is never the same as
-  a full consuming workflow existing (Rule 42).
-- Nothing is deployed anywhere. Deployment is **ABSENT**, and Step 3 `GO` does **not** authorise it.
+- **Step 5 (the POS, order, and payment FOUNDATION) reached `GO`, and Step 6 (Production Operations)
+  reached `GO`** (owner-conferred 25 July 2026; merged PRs #24 and #25, runtime merge
+  `82f162f25a39cc9501c6ee35a9728f0e01999725`) — production stages, batches, per-item tracking, quality
+  control, and rework across FR-071 … FR-085. **Step 7+ product business features remain `NOT
+  IMPLEMENTED`** — tracking, WhatsApp, pickup/delivery, unclaimed-laundry reminders, reporting, and
+  subscription. A foundation or a delivered workflow existing is never the same as a later step's
+  workflow existing (Rule 42).
+- Nothing is deployed anywhere. Deployment is **ABSENT**; neither Step 3 `GO` nor Step 6 `GO` authorises
+  it.
 - Application CI is **ACTIVE**: the Step 3 runtime workflows run on every change to `main`.
 - No user acceptance testing has occurred. UAT is **NOT STARTED**.
 

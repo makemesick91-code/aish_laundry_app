@@ -1,6 +1,6 @@
 # Aish Laundry App — Master Source
 
-**Document version: 1.4.10**
+**Document version: 1.4.11**
 **Baseline date: 19 July 2026**
 
 Owner: Aish Tech Solution
@@ -1243,7 +1243,7 @@ The roadmap is **locked**. Step numbers are never reused or swapped without a de
 | Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | GO WITH ACCEPTED DEVIATION |
 | Step 4 | Laundry Master Data | GO |
 | Step 5 | POS, Order, and Payment Foundation | GO |
-| Step 6 | Production Operations | IN PROGRESS |
+| Step 6 | Production Operations | GO |
 | Step 7 | Customer Tracking and WhatsApp | PLANNED |
 | Step 8 | Pickup and Delivery Operations | PLANNED |
 | Step 9 | Unclaimed Laundry and Cashflow Recovery | PLANNED |
@@ -1635,6 +1635,32 @@ Mapping from foundation area to rule file, decision record, and validator:
 
 The canonical changelog is [`CHANGELOG.md`](CHANGELOG.md), maintained in Keep a Changelog format with
 semantic versioning.
+
+### 32.00000000 Version 1.4.11
+
+**1.4.11 — 25 July 2026 — Step 6 (Production Operations) GO closure.**
+
+Advances Step 6 `IN PROGRESS → GO` in the three canonical sources — §24, [`ROADMAP.md`](ROADMAP.md), and
+[`STATUS.md`](STATUS.md) (human table and machine-readable block) — and in the derived snapshots
+(`CLAUDE.md` §2, Rule 15, Rule 50), after the repository owner conferred GO against exact-SHA evidence.
+Step 6 runtime — production, washing, drying, finishing, quality control, and rework, delivering
+FR-071 … FR-085 with FR-074 batch operations and FR-083 QC defect-photo evidence — was implemented,
+verified, and merged to `main` as PRs #24 and #25, the merge commit
+`82f162f25a39cc9501c6ee35a9728f0e01999725`; the exact-SHA authoritative CI was green on that commit and
+`scripts/verify-step-06.sh` reports PASS 29 / FAIL 0 / SKIP 0. A machine-readable `STEP_06_CLOSURE` block
+in `STATUS.md`, validated by `scripts/validate-status.py`, records the runtime merge SHA and the intended
+annotated GO tag `aish-laundry-step-06-production-operations-v1.0.0-go`, which must peel to the runtime
+merge commit and never to the later governance-closure merge — the two are distinct commits. The
+immutable GO tag is the owner's to create after this closure merges; it is not created here.
+
+Classified **PATCH** under §1.2: a roadmap-lifecycle status advance that reverses no product decision,
+alters no pricing figure, changes no roadmap number, and introduces no architectural lock. The blanket
+"product business features `NOT IMPLEMENTED`" claims are scoped to **Step 7+**, because Step 6's
+production-operations workflow is now implemented. Deployment remains `ABSENT`; Step 6 `GO` does not
+authorise it and does not start Step 7, which remains `PLANNED` and requires its own canonical
+authorization. DEC-0037 and DEC-0038 remain `ACCEPTED` and indexed; no new decision record is added.
+Single-maintainer governance with no independent human review remains a standing accepted deviation
+(DEC-0017); the compensating controls are load-bearing and are not equivalent to an independent reviewer.
 
 ### 32.0000000 Version 1.4.10
 
@@ -2110,4 +2136,4 @@ was met.
 
 ---
 
-*End of Master Source, version 1.4.10, baseline date 19 July 2026.*
+*End of Master Source, version 1.4.11, baseline date 19 July 2026.*

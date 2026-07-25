@@ -16,11 +16,11 @@ quietly deferred.
 | --- | --- | --- |
 | 0 | Master Source and Governance | GO |
 | 1 | Product Requirement and Domain Model | GO WITH ACCEPTED DEVIATION |
-| 2 | Design System and UX Foundation | PLANNED |
-| 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | PLANNED |
-| 4 | Laundry Master Data | PLANNED |
-| 5 | POS, Order, and Payment Foundation | PLANNED |
-| 6 | Production Operations | PLANNED |
+| 2 | Design System and UX Foundation | GO WITH ACCEPTED DEVIATION |
+| 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | GO WITH ACCEPTED DEVIATION |
+| 4 | Laundry Master Data | GO |
+| 5 | POS, Order, and Payment Foundation | GO |
+| 6 | Production Operations | GO |
 | 7 | Customer Tracking and WhatsApp | PLANNED |
 | 8 | Pickup and Delivery Operations | PLANNED |
 | 9 | Unclaimed Laundry and Cashflow Recovery | PLANNED |
@@ -171,7 +171,12 @@ next step nor authorises deployment.**
 
 ## Step 6 — Production Operations
 
-**Status: IN PROGRESS**
+**Status: GO** — owner-conferred 25 July 2026 against exact-SHA evidence after PRs #24 and #25 merged as
+`82f162f25a39cc9501c6ee35a9728f0e01999725`; FR-071 … FR-085 `TESTED`, and `scripts/verify-step-06.sh`
+reports PASS 29 / FAIL 0 / SKIP 0. The intended immutable, annotated GO tag
+`aish-laundry-step-06-production-operations-v1.0.0-go` peels to that runtime merge commit and is created by
+the owner after this closure merges — never to the later governance-closure merge. Closure evidence:
+[`../evidence/step-06/GO-CLOSURE.md`](../evidence/step-06/GO-CLOSURE.md).
 
 - Production stages, batches, and per-item tracking.
 - Quality control and rework.

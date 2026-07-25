@@ -18,7 +18,7 @@ Canonical source: [`MASTER_SOURCE.md`](MASTER_SOURCE.md)
 | Step 3 | Runtime, Authentication, Multi-Tenancy, and RBAC | GO WITH ACCEPTED DEVIATION |
 | Step 4 | Laundry Master Data | GO |
 | Step 5 | POS, Order, and Payment Foundation | GO |
-| Step 6 | Production Operations | IN PROGRESS |
+| Step 6 | Production Operations | GO |
 | Step 7 | Customer Tracking and WhatsApp | PLANNED |
 | Step 8 | Pickup and Delivery Operations | PLANNED |
 | Step 9 | Unclaimed Laundry and Cashflow Recovery | PLANNED |
@@ -204,8 +204,8 @@ is a false claim rather than a conservative one (Rule 01, DEC-0029).
 
 | Item | Status |
 | --- | --- |
-| Step 6+ product business features | NOT IMPLEMENTED |
-| Backend runtime | PRESENT — STEP 3 FOUNDATION ONLY |
+| Step 7+ product business features | NOT IMPLEMENTED |
+| Backend runtime | PRESENT — STEPS 3–6 (auth · tenancy · RBAC · master data · POS/order/payment · production operations) |
 | PostgreSQL runtime foundation | PRESENT |
 | Redis runtime foundation | PRESENT |
 | Flutter workspace | PRESENT |
@@ -355,7 +355,7 @@ STEP_02_STATUS=GO
 STEP_03_STATUS=GO
 STEP_04_STATUS=GO
 STEP_05_STATUS=GO
-STEP_06_STATUS=IN_PROGRESS
+STEP_06_STATUS=GO
 STEP_07_STATUS=PLANNED
 STEP_08_STATUS=PLANNED
 STEP_09_STATUS=PLANNED
@@ -386,30 +386,54 @@ STEP_04_STATUS_NOTE=GO_MERGE_af31ea3_TAG_step-04-v1.0.0-go
 DEPLOYMENT=ABSENT
 <!-- STEP_03_CLOSURE_END -->
 
+<!--
+Step 6 closure facts, machine-readable. `scripts/validate-status.py` checks these
+against its own committed constants and for internal consistency: the intended GO
+tag must peel to the RUNTIME merge SHA (the PR #24 / #25 merge on `main`), never to
+the later governance-closure merge that records this status advance — the two are
+distinct commits. While this closure pull request is open the immutable GO tag does
+not yet exist; its absence is tolerated. Once a local tag is present the validator
+additionally verifies it is ANNOTATED and peels to the recorded runtime merge SHA,
+and fails if it is lightweight or mis-pointed. FAILS CLOSED. Editing these lines
+never creates or moves the real immutable tag — the tag is the owner's to create
+after this closure merges (Rule 01, Rule 11).
+-->
+<!-- STEP_06_CLOSURE_BEGIN -->
+STEP_06_CLOSURE_CLASSIFICATION=GO
+STEP_06_RUNTIME_MERGE_SHA=82f162f25a39cc9501c6ee35a9728f0e01999725
+STEP_06_IMPLEMENTATION_PRS=#24,#25
+STEP_06_GO_TAG=aish-laundry-step-06-production-operations-v1.0.0-go
+STEP_06_GO_TAG_PEELED_EXPECTED=82f162f25a39cc9501c6ee35a9728f0e01999725
+STEP_06_GO_TAG_STATE=NOT_YET_CREATED_OWNER_TO_CREATE_AFTER_CLOSURE_MERGE
+DEPLOYMENT=ABSENT
+<!-- STEP_06_CLOSURE_END -->
+
 ---
 
 ## 3. Feature status
 
-Every product feature is **NOT IMPLEMENTED**.
+Product features delivered through Step 6 carry their step's owner-conferred `GO`; every
+feature from Step 7 onward remains **NOT IMPLEMENTED**. A step `GO` is not a deployment or a
+launch — deployment is **ABSENT** (§2), and runtime present is not runtime working.
 
-| Feature | Status |
+| Feature (delivering step) | Status |
 | --- | --- |
-| Authentication and phone + OTP login | NOT IMPLEMENTED |
-| Tenancy, brands, outlets, memberships, tenant switcher | NOT IMPLEMENTED |
-| RBAC and server-side authorisation | NOT IMPLEMENTED |
-| Customer management | NOT IMPLEMENTED |
-| Service and price list master data | NOT IMPLEMENTED |
-| POS and order intake | NOT IMPLEMENTED |
-| Payment, refund, and void | NOT IMPLEMENTED |
-| Production operations and quality control | NOT IMPLEMENTED |
-| Public tracking portal | NOT IMPLEMENTED |
-| WhatsApp and notifications | NOT IMPLEMENTED |
-| Pickup and delivery | NOT IMPLEMENTED |
-| Unclaimed laundry H+1/H+3/H+7/H+14 | NOT IMPLEMENTED |
-| Finance, reporting, and owner portfolio | NOT IMPLEMENTED |
-| Customer Android experience | NOT IMPLEMENTED |
-| Subscription and platform administration | NOT IMPLEMENTED |
-| Offline-first synchronisation | NOT IMPLEMENTED |
+| Authentication and phone + OTP login (Step 3) | GO WITH ACCEPTED DEVIATION |
+| Tenancy, brands, outlets, memberships, tenant switcher (Step 3) | GO WITH ACCEPTED DEVIATION |
+| RBAC and server-side authorisation (Step 3) | GO WITH ACCEPTED DEVIATION |
+| Customer management (Step 4) | GO |
+| Service and price list master data (Step 4) | GO |
+| POS and order intake (Step 5) | GO |
+| Payment, refund, and void (Step 5) | GO |
+| Production operations and quality control (Step 6) | GO |
+| Public tracking portal (Step 7) | NOT IMPLEMENTED |
+| WhatsApp and notifications (Step 7) | NOT IMPLEMENTED |
+| Pickup and delivery (Step 8) | NOT IMPLEMENTED |
+| Unclaimed laundry H+1/H+3/H+7/H+14 (Step 9) | NOT IMPLEMENTED |
+| Finance, reporting, and owner portfolio (Step 10) | NOT IMPLEMENTED |
+| Customer Android experience (Step 11) | NOT IMPLEMENTED |
+| Subscription and platform administration (Step 12) | NOT IMPLEMENTED |
+| Offline-first synchronisation, Ops (Steps 5–6) | GO |
 | Observability | NOT IMPLEMENTED |
 
 ---
