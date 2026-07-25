@@ -21,11 +21,17 @@ This is the Phase 0/1 requirement matrix for Step 7. It maps every canonical Ste
 mechanism that will satisfy it, the verification that will prove it, and the evidence that must exist
 before the claim may be made.
 
-**Nothing in this document is evidence.** A row saying a requirement will be verified by a test is a
-plan, not a result. Only captured output bound to an exact 40-character commit SHA proves anything
-(Rule 01, DEC-0013). The authoritative requirement → evidence traceability lives in
-[`evidence/step-07/README.md`](../../evidence/step-07/), bound to the candidate SHA, and supersedes the
-`NOT IMPLEMENTED` labels below once it exists.
+**Nothing in this document is evidence.** A row saying a requirement is `TESTED` is a claim that points
+AT evidence; it is not itself the evidence. Only captured output bound to an exact 40-character commit
+SHA proves anything (Rule 01, DEC-0013). The authoritative requirement → evidence traceability lives in
+[`evidence/step-07/README.md`](../../evidence/step-07/), bound to the candidate SHA, and it — not this
+table — is what a reader should check.
+
+**`TESTED` is not `GO`.** Every row below now reads `TESTED` because the runtime exists and its
+verification was executed and captured. Step 7 itself remains `IN PROGRESS`: `GO` is conferred by the
+repository owner after merge and is never self-declared by an agent (Rule 01), and two open questions
+(OQ-014 — the portal's web stack; OQ-018 — whether a customer-initiated OTP is "urgent" for
+quiet-hours purposes) still await an owner decision.
 
 **No requirement is invented here.** Step 7's requirement set is **FR-086 … FR-099**, fixed in
 [`PRODUCT_REQUIREMENTS.md`](../product/PRODUCT_REQUIREMENTS.md). Step 7 also carries the runtime
@@ -80,25 +86,25 @@ names the intended mechanism; "Status" is the honest current state.
 
 | FR | Requirement (verbatim) | Mechanism | Verified by | Status |
 |---|---|---|---|---|
-| FR-086 | Tracking token issuance — issue a high-entropy tracking token for an order from a cryptographically secure random source, stored hashed server-side. | `Tracking` module: CSPRNG token (≥256-bit), stored as a hash only; plaintext returned once at issuance. | Entropy + hash-only-persistence tests; "no plaintext column" schema assertion. | NOT IMPLEMENTED |
-| FR-087 | Token independence from order number — the token shall not be the order number and shall not be derivable from it. | Token independent of order number, customer id, phone, tenant id, timestamp, sequence. | Test: token uncorrelated with order number; order-number guessing yields the generic invalid response. | NOT IMPLEMENTED |
-| FR-088 | Token revocation and expiry — revocable by the customer or the outlet, and shall expire. | Lifecycle fields (issued/expires/revoked); rotation invalidates the prior token. | Tests: expired, revoked, rotated → indistinguishable invalid response; revocation immediate. | NOT IMPLEMENTED |
-| FR-089 | Portal content set — order number, brand/outlet identity, service type, current status and history, estimated completion, amount due, payment state, available actions. | Allow-list projection assembled server-side from Step 5/6 state. | Tests: projection field set equals the canonical safe set; status/history correct. | NOT IMPLEMENTED |
-| FR-090 | Portal exclusions — never a full address, full phone, other orders of the same customer, internal notes, or laundry photographs without OTP. | Allow-list projection: excluded fields are never assembled, not merely hidden. | Tests: no full address/phone/notes/other-orders/photos in the public response. | NOT IMPLEMENTED |
-| FR-091 | Portal sensitive actions — changing a delivery address and requesting a schedule change shall require OTP verification. | OTP-gated sensitive actions bound to token + order + action. | Tests: sensitive action without valid OTP is refused; OTP replay/expiry/attempt limits. | NOT IMPLEMENTED |
-| FR-092 | Portal indexing prevention — served with `noindex` so tracking pages never enter search engines. | `X-Robots-Tag: noindex`, `<meta noindex>`, `Cache-Control: no-store`, `Referrer-Policy: no-referrer`. | Header/markup tests on the portal response. | NOT IMPLEMENTED |
+| FR-086 | Tracking token issuance — issue a high-entropy tracking token for an order from a cryptographically secure random source, stored hashed server-side. | `Tracking` module: CSPRNG token (≥256-bit), stored as a hash only; plaintext returned once at issuance. | Entropy + hash-only-persistence tests; "no plaintext column" schema assertion. | TESTED — evidence/step-07 at the recorded SHA |
+| FR-087 | Token independence from order number — the token shall not be the order number and shall not be derivable from it. | Token independent of order number, customer id, phone, tenant id, timestamp, sequence. | Test: token uncorrelated with order number; order-number guessing yields the generic invalid response. | TESTED — evidence/step-07 at the recorded SHA |
+| FR-088 | Token revocation and expiry — revocable by the customer or the outlet, and shall expire. | Lifecycle fields (issued/expires/revoked); rotation invalidates the prior token. | Tests: expired, revoked, rotated → indistinguishable invalid response; revocation immediate. | TESTED — evidence/step-07 at the recorded SHA |
+| FR-089 | Portal content set — order number, brand/outlet identity, service type, current status and history, estimated completion, amount due, payment state, available actions. | Allow-list projection assembled server-side from Step 5/6 state. | Tests: projection field set equals the canonical safe set; status/history correct. | TESTED — evidence/step-07 at the recorded SHA |
+| FR-090 | Portal exclusions — never a full address, full phone, other orders of the same customer, internal notes, or laundry photographs without OTP. | Allow-list projection: excluded fields are never assembled, not merely hidden. | Tests: no full address/phone/notes/other-orders/photos in the public response. | TESTED — evidence/step-07 at the recorded SHA |
+| FR-091 | Portal sensitive actions — changing a delivery address and requesting a schedule change shall require OTP verification. | OTP-gated sensitive actions bound to token + order + action. | Tests: sensitive action without valid OTP is refused; OTP replay/expiry/attempt limits. | TESTED — evidence/step-07 at the recorded SHA |
+| FR-092 | Portal indexing prevention — served with `noindex` so tracking pages never enter search engines. | `X-Robots-Tag: noindex`, `<meta noindex>`, `Cache-Control: no-store`, `Referrer-Policy: no-referrer`. | Header/markup tests on the portal response. | TESTED — evidence/step-07 at the recorded SHA |
 
 ### 4.2 Notification and WhatsApp (Master Source §14) — FR-093 … FR-099
 
 | FR | Requirement (verbatim) | Mechanism | Verified by | Status |
 |---|---|---|---|---|
-| FR-093 | Provider abstraction — WhatsApp sending sits behind an internal notification interface; no vendor SDK, payload, or identifier leaks into business logic. | `Notification` module: `NotificationProvider` interface; adapters isolated. | Tests: business logic references the interface only; adapter swap is config-only. | NOT IMPLEMENTED |
-| FR-094 | Official provider as automated path — automated sending goes through an official WhatsApp Business API provider. | Official adapter, **fail-closed** without credentials; no unofficial fallback. | Tests: adapter disabled without credentials; never falls back to browser automation. | NOT IMPLEMENTED |
-| FR-095 | Manual deep-link fallback — a prepared deep link a staff member sends manually, explicit and visible, never presented or sold as automation. | `wa.me`-style deep link builder; records only "prepared", never "delivered". | Tests: deep link encodes safe content; no delivery claim; consent/classification respected. | NOT IMPLEMENTED |
-| FR-096 | Transactional and marketing separation — separate categories, templates, consent, reporting; marketing never routed through a transactional path. | Message category on every intent; opt-out evaluated per category. | Tests: marketing relabelled transactional is rejected; opted-out marketing blocked. | NOT IMPLEMENTED |
-| FR-097 | Quiet hours enforcement — non-critical messages not sent inside quiet hours (default 20.00–08.00 outlet local time); due-inside messages deferred to the next window, not dropped, not sent anyway. | Outlet-timezone quiet-hours evaluation with midnight crossing; next-eligible-window computation. | Tests: timezone/midnight/boundary; deferral not drop; transactional exception only if canonical. | NOT IMPLEMENTED |
-| FR-098 | Message deduplication — the same notification for the same recipient, event, order, and intended send window is sent exactly once across retries, replays, and scheduler restarts. | Structural dedup key (recipient + event + order + window); outbox idempotency. | Tests: duplicate event/replay produces one message. | NOT IMPLEMENTED |
-| FR-099 | Messaging decoupled from order state — a messaging failure never cancels, blocks, or alters an order; failures are visible and retried under a bounded policy. | Notification intent created outside the order transaction; bounded retry; visible failure. | Tests: order succeeds under provider timeout/4xx/5xx/malformed/credentials-absent/queue-down. | NOT IMPLEMENTED |
+| FR-093 | Provider abstraction — WhatsApp sending sits behind an internal notification interface; no vendor SDK, payload, or identifier leaks into business logic. | `Notification` module: `NotificationProvider` interface; adapters isolated. | Tests: business logic references the interface only; adapter swap is config-only. | TESTED — evidence/step-07 at the recorded SHA |
+| FR-094 | Official provider as automated path — automated sending goes through an official WhatsApp Business API provider. | Official adapter, **fail-closed** without credentials; no unofficial fallback. | Tests: adapter disabled without credentials; never falls back to browser automation. | TESTED — evidence/step-07 at the recorded SHA |
+| FR-095 | Manual deep-link fallback — a prepared deep link a staff member sends manually, explicit and visible, never presented or sold as automation. | `wa.me`-style deep link builder; records only "prepared", never "delivered". | Tests: deep link encodes safe content; no delivery claim; consent/classification respected. | TESTED — evidence/step-07 at the recorded SHA |
+| FR-096 | Transactional and marketing separation — separate categories, templates, consent, reporting; marketing never routed through a transactional path. | Message category on every intent; opt-out evaluated per category. | Tests: marketing relabelled transactional is rejected; opted-out marketing blocked. | TESTED — evidence/step-07 at the recorded SHA |
+| FR-097 | Quiet hours enforcement — non-critical messages not sent inside quiet hours (default 20.00–08.00 outlet local time); due-inside messages deferred to the next window, not dropped, not sent anyway. | Outlet-timezone quiet-hours evaluation with midnight crossing; next-eligible-window computation. | Tests: timezone/midnight/boundary; deferral not drop; transactional exception only if canonical. | TESTED — evidence/step-07 at the recorded SHA |
+| FR-098 | Message deduplication — the same notification for the same recipient, event, order, and intended send window is sent exactly once across retries, replays, and scheduler restarts. | Structural dedup key (recipient + event + order + window); outbox idempotency. | Tests: duplicate event/replay produces one message. | TESTED — evidence/step-07 at the recorded SHA |
+| FR-099 | Messaging decoupled from order state — a messaging failure never cancels, blocks, or alters an order; failures are visible and retried under a bounded policy. | Notification intent created outside the order transaction; bounded retry; visible failure. | Tests: order succeeds under provider timeout/4xx/5xx/malformed/credentials-absent/queue-down. | TESTED — evidence/step-07 at the recorded SHA |
 
 ## 5. Acceptance criteria (Given / When / Then, negative-path first)
 
