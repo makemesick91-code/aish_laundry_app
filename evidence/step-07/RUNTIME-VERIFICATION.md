@@ -130,7 +130,12 @@ canonical repository is unchanged afterwards.
 ## 4. The canonical Step 7 verification
 
 The authoritative result and its exact SHA are recorded in
-[`VERIFY-STEP-07-FINAL.md`](VERIFY-STEP-07-FINAL.md), captured from a clean tree.
+[`VERIFY-STEP-07-FINAL.md`](VERIFY-STEP-07-FINAL.md), captured from a clean tree at
+`ca3476ae31bf718b78523dc982948c54626413aa`:
+
+```
+PASS 28   FAIL 0   SKIP 0
+```
 
 **SKIP is 0.** Both transitional skips are gone.
 

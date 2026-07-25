@@ -27,7 +27,57 @@ Recorded verbatim below, with ANSI colour stripped and nothing reworded, reorder
 way that changes its meaning (Rule 01, evidence rule 5).
 
 ```text
-%%CAPTURED_OUTPUT%%
+========================================================================
+STEP 7 CANONICAL VERIFICATION — CUSTOMER TRACKING AND WHATSAPP
+========================================================================
+  commit    : ca3476ae31bf718b78523dc982948c54626413aa
+  timestamp : 2026-07-25T15:25:43Z (UTC)
+  authorised: canonical roadmap (Master Source §24), guard transition DEC-0039
+
+== 1. Step 0-6 regression (delegated, not restated) ==
+  PASS  Step 0-6 regression (verify-step-06.sh)
+
+== 2. Step 7 authorization and governance ==
+  PASS  DEC-0039 present and ACCEPTED
+  PASS  Master Source header matches the pinned canonical version
+  PASS  MASTER_SOURCE checksum matches
+  PASS  Rule 50 (Step 4 status) present
+  PASS  Step 7 requirement matrix present
+  PASS  Step 7 evidence pack present
+  PASS  governance validator suite
+  PASS  runtime scope guard (classify)
+  PASS  DEC-0039 label audit
+  PASS  DEC-0037 label audit (step-aware)
+  PASS  DEC-0035 label audit (step-aware)
+  PASS  Step 7 validator adversarial harness
+  PASS  verify-step-07 adversarial harness
+  PASS  no float in any money path
+
+== 3. Step 7 backend runtime (customer tracking + notification) ==
+  PASS  Step 7 Tracking module present
+  PASS  Step 7 Notification module present
+  PASS  Step 7 public portal views present
+  PASS  Step 7 backend test suites present
+  PASS  live schema within Step 7 scope
+  PASS  Step 7 tracking backend suite (token lifecycle, portal projection, public API, OTP, isolation, RBAC)
+  PASS  Step 7 notification backend suite (outbox, dedup, consent, quiet hours, provider abstraction, FR-099 decoupling)
+
+== 4. Step 7 public tracking portal and operator surface ==
+  PASS  operator tracking UI present
+  PASS  operator tracking UI test present
+  PASS  operator tracking/notification UI widget tests
+
+== 5. Public repository safety and working tree ==
+  PASS  secret scan
+  PASS  public repository safety (canonical scan)
+  PASS  working tree clean
+
+========================================================================
+STEP 7 VERIFICATION SUMMARY
+========================================================================
+  commit : ca3476ae31bf718b78523dc982948c54626413aa
+  PASS 28   FAIL 0   SKIP 0
+------------------------------------------------------------------------
 ```
 
 ## 2. What this output does and does not establish
