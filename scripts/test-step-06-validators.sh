@@ -32,14 +32,24 @@ PASSED=0
 FAILED=0
 TOTAL=0
 
+# Canonical state fingerprint INCLUDES tags: the isolated tag cases must never move,
+# delete, or recreate a canonical tag, so tags are part of the before/after identity.
 tree_fingerprint() {
   git status --porcelain=v1 | sort
   git diff --no-color | sha256sum
+  git show-ref --tags | sort
 }
 BEFORE="$(tree_fingerprint)"
 
+# Canonical Step 6 GO tag identity, recorded so the harness can prove it is untouched.
+STEP6_TAG_NAME="aish-laundry-step-06-production-operations-v1.0.0-go"
+STEP6_RUNTIME_SHA="82f162f25a39cc9501c6ee35a9728f0e01999725"
+TAG_OBJ_BEFORE="$(git rev-parse "$STEP6_TAG_NAME" 2>/dev/null || echo absent)"
+TAG_PEEL_BEFORE="$(git rev-parse "${STEP6_TAG_NAME}^{commit}" 2>/dev/null || echo absent)"
+
 CREATED_FILES=()
 BACKED_UP=()
+CLONES=()
 
 cleanup() {
   for f in "${CREATED_FILES[@]:-}"; do
@@ -52,6 +62,11 @@ cleanup() {
     if [ -f "$backup" ]; then
       mv -f "$backup" "$original"
     fi
+  done
+  # Destroy every disposable clone — on success, on assertion failure, on interrupt.
+  # Hard-guarded so this can never rm the canonical repository.
+  for c in "${CLONES[@]:-}"; do
+    [ -n "$c" ] && [ "$c" != "$REPO" ] && [ -d "$c/.git" ] && rm -rf "$c"
   done
 }
 trap cleanup EXIT
@@ -430,25 +445,167 @@ else
   FAILED=$((FAILED + 1))
 fi
 
-# The pre-tag exemption must be a DETERMINISTIC canonical fact (STATUS.md marker for
-# the current step), not environmental. Removing the marker while Step 6 is GO and
-# the tag is absent must make validate-status AND validate-roadmap FAIL closed.
-backup_file "$STATUSDOC"
-python3 - "$STATUSDOC" <<'PY' || abort_setup "could not remove the pre-tag marker"
+# ---------------------------------------------------------------------------
+# ISOLATED INTEGRATION CASES — REAL validator executions in DISPOSABLE clones.
+#
+# Every case that changes or depends on git TAG state runs inside a throwaway clone,
+# NEVER in the canonical working repository. The earlier design mutated the pre-tag
+# MARKER in the real repo but ran the validators there too, where — post-tag — the
+# real, valid Step 6 tag is visible; so "tag absent" was not actually tag-absent and
+# the case became a false expectation once the owner created the tag. Isolation fixes
+# that: the tag-absent state is produced by deleting the Step 6 tag ONLY in a clone.
+#
+# The canonical Step 6 tag is never deleted, moved, or recreated here. `git tag -d`
+# is executed only with `git -C <clone>` against a verified disposable clone. Cleanup
+# runs on success, on assertion failure, and on interruption (EXIT trap + per-case rm).
+# ---------------------------------------------------------------------------
+echo "ISOLATED INTEGRATION — real validators in disposable clones (git tag state)"
+
+VS="scripts/validate-status.py"
+VR="scripts/validate-roadmap.py"
+MARKER="STEP_06_GO_TAG_STATE=NOT_YET_CREATED_OWNER_TO_CREATE_AFTER_CLOSURE_MERGE"
+
+CLONE_TEMPLATE=""
+ensure_template() {  # one cross-device copy of the repo into /tmp (with tags)
+  [ -n "$CLONE_TEMPLATE" ] && return 0
+  local t
+  t="$(mktemp -d)" || return 1
+  # --no-hardlinks: /tmp and the repo are usually different filesystems, and a
+  # hardlink clone fails cross-device. This copy happens ONCE.
+  if ! git clone --quiet --no-hardlinks "$REPO" "$t" >/dev/null 2>&1; then
+    rm -rf "$t"; return 1
+  fi
+  CLONE_TEMPLATE="$t"
+  CLONES+=("$t")
+  return 0
+}
+new_clone() {  # echoes a fresh disposable clone path (empty on failure)
+  ensure_template || { echo ""; return 1; }
+  local c
+  c="$(mktemp -d)" || { echo ""; return 1; }
+  # Hardlink clone FROM the /tmp template: both live on the same filesystem, so
+  # this is fast and cross-device-safe.
+  if ! git clone --quiet --local "$CLONE_TEMPLATE" "$c" >/dev/null 2>&1; then
+    rm -rf "$c"; echo ""; return 1
+  fi
+  CLONES+=("$c")
+  echo "$c"
+}
+drop_clone() {  # destroy one clone immediately; hard-guarded against the canonical repo
+  local c="$1"
+  [ -n "$c" ] && [ "$c" != "$REPO" ] && [ -d "$c/.git" ] && rm -rf "$c"
+}
+clone_git() {  # run a git command in a clone ONLY (never the canonical repo)
+  local c="$1"; shift
+  [ -n "$c" ] && [ "$c" != "$REPO" ] && [ -d "$c/.git" ] || return 1
+  git -C "$c" "$@"
+}
+clone_del_tag()   { clone_git "$1" tag -d "$2" >/dev/null 2>&1 || true; }
+clone_annot_tag() { clone_git "$1" tag -a "$2" -m "harness fixture" "$3" >/dev/null 2>&1; }
+clone_light_tag() { clone_git "$1" tag "$2" "$3" >/dev/null 2>&1; }
+clone_drop_marker() {
+  python3 - "$1/docs/STATUS.md" <<'PY'
 import sys
 p = sys.argv[1]; s = open(p, encoding="utf-8").read()
-new = s.replace(
-    "STEP_06_GO_TAG_STATE=NOT_YET_CREATED_OWNER_TO_CREATE_AFTER_CLOSURE_MERGE",
-    "STEP_06_GO_TAG_STATE=CREATED",
-)
-if new == s: sys.exit(1)
-open(p, "w", encoding="utf-8").write(new)
+open(p, "w", encoding="utf-8").write(
+    s.replace("STEP_06_GO_TAG_STATE=NOT_YET_CREATED_OWNER_TO_CREATE_AFTER_CLOSURE_MERGE",
+              "STEP_06_GO_TAG_STATE=CREATED"))
 PY
-grep -q "STEP_06_GO_TAG_STATE=NOT_YET_CREATED" "$STATUSDOC" && abort_setup "pre-tag marker not removed"
-expect_reject "validate-status fails closed when the pre-tag marker is gone and the tag is absent" "$STATUSVAL"
-expect_reject "validate-roadmap fails closed when the pre-tag marker is gone and the tag is absent" "scripts/validate-roadmap.py"
-cleanup
-BACKED_UP=()
+}
+assert_clone() {  # $1 label  $2 clone  $3 validator-relpath  $4 pass|fail
+  TOTAL=$((TOTAL + 1))
+  python3 "$2/$3" >/dev/null 2>&1
+  local rc=$?
+  if { [ "$4" = pass ] && [ "$rc" -eq 0 ]; } || { [ "$4" = fail ] && [ "$rc" -ne 0 ]; }; then
+    echo "  ok    $1"
+    PASSED=$((PASSED + 1))
+  else
+    echo "  FAIL  $1 (validator rc=${rc}, expected ${4})"
+    FAILED=$((FAILED + 1))
+  fi
+}
+
+# Setup faithfulness: a clone must carry the canonical annotated Step 6 tag and the
+# historical tags, or every case below would be testing an unrepresentative fixture.
+C="$(new_clone)"; [ -n "$C" ] || abort_setup "could not create the disposable clone"
+[ "$(git -C "$C" cat-file -t "$STEP6_TAG_NAME" 2>/dev/null)" = "tag" ] \
+  || abort_setup "clone lacks the annotated Step 6 tag (run in the canonical tagged repo)"
+[ "$(git -C "$C" rev-parse "${STEP6_TAG_NAME}^{commit}" 2>/dev/null)" = "$STEP6_RUNTIME_SHA" ] \
+  || abort_setup "clone Step 6 tag peel target is not the runtime merge"
+git -C "$C" tag -l 'aish-laundry-step-03-*-go' | grep -q . || abort_setup "clone lacks historical Step 3 tag"
+git -C "$C" tag -l 'aish-laundry-step-05-*-go' | grep -q . || abort_setup "clone lacks historical Step 5 tag"
+grep -q "$MARKER" "$C/docs/STATUS.md" || abort_setup "clone lacks the authorised pre-tag marker"
+drop_clone "$C"
+
+# Case 1 — historical 0-5 present, Step 6 tag ABSENT, authorised marker present -> PASS.
+C="$(new_clone)"; [ -n "$C" ] || abort_setup "clone failed (case 1)"
+clone_del_tag "$C" "$STEP6_TAG_NAME"
+git -C "$C" tag -l | grep -qx "$STEP6_TAG_NAME" && abort_setup "case 1: Step 6 tag not removed in clone"
+git -C "$C" tag -l 'aish-laundry-step-04-*-go' | grep -q . || abort_setup "case 1: historical tags lost"
+assert_clone "isolated#1 step6 absent + marker present -> validate-status PASS" "$C" "$VS" pass
+assert_clone "isolated#1 step6 absent + marker present -> validate-roadmap PASS" "$C" "$VR" pass
+drop_clone "$C"
+
+# Case 2 — Step 6 tag absent AND authorised marker ABSENT -> FAIL closed (both).
+C="$(new_clone)"; [ -n "$C" ] || abort_setup "clone failed (case 2)"
+clone_del_tag "$C" "$STEP6_TAG_NAME"
+clone_drop_marker "$C"
+grep -q "$MARKER" "$C/docs/STATUS.md" && abort_setup "case 2: marker not removed in clone"
+assert_clone "isolated#2 step6 absent + marker absent -> validate-status FAIL" "$C" "$VS" fail
+assert_clone "isolated#2 step6 absent + marker absent -> validate-roadmap FAIL" "$C" "$VR" fail
+drop_clone "$C"
+
+# Case 3 — correct annotated Step 6 tag (canonical) -> PASS.
+C="$(new_clone)"; [ -n "$C" ] || abort_setup "clone failed (case 3)"
+assert_clone "isolated#3 correct annotated step6 tag -> validate-status PASS" "$C" "$VS" pass
+assert_clone "isolated#3 correct annotated step6 tag -> validate-roadmap PASS" "$C" "$VR" pass
+drop_clone "$C"
+
+# Case 4 — lightweight Step 6 tag -> validate-status FAIL closed.
+C="$(new_clone)"; [ -n "$C" ] || abort_setup "clone failed (case 4)"
+clone_del_tag "$C" "$STEP6_TAG_NAME"
+clone_light_tag "$C" "$STEP6_TAG_NAME" "$STEP6_RUNTIME_SHA" || abort_setup "case 4: could not create lightweight tag"
+[ "$(git -C "$C" cat-file -t "$STEP6_TAG_NAME")" = "commit" ] || abort_setup "case 4: tag is not lightweight"
+assert_clone "isolated#4 lightweight step6 tag -> validate-status FAIL" "$C" "$VS" fail
+drop_clone "$C"
+
+# Case 5 — annotated Step 6 tag at the WRONG commit -> validate-status FAIL closed.
+C="$(new_clone)"; [ -n "$C" ] || abort_setup "clone failed (case 5)"
+clone_del_tag "$C" "$STEP6_TAG_NAME"
+WRONG="$(git -C "$C" rev-parse HEAD)"
+[ "$WRONG" != "$STEP6_RUNTIME_SHA" ] || abort_setup "case 5: HEAD unexpectedly equals the runtime merge"
+clone_annot_tag "$C" "$STEP6_TAG_NAME" "$WRONG" || abort_setup "case 5: could not create annotated tag"
+assert_clone "isolated#5 annotated step6 tag wrong commit -> validate-status FAIL" "$C" "$VS" fail
+drop_clone "$C"
+
+# Case 6 — misnamed Step 6 GO tag -> validate-status FAIL closed.
+C="$(new_clone)"; [ -n "$C" ] || abort_setup "clone failed (case 6)"
+clone_del_tag "$C" "$STEP6_TAG_NAME"
+clone_annot_tag "$C" "aish-laundry-step-06-typo-go" "$STEP6_RUNTIME_SHA" || abort_setup "case 6: could not create misnamed tag"
+assert_clone "isolated#6 misnamed step6 GO tag -> validate-status FAIL" "$C" "$VS" fail
+drop_clone "$C"
+
+# Case 7 — conflicting/duplicate Step 6 GO tag (canonical kept, a second added) -> FAIL closed.
+C="$(new_clone)"; [ -n "$C" ] || abort_setup "clone failed (case 7)"
+clone_annot_tag "$C" "aish-laundry-step-06-production-operations-v2.0.0-go" "$STEP6_RUNTIME_SHA" || abort_setup "case 7: could not create duplicate tag"
+assert_clone "isolated#7 duplicate step6 GO tag -> validate-status FAIL" "$C" "$VS" fail
+drop_clone "$C"
+
+# Case 8 — corrupted/moved historical GO tag -> validate-status FAIL closed.
+C="$(new_clone)"; [ -n "$C" ] || abort_setup "clone failed (case 8)"
+HIST="aish-laundry-step-05-pos-order-payment-foundation-v1.0.0-go"
+clone_del_tag "$C" "$HIST"
+clone_annot_tag "$C" "$HIST" "$(git -C "$C" rev-parse HEAD)" || abort_setup "case 8: could not retarget historical tag"
+assert_clone "isolated#8 corrupted historical GO tag -> validate-status FAIL" "$C" "$VS" fail
+drop_clone "$C"
+
+# Case 9 — no GO tags at all + authorised pre-tag marker -> PASS (canonical policy).
+C="$(new_clone)"; [ -n "$C" ] || abort_setup "clone failed (case 9)"
+for t in $(git -C "$C" tag -l 'aish-laundry-step-*-go'); do clone_del_tag "$C" "$t"; done
+[ -z "$(git -C "$C" tag -l 'aish-laundry-step-*-go')" ] || abort_setup "case 9: GO tags not all removed in clone"
+assert_clone "isolated#9 no tags + authorised pre-tag -> validate-status PASS" "$C" "$VS" pass
+assert_clone "isolated#9 no tags + authorised pre-tag -> validate-roadmap PASS" "$C" "$VR" pass
+drop_clone "$C"
 echo
 
 # ---------------------------------------------------------------------------
@@ -491,15 +648,34 @@ BACKED_UP=()
 echo
 
 # ---------------------------------------------------------------------------
-# Tree integrity + summary.
+# Tree + tag integrity + summary. The isolated cases run only in disposable clones,
+# so the canonical working tree AND every canonical tag must be byte-identical after.
 # ---------------------------------------------------------------------------
 AFTER="$(tree_fingerprint)"
+TAG_OBJ_AFTER="$(git rev-parse "$STEP6_TAG_NAME" 2>/dev/null || echo absent)"
+TAG_PEEL_AFTER="$(git rev-parse "${STEP6_TAG_NAME}^{commit}" 2>/dev/null || echo absent)"
+
 echo "========================================================================"
 if [ "$BEFORE" = "$AFTER" ]; then
-  echo "working tree verified byte-identical before and after"
+  echo "working tree + tags verified byte-identical before and after"
 else
-  echo "  FAIL  working tree changed — a fixture was left behind"
+  echo "  FAIL  canonical working tree or tags changed — a fixture escaped isolation"
   FAILED=$((FAILED + 1))
+fi
+if [ "$TAG_OBJ_BEFORE" = "$TAG_OBJ_AFTER" ] && [ "$TAG_PEEL_BEFORE" = "$TAG_PEEL_AFTER" ]; then
+  echo "canonical Step 6 GO tag unchanged (object ${TAG_OBJ_AFTER}, peel ${TAG_PEEL_AFTER})"
+else
+  echo "  FAIL  canonical Step 6 GO tag moved: object ${TAG_OBJ_BEFORE}->${TAG_OBJ_AFTER}, peel ${TAG_PEEL_BEFORE}->${TAG_PEEL_AFTER}"
+  FAILED=$((FAILED + 1))
+fi
+# No disposable clone may survive the run.
+LEFT=0
+for c in "${CLONES[@]:-}"; do [ -n "$c" ] && [ -d "$c" ] && LEFT=$((LEFT + 1)); done
+if [ "$LEFT" -ne 0 ]; then
+  echo "  FAIL  ${LEFT} disposable clone(s) not cleaned up"
+  FAILED=$((FAILED + 1))
+else
+  echo "all disposable clones destroyed"
 fi
 
 echo "SUMMARY [step-06-validators]: ${PASSED}/${TOTAL} expectations met, ${FAILED} failed"
