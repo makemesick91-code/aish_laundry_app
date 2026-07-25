@@ -24,7 +24,9 @@ FIRST_DEC = 1
 # Raised 36 -> 37 at Master Source 1.4.9 for DEC-0037 (Step 6 runtime scope transition).
 # Raised 37 -> 38 at Master Source 1.4.10 for DEC-0038 (private object-storage introduction
 # for QC defect evidence, FR-083).
-LAST_DEC = 38
+# Raised 38 -> 39 at Master Source 1.4.12 for DEC-0039 (Step 7 runtime scope transition —
+# customer tracking and WhatsApp/notification, FR-086 … FR-099).
+LAST_DEC = 39
 
 # label -> list of accepted heading keywords (lowercase, substring match)
 REQUIRED_HEADINGS: list[tuple[str, list[str]]] = [
@@ -209,6 +211,7 @@ def check_master_source_index(root, rep, on_disk: set[int]) -> None:
         "twenty-nine": 29, "thirty": 30, "thirty-one": 31, "thirty-two": 32,
         "thirty-three": 33, "thirty-four": 34, "thirty-five": 35,
         "thirty-six": 36, "thirty-seven": 37, "thirty-eight": 38,
+        "thirty-nine": 39, "forty": 40,
     }
     m = re.search(r"^([A-Za-z-]+) decisions are locked\b", text, re.MULTILINE)
     if m is None:

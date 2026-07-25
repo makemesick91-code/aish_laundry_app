@@ -341,14 +341,17 @@ def check_step6_closure(root, rep) -> None:
     rep.check(kv.get("STEP_06_GO_TAG_PEELED_EXPECTED") == STEP6_RUNTIME_MERGE_SHA,
               "Step 6 GO tag is intended to peel to the runtime merge SHA")
 
-    # The machine-readable canonical state must actually declare Step 6 GO, and the
-    # step after it must not be started — proven here against the closure block.
+    # The machine-readable canonical state must still declare Step 6 GO. Step 7 has
+    # since STARTED under DEC-0039, so its status is owned by the current-step checks
+    # in main(); this Step 6 closure checker only guards that Step 6's GO did not
+    # regress. (It previously also asserted "Step 7 remains PLANNED"; that snapshot
+    # stopped being true the moment Step 7 legitimately started, so it was removed in
+    # the DEC-0039 transition — the generic current-step boundary in main() still
+    # enforces that every step AFTER the current one is PLANNED.)
     state, state_errors = parse_canonical_state(text)
     if not state_errors:
         rep.check(state.get(6) == "GO",
                   f"STEP_06_STATUS is GO in the canonical state block (found {state.get(6)!r})")
-        rep.check(state.get(7) == "PLANNED",
-                  f"Step 7 remains PLANNED (found {state.get(7)!r})")
 
     # FR-071 … FR-085 are all TESTED in the requirement matrix.
     matrix = root / STEP6_FR_MATRIX

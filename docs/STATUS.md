@@ -19,7 +19,7 @@ Canonical source: [`MASTER_SOURCE.md`](MASTER_SOURCE.md)
 | Step 4 | Laundry Master Data | GO |
 | Step 5 | POS, Order, and Payment Foundation | GO |
 | Step 6 | Production Operations | GO |
-| Step 7 | Customer Tracking and WhatsApp | PLANNED |
+| Step 7 | Customer Tracking and WhatsApp | IN PROGRESS |
 | Step 8 | Pickup and Delivery Operations | PLANNED |
 | Step 9 | Unclaimed Laundry and Cashflow Recovery | PLANNED |
 | Step 10 | Finance, Reports, and Owner Portfolio | PLANNED |
@@ -356,7 +356,7 @@ STEP_03_STATUS=GO
 STEP_04_STATUS=GO
 STEP_05_STATUS=GO
 STEP_06_STATUS=GO
-STEP_07_STATUS=PLANNED
+STEP_07_STATUS=IN_PROGRESS
 STEP_08_STATUS=PLANNED
 STEP_09_STATUS=PLANNED
 STEP_10_STATUS=PLANNED

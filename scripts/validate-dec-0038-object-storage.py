@@ -104,14 +104,17 @@ def main() -> int:
         rep.check("dec-0038" in read_text(ev_path).lower(),
                   "FR-083 evidence references the canonical decision DEC-0038")
 
-    # --- structural non-widening: the canonical current step is still 6, so the
-    #     runtime-scope guard still forbids Step 8 (delivery/proof) and beyond.
-    #     DEC-0038 must not have advanced the step or widened the guard. ---
+    # --- structural non-widening: DEC-0038 (object storage) must not itself have
+    #     advanced the canonical step. Its floor is 6 — object storage is available
+    #     from Step 6 onward. A LATER record may legitimately advance the step (DEC-0039
+    #     moved it to 7 to start Step 7), so this is a floor check, not an equality: it
+    #     proves DEC-0038 did not roll the step back below its introducing step, and it
+    #     never claims Step 8+ is permitted (that band stays forbidden regardless). ---
     try:
         import _common  # noqa: WPS433 (already on sys.path)
         step = int(_common.CANONICAL_CURRENT_STEP)
-        rep.check(step == 6,
-                  f"canonical current step is 6 (Step 8+ still forbidden); got {step}")
+        rep.check(step >= 6,
+                  f"canonical current step is >= 6 (DEC-0038 object-storage floor); got {step}")
     except Exception as exc:  # pragma: no cover - defensive
         rep.fail(f"could not read _common.CANONICAL_CURRENT_STEP: {exc}")
 

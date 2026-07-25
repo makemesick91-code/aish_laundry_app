@@ -38,7 +38,8 @@ date **19 July 2026**).
 | Step 4 — Laundry Master Data | **GO** (owner-conferred 22 July 2026; merged PR #18, tag `…step-04…v1.0.0-go`) |
 | Step 5 — POS, Order, and Payment Foundation | **GO** (owner-conferred 23 July 2026; merged PR #21, tag `…step-05…v1.0.0-go`) |
 | Step 6 — Production Operations | **GO** (owner-conferred 25 July 2026; merged PRs #24 and #25, tag `…step-06…v1.0.0-go`) |
-| Step 7–14 | **PLANNED** |
+| Step 7 — Customer Tracking and WhatsApp | **IN PROGRESS** (started 25 July 2026 under DEC-0039; runtime-scope guard boundary advanced, FR-086 … FR-099 still **NOT IMPLEMENTED**) |
+| Step 8–14 | **PLANNED** |
 | Step 7+ product business features | **NOT IMPLEMENTED** |
 | Backend runtime | **PRESENT — STEPS 3–6 (auth · tenancy · RBAC · master data · POS/order/payment · production operations)** |
 | PostgreSQL runtime foundation | **PRESENT** |

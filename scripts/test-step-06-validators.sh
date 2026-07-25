@@ -10,9 +10,11 @@
 # in BOTH directions:
 #
 #   ACCEPT — the six Step 6 labels are now authorised runtime.
-#   REJECT — every Step 7+ label remains forbidden, plainly and renamed:
-#            tracking (Step 7), WhatsApp (Step 7), pickup/delivery (Step 8),
-#            the reminder ladder / unclaimed aging (Step 9).
+#   REJECT — every later-step label remains forbidden, plainly and renamed. The
+#            Step 7 tracking/WhatsApp assertions are STEP-AWARE: below step 7 they
+#            are rejected, and from step 7 (DEC-0039) they are permitted — exactly as
+#            test-step-05 made the Step 6 assertions step-aware. Pickup/delivery
+#            (Step 8) and the reminder ladder / unclaimed aging (Step 9) stay rejected.
 #
 # Disciplines inherited from the Step 3/4/5 harness corrections (Rule 49):
 #   1. FIXTURES ARE ASSEMBLED AT RUNTIME, never embedded as literals, so this
@@ -201,25 +203,40 @@ echo
 # ---------------------------------------------------------------------------
 # REJECT — every Step 7+ label remains forbidden, plainly and renamed.
 # ---------------------------------------------------------------------------
-echo "FORWARD-LEAK GUARD — a Step 7+ feature must still be REJECTED"
+echo "FORWARD-LEAK GUARD — a Step 8+ feature must still be REJECTED"
 
-# Step 7 — customer tracking portal / token.
+# Step 7 — customer tracking portal / token. Permitted from step 7 (DEC-0039);
+# forbidden before it. Step-aware exactly as test-step-05 handles Step 6 (DEC-0037).
 TRACKING="$(printf '%s_%s' 'public' 'tracking')"
 F="$(migration_fixture "$TRACKING")"
-expect_reject "scope guard rejects a Step 7 tracking-portal table" "$SCOPE_GUARD"
-expect_reject "DEC-0037 label audit rejects a Step 7 tracking-portal table" "$LABEL_0037"
+if [ "$STEP" -lt 7 ]; then
+  expect_reject "scope guard rejects a Step 7 tracking-portal table (step < 7)" "$SCOPE_GUARD"
+  expect_reject "DEC-0037 label audit rejects a Step 7 tracking-portal table (step < 7)" "$LABEL_0037"
+else
+  expect_accept "scope guard accepts a Step 7 tracking-portal table (DEC-0039, step >= 7)" "$SCOPE_GUARD"
+  expect_accept "DEC-0037 label audit (step-aware) accepts a Step 7 tracking-portal table (step >= 7)" "$LABEL_0037"
+fi
 rm -f "$F"
 
 # Step 7 — WhatsApp / notification provider.
 WA="$(printf '%s' 'whatsapp')"
 F="$(migration_fixture "${WA}_messages")"
-expect_reject "scope guard rejects a Step 7 WhatsApp table" "$SCOPE_GUARD"
-expect_reject "DEC-0037 label audit rejects a Step 7 WhatsApp table" "$LABEL_0037"
+if [ "$STEP" -lt 7 ]; then
+  expect_reject "scope guard rejects a Step 7 WhatsApp table (step < 7)" "$SCOPE_GUARD"
+  expect_reject "DEC-0037 label audit rejects a Step 7 WhatsApp table (step < 7)" "$LABEL_0037"
+else
+  expect_accept "scope guard accepts a Step 7 WhatsApp table (DEC-0039, step >= 7)" "$SCOPE_GUARD"
+  expect_accept "DEC-0037 label audit (step-aware) accepts a Step 7 WhatsApp table (step >= 7)" "$LABEL_0037"
+fi
 rm -f "$F"
 
 # Rename-evasion (Rule 36 hard rule 4): an Indonesian/compound of the token.
 F="$(migration_fixture "laporan_${WA}")"
-expect_reject "DEC-0037 label audit rejects a compound-renamed WhatsApp table" "$LABEL_0037"
+if [ "$STEP" -lt 7 ]; then
+  expect_reject "DEC-0037 label audit rejects a compound-renamed WhatsApp table (step < 7)" "$LABEL_0037"
+else
+  expect_accept "DEC-0037 label audit accepts a compound WhatsApp table once permitted (step >= 7)" "$LABEL_0037"
+fi
 rm -f "$F"
 
 # Step 8 — pickup / delivery.

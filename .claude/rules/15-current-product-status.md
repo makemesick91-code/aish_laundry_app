@@ -19,7 +19,7 @@ Master Source version **1.4.0**, baseline date **19 July 2026**.
 | Step 4 — Laundry Master Data | **GO** (owner-conferred 22 July 2026, with accepted deviations) |
 | Step 5 — POS, Order, and Payment Foundation | **GO** (owner-conferred 23 July 2026, with accepted deviations) |
 | Step 6 — Production Operations | **GO** (owner-conferred 25 July 2026; merged PRs #24 and #25) |
-| Step 7 — Customer Tracking and WhatsApp | **PLANNED** |
+| Step 7 — Customer Tracking and WhatsApp | **IN PROGRESS** (started 25 July 2026 under DEC-0039; FR-086 … FR-099 still `NOT IMPLEMENTED`) |
 | Step 8 — Pickup and Delivery Operations | **PLANNED** |
 | Step 9 — Unclaimed Laundry and Cashflow Recovery | **PLANNED** |
 | Step 10 — Finance, Reports, and Owner Portfolio | **PLANNED** |

@@ -161,15 +161,15 @@ expect_red 4  "PHP source outside backend"                   "step3_base; mkdir 
 expect_red 5  "unauthorised executable prototype (Go)"       "step3_base; mkdir -p proto && printf 'package main\n' > proto/main.go"
 
 echo
-echo "-- Step 5+ business feature leakage (Step 5 authorised by DEC-0035; Step 6+ still forbidden) --"
+echo "-- Step 5/6/7 authorised runtime superseded to skips; Step 8+ business feature leakage still forbidden --"
 red_step5   6  "POS module directory"                        "step3_base; mkdir -p backend/app/Modules/pos && printf '<?php\n' > backend/app/Modules/pos/Service.php"
 red_step5   7  "payment route"                               "step3_base; printf '<?php\nRoute::post(\"api/v1/payments\", [X::class]);\n' > backend/routes_api.php && mv backend/routes_api.php backend/app/routes_api.php"
 red_step5   8  "order migration filename"                    "step3_base; printf '<?php\n' > backend/database/migrations/2026_07_20_000000_create_orders_table.php"
 red_step5   9  "orders table via Schema::create"             "step3_base; printf '<?php\nSchema::create(\"orders\", function(\$t){});\n' > backend/app/Mig.php"
-expect_red 10 "tracking controller (tracking_tokens table)"  "step3_base; printf '<?php\nSchema::create(\"tracking_tokens\", function(\$t){});\n' > backend/app/Trk.php"
+expect_red 10 "pickup controller (pickups table)"            "step3_base; printf '<?php\nSchema::create(\"pickups\", function(\$t){});\n' > backend/app/Pck.php"
 expect_red 11 "delivery module directory"                    "step3_base; mkdir -p backend/app/Modules/deliveries && printf '<?php\n' > backend/app/Modules/deliveries/D.php"
 expect_red 12 "H+7 reminder worker (reminder_stages)"        "step3_base; printf '<?php\nSchema::create(\"reminder_stages\", function(\$t){});\n' > backend/app/Rem.php"
-expect_red 13 "WhatsApp provider implementation"             "step3_base; mkdir -p backend/app/Modules/whatsapp && printf '<?php\n' > backend/app/Modules/whatsapp/Client.php"
+expect_red 13 "delivery provider module (pengantaran)"       "step3_base; mkdir -p backend/app/Modules/pengantaran && printf '<?php\n' > backend/app/Modules/pengantaran/Client.php"
 red_step5  14 "QRIS provider implementation"                 "step3_base; mkdir -p backend/app/Modules/qris && printf '<?php\n' > backend/app/Modules/qris/Gateway.php"
 red_step5  15 "Eloquent Payment model"                       "step3_base; printf '<?php\nclass Payment extends Model {}\n' > backend/app/Payment.php"
 red_step5  16 "Flutter POS feature directory"                "step3_base; mkdir -p apps/ops_android/lib/features/pos && printf 'void main(){}\n' > apps/ops_android/lib/features/pos/screen.dart"
@@ -210,19 +210,20 @@ expect_red 28 "runtime present but Master Source rolled back below 1.4.0" \
   "step3_base; sed -i -E 's/^\*\*Document version: [0-9]+\.[0-9]+\.[0-9]+\*\*/**Document version: 1.3.0**/' docs/MASTER_SOURCE.md; grep -q '^\*\*Document version: 1\.3\.0\*\*' docs/MASTER_SOURCE.md"
 # The forward-leak boundary follows _common.CANONICAL_CURRENT_STEP: any step
 # BEYOND the current one carrying a non-PLANNED status is a leak the guard rejects.
-# These were pinned to Steps 4/5 at Step 3, moved to 5/6 at DEC-0028, and move to
-# Step 6 now that DEC-0035 made Step 5 the current step and its GO the reality.
-# The next transition moves them forward again. Same strength, boundary +1.
-expect_red 29 "Step 7 claimed IN PROGRESS"                   "step3_base; printf '\n| Step 7 | Customer Tracking and WhatsApp | IN PROGRESS |\n' >> docs/STATUS.md"
-expect_red 30 "Step 7 claimed GO"                            "step3_base; printf '\n| Step 7 | Customer Tracking and WhatsApp | GO |\n' >> docs/STATUS.md"
+# These were pinned to Steps 4/5 at Step 3, moved to 5/6 at DEC-0028, to Step 6 at
+# DEC-0035, and move to Step 8 now that DEC-0039 made Step 7 the current step and
+# IN PROGRESS the reality. The next transition moves them forward again. Same
+# strength, boundary +1.
+expect_red 29 "Step 8 claimed IN PROGRESS"                   "step3_base; printf '\n| Step 8 | Pickup and Delivery Operations | IN PROGRESS |\n' >> docs/STATUS.md"
+expect_red 30 "Step 8 claimed GO"                            "step3_base; printf '\n| Step 8 | Pickup and Delivery Operations | GO |\n' >> docs/STATUS.md"
 expect_red 31 "symlink escaping the repository"              "step3_base; ln -s /etc backend/escape"
 
 echo
-echo "-- DEC-0035: Step 6+ features stay forbidden after Step 5 opened --"
+echo "-- DEC-0039: Step 8+ features stay forbidden after Steps 5/6/7 opened --"
 # Permitting the seven Step 5 labels (DEC-0035) must not have loosened anything
 # else. The Step 5 fixtures below (nota, orders, payments, kasir) are red_step5:
 # real rejections before step 5, superseded skips at step 5 (accept-coverage in
-# test-step-05-validators.sh). The Step 6+ set (tracking_tokens, subscriptions)
+# test-step-05-validators.sh). The Step 8+ set (pickup_requests, subscriptions)
 # stays a hard rejection — this is the retained boundary, including the
 # printer(Step 4)/nota(Step 5 FR-052) sharp edge.
 red_step5  32 "receipt/nota table (printer is Step 4, nota is Step 5 FR-052)" \
@@ -230,7 +231,7 @@ red_step5  32 "receipt/nota table (printer is Step 4, nota is Step 5 FR-052)" \
 red_step5  33 "orders table"                                 "step3_base; printf '<?php\nSchema::create(\"orders\", function(\$t){});\n' > backend/app/Ord.php"
 red_step5  34 "payments table"                               "step3_base; printf '<?php\nSchema::create(\"payments\", function(\$t){});\n' > backend/app/Pay.php"
 red_step5  35 "POS renamed to 'kasir' (evasion by renaming)" "step3_base; mkdir -p backend/app/Modules/kasir; printf '<?php\nclass X {}\n' > backend/app/Modules/kasir/X.php"
-expect_red 36 "tracking_tokens table"                        "step3_base; printf '<?php\nSchema::create(\"tracking_tokens\", function(\$t){});\n' > backend/app/Trk.php"
+expect_red 36 "pickup_requests table"                        "step3_base; printf '<?php\nSchema::create(\"pickup_requests\", function(\$t){});\n' > backend/app/Pck.php"
 expect_red 37 "subscription billing table"                   "step3_base; printf '<?php\nSchema::create(\"subscriptions\", function(\$t){});\n' > backend/app/Sub.php"
 
 echo

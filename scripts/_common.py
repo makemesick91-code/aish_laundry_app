@@ -109,8 +109,12 @@ def tracked_files(root: Path) -> list[Path]:
 #: (DEC-0028), in the same change that moved the status everywhere. Raised to 5 for
 #: Step 5 (DEC-0035), likewise moving the status in §24, ROADMAP, and STATUS together.
 #: Raised to 6 for Step 6 — Production Operations (DEC-0037), in the same change that
-#: split STEP6_PLUS_FEATURE_TOKENS and moved the status everywhere.
-CANONICAL_CURRENT_STEP = 6
+#: split STEP6_PLUS_FEATURE_TOKENS and moved the status everywhere. Raised to 7 for
+#: Step 7 — Customer Tracking and WhatsApp (DEC-0039), in the same change that split
+#: STEP7_PLUS_FEATURE_TOKENS (tracking + notification labels only) and moved the
+#: status PLANNED -> IN PROGRESS in §24, ROADMAP, and STATUS together. Step 6's GO tag
+#: was demoted into HISTORICAL_GO_TAGS in the same change (it is now a prior step).
+CANONICAL_CURRENT_STEP = 7
 
 #: Statuses the current step may legitimately carry.
 CURRENT_STEP_ALLOWED = ["IN PROGRESS", "TESTED", "WATCH", "GO"]
@@ -156,6 +160,10 @@ HISTORICAL_GO_TAGS = {
         "af31ea3b0945b274b249ff21cf30918cb2d17a5f",
     "aish-laundry-step-05-pos-order-payment-foundation-v1.0.0-go":
         "f0524b3a07f5306ec8b5c0584f94f865ec9f9346",
+    # Demoted to historical when Step 7 started (DEC-0039): Step 6 is now a prior
+    # step. Its GO tag peels to the Step 6 runtime merge and must stay unchanged.
+    "aish-laundry-step-06-production-operations-v1.0.0-go":
+        "82f162f25a39cc9501c6ee35a9728f0e01999725",
 }
 
 
@@ -236,8 +244,16 @@ def authorised_pretag_go_steps(root):
     """Steps whose GO tag may legitimately be ABSENT because the step is in an
     authorised pre-tag closure window, expressed as a DETERMINISTIC canonical fact
     in STATUS.md: a ``STEP_<nn>_GO_TAG_STATE=...NOT_YET_CREATED...`` marker in a
-    closure block, for the canonical current step declared GO. Not environmental,
-    not branch-based, not dependent on which tags are fetched."""
+    closure block, for a step that declares GO. Not environmental, not branch-based,
+    not dependent on which tags are fetched.
+
+    Scans EVERY step, not only the canonical current step: when the next step
+    starts (CANONICAL_CURRENT_STEP advances) the just-closed step becomes a prior
+    step but may still carry its pre-tag marker until the owner creates the tag and
+    the marker is flipped. Honouring the marker for any GO step that carries it is
+    safe — a marker can only authorise an ABSENT tag; a tag that IS present is still
+    validated in full against its committed peel target (step<n>_tag_verdict /
+    historical_tag_verdict), so a stale marker never masks a wrong or moved tag."""
     import re as _re
 
     try:
@@ -245,11 +261,11 @@ def authorised_pretag_go_steps(root):
     except OSError:
         return set()
     out: set[int] = set()
-    n = CANONICAL_CURRENT_STEP
-    declares_go = _re.search(rf"^STEP_{n:02d}_STATUS=GO\b", text, _re.MULTILINE)
-    marker = _re.search(rf"^STEP_{n:02d}_GO_TAG_STATE=\S*NOT_YET_CREATED", text, _re.MULTILINE)
-    if declares_go and marker:
-        out.add(n)
+    for n in range(0, 15):
+        declares_go = _re.search(rf"^STEP_{n:02d}_STATUS=GO\b", text, _re.MULTILINE)
+        marker = _re.search(rf"^STEP_{n:02d}_GO_TAG_STATE=\S*NOT_YET_CREATED", text, _re.MULTILINE)
+        if declares_go and marker:
+            out.add(n)
     return out
 
 

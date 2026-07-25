@@ -190,7 +190,14 @@ the owner after this closure merges — never to the later governance-closure me
 
 ## Step 7 — Customer Tracking and WhatsApp
 
-**Status: PLANNED**
+**Status: IN PROGRESS** — started 25 July 2026 under the separate canonical authorization
+[DEC-0039](decisions/DEC-0039-step-07-runtime-scope-transition.md), which advances the runtime-scope
+guard boundary (`CANONICAL_CURRENT_STEP` `6 → 7`) so the tracking + notification labels tracing to
+FR-086 … FR-099 pass the `classify` check. **Advancing the guard boundary is not building the feature:**
+FR-086 … FR-099 remain `NOT IMPLEMENTED` until real tracking-token, portal, OTP, and notification runtime
+is implemented, verified, and evidenced at an exact SHA (Rule 01, Rule 36 hard rule 6). Step 7 `GO` is the
+owner's to confer against exact-SHA evidence; while the pull request is open the maximum status is
+`IN PROGRESS`. Step 7 does not authorise deployment (`ABSENT`) and does not start Step 8.
 
 - The Portal Tracking Publik: high-entropy tokens stored hashed, not derived from the order number,
   revocable, expiring, `noindex`, masked personal data, never showing a full address, OTP for sensitive

@@ -88,7 +88,9 @@ EXPECTED_RULE_COUNT = 51
 # transition — the guard transition that starts Step 6 production-operations runtime).
 # Raised 37 -> 38 at Master Source 1.4.10 for DEC-0038 (private object-storage
 # introduction for QC defect evidence, FR-083).
-EXPECTED_DECISION_COUNT = 38
+# Raised 38 -> 39 at Master Source 1.4.12 for DEC-0039 (Step 7 runtime scope
+# transition — the guard transition that starts Step 7 customer-tracking/WhatsApp runtime).
+EXPECTED_DECISION_COUNT = 39
 
 
 def main() -> int:
