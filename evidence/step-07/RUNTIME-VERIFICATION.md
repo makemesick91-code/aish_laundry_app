@@ -55,6 +55,10 @@ re-run on a genuinely clean tree, and it is the one that counts.
 | `bc1ed92` | Internal API RBAC and tenant-isolation matrix (17 tests) |
 | `c049486` | Operator Flutter surface + 20 widget tests |
 | `d33baf1` | Verifier: both SKIPs replaced by mandatory gates; adversarial harness; OQ-014/OQ-018 |
+| `27f9d2d` | DEC-0030 residual audit made step-aware; stale STATUS/CLAUDE/Rule 15 claims corrected |
+| `bdddd15` | Step 4 forward-boundary route/endpoint gates moved to the Step 8+ band |
+| `0eb395c` | The three public portal routes allow-listed, with the reasoning recorded in source |
+| `ca3476a` | **Defect fix:** `show()` returned the superseded link after a rotation (see §9) |
 
 ## 3. Executed results
 
@@ -66,10 +70,11 @@ from the pinned SDK.
 
 ```
 $ cd backend && php artisan test
-Tests:  789 passed (7549 assertions)
+Tests:  790 passed (7557 assertions)
 ```
 
-Step 7 contributes 143 of those tests across seven files:
+Step 7 contributes **165** of those tests across ten files — 97 matched by `--filter=Tracking`
+and 68 by `--filter=Notification`, which are the two gates the verifier runs:
 
 | Suite | Tests | What it proves |
 |---|---|---|
@@ -82,7 +87,7 @@ Step 7 contributes 143 of those tests across seven files:
 | `NotificationPolicyTest` | 17 | marketing with no consent row is BLOCKED; opt-out re-evaluated at dispatch; the category is proved un-passable by reflection; quiet hours exact at 19:59/20:00/07:59/08:00, wrapping midnight to the SAME morning, evaluated in the outlet's zone (Jayapura sends at 09:00 WIT while Jakarta defers at 07:00 WIB); unusable timezone fails closed; EVERY template defers, proving no exception path |
 | `ProviderAbstractionTest` | 22 | no file outside `Providers/` names a vendor or an HTTP client; no other module imports an adapter; `OutboundMessage` carries no internal identifier; the official adapter is unavailable with absent, partial, or disabled credentials and fabricates nothing; exactly three adapters, none a browser-automation client; no template combines an OTP with a tracking link; nothing promises unlimited WhatsApp |
 | `MessagingDoesNotGateOrderStateTest` | 10 | the order, its total, and its ledger balance are byte-identical after timeout, 4xx, 5xx, malformed, and unavailable; enqueue never throws into a business caller; a contract-violating provider that throws is absorbed; the ledger and the immutable first-ready anchor untouched; structurally, no business module imports Notification and the module writes to no business table |
-| `TrackingApiRbacTest` | 17 | cashier may issue/rotate/revoke; production operator and **courier** hold nothing; finance reads but does not send; suspended membership loses access on the next request; foreign order/link/notification indistinguishable from absent; a client-supplied tenant id is never authorization proof; no list-all or export route; the plaintext is unretrievable after issuance |
+| `TrackingApiRbacTest` | 18 | cashier may issue/rotate/revoke; production operator and **courier** hold nothing; finance reads but does not send; suspended membership loses access on the next request; foreign order/link/notification indistinguishable from absent; a client-supplied tenant id is never authorization proof; no list-all or export route; the plaintext is unretrievable after issuance |
 
 ### 3.2 Migrations against the authoritative engine (Rule 43)
 
@@ -203,3 +208,26 @@ mechanism: forbidden below Step 7, audited by `validate-dec-0039-labels.py` from
 (`validate-runtime-scope.py`) by an accepted decision record; what changed is that a stale auditor no
 longer contradicts it. Below Step 7 the tokens remain forbidden exactly as before, so the audit still
 cannot false-pass in an earlier tree.
+
+## 9. A defect found by the verifier, and fixed
+
+`GET /orders/{order}/tracking-link` chose the order's current link with
+`orderByDesc('issued_at')`. Rotation writes the new row and supersedes the old one inside a single
+transaction, so both can carry an **identical** `issued_at`, and the tiebreak was then arbitrary —
+roughly half of runs returned the **superseded** row.
+
+The consequence was operational, not cosmetic: the operator screen would have shown a dead token as
+current, returned `409 CONFLICT` on "Cabut tautan", and hidden the link the customer was actually
+holding — so a staff member trying to close an over-shared link would have been told it had already
+ended while the live one kept resolving.
+
+It surfaced as an intermittent failure of the Step 7 tracking gate while the suite passed when run
+alone. Ordering now puts an `ISSUED` row first (unique per order by the partial index, so the result
+is deterministic), with `id` as a final tiebreak so the terminal-only case is stable between reads.
+The regression test **forces** the two timestamps equal rather than re-rolling the race, so it pins
+the ordering rule instead of passing by luck.
+
+This is the second same-instant tiebreak defect on this branch. The first was a marketing consent
+grant and withdrawal recorded in the same second, where the arbitrary winner could mean messaging a
+customer who had opted out; that one now breaks toward `WITHDRAWN`. Both were found by tests, and both
+are now decided by an explicit rule rather than by chance.
