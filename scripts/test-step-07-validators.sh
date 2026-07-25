@@ -95,6 +95,75 @@ for step7 in ("tracking_tokens", "public_tracking", "whatsapp_messages",
 trace = dec39.check_permitted_labels_trace_to_requirements()
 check(trace == [], f"every DEC-0039 permitted label traces to a PRD requirement (problems: {trace})")
 
+print("== 4. DEC-0041 portal-stack audit rejects each broken boundary ==")
+# Same discipline as above: drive the validator's PURE functions with synthetic
+# inputs. Nothing is written to disk, so the harness cannot leave a fixture behind
+# and cannot pass because a fixture tripped an unrelated guard — the failure mode
+# that invalidated the old Step 3 "31/31 mutations caught" figure (Rule 49).
+dec41 = load("dec41", SCRIPTS / "validate-dec-0041-portal-stack.py")
+
+# --- each forbidden construct is DETECTED in a synthetic view ---
+broken = [
+    ("<script>alert(1)</script>", dec41.SCRIPT_OR_REMOTE, "a script tag"),
+    ("<div onclick=\"go()\">x</div>", dec41.SCRIPT_OR_REMOTE, "an inline event handler"),
+    ("<link href=\"https://cdn.contoh.invalid/a.css\">", dec41.SCRIPT_OR_REMOTE, "a remote asset URL"),
+    ("@vite(['resources/js/app.js'])", dec41.SCRIPT_OR_REMOTE, "a Vite bundle"),
+    ("@php $x = 1; @endphp", dec41.BUSINESS_LOGIC_IN_VIEW, "an inline PHP block"),
+    ("{{ DB::table('orders')->count() }}", dec41.BUSINESS_LOGIC_IN_VIEW, "direct database access"),
+    ("{{ Order::query()->first() }}", dec41.BUSINESS_LOGIC_IN_VIEW, "an Eloquent query"),
+    ("<script>localStorage.setItem('t', token)</script>", dec41.BROWSER_STORAGE, "localStorage"),
+    ("{{ session('tracking_token') }}", dec41.BROWSER_STORAGE, "a session read"),
+    ("{{ Auth::user() }}", dec41.BROWSER_STORAGE, "an authentication facade call"),
+]
+for markup, patterns, label in broken:
+    check(dec41.scan(markup, patterns) != [],
+          f"DEC-0041 audit REJECTS {label}")
+
+# --- unescaped output ---
+check("{!!" in "<p>{!! $note !!}</p>", "DEC-0041 audit's unescaped-output probe is the right token")
+
+# --- Step 8/9 controls in a structural position ---
+for control in ('<form action="/lacak/jemput">',
+                '<a href="/pickup/new">Jemput</a>',
+                '<button id="reminder-send">x</button>',
+                '<input name="courier_id">',
+                '<a href="/pengiriman/atur">Antar</a>'):
+    check(dec41.STEP_8_9_STRUCTURAL.search(control) is not None,
+          f"DEC-0041 audit flags a Step 8/9 control: {control}")
+
+# --- and does NOT flag legitimate portal markup ---
+legitimate = (
+    '<h1>Status cucian Anda</h1>'
+    '<p>Pesanan ALS-2026-000042 sedang dikerjakan.</p>'
+    '<form action="/lacak/{{ $token }}/otp" method="post">'
+    '<button id="minta-kode">Minta kode verifikasi</button></form>'
+)
+check(dec41.scan(legitimate, dec41.SCRIPT_OR_REMOTE) == [],
+      "DEC-0041 audit does NOT flag legitimate portal markup (no script, no remote)")
+check(dec41.scan(legitimate, dec41.BROWSER_STORAGE) == [],
+      "DEC-0041 audit does NOT flag legitimate portal markup (no storage, no session)")
+check(dec41.STEP_8_9_STRUCTURAL.search(legitimate) is None,
+      "DEC-0041 audit does NOT flag the FR-091 OTP control as a Step 8/9 control")
+
+# --- comment stripping is a real narrowing, and it is bounded ---
+# The portal views DOCUMENT their own constraints ("There is no <script> tag").
+# Stripping comments is what stops the audit flagging the very sentences that prove
+# the rule is kept. It must strip comments and NOTHING else.
+commented = "{{-- There is no <script> tag here --}}<p>Halo</p>"
+check(dec41.scan(dec41.strip_comments(commented), dec41.SCRIPT_OR_REMOTE) == [],
+      "DEC-0041 audit does not flag a <script> mention inside a Blade comment")
+check(dec41.scan(dec41.strip_comments("{{-- doc --}}<script>x</script>"),
+                 dec41.SCRIPT_OR_REMOTE) != [],
+      "DEC-0041 audit still flags a REAL script tag beside a Blade comment "
+      "(comment stripping did not swallow live markup)")
+check(dec41.scan(dec41.strip_comments("<!-- html comment --><script>x</script>"),
+                 dec41.SCRIPT_OR_REMOTE) != [],
+      "DEC-0041 audit still flags a REAL script tag beside an HTML comment")
+
+# --- the permitted-route pin is exactly one route ---
+check(dec41.PERMITTED_WEB_ROUTE == "lacak/{token}",
+      f"DEC-0041 permits exactly the portal route (found {dec41.PERMITTED_WEB_ROUTE!r})")
+
 print("-" * 72)
 print(f"SUMMARY [test-step-07-validators]: {PASS} passed, {FAIL} failed")
 sys.exit(1 if FAIL else 0)

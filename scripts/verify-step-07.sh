@@ -108,6 +108,8 @@ fi
 # ---------------------------------------------------------------------------
 hdr "2. Step 7 authorization and governance"
 gate "DEC-0039 present and ACCEPTED"       bash -c 'grep -qE "^\*\*Status:\*\* ACCEPTED" docs/decisions/DEC-0039-*.md'
+gate "DEC-0040 present and ACCEPTED"       bash -c 'grep -qE "^\*\*Status:\*\* ACCEPTED" docs/decisions/DEC-0040-*.md'
+gate "DEC-0041 present and ACCEPTED"       bash -c 'grep -qE "^\*\*Status:\*\* ACCEPTED" docs/decisions/DEC-0041-*.md'
 # Version-agnostic: derive the expected version from the single authoritative pin
 # and assert the Master Source header matches it. A stale literal pin is exactly
 # the drift the governance suite exists to catch, so the verifier carries none.
@@ -123,6 +125,7 @@ gate "Step 7 evidence pack present"        test -f evidence/step-07/README.md
 gate "governance validator suite"          bash scripts/validate-governance.sh
 gate "runtime scope guard (classify)"      python3 scripts/validate-runtime-scope.py
 gate "DEC-0039 label audit"                python3 scripts/validate-dec-0039-labels.py
+gate "DEC-0041 portal-stack boundary audit" python3 scripts/validate-dec-0041-portal-stack.py
 gate "DEC-0037 label audit (step-aware)"   python3 scripts/validate-dec-0037-labels.py
 gate "DEC-0035 label audit (step-aware)"   python3 scripts/validate-dec-0035-labels.py
 gate "Step 7 validator adversarial harness" bash scripts/test-step-07-validators.sh

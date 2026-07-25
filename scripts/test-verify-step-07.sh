@@ -227,14 +227,58 @@ else
   bad "9. an environment prerequisite is not reported truthfully"
 fi
 
-# 10. The canonical repository is unchanged by this harness.
+# 10. The DEC-0040 and DEC-0041 gates are MANDATORY, not skippable.
+#
+# The owner resolved OQ-018 and OQ-014 by decision record. If the verifier merely
+# mentioned those records in a comment, or wired their checks through skip(), a
+# green run would prove nothing about them — which is the exact failure mode this
+# whole harness exists to rule out (Rule 47).
+missing_dec_gates=""
+for pattern in 'gate "DEC-0040 present and ACCEPTED"' \
+               'gate "DEC-0041 present and ACCEPTED"' \
+               'gate "DEC-0041 portal-stack boundary audit"'; do
+  grep -qF "${pattern}" "${VERIFIER}" || missing_dec_gates="${missing_dec_gates} ${pattern}"
+done
+if [ -z "${missing_dec_gates}" ]; then
+  ok "10. DEC-0040/DEC-0041 presence and the portal-stack audit are mandatory gates"
+else
+  bad "10. a DEC-0040/DEC-0041 gate is absent or not mandatory:${missing_dec_gates}"
+fi
+
+# 11. The DEC-0041 portal-stack audit actually FAILS on a broken boundary.
+#
+# A validator that has only ever run against a correct tree is an untested
+# validator (Rule 33). The scan is driven with synthetic markup — nothing is
+# written to disk — so this cannot pass because a stray fixture tripped an
+# unrelated guard, the defect that invalidated the old Step 3 "31/31" figure.
+if python3 - <<'PY' >/dev/null 2>&1
+import importlib.util, sys
+from pathlib import Path
+spec = importlib.util.spec_from_file_location(
+    "dec41", Path("scripts/validate-dec-0041-portal-stack.py"))
+m = importlib.util.module_from_spec(spec)
+sys.path.insert(0, "scripts")
+spec.loader.exec_module(m)
+rejects_script = m.scan("<script>x</script>", m.SCRIPT_OR_REMOTE) != []
+rejects_storage = m.scan("localStorage.setItem('t', 1)", m.BROWSER_STORAGE) != []
+rejects_step8 = m.STEP_8_9_STRUCTURAL.search('<a href="/pickup/new">x</a>') is not None
+accepts_clean = m.scan("<p>Halo</p>", m.SCRIPT_OR_REMOTE) == []
+sys.exit(0 if (rejects_script and rejects_storage and rejects_step8 and accepts_clean) else 1)
+PY
+then
+  ok "11. the DEC-0041 portal-stack audit rejects broken input and accepts clean input"
+else
+  bad "11. the DEC-0041 portal-stack audit does not discriminate broken from clean input"
+fi
+
+# 12. The canonical repository is unchanged by this harness.
 #
 # Asserted rather than assumed: a harness that mutates the tree it tests would
 # make every later gate in the run meaningless.
 if git -C "${REPO_ROOT}" diff --quiet -- scripts/_common.py docs/MASTER_SOURCE.md; then
-  ok "10. the canonical repository is unchanged by this harness"
+  ok "12. the canonical repository is unchanged by this harness"
 else
-  bad "10. this harness left the canonical repository modified"
+  bad "12. this harness left the canonical repository modified"
 fi
 
 echo "------------------------------------------------------------------------"
