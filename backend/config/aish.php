@@ -66,4 +66,37 @@ return [
         'log_channel' => env('AISH_PASSWORD_RESET_LOG_CHANNEL', 'single'),
     ],
 
+    /*
+     * Step 7 — notification and WhatsApp (FR-093 … FR-099).
+     *
+     * EVERY VALUE HERE IS A TRANSPORT SETTING, NOT A PRODUCT DECISION. Quiet
+     * hours are 20.00–08.00 outlet local time by canonical rule (FR-097,
+     * NOT-003) and are therefore NOT configurable here — a deployment that
+     * could widen them would be a deployment that could evade them, and
+     * changing them requires a decision record (NOT-022), not an env var.
+     *
+     * NO CREDENTIAL IS COMMITTED AND NONE IS DEFAULTED TO A REAL VALUE. Every
+     * field below defaults to empty, which makes the official adapter report
+     * itself UNAVAILABLE and the system fall back to the manual deep link
+     * (Rule 03 hard rule 10, Rule 45).
+     *
+     * `enabled` defaults to FALSE. Configuring credentials is not the same act
+     * as authorising live sends to real customers, and separating the two means
+     * a half-finished configuration cannot start messaging anybody.
+     */
+    'notification' => [
+        'whatsapp' => [
+            'enabled' => (bool) env('AISH_WHATSAPP_ENABLED', false),
+
+            /*
+             * The official WhatsApp Business API endpoint. Empty by default:
+             * an adapter with no base URL is not configured, and it says so
+             * rather than guessing a vendor's host.
+             */
+            'base_url' => env('AISH_WHATSAPP_BASE_URL', ''),
+            'phone_number_id' => env('AISH_WHATSAPP_PHONE_NUMBER_ID', ''),
+            'access_token' => env('AISH_WHATSAPP_ACCESS_TOKEN', ''),
+        ],
+    ],
+
 ];

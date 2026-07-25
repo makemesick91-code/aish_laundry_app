@@ -60,6 +60,12 @@ _STEP5_PERMITTED_AT_5 = CANONICAL_CURRENT_STEP >= 5
 # here (validate-dec-0037-labels.py audits them), and below Step 6 they remain
 # forbidden exactly as before.
 _STEP6_PERMITTED_AT_6 = CANONICAL_CURRENT_STEP >= 6
+# DEC-0039 GUARD TRANSITION (Rule 36 hard rule 8). DEC-0039 moved the customer
+# tracking and notification labels from forbidden to authorised runtime. Same
+# mechanism again: from Step 7 the tracking labels are no longer forbidden here
+# (validate-dec-0039-labels.py audits them), and below Step 7 they remain
+# forbidden exactly as before.
+_STEP7_PERMITTED_AT_7 = CANONICAL_CURRENT_STEP >= 7
 
 # ---------------------------------------------------------------------------
 # The four labels DEC-0030 permitted, and the requirements that authorise them.
@@ -101,7 +107,6 @@ PERMITTED_LABELS: dict[str, dict[str, object]] = {
 STILL_FORBIDDEN: dict[str, set[str]] = {
     "invoice (not Step 5 scope; the nota is FR-052)": {"invoice", "faktur"},
     "checkout / cart (not laundry-POS vocabulary)": {"checkout", "cart", "keranjang"},
-    "tracking (Step 7)": {"tracking_token", "public_tracking"},
     "pickup / delivery (Step 8)": {"pickup", "penjemputan", "delivery", "pengantaran"},
     "reminder ladder (Step 9)": {"reminder", "pengingat"},
     "subscription billing (Step 12)": {"subscription", "langganan"},
@@ -128,6 +133,25 @@ _STEP6_LABELS: dict[str, set[str]] = {
 }
 if not _STEP6_PERMITTED_AT_6:
     STILL_FORBIDDEN.update(_STEP6_LABELS)
+
+# The customer-tracking labels: forbidden here only WHILE the canonical current
+# step is below 7. From Step 7 (DEC-0039) they are authorised runtime and are
+# audited by validate-dec-0039-labels.py instead — exactly as the Step 5 labels
+# moved under DEC-0035 and the Step 6 labels under DEC-0037.
+#
+# THIS IS NOT A WIDENING. DEC-0039 already moved `tracking token` and
+# `tracking portal` into the permitted band of the canonical guard
+# (`validate-runtime-scope.py`). Leaving them unconditionally forbidden in THIS
+# Step-4 residual audit would produce a FALSE FAILURE on runtime an accepted
+# decision record authorises — a stale auditor contradicting the boundary, which
+# is the same defect DEC-0039 §11 fixed in the 0035 and 0037 audits and simply
+# did not notice here. Below Step 7 they remain forbidden exactly as before, so
+# this audit still cannot false-pass in an earlier tree.
+_STEP7_LABELS: dict[str, set[str]] = {
+    "tracking (Step 7)": {"tracking_token", "public_tracking"},
+}
+if not _STEP7_PERMITTED_AT_7:
+    STILL_FORBIDDEN.update(_STEP7_LABELS)
 
 # Structural identifiers that legitimately contain a forbidden substring and are
 # NOT the feature. Each needs a reason; an unexplained entry here would be a

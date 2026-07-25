@@ -164,6 +164,26 @@ final class AuditAction
 
     public const PAYMENT_REVERSED = 'payment.reversed';
 
+    // --- Step 7: notification dispatch (FR-093 … FR-099, DEC-0039) --------
+    //
+    // WHY THESE TWO ARE CENTRALLY AUDITED WHILE THE TRACKING-LINK WRITES ARE NOT.
+    //
+    // The tracking-link writes append to `tracking_access_events`, which carries
+    // BOTH `tenant_id` and `actor_membership_id` and is immutable at the database
+    // boundary — the same module-owned, actor-aware domain log that earns the
+    // production writes their exemption (Rule 46 hard rule 1).
+    //
+    // `notification_attempts` is different: it records what the PROVIDER did, and
+    // it carries no actor column, because a dispatch is usually made by a worker
+    // rather than a person. But a staff member choosing to retry a message, or to
+    // prepare a manual link, is a human act that spends the tenant's messaging
+    // budget with a third-party provider (Rule 14 guardrail 8, NOT-020). Without a
+    // central row, "who caused this send" would be unanswerable — which is exactly
+    // the question a billing dispute opens with.
+    public const NOTIFICATION_RETRY_REQUESTED = 'notification.retry.requested';
+
+    public const NOTIFICATION_MANUAL_LINK_PREPARED = 'notification.manual_link.prepared';
+
     /**
      * Reason codes for a failed login.
      *
@@ -240,6 +260,8 @@ final class AuditAction
             self::PAYMENT_RECORDED,
             self::PAYMENT_CONFIRMED,
             self::PAYMENT_REVERSED,
+            self::NOTIFICATION_RETRY_REQUESTED,
+            self::NOTIFICATION_MANUAL_LINK_PREPARED,
         ];
     }
 }

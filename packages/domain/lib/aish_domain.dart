@@ -2,11 +2,16 @@
 /// payment projections.
 ///
 /// SCOPE BOUNDARY, stated so it cannot be crossed by accident: this package
-/// carries NO invoice, tracking, delivery, reminder, finance, loyalty or
-/// subscription type. Those belong to Step 7 and later, and a type added here
+/// carries NO invoice, delivery, pickup, courier, reminder, finance, loyalty or
+/// subscription type. Those belong to Step 8 and later, and a type added here
 /// early is roadmap leakage rather than a head start (CLAUDE.md §3, Rule 42).
 /// Order, payment, and receipt projections ARE carried now (DEC-0035, Step 5),
-/// and the PRODUCTION projections are carried now (DEC-0037, Step 6).
+/// the PRODUCTION projections are carried now (DEC-0037, Step 6), and the
+/// TRACKING and NOTIFICATION projections are carried now (DEC-0039, Step 7).
+///
+/// The tracking projections carry NO token field, at any level: the plaintext is
+/// returned once at issuance and is unrecoverable afterwards, and even the hash
+/// is not exposed to an operator surface (TRK-002, Rule 32 hard rule 10).
 ///
 /// Step 3 delivered the identity and tenancy projections. Step 4 added master
 /// data under DEC-0028 and DEC-0030: customers, the service catalogue, price
@@ -46,4 +51,7 @@ export 'src/permission.dart';
 export 'src/role.dart';
 export 'src/session_state.dart';
 export 'src/tenant.dart';
+// Step 7 — customer tracking and notification projections (DEC-0039).
+export 'src/tracking/notification_record.dart';
+export 'src/tracking/tracking_link.dart';
 export 'src/user.dart';

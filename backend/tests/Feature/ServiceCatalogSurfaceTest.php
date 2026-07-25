@@ -708,17 +708,24 @@ final class ServiceCatalogSurfaceTest extends TestCase
 
     public function test_no_out_of_scope_business_route_exists(): void
     {
-        // DEC-0035 authorised the Step 5 order/payment/receipt surface and
-        // DEC-0037 authorised the Step 6 production-operations surface, so those
-        // tokens are no longer forbidden. This assertion now guards the CURRENT
-        // forward boundary: Step 7+ business features (customer tracking,
-        // WhatsApp, pickup, delivery, reminders, subscription) and features never
-        // in Step 5/6 scope (invoice, export, bulk, checkout, cart) must still
-        // have no route.
+        // DEC-0035 authorised the Step 5 order/payment/receipt surface, DEC-0037
+        // the Step 6 production-operations surface, and DEC-0039 the Step 7
+        // customer-tracking and WhatsApp surface, so those tokens are no longer
+        // forbidden. This assertion now guards the CURRENT forward boundary:
+        // Step 8+ business features (pickup, delivery, courier, reminders,
+        // subscription) and features never in Step 5/6/7 scope (invoice, export,
+        // bulk, checkout, cart) must still have no route.
+        //
+        // `tracking` and `whatsapp` moved out of this list under DEC-0039 for the
+        // same reason `order` and `production` moved out before them: the step
+        // that owns the label was authorised. Moving a token out of this list
+        // WITHOUT its decision record would be the governance breach Rule 36 hard
+        // rule 8 forbids — the list is narrowed by authorisation, never to unblock
+        // work.
         $forbidden = [
             'invoice', 'export', 'bulk', 'checkout', 'cart',
-            'tracking', 'whatsapp', 'pickup', 'penjemputan', 'delivery',
-            'pengantaran', 'reminder', 'subscription',
+            'pickup', 'penjemputan', 'delivery', 'pengantaran',
+            'courier', 'kurir', 'reminder', 'unclaimed', 'subscription',
         ];
 
         foreach (app('router')->getRoutes() as $route) {

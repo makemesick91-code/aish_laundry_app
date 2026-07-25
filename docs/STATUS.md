@@ -204,8 +204,8 @@ is a false claim rather than a conservative one (Rule 01, DEC-0029).
 
 | Item | Status |
 | --- | --- |
-| Step 7+ product business features | NOT IMPLEMENTED |
-| Backend runtime | PRESENT — STEPS 3–6 (auth · tenancy · RBAC · master data · POS/order/payment · production operations) |
+| Step 8+ product business features | NOT IMPLEMENTED |
+| Backend runtime | PRESENT — STEPS 3–7 (auth · tenancy · RBAC · master data · POS/order/payment · production operations · customer tracking/notification) |
 | PostgreSQL runtime foundation | PRESENT |
 | Redis runtime foundation | PRESENT |
 | Flutter workspace | PRESENT |
@@ -426,8 +426,8 @@ launch — deployment is **ABSENT** (§2), and runtime present is not runtime wo
 | POS and order intake (Step 5) | GO |
 | Payment, refund, and void (Step 5) | GO |
 | Production operations and quality control (Step 6) | GO |
-| Public tracking portal (Step 7) | NOT IMPLEMENTED |
-| WhatsApp and notifications (Step 7) | NOT IMPLEMENTED |
+| Public tracking portal (Step 7) | TESTED — Step 7 IN PROGRESS, GO not conferred |
+| WhatsApp and notifications (Step 7) | TESTED — Step 7 IN PROGRESS, GO not conferred |
 | Pickup and delivery (Step 8) | NOT IMPLEMENTED |
 | Unclaimed laundry H+1/H+3/H+7/H+14 (Step 9) | NOT IMPLEMENTED |
 | Finance, reporting, and owner portfolio (Step 10) | NOT IMPLEMENTED |

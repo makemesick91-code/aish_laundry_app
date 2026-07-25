@@ -4,6 +4,7 @@ use App\Modules\Identity\Http\Middleware\AuthenticateApiRequest;
 use App\Modules\SharedKernel\Http\ExceptionRenderer;
 use App\Modules\SharedKernel\Http\Middleware\AssignCorrelationId;
 use App\Modules\Tenancy\Http\Middleware\ResolveTenantContext;
+use App\Modules\Tracking\Http\Middleware\PublicTrackingHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -40,6 +41,17 @@ return Application::configure(basePath: dirname(__DIR__))
             // Resolves and IMMUTABLY binds the tenant context. Always applied
             // AFTER auth.api — it needs an authenticated user to verify against.
             'tenant.context' => ResolveTenantContext::class,
+
+            /*
+             * Step 7 — the public tracking portal's transport contract (FR-092).
+             *
+             * Applied as ONE middleware rather than per handler, because a header
+             * each controller must remember is a header that will eventually be
+             * forgotten on exactly the response that needed it. It carries
+             * `noindex`, `no-store`, `no-referrer`, and a CSP that forbids every
+             * remote origin — see the class docblock for why each is load-bearing.
+             */
+            'public.tracking.headers' => PublicTrackingHeaders::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

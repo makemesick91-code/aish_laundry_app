@@ -50,6 +50,22 @@ final class TenantCacheKey
         'permission_catalogue', // platform-managed permission catalogue (DEC-0025)
         'throttle_ip',       // pre-authentication, per-IP throttling only
         'throttle_identity', // pre-authentication, per-credential-hash throttling
+
+        /*
+         * Step 7 — public tracking-portal throttling (TRK-007).
+         *
+         * CLASSIFIED GLOBAL DELIBERATELY, and the reasoning is the point. A
+         * public tracking request arrives with a token and NO tenant: the
+         * tenant is derived from the stored row AFTER the lookup succeeds
+         * (TRK-021). There is therefore no tenant available at the moment the
+         * throttle must be consulted, and inventing one from the token would
+         * mean doing the database lookup this key exists to protect.
+         *
+         * It holds NO tenant data. Every segment is a SHA-256 digest — of the
+         * presented token and of the client address — so the keyspace is never
+         * a list of live tokens or a log of who read what from where (Rule 21).
+         */
+        'throttle_public_tracking',
     ];
 
     private function __construct()
@@ -144,6 +160,25 @@ final class TenantCacheKey
     public static function ipRateLimit(string $action, string $ipAddress): string
     {
         return self::global('throttle_ip', [$action, hash('sha256', $ipAddress)]);
+    }
+
+    /**
+     * Rate-limit key for the PUBLIC TRACKING PORTAL, keyed on the token (Step 7).
+     *
+     * The subject is HASHED, never stored raw. Two reasons, and both matter:
+     *
+     *   1. The plaintext tracking token is `SECRET` (Rule 21). Placing it in a
+     *      Redis key would persist it outside the customer's link — the one place
+     *      TRK-002 says it may exist.
+     *   2. A keyspace of raw tokens would be an enumeration oracle in its own
+     *      right: anyone who could list keys would hold working credentials.
+     *
+     * Accepts either a plaintext token or an already-computed hash; it digests
+     * whatever it is given, so a caller cannot accidentally key on raw material.
+     */
+    public static function publicTrackingRateLimit(string $action, string $subject): string
+    {
+        return self::global('throttle_public_tracking', [$action, hash('sha256', $subject)]);
     }
 
     /**

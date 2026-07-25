@@ -54,6 +54,17 @@ final class Permission {
   static const String productionOperate = 'production.operate';
   static const String productionQc = 'production.qc';
 
+  // Step 7 tracking and notification permission keys (DEC-0039). They mirror
+  // the server `PermissionRegistry::TRACKING_*` / `NOTIFICATION_*` exactly.
+  //
+  // Note there is no key here for reading a token, at any level: the plaintext
+  // is unrecoverable after issuance and no permission could grant access to
+  // something nothing stores (TRK-002).
+  static const String trackingView = 'tracking.view';
+  static const String trackingManage = 'tracking.manage';
+  static const String notificationView = 'notification.view';
+  static const String notificationSend = 'notification.send';
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) || (other is Permission && other.key == key);

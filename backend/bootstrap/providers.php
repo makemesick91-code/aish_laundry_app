@@ -17,4 +17,12 @@ return [
      * error contract depends on. Registered before use, not remembered.
      */
     App\Modules\Identity\IdentityServiceProvider::class,
+
+    /*
+     * Step 7 — binds the ONE active notification provider (FR-093, FR-094).
+     * Defaults to the null provider, so an unconfigured system reports "no
+     * automated channel" honestly and offers the manual deep-link fallback
+     * rather than attempting sends that cannot succeed.
+     */
+    App\Modules\Notification\NotificationServiceProvider::class,
 ];

@@ -160,6 +160,34 @@ abstract final class ApiEndpoints {
   // an absent one (Rule 48). There is deliberately NO job-create path and NO
   // abandon path here, because the backend registers neither: a job is created
   // by the order lifecycle, and abandonment is not an operator HTTP action.
+  // --- Step 7: customer tracking and notification (FR-086 … FR-099, DEC-0039).
+  //
+  // There is deliberately NO list-all-tracking-links path and NO export path.
+  // Either would be an enumeration surface over a tenant's live customer
+  // credentials, and a path constant is how one would quietly appear.
+  static String orderTrackingLink(String orderId) =>
+      'orders/$orderId/tracking-link';
+
+  static String trackingLinkRotate(String tokenId) =>
+      'tracking-links/$tokenId/rotate';
+
+  static String trackingLinkRevoke(String tokenId) =>
+      'tracking-links/$tokenId/revoke';
+
+  static String orderNotifications(String orderId) =>
+      'orders/$orderId/notifications';
+
+  static String notification(String intentId) => 'notifications/$intentId';
+
+  static String notificationRetry(String intentId) =>
+      'notifications/$intentId/retry';
+
+  static String notificationManualLink(String intentId) =>
+      'notifications/$intentId/manual-link';
+
+  static const String notificationProviderState =
+      'notifications/provider-state';
+
   static const String productionQueue = 'production/queue';
   static String productionJob(String id) => 'production/jobs/$id';
   static String productionJobAdvance(String id) =>

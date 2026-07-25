@@ -48,6 +48,38 @@ ROUTES = "backend/routes/api.php"
 #   password-reset/*   — same, and both respond identically for known and
 #                        unknown accounts, so neither is a user-enumeration
 #                        channel (Rule 38, hard rule 7).
+#
+#   public/tracking/*  — STEP 7 (FR-089 … FR-092, DEC-0006, DEC-0014). These are
+#                        unauthenticated BY PRODUCT DECISION: a customer must be
+#                        able to follow their laundry with no account and no app
+#                        install, and degrading the portal into "install the app
+#                        first" is forbidden outright (Rule 28 hard rule 10).
+#
+#                        The token in the path IS the credential — 256 bits of
+#                        CSPRNG material, stored only as a SHA-256 hash — so
+#                        "unauthenticated" here means "no SESSION", not
+#                        "unprotected". What makes exposing them safe is not this
+#                        allow-list entry but four properties asserted by test:
+#                          · the response for unknown, malformed, expired,
+#                            revoked, superseded, and throttled tokens is ONE
+#                            byte-identical body, so there is no existence oracle
+#                            (TRK-007, Rule 48 hard rule 5);
+#                          · the tenant is derived server-side from the stored
+#                            row and can never be supplied by the caller
+#                            (TRK-021);
+#                          · the served projection is an allow-list built with
+#                            masking applied at build time, so no full address,
+#                            full phone, internal note, other order, or token can
+#                            reach it (FR-090, TRK-018, TRK-028);
+#                          · lookups are rate-limited per token-hash and per
+#                            client address, and a throttled answer is
+#                            indistinguishable from a not-found one.
+#
+#                        The two OTP endpoints are writes, and they are the ONLY
+#                        public writes: they mint and verify an FR-091 challenge
+#                        and answer identically whether the link is live or dead.
+#                        Requesting a pickup or a delivery from the portal is
+#                        Step 8 and is deliberately absent (DEC-0039 §5).
 # ---------------------------------------------------------------------------
 PUBLIC_ALLOWLIST = {
     "api.v1.health",
@@ -55,6 +87,10 @@ PUBLIC_ALLOWLIST = {
     "api.v1.auth.login",
     "api.v1.auth.password-reset.request",
     "api.v1.auth.password-reset.complete",
+    # Step 7 public tracking portal (DEC-0039). See the reasoning above.
+    "api.v1.public.tracking.show",
+    "api.v1.public.tracking.otp.request",
+    "api.v1.public.tracking.otp.verify",
 }
 
 # Routes that are authenticated but deliberately have NO tenant context, because

@@ -132,9 +132,23 @@ if [ "${VS4_STEP}" -lt 5 ]; then
 elif [ "${VS4_STEP}" -lt 6 ]; then
   gate "no Step 6+ route registered (orders/payments authorised by DEC-0035)"     bash -c '! grep -qE "Route::(get|post|patch|put|delete)\(\s*.(invoices|checkout|pickups|penjemputan|deliveries|pengantaran|production|produksi|tracking|reminders|subscriptions)" backend/routes/api.php'
   gate "no Step 6+ endpoint constant"    bash -c '! grep -qiE "String (invoice|checkout|pickup|delivery|production|tracking|reminder|subscription)" packages/networking/lib/src/api_endpoints.dart 2>/dev/null'
-else
+elif [ "${VS4_STEP}" -lt 7 ]; then
   gate "no Step 7+ route registered (production authorised by DEC-0037)"     bash -c '! grep -qE "Route::(get|post|patch|put|delete)\(\s*.(invoices|checkout|pickups|penjemputan|deliveries|pengantaran|tracking|whatsapp|reminders|subscriptions)" backend/routes/api.php'
   gate "no Step 7+ endpoint constant"    bash -c '! grep -qiE "String (invoice|checkout|pickup|delivery|tracking|whatsapp|reminder|subscription)" packages/networking/lib/src/api_endpoints.dart 2>/dev/null'
+else
+  # From canonical step 7 the tracking/WhatsApp tokens are authorised runtime
+  # (DEC-0039) and their presence is verified by verify-step-07.sh. What this
+  # Step 4 boundary gate still asserts is that STEP 8+ has not leaked in:
+  # pickup, delivery, courier, reminder ladder, subscription, plus the
+  # never-scoped invoice/checkout vocabulary.
+  #
+  # `delivery` is deliberately NOT matched as a bare word in the endpoint check:
+  # the Step 7 OTP action `change_delivery_address` is an authorised FR-091
+  # action name, and matching the bare word would false-fail on it. The Step 8
+  # feature is caught by its own `deliveries`/`pengantaran` route tokens above
+  # and by validate-runtime-scope.py, which is the structural authority.
+  gate "no Step 8+ route registered (tracking/WhatsApp authorised by DEC-0039)"     bash -c '! grep -qE "Route::(get|post|patch|put|delete)\(\s*.(invoices|checkout|pickups|penjemputan|deliveries|pengantaran|couriers|kurir|reminders|subscriptions)" backend/routes/api.php'
+  gate "no Step 8+ endpoint constant"    bash -c '! grep -qiE "String (invoice|checkout|pickup|courier|reminder|subscription)" packages/networking/lib/src/api_endpoints.dart 2>/dev/null'
 fi
 
 # ---------------------------------------------------------------------------

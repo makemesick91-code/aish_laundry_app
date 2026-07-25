@@ -285,6 +285,7 @@ These are recorded explicitly so that no future contributor mistakes their absen
 | `ON CacheCleared DO PurgeFinancialQueue` | `OFF-004`, `OFF-024` |
 | `ON SubscriptionLapsed DO BlockDataExport` | `TEN-018`, `TEN-028` |
 | `ON QuietHours DO SendAnyway` without an explicitly recorded exception | `NOT-003`, `NOT-021`, `NOT-022` |
+| `ON CustomerRequestsOtp DO SendImmediately` — permitted, and the ONLY quiet-hours exception, granted by [DEC-0040](../decisions/DEC-0040-oq-018-user-initiated-security-transaction-quiet-hours-exemption.md) for the class `USER_INITIATED_SECURITY_TRANSACTION`. Gated on an explicit customer request; an automated origin is refused, not deferred. | `NOT-022`, `FR-091` |
 
 ---
 

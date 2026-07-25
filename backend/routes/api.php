@@ -8,7 +8,10 @@ use App\Modules\CustomerManagement\Http\Controllers\CustomerController;
 use App\Modules\Identity\Http\Controllers\AuthController;
 use App\Modules\Identity\Http\Controllers\PasswordResetController;
 use App\Modules\Identity\Http\Controllers\SessionController;
+use App\Modules\Notification\Http\Controllers\NotificationController;
 use App\Modules\Ordering\Http\Controllers\OrderController;
+use App\Modules\Tracking\Http\Controllers\PublicTrackingController;
+use App\Modules\Tracking\Http\Controllers\TrackingLinkController;
 use App\Modules\Production\Http\Controllers\BatchController;
 use App\Modules\Production\Http\Controllers\ProductionController;
 use App\Modules\Production\Http\Controllers\QualityControlEvidenceController;
@@ -72,6 +75,35 @@ Route::post('auth/password-reset/request', [PasswordResetController::class, 'req
     ->name('api.v1.auth.password-reset.request');
 Route::post('auth/password-reset/complete', [PasswordResetController::class, 'complete'])
     ->name('api.v1.auth.password-reset.complete');
+
+/*
+ * STEP 7 — THE PUBLIC TRACKING PORTAL (FR-089 … FR-092), authorised by the
+ * canonical roadmap and DEC-0039.
+ *
+ * UNAUTHENTICATED BY DESIGN. A customer must be able to follow their laundry with
+ * no account and no app install (DEC-0006, DEC-0014). The token in the path IS the
+ * credential, and everything that makes that safe is applied here rather than
+ * remembered per handler:
+ *
+ *   - `public.tracking.headers` sets noindex, no-store, no-referrer, and a CSP that
+ *     forbids every remote origin. `no-referrer` is load-bearing, not hygiene: the
+ *     token is in the URL, so a referrer would hand it to a third party.
+ *   - The resolver rate-limits per token-hash and per client IP, and returns ONE
+ *     response for unknown, malformed, expired, revoked, superseded, and throttled
+ *     (TRK-007, Rule 48 hard rule 5).
+ *
+ * There is NO public write route beyond the two OTP endpoints, because FR-086 …
+ * FR-099 define no other customer-initiated portal write. Requesting a pickup or a
+ * delivery from the portal is Step 8 and is deliberately absent (DEC-0039 §5).
+ */
+Route::middleware('public.tracking.headers')->group(function (): void {
+    Route::get('public/tracking/{token}', [PublicTrackingController::class, 'show'])
+        ->name('api.v1.public.tracking.show');
+    Route::post('public/tracking/{token}/otp', [PublicTrackingController::class, 'requestOtp'])
+        ->name('api.v1.public.tracking.otp.request');
+    Route::post('public/tracking/{token}/otp/verify', [PublicTrackingController::class, 'verifyOtp'])
+        ->name('api.v1.public.tracking.otp.verify');
+});
 
 // ---------------------------------------------------------------------------
 // (b) AUTHENTICATED, NO TENANT CONTEXT REQUIRED
@@ -359,4 +391,56 @@ Route::middleware(['auth.api', 'tenant.context'])->group(function (): void {
     Route::get('production/batches/{batch}/timeline', [BatchController::class, 'timeline'])->name('api.v1.production.batches.timeline');
     Route::post('production/batches/{batch}/items', [BatchController::class, 'addItem'])->name('api.v1.production.batches.items.add');
     Route::delete('production/batches/{batch}/items/{item}', [BatchController::class, 'removeItem'])->name('api.v1.production.batches.items.remove');
+
+    // -----------------------------------------------------------------------
+    // Step 7 — customer tracking links (FR-086 … FR-088), authorised by the
+    // canonical roadmap and DEC-0039.
+    //
+    // Note what is ABSENT and is absent on purpose: there is NO list-all-tokens
+    // route and NO export route. Either would be an enumeration surface over a
+    // tenant's live customer credentials — the same reasoning that keeps bulk
+    // mutation and export off the Step 4 master-data surface (threats T-19, T-20).
+    // Their absence is asserted by test rather than assumed.
+    //
+    // The plaintext token is returned by exactly TWO of these routes — issue and
+    // rotate — and once each. No route can retrieve it afterwards, because only its
+    // hash was ever stored (TRK-002, TRK-019). There is deliberately no "resend the
+    // link" route: recovery is rotation, which invalidates the lost one.
+    //
+    // Revoke and rotate are POSTs carrying a MANDATORY reason, never DELETEs: each
+    // RECORDS an act with an actor and a reason (TRACKING_ACCESS_LIFECYCLE §9), and
+    // the row survives as evidence.
+    // -----------------------------------------------------------------------
+    Route::get('orders/{order}/tracking-link', [TrackingLinkController::class, 'show'])
+        ->name('api.v1.orders.tracking-link.show');
+    Route::post('orders/{order}/tracking-link', [TrackingLinkController::class, 'store'])
+        ->name('api.v1.orders.tracking-link.store');
+    Route::post('tracking-links/{token}/rotate', [TrackingLinkController::class, 'rotate'])
+        ->name('api.v1.tracking-links.rotate');
+    Route::post('tracking-links/{token}/revoke', [TrackingLinkController::class, 'revoke'])
+        ->name('api.v1.tracking-links.revoke');
+
+    // -----------------------------------------------------------------------
+    // Step 7 — notification history and dispatch (FR-093 … FR-099).
+    //
+    // Reads gate on notification.view; anything causing another send gates on
+    // notification.send, because every send costs the tenant real money with a
+    // third-party provider (Rule 14 guardrail 8, NOT-020).
+    //
+    // There is NO compose route: every message goes through a catalogued template
+    // whose category is fixed, so no marketing message can be typed into a
+    // transactional path (FR-096, NOT-024). There is NO delete route: both
+    // notification tables are append-only, because "failures are visible" (FR-099)
+    // is only true if they cannot be tidied away.
+    // -----------------------------------------------------------------------
+    Route::get('orders/{order}/notifications', [NotificationController::class, 'index'])
+        ->name('api.v1.orders.notifications.index');
+    Route::get('notifications/provider-state', [NotificationController::class, 'providerState'])
+        ->name('api.v1.notifications.provider-state');
+    Route::get('notifications/{intent}', [NotificationController::class, 'show'])
+        ->name('api.v1.notifications.show');
+    Route::post('notifications/{intent}/retry', [NotificationController::class, 'retry'])
+        ->name('api.v1.notifications.retry');
+    Route::post('notifications/{intent}/manual-link', [NotificationController::class, 'manualLink'])
+        ->name('api.v1.notifications.manual-link');
 });
