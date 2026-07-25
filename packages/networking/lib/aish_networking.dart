@@ -16,3 +16,5 @@ export 'src/master_data_repository.dart';
 export 'src/pos_repository.dart';
 export 'src/production_repository.dart';
 export 'src/request_context.dart';
+// Step 7 — customer tracking and notification (DEC-0039).
+export 'src/tracking_repository.dart';
