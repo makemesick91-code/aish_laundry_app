@@ -246,7 +246,7 @@ class OtpMessenger
         ?string $failureCode,
         ?string $detail,
     ): void {
-        NotificationAttempt::query()->create([
+        NotificationAttempt::query()->forceCreate([
             'id' => (string) Str::uuid(),
             'tenant_id' => $intent->tenant_id,
             'intent_id' => $intent->id,

@@ -256,7 +256,7 @@ class TrackingTokenService
         $token->state = TrackingToken::STATE_EXPIRED;
         $token->save();
 
-        TrackingAccessEvent::query()->create([
+        TrackingAccessEvent::query()->forceCreate([
             'id' => (string) Str::uuid(),
             'tenant_id' => $token->tenant_id,
             'tracking_token_id' => $token->id,
@@ -323,7 +323,7 @@ class TrackingTokenService
 
     private function record(TenantContext $context, TrackingToken $token, string $type, array $payload): void
     {
-        TrackingAccessEvent::query()->create([
+        TrackingAccessEvent::query()->forceCreate([
             'id' => (string) Str::uuid(),
             'tenant_id' => $token->tenant_id,
             'tracking_token_id' => $token->id,

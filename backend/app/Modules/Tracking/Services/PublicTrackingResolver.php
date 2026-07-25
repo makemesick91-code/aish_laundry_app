@@ -137,7 +137,7 @@ class PublicTrackingResolver
             'view_count' => (int) $token->view_count + 1,
         ])->saveQuietly();
 
-        TrackingAccessEvent::query()->create([
+        TrackingAccessEvent::query()->forceCreate([
             'id' => (string) Str::uuid(),
             'tenant_id' => $token->tenant_id,
             'tracking_token_id' => $token->id,

@@ -100,7 +100,7 @@ class ManualWhatsAppLinkBuilder
             'state' => NotificationIntent::STATE_MANUAL_FALLBACK_PREPARED,
         ])->save();
 
-        NotificationAttempt::query()->create([
+        NotificationAttempt::query()->forceCreate([
             'id' => (string) Str::uuid(),
             'tenant_id' => $intent->tenant_id,
             'intent_id' => $intent->id,

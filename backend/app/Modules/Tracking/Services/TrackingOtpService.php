@@ -108,7 +108,7 @@ class TrackingOtpService
         $challenge->expires_at = now()->addSeconds(TrackingOtpChallenge::TTL_SECONDS);
         $challenge->save();
 
-        TrackingAccessEvent::query()->create([
+        TrackingAccessEvent::query()->forceCreate([
             'id' => (string) Str::uuid(),
             'tenant_id' => $access->token->tenant_id,
             'tracking_token_id' => $access->token->id,
@@ -170,7 +170,7 @@ class TrackingOtpService
             $challenge->consumed_at = now();
             $challenge->save();
 
-            TrackingAccessEvent::query()->create([
+            TrackingAccessEvent::query()->forceCreate([
                 'id' => (string) Str::uuid(),
                 'tenant_id' => $access->token->tenant_id,
                 'tracking_token_id' => $access->token->id,
@@ -191,7 +191,7 @@ class TrackingOtpService
 
     private function recordFailure(ResolvedTrackingAccess $access, string $action): void
     {
-        TrackingAccessEvent::query()->create([
+        TrackingAccessEvent::query()->forceCreate([
             'id' => (string) Str::uuid(),
             'tenant_id' => $access->token->tenant_id,
             'tracking_token_id' => $access->token->id,

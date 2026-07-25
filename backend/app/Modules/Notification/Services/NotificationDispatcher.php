@@ -212,7 +212,7 @@ class NotificationDispatcher
 
     private function recordAttempt(NotificationIntent $intent, ProviderResult $result): void
     {
-        NotificationAttempt::query()->create([
+        NotificationAttempt::query()->forceCreate([
             'id' => (string) Str::uuid(),
             'tenant_id' => $intent->tenant_id,
             'intent_id' => $intent->id,
