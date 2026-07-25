@@ -180,7 +180,7 @@ this run reports green by not having run.
 | FR-094 official provider, fail-closed | `ProviderAbstractionTest` (absent/partial/disabled credentials; no unofficial adapter exists) |
 | FR-095 manual deep-link fallback | `ProviderAbstractionTest`, `tracking_test.dart` ("BELUM dikirim"), the `MANUAL_FALLBACK_PREPARED` state |
 | FR-096 transactional vs marketing | `NotificationPolicyTest` (category un-passable by reflection; consent default blocked) |
-| FR-097 quiet hours | `NotificationPolicyTest` (boundaries, midnight wrap, multi-timezone, fail-closed, re-check at dispatch, no exception path) |
+| FR-097 quiet hours | `NotificationPolicyTest` (boundaries, midnight wrap, multi-timezone, fail-closed, re-check at dispatch, every outbox-carried template defers, the outbox refuses an OTP template), `OtpQuietHoursExemptionTest` (the one DEC-0040 exempt class and its fences) |
 | FR-098 deduplication | `NotificationOutboxTest` (replay, post-send replay, DB constraint) |
 | FR-099 messaging decoupled from order state | `MessagingDoesNotGateOrderStateTest` (all five provider failure modes plus structural absence of any path back) |
 

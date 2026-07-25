@@ -25,11 +25,21 @@ use Illuminate\Support\Facades\Route;
 | ships with the Laravel runtime Step 3 already established. The page carries no
 | script at all.
 |
-| OQ-014 (which web stack the portal uses) requires this choice to be recorded in
-| a decision record by the Step that builds it. Step 7 implements the
-| zero-dependency option; the decision record ratifying it is OWNER TERRITORY and
-| is OUTSTANDING — an agent does not accept a product decision on the owner's
-| behalf (Rule 12, Rule 00 hard rule 6).
+| OQ-014 (which web stack the portal uses) required this choice to be recorded in
+| a decision record by the Step that builds it. The repository owner RATIFIED it on
+| 26 July 2026 as DEC-0041, so this is now a settled product decision rather than a
+| provisional implementation.
+|
+| DEC-0041 fences what it ratifies, and the fence is binding here: Blade is for the
+| PUBLIC TRACKING PORTAL ONLY. A second Blade surface — an operator page, an admin
+| page, a login page — is outside that record and needs its own. Token validation,
+| tenant isolation, the projection, masking, consent, and the notification rules
+| stay in canonical services; a view renders an already-decided projection and never
+| re-derives one. No persistent browser storage of the token, no public session, and
+| no Step 8/Step 9 control on this surface.
+|
+| `scripts/validate-dec-0041-portal-stack.py` audits all of that structurally, so
+| the boundary is a gate rather than a paragraph.
 |
 | The route is not under /api/v1 because it serves HTML to a browser, not JSON to
 | a client. The JSON projection of the same data IS under /api/v1
