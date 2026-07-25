@@ -30,8 +30,8 @@ way that changes its meaning (Rule 01, evidence rule 5).
 ========================================================================
 STEP 7 CANONICAL VERIFICATION — CUSTOMER TRACKING AND WHATSAPP
 ========================================================================
-  commit    : ca3476ae31bf718b78523dc982948c54626413aa
-  timestamp : 2026-07-25T15:25:43Z (UTC)
+  commit    : 45573c33a9572565dfdcf4efe21b0741a40e9f96
+  timestamp : 2026-07-25T16:56:48Z (UTC)
   authorised: canonical roadmap (Master Source §24), guard transition DEC-0039
 
 == 1. Step 0-6 regression (delegated, not restated) ==
@@ -39,6 +39,8 @@ STEP 7 CANONICAL VERIFICATION — CUSTOMER TRACKING AND WHATSAPP
 
 == 2. Step 7 authorization and governance ==
   PASS  DEC-0039 present and ACCEPTED
+  PASS  DEC-0040 present and ACCEPTED
+  PASS  DEC-0041 present and ACCEPTED
   PASS  Master Source header matches the pinned canonical version
   PASS  MASTER_SOURCE checksum matches
   PASS  Rule 50 (Step 4 status) present
@@ -47,6 +49,7 @@ STEP 7 CANONICAL VERIFICATION — CUSTOMER TRACKING AND WHATSAPP
   PASS  governance validator suite
   PASS  runtime scope guard (classify)
   PASS  DEC-0039 label audit
+  PASS  DEC-0041 portal-stack boundary audit
   PASS  DEC-0037 label audit (step-aware)
   PASS  DEC-0035 label audit (step-aware)
   PASS  Step 7 validator adversarial harness
@@ -75,8 +78,8 @@ STEP 7 CANONICAL VERIFICATION — CUSTOMER TRACKING AND WHATSAPP
 ========================================================================
 STEP 7 VERIFICATION SUMMARY
 ========================================================================
-  commit : ca3476ae31bf718b78523dc982948c54626413aa
-  PASS 28   FAIL 0   SKIP 0
+  commit : 45573c33a9572565dfdcf4efe21b0741a40e9f96
+  PASS 31   FAIL 0   SKIP 0
 ------------------------------------------------------------------------
 ```
 
@@ -85,6 +88,12 @@ STEP 7 VERIFICATION SUMMARY
 **Establishes.** Every gate named above executed and returned the status shown. `SKIP 0` means no gate
 was passed over: both transitional skips from the DEC-0039 governance transition — the tracking
 backend suite and the portal/operator UI — are now mandatory gates that ran and passed.
+
+The total moved from `PASS 28` to `PASS 31` because the DEC-0040/DEC-0041 ratification added three
+mandatory gates: `DEC-0040 present and ACCEPTED`, `DEC-0041 present and ACCEPTED`, and the
+`DEC-0041 portal-stack boundary audit`. The earlier `PASS 28` figure belonged to
+`ca3476ae31bf718b78523dc982948c54626413aa` and is **not** re-asserted here — evidence produced at one
+SHA never carries over to another (Rule 01, DEC-0013).
 
 **Does not establish.**
 
@@ -95,7 +104,17 @@ backend suite and the portal/operator UI — are now mandatory gates that ran an
   (see [`RUNTIME-VERIFICATION.md`](RUNTIME-VERIFICATION.md) §6).
 - That anything is deployed. Deployment remains `ABSENT`.
 - That an accessibility audit or a performance measurement was performed. Neither was.
-- That the two open questions are answered. OQ-014 and OQ-018 await an owner decision.
+- That live WhatsApp delivery works. `SENT` means a provider accepted a message; no delivery receipt
+  is held and none is claimed.
+
+**The two open questions ARE now answered**, and this is the one line in this section that changed
+direction. The previous capture said *"OQ-014 and OQ-018 await an owner decision"*; that was true when
+written and stopped being true on 26 July 2026, when the repository owner resolved OQ-018 as
+[DEC-0040](../../docs/decisions/DEC-0040-oq-018-user-initiated-security-transaction-quiet-hours-exemption.md)
+and OQ-014 as
+[DEC-0041](../../docs/decisions/DEC-0041-oq-014-laravel-blade-as-the-public-tracking-portal-stack.md).
+Both records are ACCEPTED and both are now checked by mandatory gates in the run above. **Resolving an
+open question is not conferring `GO`**, and this document asserts no `GO`.
 
 ## 3. Governance note on the gates that changed during this sprint
 
