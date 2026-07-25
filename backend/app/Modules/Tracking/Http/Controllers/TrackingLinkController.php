@@ -51,10 +51,24 @@ final class TrackingLinkController
 
         Gate::authorize('viewAny', TrackingToken::class);
 
+        // THE LIVE LINK WINS, ALWAYS — not merely the most recently issued one.
+        //
+        // Ordering by `issued_at` alone is wrong, and the failure is not
+        // hypothetical: a rotation mints the new row in the same transaction that
+        // supersedes the old one, so both can carry the SAME `issued_at`, and the
+        // tiebreak is then arbitrary. Half the time that returns the SUPERSEDED
+        // row — which would show the operator a dead token as "current", offer
+        // revoke on it (409), and hide the link the customer is actually holding.
+        //
+        // `ISSUED` is unique per order by the partial index, so this is
+        // deterministic. The `id` tiebreak on the fallback keeps the terminal-only
+        // case stable too, rather than varying between reads.
         $token = TrackingToken::query()
             ->forTenant($context->tenantId())
             ->where('order_id', $orderModel->id)
+            ->orderByRaw("CASE WHEN state = ? THEN 0 ELSE 1 END", [TrackingToken::STATE_ISSUED])
             ->orderByDesc('issued_at')
+            ->orderByDesc('id')
             ->first();
 
         if ($token === null) {

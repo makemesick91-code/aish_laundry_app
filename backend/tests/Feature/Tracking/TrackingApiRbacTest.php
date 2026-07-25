@@ -97,6 +97,54 @@ final class TrackingApiRbacTest extends TestCase
         ], $a['headers'])->assertOk();
     }
 
+    /**
+     * REGRESSION: after a rotation, `show()` must return the LIVE link.
+     *
+     * The two rows are written in one transaction and can carry an identical
+     * `issued_at`, so ordering by that column alone left the winner to chance.
+     * Half the time it returned the SUPERSEDED row — showing an operator a dead
+     * token as "current", offering revoke on it (409), and hiding the link the
+     * customer is actually holding.
+     *
+     * The timestamps are forced equal here so the test pins the ORDERING RULE
+     * rather than re-rolling the race and passing by luck.
+     */
+    public function test_after_rotation_the_live_link_is_returned_not_the_superseded_one(): void
+    {
+        $a = $this->actor('rbac-rotate-current', PermissionRegistry::ROLE_CASHIER);
+
+        $first = $this->postJson(
+            "/api/v1/orders/{$a['order']->id}/tracking-link",
+            ['client_reference' => $this->ref()],
+            $a['headers'],
+        )->assertStatus(201)->json('data.tracking_link.id');
+
+        $this->postJson("/api/v1/tracking-links/{$first}/rotate", [
+            'reason_code' => 'over_shared',
+            'client_reference' => $this->ref(),
+        ], $a['headers'])->assertOk();
+
+        // Force the collision the race produces intermittently.
+        $sharedInstant = now()->subMinute();
+        DB::table('tracking_tokens')
+            ->where('order_id', $a['order']->id)
+            ->update(['issued_at' => $sharedInstant]);
+
+        $current = $this->getJson("/api/v1/orders/{$a['order']->id}/tracking-link", $a['headers'])
+            ->assertOk()
+            ->json('data.tracking_link');
+
+        $this->assertSame('ISSUED', $current['state']);
+        $this->assertTrue($current['is_live']);
+        $this->assertNotSame($first, $current['id'],
+            'show() returned the superseded link as the order\'s current one.');
+
+        // And the returned link is genuinely revocable — the 409 this regression
+        // produced is what an operator would have hit.
+        $this->postJson("/api/v1/tracking-links/{$current['id']}/revoke",
+            ['reason_code' => 'lost'], $a['headers'])->assertOk();
+    }
+
     public function test_a_production_operator_holds_no_tracking_permission(): void
     {
         $a = $this->actor('rbac-operator', PermissionRegistry::ROLE_PRODUCTION_OPERATOR);
