@@ -1,6 +1,6 @@
 # Aish Laundry App — Master Source
 
-**Document version: 1.4.12**
+**Document version: 1.4.13**
 **Baseline date: 19 July 2026**
 
 Owner: Aish Tech Solution
@@ -1558,11 +1558,11 @@ must be claims the software can substantiate — the honesty rule (§3.1) applie
 
 ## 31. Decision records
 
-Thirty-nine decisions are locked. Fifteen were locked at the 1.0.0 baseline; DEC-0016 was added at
+Forty-one decisions are locked. Fifteen were locked at the 1.0.0 baseline; DEC-0016 was added at
 version 1.0.1, DEC-0017 at version 1.2.0, DEC-0018 … DEC-0023 at version 1.3.0, DEC-0024 … DEC-0027 at
-version 1.4.0, DEC-0028 … DEC-0031 at version 1.4.1, DEC-0032 at version 1.4.2, DEC-0033 at version 1.4.3, DEC-0034 at version 1.4.4, DEC-0035 at version 1.4.6, DEC-0036 at version 1.4.7, DEC-0037 at version 1.4.9, and DEC-0038 at version 1.4.10. DEC-0001 … DEC-0023 carry date
+version 1.4.0, DEC-0028 … DEC-0031 at version 1.4.1, DEC-0032 at version 1.4.2, DEC-0033 at version 1.4.3, DEC-0034 at version 1.4.4, DEC-0035 at version 1.4.6, DEC-0036 at version 1.4.7, DEC-0037 at version 1.4.9, DEC-0038 at version 1.4.10, DEC-0039 at version 1.4.12, and DEC-0040 … DEC-0041 at version 1.4.13. DEC-0001 … DEC-0023 carry date
 **19 July 2026**; DEC-0024 … DEC-0027 carry **20 July 2026**; DEC-0028 … DEC-0031 carry
-**21 July 2026**; DEC-0035 and DEC-0036 carry **23 July 2026**; DEC-0037 carries **24 July 2026**; DEC-0038 carries **25 July 2026**. All carry status **ACCEPTED**. Each has a full record in
+**21 July 2026**; DEC-0035 and DEC-0036 carry **23 July 2026**; DEC-0037 carries **24 July 2026**; DEC-0038 and DEC-0039 carry **25 July 2026**; DEC-0040 and DEC-0041 carry **26 July 2026**. All carry status **ACCEPTED**. Each has a full record in
 [`decisions/`](decisions/).
 
 **This section was stale and is corrected under
@@ -1614,6 +1614,8 @@ without being listed here — or listed here without existing — fails closed.
 | DEC-0037 | Step 6 Runtime Scope Transition | ACCEPTED | [DEC-0037](decisions/DEC-0037-step-06-runtime-scope-transition.md) |
 | DEC-0038 | Private Object-Storage Introduction (S3-Compatible Abstraction for QC Defect Evidence, FR-083) | ACCEPTED | [DEC-0038](decisions/DEC-0038-step-06-private-object-storage-introduction.md) |
 | DEC-0039 | Step 7 Runtime Scope Transition (Customer Tracking and WhatsApp/Notification, FR-086 … FR-099) | ACCEPTED | [DEC-0039](decisions/DEC-0039-step-07-runtime-scope-transition.md) |
+| DEC-0040 | Customer-Initiated Tracking OTP is a USER_INITIATED_SECURITY_TRANSACTION and is Exempt from Quiet Hours (OQ-018 Ratification) | ACCEPTED | [DEC-0040](decisions/DEC-0040-oq-018-user-initiated-security-transaction-quiet-hours-exemption.md) |
+| DEC-0041 | Laravel Blade is the Canonical Public Tracking Portal Stack (OQ-014 Ratification) | ACCEPTED | [DEC-0041](decisions/DEC-0041-oq-014-laravel-blade-as-the-public-tracking-portal-stack.md) |
 
 ### 31.1 Decision record rules
 
@@ -1636,6 +1638,54 @@ Mapping from foundation area to rule file, decision record, and validator:
 
 The canonical changelog is [`CHANGELOG.md`](CHANGELOG.md), maintained in Keep a Changelog format with
 semantic versioning.
+
+### 32.0000000000 Version 1.4.13
+
+**1.4.13 — 26 July 2026 — OQ-018 and OQ-014 resolved: the one named quiet-hours exemption, and the
+ratified public-portal stack.**
+
+Added **DEC-0040** and **DEC-0041**, the two owner decisions that close the last Step 7 open questions.
+
+DEC-0040 classifies a **customer-initiated** tracking OTP for a canonical FR-091 sensitive action as a
+`USER_INITIATED_SECURITY_TRANSACTION` and exempts that one class from quiet hours 20.00–08.00 outlet
+local time. This is the exception `NOT-022` reserves to a decision record, and it is the first one
+granted. §14.1 rule 6 is unchanged in text and unchanged in effect for every non-urgent message; what
+this record supplies is the classification that rule always presupposed, and §14.2's catalogue —
+which carries no OTP entry — is likewise unchanged. The exemption is gated on an **explicit customer
+request** and on nothing else: `OtpDispatchOrigin` is a required, typed argument with no permissive
+default, an automated origin is **refused** with the reason `otp_not_customer_initiated` rather than
+deferred, and the ordinary notification outbox now refuses any OTP-carrying template outright, so the
+exempt path is reachable only from the single caller that holds a live plaintext code. Marketing cannot
+acquire the exemption: category comes from the template and never from a caller (FR-096, NOT-024). Every
+other control is unchanged — rate limits, resend cooldown, five-minute expiry, attempt limit, single-use
+consumption, dedup, and the account-takeover rule (an OTP and a tracking link never in one message,
+§14.3). A `security_classification` column on `notification_intents` records the classification, and two
+database CHECK constraints make the boundary structural: the value set is closed to one, and a row can
+never carry the exemption and `deferred_for_quiet_hours` at once. **This supersedes Step 7's conservative
+deferral**, which left the FR-091 flow unavailable twelve hours a day because a five-minute challenge
+deferred to 08.00 has already expired.
+
+DEC-0041 ratifies **server-rendered Laravel Blade** as the canonical public tracking portal stack at
+`/lacak/{token}`, the choice §5.4 and DEC-0004 deliberately left to the delivering Step. It adds no
+dependency and no toolchain — Blade ships with the Laravel runtime DEC-0024 already authorised — and it
+writes down the boundaries: Blade is for the public portal only and never a parallel admin or operations
+application; token validation, tenant isolation, the customer-visible projection, masking, consent, and
+notification rules stay in canonical backend services and are never duplicated in a view; no persistent
+browser storage of the token and no public authentication session; and the transport controls
+(`no-store`, `noindex`, `Referrer-Policy: no-referrer`, `default-src 'none'` CSP, anti-framing, escaping,
+rate limiting, one generic invalid-link response) remain mandatory. A new structural validator
+`scripts/validate-dec-0041-portal-stack.py` audits those boundaries and is exercised adversarially by
+`scripts/test-step-07-validators.sh`. DEC-0006 and DEC-0014 are preserved intact: tracking still requires
+no app installation, and the Customer Android app still does not replace the portal.
+
+Classified **MINOR** under §1.2: both records open new canonical scope — a message classification that did
+not previously exist, and a ratified stack for a surface whose stack was previously undecided. No product
+decision was reversed, no pricing figure altered, no roadmap number changed, and no architectural lock was
+touched. **Step 7 remains `IN PROGRESS`**; resolving an open question is not conferring `GO`, which is the
+repository owner's and is never self-declared by an agent (Rule 01). Deployment remains `ABSENT`, no live
+WhatsApp delivery is claimed, and no Step 8 or Step 9 capability is introduced by either record.
+Single-maintainer governance with no independent human review remains a standing accepted deviation
+(DEC-0017); the compensating controls are load-bearing and are not equivalent to an independent reviewer.
 
 ### 32.000000000 Version 1.4.12
 
@@ -2168,4 +2218,4 @@ was met.
 
 ---
 
-*End of Master Source, version 1.4.12, baseline date 19 July 2026.*
+*End of Master Source, version 1.4.13, baseline date 19 July 2026.*

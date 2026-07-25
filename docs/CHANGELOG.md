@@ -10,6 +10,70 @@ Version numbers in this file track the **Master Source** document version
 
 ---
 
+## [1.4.13] — 26 July 2026 — OQ-018 and OQ-014 resolved: the one named quiet-hours exemption, and the ratified public-portal stack
+
+**Master Source 1.4.12 → 1.4.13, classified MINOR under §1.2** — both records open new
+canonical scope: a message classification that did not previously exist, and a ratified
+stack for a surface whose stack was previously undecided. No product decision was
+reversed and no pricing figure, roadmap number, hierarchy level, reminder stage, or
+architectural lock was changed.
+
+### Added
+
+- **[DEC-0040](decisions/DEC-0040-oq-018-user-initiated-security-transaction-quiet-hours-exemption.md)
+  — OQ-018 resolved.** A **customer-initiated** tracking OTP for a canonical FR-091
+  sensitive action is classified `USER_INITIATED_SECURITY_TRANSACTION` and is **exempt
+  from quiet hours** 20.00–08.00 outlet local time. This is the exception `NOT-022`
+  reserves to a decision record, and it is the first one granted. Master Source §14.1
+  rule 6 is unchanged in text and unchanged in effect for every non-urgent message.
+- **[DEC-0041](decisions/DEC-0041-oq-014-laravel-blade-as-the-public-tracking-portal-stack.md)
+  — OQ-014 resolved.** Server-rendered **Laravel Blade** is ratified as the canonical
+  public tracking portal stack at `/lacak/{token}` — the choice §5.4 and DEC-0004
+  deliberately left to the delivering Step. It adds no dependency and no toolchain.
+- `scripts/validate-dec-0041-portal-stack.py`, a structural audit of the DEC-0041
+  boundaries, exercised adversarially by `scripts/test-step-07-validators.sh`.
+- A `security_classification` column on `notification_intents`, plus two database CHECK
+  constraints that make the DEC-0040 boundary structural: the value set is closed to one,
+  and a row can never carry the exemption and `deferred_for_quiet_hours` at once.
+
+### Changed
+
+- **The Step 7 conservative OTP deferral is superseded.** It left the FR-091 sensitive-action
+  flow unavailable twelve hours a day, because a five-minute challenge deferred to 08.00 has
+  already expired by the time its message is sent.
+- `OtpMessenger::send()` now takes a required, typed `OtpDispatchOrigin`. There is no
+  permissive default: a default would have let every future caller inherit "a customer
+  requested this" without one ever having done so.
+- The ordinary notification outbox **refuses any OTP-carrying template outright**, so the
+  exempt path is reachable only from the single caller that holds a live plaintext code.
+- The operator notification view and its Flutter surface now show why a message sent inside
+  quiet hours was permitted, using the server's wording so the two cannot drift apart.
+
+### Unchanged — stated because an exemption is judged by what it does not reach
+
+- Rate limits, resend cooldown, five-minute expiry, attempt limit, single-use consumption,
+  destination/action/token/order binding, and deduplication all still apply in full.
+- Marketing still defers inside quiet hours, marketing opt-out is still honoured, and
+  marketing cannot acquire the exemption — category comes from the template and never from
+  a caller (FR-096, NOT-024).
+- The account-takeover rule stands: a message never carries an OTP value and a tracking link
+  together (§14.3, TRK-029, NOT-014).
+- `SENT` still means the provider **accepted** the message and never that a customer received
+  it. An unavailable or rejecting provider is reported as a failure (Rule 01).
+- DEC-0006 and DEC-0014 are preserved intact: tracking requires no app installation, and the
+  Customer Android app does not replace the portal.
+
+### Status
+
+**Step 7 remains `IN PROGRESS`.** Resolving an open question is not conferring `GO`, which is
+the repository owner's and is never self-declared by an agent (Rule 01). Deployment remains
+`ABSENT`, no live WhatsApp delivery is claimed, and neither record introduces any Step 8 or
+Step 9 capability. Single-maintainer governance with no independent human review remains a
+standing accepted deviation (DEC-0017); the compensating controls are load-bearing and are
+not equivalent to an independent reviewer.
+
+---
+
 ## [1.4.12] — 25 July 2026 — Step 7 (Customer Tracking and WhatsApp) start and runtime scope guard transition
 
 **Master Source 1.4.11 → 1.4.12, classified MINOR under §1.2** — an additive change

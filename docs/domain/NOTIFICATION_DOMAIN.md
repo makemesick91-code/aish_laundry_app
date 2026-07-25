@@ -78,6 +78,41 @@ An order cancelled, blocked, or failed because messaging failed is a rejected de
 - A message sent inside quiet hours without a recorded exception is a product defect: fix the
   scheduler before further messaging work, so it does not repeat at scale.
 
+### 5.1 The one granted exception (`USER_INITIATED_SECURITY_TRANSACTION`)
+
+[DEC-0040](../decisions/DEC-0040-oq-018-user-initiated-security-transaction-quiet-hours-exemption.md)
+grants the first — and so far only — `NOT-022` exception, for exactly one message class.
+
+| | |
+| --- | --- |
+| Class | `USER_INITIATED_SECURITY_TRANSACTION` |
+| Covers | A one-time verification code for a canonical `FR-091` sensitive action (change delivery address, request schedule change) |
+| Gate | An **explicit customer request**, in the same request cycle. Nothing else. |
+| Effect | Not deferred by quiet hours. Sent immediately at any hour. |
+
+Why the class exists rather than a boolean "urgent" flag: quiet hours exist to stop a *business*
+messaging a customer at an unwelcome hour, not to stop a customer completing something they themselves
+started thirty seconds ago. A challenge lives five minutes, so deferring one to 08.00 is not a delayed
+message — it is a message that verifies a challenge which expired at 22.35.
+
+**"Urgent" was rejected deliberately.** It is a judgement every future message would be argued into.
+The granted class is defined by an observable fact instead, and no scheduled message can ever have it.
+
+What the class does **not** buy:
+
+- Rate limiting, resend cooldown, five-minute expiry, attempt limit, single-use consumption, and
+  destination/action/token/order binding all still apply in full.
+- Deduplication still applies (`NOT-002`, `FR-098`).
+- The account-takeover rule still applies: the OTP template carries no tracking link (`NOT-014`,
+  `TRK-029`).
+- Marketing cannot acquire it. Category comes from the template and never from a caller (`NOT-024`),
+  and the classification is assigned only by the synchronous OTP path.
+- An OTP nobody requested is **refused**, not deferred — delaying a code no customer asked for does not
+  make it acceptable. The ordinary outbox refuses OTP-carrying templates outright.
+
+Every other message class — including every transactional order notification and the entire
+H+1/H+3/H+7/H+14 ladder — defers exactly as before.
+
 ---
 
 ## 6. Consent and message classes

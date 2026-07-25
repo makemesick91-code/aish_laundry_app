@@ -318,12 +318,28 @@ Step 7 introduces **no second consent store**. It reads the one Step 4 built.
 - Midnight crossing is handled by evaluating the window as `hour >= 20 || hour < 8`, so 23.30 and
   01.30 are both inside it and both defer to the **same** next 08.00.
 - Boundary semantics are fixed and tested: 19:59 sends, **20:00 defers**, 07:59 defers, **08:00
-  sends**.
-- **There is no quiet-hours exception path.** `NOT-022` permits one only where the Master Source or an
-  accepted decision record explicitly grants it, and none does. OTP messages are subject to quiet
-  hours like everything else; a customer who requests an OTP at 02.00 is told the code cannot be sent
-  until 08.00 rather than being messaged anyway. Building a bypass "for OTP" without a record would
-  be inventing a product decision (Rule 00 hard rule 6).
+  sends** — for every message class except the one DEC-0040 exempts, immediately below.
+- **There is exactly one quiet-hours exception, and it is named** — granted by
+  [DEC-0040](../decisions/DEC-0040-oq-018-user-initiated-security-transaction-quiet-hours-exemption.md),
+  which resolved OQ-018. The class `USER_INITIATED_SECURITY_TRANSACTION` — a verification code the
+  **customer explicitly requested** for a canonical FR-091 sensitive action — is not deferred, at any
+  hour. `NOT-022` permits an exception only where the Master Source or an accepted decision record
+  grants one; this is that record, and it is the only one.
+
+  **This supersedes the conservative deferral originally shipped in Step 7**, under which a customer
+  requesting a code at 02.00 was told to return at 08.00. A challenge lives five minutes, so that
+  deferral made the FR-091 flow unavailable twelve hours a day.
+
+  The exemption is gated on the **origin**, not on urgency: `OtpDispatchOrigin` is a required, typed
+  argument with no permissive default, an automated origin is **refused** with
+  `otp_not_customer_initiated` rather than deferred, and the ordinary outbox refuses any OTP-carrying
+  template outright — so the exempt path is reachable only from the single caller that holds a live
+  plaintext code. Two database CHECK constraints make the boundary structural: the classification set
+  is closed to one value, and no row can carry the exemption together with `deferred_for_quiet_hours`.
+
+  Everything else defers exactly as before, including every transactional order notification. Rate
+  limits, resend cooldown, expiry, attempt limit, single-use consumption, dedup, opt-out, and the
+  account-takeover rule are all unchanged (DEC-0040 decision item 5).
 - An invalid or missing outlet timezone **fails closed**: the message defers rather than sending, and
   the misconfiguration is recorded. Sending at an unknown local hour is the failure mode quiet hours
   exist to prevent.
@@ -423,13 +439,26 @@ absence is asserted by test rather than assumed.
 ## 10. Surfaces
 
 **Public tracking portal** — server-rendered Blade under `backend/resources/views/tracking/`, served
-at `/lacak/{token}`. Rule 05 and `TRACKING_DOMAIN.md` §9 explicitly permit a lighter web stack here
-and Flutter is not mandatory; the portal is the most performance-critical surface in the product,
-opened once on an unknown low-end device over an unknown network. It is self-contained: first-party
-inline CSS, no remote font, no script, no image request, no analytics. Accessible semantics, keyboard
-reachable, survives large text scaling, readable at 320 px. States: valid · not-available (the one
-generic state covering unknown/expired/revoked/superseded/throttled) · server error. No app-install
-prompt, ever (DEC-0006, DEC-0014, `TRK-025`).
+at `/lacak/{token}`. **Ratified as the canonical Step 7 portal stack by
+[DEC-0041](../decisions/DEC-0041-oq-014-laravel-blade-as-the-public-tracking-portal-stack.md)**, which
+resolved OQ-014. Rule 05 and `TRACKING_DOMAIN.md` §9 explicitly permit a lighter web stack here and
+Flutter is not mandatory; the portal is the most performance-critical surface in the product, opened
+once on an unknown low-end device over an unknown network. Blade ships with the Laravel runtime
+DEC-0024 already authorised, so the choice adds no dependency and no toolchain. It is self-contained:
+first-party inline CSS, no remote font, no script, no image request, no analytics. Accessible
+semantics, keyboard reachable, survives large text scaling, readable at 320 px. States: valid ·
+not-available (the one generic state covering unknown/expired/revoked/superseded/throttled) · server
+error. No app-install prompt, ever (DEC-0006, DEC-0014, `TRK-025`).
+
+DEC-0041's boundaries are binding and are audited structurally by
+`scripts/validate-dec-0041-portal-stack.py`: **Blade is for the public tracking portal only** and
+never a parallel admin or operations application; token validation, tenant isolation, the
+customer-visible projection, masking, consent, and notification rules stay in canonical backend
+services and are **never duplicated in a view**; there is **no persistent browser storage** of the
+token and **no public authentication session**; and the transport controls (`no-store`, `noindex`,
+`Referrer-Policy: no-referrer`, `default-src 'none'` CSP, anti-framing, contextual escaping, rate
+limiting, one generic invalid-link response) remain mandatory. **No Step 8 pickup/delivery control and
+no Step 9 reminder control may be added to this surface.**
 
 **Operator surface** — `apps/ops_android/lib/src/tracking/`, following the existing production/order
 UI conventions: issue link, one-time plaintext display with copy/share and an explicit "this is shown
@@ -451,7 +480,10 @@ state.
 | T7-07 | OTP brute force / replay / cross-action reuse | HIGH | hash-only, 5-min TTL, 5 attempts, `consumed_at`, action+token binding | `TrackingOtpTest` |
 | T7-08 | One-message account takeover (OTP + link together) | HIGH | template-level mutual exclusion | `OtpAndLinkNeverCombinedTest` |
 | T7-09 | Consent / opt-out bypass | HIGH | category from template only; consent read at send time; default blocked | `NotificationConsentTest` |
-| T7-10 | Quiet-hours bypass | HIGH | outlet-local evaluation, defer-not-drop, no exception path, fail closed on bad tz | `QuietHoursTest` |
+| T7-10 | Quiet-hours bypass | HIGH | outlet-local evaluation, defer-not-drop, fail closed on bad tz; exactly ONE exempt class (DEC-0040), closed by a database CHECK | `NotificationPolicyTest`, `OtpQuietHoursExemptionTest` |
+| T7-18 | The DEC-0040 exemption used to message a number the requester does not own | HIGH | exemption gated on an explicit customer request (`OtpDispatchOrigin`, no default); automated origin refused not deferred; outbox refuses OTP templates; per-token 3/hour, per-IP 12/hour, resend cooldown | `OtpQuietHoursExemptionTest` |
+| T7-19 | Marketing relabelled to acquire the quiet-hours exemption | HIGH | category comes from the template only; the classification is assigned solely by the synchronous OTP path; DB CHECK closes the value set to one | `OtpQuietHoursExemptionTest`, `NotificationPolicyTest` |
+| T7-20 | Blade portal growing into a parallel admin surface (DEC-0041 boundary) | MEDIUM | one web route; views confined to `tracking/`; no business rule in a view; no browser storage, no session; structural audit | `validate-dec-0041-portal-stack.py` |
 | T7-11 | Duplicate messages | HIGH | DB-unique dedup key over recipient+event+order+window | `NotificationDedupTest` |
 | T7-12 | Messaging failure corrupting order/payment state | CRITICAL | after-commit enqueue, never rethrows, no subscriber path | `MessagingDoesNotGateOrderStateTest` |
 | T7-13 | Vendor coupling | MEDIUM | first-party interface + value objects; structural assertion | `ProviderAbstractionTest` |

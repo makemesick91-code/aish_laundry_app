@@ -728,6 +728,7 @@ A CRITICAL or HIGH threat with no mitigation is a validator failure and must blo
 - **Detection:** OTP issuance rate; notification cost per tenant per day; alert on deviation
 - **Response:** Tighten limits, notify the tenant of the cost impact, block sources
 - **Residual risk:** Cost incurred before detection is real and is borne by someone; the transparency rule ensures it is at least visible
+- **DEC-0040 delta (26 July 2026):** A customer-initiated tracking OTP is now classified `USER_INITIATED_SECURITY_TRANSACTION` and is **exempt from quiet hours**, so this threat's window widens from twelve hours a day to twenty-four. **The rate-limiting controls above are unchanged and are what bound it**: per-token 3/hour, per-IP 12/hour, plus a resend cooldown that refuses a second challenge while a live one exists. What the exemption does not change is the volume ceiling; what it changes is when a message may land. The honest residual is that a number entered into another person's order can now receive a small number of unwanted codes at 03.00 rather than none — bounded, not eliminated, and accepted by the owner in DEC-0040's negative consequences. An OTP with any origin other than an explicit customer request is refused outright, so no scheduler, replay, or backfill can contribute to this flood.
 - **Step:** 3, cost reporting in 12, hardening in 13
 
 #### THREAT-038 — Unbounded list or report query

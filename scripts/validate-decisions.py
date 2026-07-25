@@ -26,7 +26,10 @@ FIRST_DEC = 1
 # for QC defect evidence, FR-083).
 # Raised 38 -> 39 at Master Source 1.4.12 for DEC-0039 (Step 7 runtime scope transition —
 # customer tracking and WhatsApp/notification, FR-086 … FR-099).
-LAST_DEC = 39
+# Raised 39 -> 41 at Master Source 1.4.13 for DEC-0040 (OQ-018 ratification: the
+# USER_INITIATED_SECURITY_TRANSACTION quiet-hours exemption) and DEC-0041 (OQ-014
+# ratification: Laravel Blade as the canonical public tracking portal stack).
+LAST_DEC = 41
 
 # label -> list of accepted heading keywords (lowercase, substring match)
 REQUIRED_HEADINGS: list[tuple[str, list[str]]] = [
@@ -211,7 +214,8 @@ def check_master_source_index(root, rep, on_disk: set[int]) -> None:
         "twenty-nine": 29, "thirty": 30, "thirty-one": 31, "thirty-two": 32,
         "thirty-three": 33, "thirty-four": 34, "thirty-five": 35,
         "thirty-six": 36, "thirty-seven": 37, "thirty-eight": 38,
-        "thirty-nine": 39, "forty": 40,
+        "thirty-nine": 39, "forty": 40, "forty-one": 41, "forty-two": 42,
+        "forty-three": 43, "forty-four": 44, "forty-five": 45,
     }
     m = re.search(r"^([A-Za-z-]+) decisions are locked\b", text, re.MULTILINE)
     if m is None:

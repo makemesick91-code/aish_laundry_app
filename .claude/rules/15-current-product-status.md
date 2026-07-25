@@ -52,8 +52,14 @@ Master Source version **1.4.0**, baseline date **19 July 2026**.
   the allow-list projection, the OTP gate, and the notification outbox with provider abstraction,
   consent, quiet hours, and deduplication — and their verification is captured at an exact SHA under
   [`../../evidence/step-07/`](../../evidence/step-07/). **`TESTED` is not `GO`:** the pull request is
-  open, `GO` is the owner's to confer (Rule 01), and two open questions (OQ-014, OQ-018) await an owner
-  decision.
+  open and `GO` is the owner's to confer (Rule 01).
+- **Both Step 7 open questions are now resolved by the repository owner** at Master Source 1.4.13.
+  OQ-018 by [DEC-0040](../../docs/decisions/DEC-0040-oq-018-user-initiated-security-transaction-quiet-hours-exemption.md)
+  — a customer-initiated FR-091 OTP is a `USER_INITIATED_SECURITY_TRANSACTION`, exempt from quiet hours,
+  gated on an explicit customer request, with an automated origin refused rather than deferred. OQ-014 by
+  [DEC-0041](../../docs/decisions/DEC-0041-oq-014-laravel-blade-as-the-public-tracking-portal-stack.md)
+  — server-rendered Laravel Blade is the canonical public tracking portal stack, for that surface only.
+  **Resolving an open question is not conferring `GO`**; Step 7 remains `IN PROGRESS`.
 - **Step 8+ product business features remain `NOT IMPLEMENTED`** — pickup/delivery, courier settlement,
   unclaimed-laundry reminders, reporting, loyalty, and subscription. A foundation or a delivered
   workflow existing is never the same as a later step's workflow existing (Rule 42).
