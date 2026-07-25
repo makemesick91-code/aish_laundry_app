@@ -30,8 +30,8 @@ way that changes its meaning (Rule 01, evidence rule 5).
 ========================================================================
 STEP 7 CANONICAL VERIFICATION — CUSTOMER TRACKING AND WHATSAPP
 ========================================================================
-  commit    : 45573c33a9572565dfdcf4efe21b0741a40e9f96
-  timestamp : 2026-07-25T16:56:48Z (UTC)
+  commit    : 6b33665aad481d6103ddcb9d591518ce8a1636c1
+  timestamp : 2026-07-25T17:22:04Z (UTC)
   authorised: canonical roadmap (Master Source §24), guard transition DEC-0039
 
 == 1. Step 0-6 regression (delegated, not restated) ==
@@ -78,7 +78,7 @@ STEP 7 CANONICAL VERIFICATION — CUSTOMER TRACKING AND WHATSAPP
 ========================================================================
 STEP 7 VERIFICATION SUMMARY
 ========================================================================
-  commit : 45573c33a9572565dfdcf4efe21b0741a40e9f96
+  commit : 6b33665aad481d6103ddcb9d591518ce8a1636c1
   PASS 31   FAIL 0   SKIP 0
 ------------------------------------------------------------------------
 ```
