@@ -97,6 +97,7 @@ final class NotificationRecord {
     this.templateKey,
     this.suppressionReason,
     this.suppressionLabel,
+    this.securityClassificationLabel,
     this.scheduledFor,
     this.acceptedAt,
     this.failureCode,
@@ -123,6 +124,11 @@ final class NotificationRecord {
         templateKey: json['template_key'] as String?,
         suppressionReason: json['suppression_reason'] as String?,
         suppressionLabel: json['suppression_label'] as String?,
+        // The SERVER's label again. A client that composed its own wording for
+        // the DEC-0040 exemption would eventually describe it differently from
+        // the record that granted it.
+        securityClassificationLabel:
+            json['security_classification_label'] as String?,
         scheduledFor: _parseTime(json['scheduled_for']),
         acceptedAt: _parseTime(json['accepted_at']),
         failureCode: json['failure_code'] as String?,
@@ -143,6 +149,14 @@ final class NotificationRecord {
   final String? templateKey;
   final String? suppressionReason;
   final String? suppressionLabel;
+
+  /// Why this message was NOT held until 08.00, when it was not (DEC-0040).
+  ///
+  /// Null for every ordinary message. Present only for the one exempt class — a
+  /// verification code the customer explicitly asked for — so an operator
+  /// looking at a message sent at 02.00 can see the reason rather than assume
+  /// quiet hours were broken.
+  final String? securityClassificationLabel;
   final DateTime? scheduledFor;
   final DateTime? acceptedAt;
   final String? failureCode;

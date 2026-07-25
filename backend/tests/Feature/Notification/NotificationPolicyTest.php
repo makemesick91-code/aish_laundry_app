@@ -319,15 +319,24 @@ final class NotificationPolicyTest extends TestCase
             'Checking quiet hours only at enqueue would send this message inside the window.');
     }
 
-    public function test_there_is_no_quiet_hours_exception_path_for_any_template(): void
+    public function test_every_template_the_outbox_carries_defers_inside_quiet_hours(): void
     {
         $this->atJakarta('23:00');
 
         // NOT-022 permits an exception ONLY where the Master Source or an accepted
-        // decision record grants one, and neither does. Every template defers,
-        // including the OTP carrier — see OQ-018, which records the consequence
-        // for the owner rather than resolving it by invention.
+        // decision record grants one. DEC-0040 grants exactly ONE, for exactly one
+        // class — a customer-initiated OTP, delivered synchronously by
+        // `OtpMessenger` and never by this outbox. This test is the other half of
+        // that guarantee: it proves the exception did not leak into the outbox, so
+        // everything the outbox carries still defers.
+        $carried = 0;
+
         foreach (NotificationTemplate::keys() as $index => $templateKey) {
+            if (NotificationTemplate::carriesOtp($templateKey)) {
+                // Not carried by this path at all — asserted separately, below.
+                continue;
+            }
+
             $s = $this->trackingScenario('policy-no-exception-'.$index);
 
             if (NotificationTemplate::isMarketing($templateKey)) {
@@ -337,7 +346,36 @@ final class NotificationPolicyTest extends TestCase
             $intent = $this->intents->enqueue($s['order'], $templateKey, 'uji.'.$templateKey);
 
             $this->assertSame(NotificationIntent::STATE_DEFERRED, $intent->state,
-                "Template {$templateKey} bypassed quiet hours. There is no exception path (NOT-022).");
+                "Template {$templateKey} bypassed quiet hours. The only exception is "
+                .'DEC-0040\'s customer-initiated OTP, which this path never carries.');
+
+            $this->assertNull($intent->security_classification,
+                "Template {$templateKey} acquired a DEC-0040 security classification on the "
+                .'ordinary outbox. Nothing the outbox carries is a user-initiated security transaction.');
+
+            $carried++;
         }
+
+        $this->assertGreaterThan(0, $carried,
+            'The loop asserted nothing. A guard that skips every case is not a guard.');
+    }
+
+    public function test_the_outbox_refuses_an_otp_carrying_template_outright(): void
+    {
+        $this->atJakarta('12:00');
+        $s = $this->trackingScenario('policy-otp-not-enqueueable');
+
+        // DEC-0040 decision item 3. Two independent reasons, either sufficient: this
+        // path renders bodies at dispatch time and holds no code (storing one would
+        // breach NOT-016), and an enqueue is by definition not the explicit customer
+        // request the exemption is gated on. Refusing here keeps the exempt path
+        // down to the single caller that holds a live plaintext code.
+        $this->assertNull(
+            $this->intents->enqueue($s['order'], NotificationTemplate::TRACKING_OTP, 'tracking.otp.requested'),
+            'An OTP template was accepted by the ordinary outbox. That is the route by which '
+            .'the DEC-0040 quiet-hours exemption would become reachable without a customer request.'
+        );
+
+        $this->assertDatabaseCount('notification_intents', 0);
     }
 }

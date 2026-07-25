@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Notification\Http;
 
+use App\Modules\Notification\Contracts\MessageSecurityClassification;
 use App\Modules\Notification\Models\NotificationAttempt;
 use App\Modules\Notification\Models\NotificationIntent;
 use App\Modules\Tracking\Support\PublicMask;
@@ -48,6 +49,11 @@ final class NotificationProjection
             'suppression_label' => self::suppressionLabel($intent->suppression_reason),
             'scheduled_for' => $intent->scheduled_for?->toIso8601String(),
             'deferred_for_quiet_hours' => (bool) $intent->deferred_for_quiet_hours,
+            // DEC-0040. Surfaced so an operator looking at a message sent at 02.00
+            // can see WHY it was not held until 08.00, rather than having to take
+            // the exemption on trust. Null for every ordinary message.
+            'security_classification' => $intent->security_classification,
+            'security_classification_label' => self::securityClassificationLabel($intent->security_classification),
             'attempt_count' => (int) $intent->attempt_count,
             'max_attempts' => NotificationIntent::MAX_ATTEMPTS,
             'last_attempted_at' => $intent->last_attempted_at?->toIso8601String(),
@@ -111,7 +117,28 @@ final class NotificationProjection
             NotificationIntent::SUPPRESSED_MARKETING_OPTED_OUT => 'Pelanggan menolak menerima pesan promosi',
             NotificationIntent::SUPPRESSED_NO_DESTINATION => 'Nomor tujuan pelanggan belum tercatat',
             NotificationIntent::SUPPRESSED_DUPLICATE => 'Pesan serupa sudah dikirim untuk peristiwa ini',
+            NotificationIntent::SUPPRESSED_OTP_NOT_CUSTOMER_INITIATED => 'Kode verifikasi tidak dikirim karena tidak diminta pelanggan',
+            NotificationIntent::SUPPRESSED_OTP_TEMPLATE_NOT_DISPATCHABLE => 'Kode verifikasi hanya dikirim atas permintaan pelanggan, bukan dari antrean',
             default => 'Tidak dikirim karena kebijakan pengiriman',
+        };
+    }
+
+    /**
+     * The DEC-0040 classification, in Bahasa Indonesia (Rule 30).
+     *
+     * Stated positively — it explains why a message was permitted at an unusual
+     * hour. A label that merely said "dikecualikan" would leave an operator to guess
+     * what was excepted and on whose authority.
+     */
+    public static function securityClassificationLabel(?string $classification): ?string
+    {
+        if ($classification === null) {
+            return null;
+        }
+
+        return match ($classification) {
+            MessageSecurityClassification::USER_INITIATED_SECURITY_TRANSACTION => 'Transaksi keamanan atas permintaan pelanggan — tidak ditunda oleh jam tenang',
+            default => 'Klasifikasi keamanan tidak dikenal',
         };
     }
 }

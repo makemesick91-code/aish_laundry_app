@@ -13,6 +13,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 use Throwable;
 
 /**
@@ -109,6 +110,28 @@ class NotificationIntentService
         $category = NotificationTemplate::categoryFor($templateKey);
         NotificationTemplate::assertContentSafety($templateKey);
 
+        // THE OUTBOX NEVER CARRIES AN OTP (DEC-0040 decision item 3).
+        //
+        // Two independent reasons, and either alone would be sufficient. First, this
+        // path renders bodies at DISPATCH time from the template plus the order: it
+        // holds no code, and giving it one would mean persisting a code, which
+        // NOT-016 and Rule 03 hard rule 20 forbid outright. Second, the DEC-0040
+        // quiet-hours exemption is gated on an explicit customer request, and an
+        // enqueue is by definition not one — so refusing OTP templates here is what
+        // keeps the exempt path down to the single caller that holds a live code.
+        //
+        // Refused, not defaulted: an OTP-carrying template reaching the outbox is a
+        // defect, and a defect that renders an empty `:otp_code` to a customer is
+        // worse than one that stops.
+        if (NotificationTemplate::carriesOtp($templateKey)) {
+            throw new InvalidArgumentException(sprintf(
+                'Template "%s" carries an OTP and cannot be enqueued on the ordinary '
+                .'outbox. An OTP is delivered synchronously by OtpMessenger, only on '
+                .'an explicit customer request (DEC-0040, FR-091, NOT-016).',
+                $templateKey
+            ));
+        }
+
         $customer = Customer::query()->forTenant($order->tenant_id)->find($order->customer_id);
         $outlet = Outlet::query()->forTenant($order->tenant_id)->find($order->outlet_id);
 
@@ -163,6 +186,10 @@ class NotificationIntentService
             'suppression_reason' => $policy['allowed'] ? null : $policy['reason'],
             'scheduled_for' => $scheduledFor,
             'deferred_for_quiet_hours' => $quiet,
+            // Always null on this path, and stated rather than left to a column
+            // default: nothing the outbox carries is a user-initiated security
+            // transaction, so nothing it carries earns the DEC-0040 exemption.
+            'security_classification' => null,
             'attempt_count' => 0,
             'created_at' => now(),
             'updated_at' => now(),

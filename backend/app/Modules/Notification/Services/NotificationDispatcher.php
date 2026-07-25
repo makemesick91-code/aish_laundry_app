@@ -89,9 +89,16 @@ class NotificationDispatcher
             return $this->applyFailure($intent, ProviderResult::error('intent_context_missing'));
         }
 
-        // Re-check quiet hours: the window may have closed since enqueue.
+        // Re-check quiet hours: the window may have OPENED since enqueue, so a
+        // message queued at 19:58 and picked up at 20:03 defers here.
+        //
+        // The DEC-0040 classification is passed through, so an exempt intent is not
+        // re-deferred by a worker that never saw the original decision. Without it
+        // the exemption would hold at enqueue and quietly evaporate at dispatch —
+        // and the database CHECK would then refuse the write, turning a policy bug
+        // into an outage.
         $now = Carbon::now('UTC');
-        if (QuietHours::isQuiet($outlet, $now)) {
+        if (QuietHours::shouldDefer($outlet, $now, $intent->security_classification)) {
             $intent->forceFill([
                 'state' => NotificationIntent::STATE_DEFERRED,
                 'deferred_for_quiet_hours' => true,

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Tracking\Http\Controllers;
 
+use App\Modules\Notification\Contracts\OtpDispatchOrigin;
 use App\Modules\Notification\Services\OtpMessenger;
 use App\Modules\Ordering\Models\Order;
 use App\Modules\SharedKernel\Http\ApiResponse;
@@ -175,9 +176,15 @@ final class PublicTrackingController
      * The return value is deliberately discarded. Letting the send outcome vary the
      * HTTP response would tell a caller whether the customer's number is reachable,
      * which is an oracle about the customer rather than the link.
+     *
+     * `OtpDispatchOrigin::CustomerRequest` is asserted HERE and only here, because
+     * this is the one place in the product where the fact is actually true: a
+     * customer holding a live link posted to this endpoint in this request cycle.
+     * That assertion is what earns the DEC-0040 quiet-hours exemption; no other
+     * caller may make it, and `OtpMessenger` refuses any other origin.
      */
     private function deliverOtp(Order $order, string $code): void
     {
-        $this->otpMessenger->send($order, $code);
+        $this->otpMessenger->send($order, $code, OtpDispatchOrigin::CustomerRequest);
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Notification\Services;
 
+use App\Modules\Notification\Contracts\MessageSecurityClassification;
 use App\Modules\Organization\Models\Outlet;
 use Carbon\CarbonTimeZone;
 use Illuminate\Support\Carbon;
@@ -31,14 +32,28 @@ use Throwable;
  * A message due inside the window is rescheduled to the next permitted moment. It
  * is not discarded and it is not sent regardless.
  *
- * THERE IS NO EXCEPTION PATH, AND THAT IS DELIBERATE
- * --------------------------------------------------
+ * THERE IS EXACTLY ONE EXCEPTION, AND IT IS NAMED (DEC-0040)
+ * ----------------------------------------------------------
  * NOT-022 permits a quiet-hours exception ONLY where the Master Source or an
- * accepted decision record explicitly grants one. None does. So OTP messages defer
- * like everything else: a customer requesting a code at 02.00 is told it will be
- * sent at 08.00 rather than being messaged anyway. Building an "urgent" bypass
- * without a record would be inventing a product decision (Rule 00 hard rule 6), and
- * the bypass would then be the route every future message quietly took.
+ * accepted decision record explicitly grants one. DEC-0040 grants exactly one, for
+ * exactly one class: `USER_INITIATED_SECURITY_TRANSACTION` — a code the CUSTOMER
+ * explicitly requested, in this request cycle, for an FR-091 sensitive action.
+ *
+ * The reasoning is that quiet hours exist to stop a BUSINESS messaging a customer at
+ * an unwelcome hour, not to stop a customer completing something they themselves
+ * started thirty seconds ago. A five-minute challenge deferred to 08.00 is not a
+ * delayed message; it is a message that is never usefully sent, which made FR-091
+ * unavailable for twelve hours a day.
+ *
+ * Note what the exception is NOT gated on: urgency, importance, or category. It is
+ * gated on the observable fact of an explicit customer request, established by
+ * `OtpDispatchOrigin` at the one call site that holds a live plaintext code. "Urgent"
+ * was rejected deliberately — it is a judgement every future message would be argued
+ * into, and it would become the route every message quietly took.
+ *
+ * Every other message class, INCLUDING every other transactional template, defers
+ * exactly as before. `NotificationPolicyTest` asserts that across the whole
+ * catalogue, so the exception stays demonstrably confined to the one class.
  */
 final class QuietHours
 {
@@ -47,6 +62,33 @@ final class QuietHours
 
     /** Exclusive. 08:00 is OUTSIDE the window; 07:59 is not. */
     public const END_HOUR = 8;
+
+    /**
+     * Does this message class carry the single DEC-0040 exemption?
+     *
+     * The exemption lives HERE, next to the window it exempts, rather than in each
+     * caller — a caller that decides for itself whether quiet hours apply is a
+     * caller that will eventually decide wrongly.
+     */
+    public static function isExemptClassification(?string $securityClassification): bool
+    {
+        return MessageSecurityClassification::isQuietHoursExempt($securityClassification);
+    }
+
+    /**
+     * Should this message be deferred right now?
+     *
+     * The one predicate every send path asks. An exempt class is never deferred,
+     * whatever the hour; everything else defers whenever the window is open.
+     */
+    public static function shouldDefer(Outlet $outlet, Carbon $instant, ?string $securityClassification = null): bool
+    {
+        if (self::isExemptClassification($securityClassification)) {
+            return false;
+        }
+
+        return self::isQuiet($outlet, $instant);
+    }
 
     /**
      * Is the given instant inside quiet hours for this outlet?

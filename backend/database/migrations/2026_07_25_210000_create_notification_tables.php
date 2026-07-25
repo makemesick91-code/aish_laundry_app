@@ -92,6 +92,12 @@ return new class extends Migration
             $table->timestampTz('scheduled_for');
             $table->boolean('deferred_for_quiet_hours')->default(false);
 
+            // DEC-0040. Null for every ordinary message. Carries
+            // USER_INITIATED_SECURITY_TRANSACTION only for an OTP a customer
+            // explicitly asked for, which is the one class quiet hours do not
+            // defer. A CHECK below makes that exemption structural.
+            $table->string('security_classification', 48)->nullable();
+
             $table->unsignedSmallInteger('attempt_count')->default(0);
             $table->timestampTz('last_attempted_at')->nullable();
 
@@ -131,6 +137,14 @@ return new class extends Migration
         // Only a provider-accepted send may carry an acceptance timestamp. This is
         // the database refusing to hold a fabricated delivery claim.
         DB::statement("ALTER TABLE notification_intents ADD CONSTRAINT notification_intents_accepted_shape_check CHECK ((state = 'SENT') = (accepted_at IS NOT NULL))");
+        // DEC-0040. The exemption is a CLOSED SET of one. A second exempt class
+        // needs a migration and, per DEC-0040's supersession policy, its own
+        // decision record — it cannot be introduced by writing a new string.
+        DB::statement("ALTER TABLE notification_intents ADD CONSTRAINT notification_intents_security_classification_check CHECK (security_classification IS NULL OR security_classification = 'USER_INITIATED_SECURITY_TRANSACTION')");
+        // DEC-0040, structurally: a message that carries the quiet-hours exemption
+        // can never also be recorded as deferred FOR quiet hours. The two claims
+        // contradict each other, and the database refuses to hold both.
+        DB::statement("ALTER TABLE notification_intents ADD CONSTRAINT notification_intents_quiet_hours_exemption_check CHECK (NOT (security_classification = 'USER_INITIATED_SECURITY_TRANSACTION' AND deferred_for_quiet_hours))");
 
         // -------------------------------------------------------------------
         // notification_attempts — append-only attempt history.

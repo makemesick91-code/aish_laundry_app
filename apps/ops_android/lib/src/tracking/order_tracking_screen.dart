@@ -667,6 +667,16 @@ class _NotificationTile extends StatelessWidget {
               ),
             ),
 
+          // DEC-0040. Shown so a message sent inside 20.00–08.00 explains
+          // itself: an operator who sees one at 02.00 reads WHY it was
+          // permitted instead of concluding quiet hours were broken. The
+          // wording comes from the server, so the two surfaces cannot drift.
+          if (record.securityClassificationLabel != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(record.securityClassificationLabel!),
+            ),
+
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,

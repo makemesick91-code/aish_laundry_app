@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Tracking\Services;
 
+use App\Modules\Notification\Contracts\MessageSecurityClassification;
 use App\Modules\SharedKernel\Cache\TenantCacheKey;
 use App\Modules\Tracking\Models\TrackingAccessEvent;
 use App\Modules\Tracking\Models\TrackingOtpChallenge;
@@ -57,6 +58,13 @@ class TrackingOtpService
      *
      * Returns null when the challenge cannot be issued — rate limited, cooling
      * down, or an unknown action. Null, again, so the caller cannot branch.
+     *
+     * DEC-0040 EXEMPTS THE RESULTING MESSAGE FROM QUIET HOURS, AND CHANGES NOTHING
+     * HERE. Every guard below still applies at every hour: the per-token limit
+     * (3/hour), the per-IP limit (12/hour), the resend cooldown, the five-minute
+     * expiry, and the attempt limit and single-use consumption in `verify()`. The
+     * exemption moved the SCHEDULE; it did not open a messaging cannon, and a
+     * customer-initiated code at 02.00 is rate-limited exactly as one at 14.00.
      */
     public function issue(ResolvedTrackingAccess $access, string $action, string $clientIp): ?string
     {
@@ -114,8 +122,19 @@ class TrackingOtpService
             'tracking_token_id' => $access->token->id,
             'type' => TrackingAccessEvent::TYPE_OTP_CHALLENGE_ISSUED,
             'actor_membership_id' => null,
-            // The ACTION and the challenge id. Never the code (NOT-016).
-            'payload' => ['action' => $action, 'challenge_id' => $challenge->id],
+            // The ACTION, the challenge id, and the DEC-0040 classification. Never
+            // the code (NOT-016).
+            //
+            // The classification is recorded HERE, on the tracking side, as well as
+            // on the notification intent, because this is the row that proves a
+            // CUSTOMER asked. An auditor reading only the outbox would see a message
+            // sent at 02.00 and have to take the exemption on trust; this event is
+            // where the trust is grounded.
+            'payload' => [
+                'action' => $action,
+                'challenge_id' => $challenge->id,
+                'classification' => MessageSecurityClassification::USER_INITIATED_SECURITY_TRANSACTION,
+            ],
             'occurred_at' => now(),
         ]);
 

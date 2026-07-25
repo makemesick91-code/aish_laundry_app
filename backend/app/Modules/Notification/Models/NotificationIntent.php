@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Notification\Models;
 
+use App\Modules\Notification\Contracts\MessageSecurityClassification;
 use App\Modules\Ordering\Models\Order;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -32,11 +33,20 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * has been handed a link to send by hand (FR-095); nothing has been sent, and the
  * word "prepared" is the only word used for it anywhere in the system.
  *
+ * THE ONE QUIET-HOURS EXEMPTION LIVES ON A COLUMN, NOT IN CODE (DEC-0040)
+ * ----------------------------------------------------------------------
+ * `security_classification` is null for every ordinary message and carries
+ * `USER_INITIATED_SECURITY_TRANSACTION` only for an OTP a customer explicitly
+ * requested. A database CHECK refuses a row that carries that classification AND
+ * `deferred_for_quiet_hours`, so "the exemption means it is not deferred" is a
+ * property of the schema rather than a rule some future code path must remember.
+ *
  * @property string $id
  * @property string $tenant_id
  * @property string $category
  * @property string $state
  * @property string $dedup_key
+ * @property string|null $security_classification
  */
 class NotificationIntent extends Model
 {
@@ -81,6 +91,26 @@ class NotificationIntent extends Model
     public const SUPPRESSED_DUPLICATE = 'duplicate_suppressed';
 
     /**
+     * An OTP nobody asked for (DEC-0040 decision item 3).
+     *
+     * NOT a deferral. The DEC-0040 quiet-hours exemption is gated on an explicit
+     * customer request, so an OTP with any other origin is REFUSED — sending it
+     * later would be sending a code no customer requested, which is the abuse the
+     * gate exists to prevent, merely delayed.
+     */
+    public const SUPPRESSED_OTP_NOT_CUSTOMER_INITIATED = 'otp_not_customer_initiated';
+
+    /**
+     * An OTP-carrying template pushed through the ordinary outbox (DEC-0040).
+     *
+     * The outbox renders bodies at dispatch time from the template plus the order.
+     * It has no code to render and must never store one, so an OTP template reaching
+     * it is a defect rather than a message — and refusing it structurally is what
+     * keeps the exempt path down to the single caller that holds a live code.
+     */
+    public const SUPPRESSED_OTP_TEMPLATE_NOT_DISPATCHABLE = 'otp_template_not_dispatchable';
+
+    /**
      * Bounded retry (FR-099, NOT-017/NOT-018). Not forever, not silently dropped.
      * Five attempts across roughly five hours, then permanent and VISIBLE.
      */
@@ -119,6 +149,17 @@ class NotificationIntent extends Model
     public function scopeForTenant(Builder $query, string $tenantId): Builder
     {
         return $query->where('tenant_id', $tenantId);
+    }
+
+    /**
+     * Does this intent carry the single DEC-0040 quiet-hours exemption?
+     *
+     * Read from the stored classification, never from the template or the category —
+     * a transactional category is not an exemption, and never was.
+     */
+    public function isQuietHoursExempt(): bool
+    {
+        return MessageSecurityClassification::isQuietHoursExempt($this->security_classification);
     }
 
     public function isTerminal(): bool

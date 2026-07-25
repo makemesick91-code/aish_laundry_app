@@ -164,6 +164,7 @@ String _notification({
   bool canRetry = false,
   bool deferred = false,
   String? suppressionLabel,
+  String? securityClassificationLabel,
 }) =>
     '{"id":"n1","order_id":"o1","event_type":"order.ready",'
     '"template_key":"order_ready_for_pickup","category":"transactional",'
@@ -171,6 +172,8 @@ String _notification({
     '"state":"$state","state_label":"$stateLabel",'
     '"suppression_reason":${suppressionLabel == null ? 'null' : '"marketing_opted_out"'},'
     '"suppression_label":${suppressionLabel == null ? 'null' : '"$suppressionLabel"'},'
+    '"security_classification":${securityClassificationLabel == null ? 'null' : '"USER_INITIATED_SECURITY_TRANSACTION"'},'
+    '"security_classification_label":${securityClassificationLabel == null ? 'null' : '"$securityClassificationLabel"'},'
     '"scheduled_for":"2026-07-25T05:00:00+00:00",'
     '"deferred_for_quiet_hours":$deferred,'
     '"attempt_count":1,"max_attempts":5,'
@@ -586,6 +589,44 @@ void main() {
       expect(find.textContaining('akan dikirim otomatis'), findsOneWidget);
     },
   );
+
+  testWidgets('a message sent inside quiet hours explains why it was exempt', (
+    tester,
+  ) async {
+    final s = scripted(<(bool Function(RequestOptions), int, String)>[
+      on(
+        'GET',
+        200,
+        _providerBody(available: true),
+        pathContains: 'provider-state',
+      ),
+      on('GET', 200, _linkBody(), pathContains: 'tracking-link'),
+      on(
+        'GET',
+        200,
+        _notificationsBody(
+          _notification(
+            securityClassificationLabel:
+                'Transaksi keamanan atas permintaan pelanggan — '
+                'tidak ditunda oleh jam tenang',
+          ),
+        ),
+        pathContains: 'notifications',
+      ),
+    ]);
+
+    await pump(
+      tester,
+      const OrderTrackingScreen(orderId: 'o1'),
+      s.client,
+      ownerAuth(),
+    );
+
+    // DEC-0040. An operator seeing a message timestamped 02.00 must be able
+    // to read WHY it was permitted, rather than concluding quiet hours were
+    // broken. The wording is the server's, so the two cannot drift apart.
+    expect(find.textContaining('atas permintaan pelanggan'), findsOneWidget);
+  });
 
   testWidgets('a suppressed message states WHY it was not sent', (
     tester,

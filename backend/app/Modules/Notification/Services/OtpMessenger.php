@@ -6,6 +6,7 @@ namespace App\Modules\Notification\Services;
 
 use App\Modules\CustomerManagement\Models\Customer;
 use App\Modules\Notification\Contracts\NotificationProvider;
+use App\Modules\Notification\Contracts\OtpDispatchOrigin;
 use App\Modules\Notification\Contracts\OutboundMessage;
 use App\Modules\Notification\Models\NotificationAttempt;
 use App\Modules\Notification\Models\NotificationIntent;
@@ -36,29 +37,45 @@ use Throwable;
  * EXCEPT the code. The intent proves a message was attempted, to whom, and with
  * what outcome; nothing durable can reconstruct the code.
  *
- * WHAT IT STILL HONOURS — ALL OF IT
- * ---------------------------------
- * Template-derived category, consent, opt-out, dedup, quiet hours, and the
- * account-takeover rule (the TRACKING_OTP template carries no tracking link,
- * TRK-029/NOT-014). Being synchronous buys it no exemptions.
+ * WHAT IT STILL HONOURS — ALL OF IT EXCEPT ONE THING
+ * --------------------------------------------------
+ * Template-derived category, consent, opt-out, dedup, rate limiting and the resend
+ * cooldown (in `TrackingOtpService`), and the account-takeover rule (the
+ * TRACKING_OTP template carries no tracking link, TRK-029/NOT-014). Being
+ * synchronous buys it no exemptions. The single exception is quiet hours, below.
  *
- * QUIET HOURS AND THE OPEN QUESTION (OQ-018)
- * ------------------------------------------
- * Master Source §14.1 rule 6 holds NON-URGENT messages until quiet hours end, and
- * §14.2's catalogue contains no OTP entry — so whether a customer-initiated OTP is
- * "urgent" is UNDECIDED. This implementation therefore takes the conservative
- * reading and DEFERS, meaning no OTP is sent inside 20.00–08.00 outlet local time.
+ * QUIET HOURS — OQ-018, NOW DECIDED (DEC-0040)
+ * --------------------------------------------
+ * The repository owner has classified a customer-initiated OTP for a canonical
+ * FR-091 sensitive action as a `USER_INITIATED_SECURITY_TRANSACTION`: a
+ * transactional security message, never a scheduled outbound notification and never
+ * marketing. It is EXEMPT from quiet hours 20.00–08.00.
  *
- * The consequence is stated rather than hidden: because a challenge lives five
- * minutes, a deferred OTP is in practice an OTP that is not sent, so the FR-091
- * sensitive-action flow is unavailable during quiet hours. That is a real usability
- * limitation and it is recorded as OQ-018 for the repository owner. It is NOT
- * resolved here by inventing an "urgent" exception: NOT-022 permits one only where
- * the Master Source or an accepted decision record grants it, and neither does
- * (Rule 00 hard rule 6).
+ * This supersedes the conservative deferral Step 7 originally implemented and
+ * recorded as OQ-018. That reading made FR-091 unavailable for twelve hours a day,
+ * because a challenge lives five minutes and a message deferred to 08.00 verifies a
+ * challenge that expired at 22.35.
+ *
+ * THE EXEMPTION IS GATED ON AN EXPLICIT CUSTOMER REQUEST AND ON NOTHING ELSE.
+ * `$origin` is a REQUIRED, TYPED argument with no permissive default. An OTP with
+ * any other origin is REFUSED — not deferred, not sent later — because sending a
+ * code no customer asked for is the abuse the gate exists to prevent, and delaying
+ * it does not make it acceptable. The ordinary outbox separately refuses any
+ * OTP-carrying template, so this is the only path that can reach the exemption.
+ *
+ * MARKETING CANNOT ACQUIRE IT. Category comes from the TEMPLATE, never a caller
+ * (FR-096, NOT-024), and this path renders exactly one template. A marketing message
+ * has no argument it can pass to become a security transaction.
+ *
+ * NOTHING ELSE RELAXES. Rate limits, resend cooldown, five-minute expiry, attempt
+ * limit, single-use consumption, and destination/action/token/order binding all
+ * still apply in full (DEC-0040 decision item 5).
  *
  * NEVER THROWS. FR-099 applies here as everywhere: an OTP that cannot be messaged
- * does not break the challenge, the portal, or the order.
+ * does not break the challenge, the portal, or the order. And a provider failure is
+ * reported as a failure: `SENT` means the provider ACCEPTED the message, never that
+ * a customer received it, and an unavailable provider is FAILED_PERMANENT rather
+ * than anything that reads like delivery (Rule 01, DEC-0040 decision item 6).
  */
 class OtpMessenger
 {
@@ -72,11 +89,15 @@ class OtpMessenger
      * The `$code` parameter is the ONLY place a plaintext OTP enters this module,
      * it is used exactly once to render the body, and it is never assigned to a
      * property, logged, or written to any row.
+     *
+     * `$origin` is required and has no default. A default would have been the whole
+     * hole: every future caller would inherit "a customer requested this" without
+     * ever having established that one did (DEC-0040 decision item 3).
      */
-    public function send(Order $order, string $code): ?string
+    public function send(Order $order, string $code, OtpDispatchOrigin $origin): ?string
     {
         try {
-            return $this->deliver($order, $code);
+            return $this->deliver($order, $code, $origin);
         } catch (Throwable $e) {
             Log::warning('notification.otp_delivery_failed', [
                 'tenant_id' => $order->tenant_id,
@@ -90,7 +111,7 @@ class OtpMessenger
         }
     }
 
-    private function deliver(Order $order, string $code): ?string
+    private function deliver(Order $order, string $code, OtpDispatchOrigin $origin): ?string
     {
         $template = NotificationTemplate::TRACKING_OTP;
 
@@ -105,18 +126,39 @@ class OtpMessenger
         }
 
         $destination = NotificationIntentService::normaliseDestination($customer?->phone_normalized);
+
+        // Consent: the OTP template is TRANSACTIONAL by catalogue definition, so a
+        // marketing opt-out does not — and must not — block a code the customer
+        // just asked for (DEC-0040 decision item 4). What this call still enforces
+        // is a reachable destination.
         $policy = SendPolicy::evaluate($template, $customer, $destination);
 
+        // The classification, and therefore the exemption, is earned by the ORIGIN.
+        // An automated origin earns null, so it can never earn the exemption.
+        $classification = $origin->securityClassification();
+
         $now = Carbon::now('UTC');
-        $quiet = QuietHours::isQuiet($outlet, $now);
-        $scheduledFor = $quiet ? QuietHours::nextPermitted($outlet, $now) : $now;
+        $defer = QuietHours::shouldDefer($outlet, $now, $classification);
+        $scheduledFor = $defer ? QuietHours::nextPermitted($outlet, $now) : $now;
 
         $state = match (true) {
+            // An OTP nobody asked for. REFUSED, not deferred — see the class
+            // docblock: delaying a code no customer requested does not make it
+            // acceptable (DEC-0040 decision item 3).
+            ! $origin->isCustomerInitiated() => NotificationIntent::STATE_SUPPRESSED,
             ! $policy['allowed'] => NotificationIntent::STATE_SUPPRESSED,
-            // Conservative reading of §14.1 rule 6. See the class docblock and
-            // OQ-018 — this is a recorded open question, not a settled decision.
-            $quiet => NotificationIntent::STATE_DEFERRED,
+            // Reachable only when the classification is absent, which for this
+            // path means the origin was not a customer request — and that case is
+            // already suppressed above. Kept so the exemption is a decision the
+            // match arm shows rather than an omission a reader must infer.
+            $defer => NotificationIntent::STATE_DEFERRED,
             default => NotificationIntent::STATE_PENDING,
+        };
+
+        $suppressionReason = match (true) {
+            ! $origin->isCustomerInitiated() => NotificationIntent::SUPPRESSED_OTP_NOT_CUSTOMER_INITIATED,
+            ! $policy['allowed'] => $policy['reason'],
+            default => null,
         };
 
         $intent = $this->recordIntent(
@@ -124,13 +166,15 @@ class OtpMessenger
             $template,
             $destination,
             $state,
-            $policy['allowed'] ? null : $policy['reason'],
+            $suppressionReason,
             $scheduledFor,
-            $quiet,
+            $defer,
+            $classification,
         );
 
         if ($intent === null || $state !== NotificationIntent::STATE_PENDING) {
-            // Suppressed or deferred: nothing is sent, and nothing claims it was.
+            // Refused (no customer request), suppressed (unreachable), or deferred:
+            // nothing is sent, and nothing claims it was.
             return $state;
         }
 
@@ -208,6 +252,7 @@ class OtpMessenger
         ?string $suppressionReason,
         Carbon $scheduledFor,
         bool $quiet,
+        ?string $securityClassification,
     ): ?NotificationIntent {
         $eventType = 'tracking.otp.requested';
         $dedupKey = NotificationIntentService::dedupKey($destination, $eventType, $order->id, $scheduledFor);
@@ -229,6 +274,10 @@ class OtpMessenger
             'suppression_reason' => $suppressionReason,
             'scheduled_for' => $scheduledFor,
             'deferred_for_quiet_hours' => $quiet,
+            // DEC-0040. The audit record of WHY this message was not held until
+            // 08.00. A database CHECK refuses this value together with
+            // `deferred_for_quiet_hours`, so the two can never both be true.
+            'security_classification' => $securityClassification,
             'attempt_count' => 0,
             'created_at' => now(),
             'updated_at' => now(),
