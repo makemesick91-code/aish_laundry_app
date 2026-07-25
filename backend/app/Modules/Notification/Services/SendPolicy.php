@@ -79,24 +79,47 @@ final class SendPolicy
     /**
      * The CURRENT marketing-WhatsApp consent state, or null when never recorded.
      *
-     * The latest row wins, ordered by `recorded_at` then `id`. The tiebreak on `id`
-     * matters: a grant and a withdrawal recorded in the same second would otherwise
-     * be ordered arbitrarily, and "arbitrarily" here means sometimes messaging
+     * THE TIE IS BROKEN TOWARD WITHDRAWAL, DELIBERATELY.
+     *
+     * The latest `recorded_at` wins. But `recorded_at` has second precision, and a
+     * grant and a withdrawal CAN land in the same second — a customer who says yes
+     * at the counter and immediately changes their mind, or an import racing a
+     * self-service opt-out. Ordering by a random UUID to break that tie would
+     * resolve it arbitrarily, and "arbitrarily" here means sometimes messaging
      * someone who opted out.
+     *
+     * So when the latest timestamp carries BOTH states, this returns WITHDRAWN.
+     * The asymmetry is the point: the cost of wrongly withholding a promotional
+     * message is one message; the cost of wrongly sending one is a trust and
+     * compliance failure (NOT-005, NOT-024). Ambiguity resolves to "do not send".
      *
      * Scoped to the customer's own tenant. A customer opted out with one tenant has
      * said nothing about another, because the two profiles are unrelated (TEN-011).
      */
     public static function currentMarketingConsent(Customer $customer): ?string
     {
-        $latest = CustomerConsent::query()
+        $rows = CustomerConsent::query()
             ->forTenant($customer->tenant_id)
             ->where('customer_id', $customer->id)
             ->where('consent_type', CustomerConsent::TYPE_MARKETING_WHATSAPP)
             ->orderByDesc('recorded_at')
-            ->orderByDesc('id')
-            ->first();
+            ->get();
 
-        return $latest?->state;
+        if ($rows->isEmpty()) {
+            return null;
+        }
+
+        $latestAt = $rows->first()->recorded_at;
+
+        $atLatest = $rows->filter(
+            static fn (CustomerConsent $c): bool => $c->recorded_at?->equalTo($latestAt) === true
+        );
+
+        // Any withdrawal at the newest instant wins over a grant at the same instant.
+        return $atLatest->contains(
+            static fn (CustomerConsent $c): bool => $c->state === CustomerConsent::STATE_WITHDRAWN
+        )
+            ? CustomerConsent::STATE_WITHDRAWN
+            : $rows->first()->state;
     }
 }

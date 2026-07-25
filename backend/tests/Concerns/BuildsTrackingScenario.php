@@ -144,7 +144,9 @@ trait BuildsTrackingScenario
             'customer_id' => $customerId,
             'consent_type' => CustomerConsent::TYPE_MARKETING_WHATSAPP,
             'state' => $state,
-            'source' => 'uji',
+            // From the closed set the Step 4 CHECK permits: an unrecognised
+            // source is a consent nobody can account for.
+            'source' => 'counter',
             'recorded_at' => now(),
             'created_at' => now(),
             'updated_at' => now(),
