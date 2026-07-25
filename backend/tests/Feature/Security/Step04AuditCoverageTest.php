@@ -150,6 +150,42 @@ final class Step04AuditCoverageTest extends TestCase
             // Same exemption reasoning as the production writes above.
             'api.v1.production.qc.evidence.store' => null,
 
+            // --- Step 7: customer tracking and WhatsApp (DEC-0039) --------
+            //
+            // The three tracking-link writes are DELIBERATELY NOT in the central
+            // audit vocabulary, and the reason is the same one that exempts the
+            // production writes above: every one of them appends a row to the
+            // APPEND-ONLY `tracking_access_events` table, which carries BOTH
+            // `tenant_id` and `actor_membership_id` and is immutable at the
+            // database boundary (refuse-UPDATE/DELETE/TRUNCATE triggers). That is
+            // the tracking module's own domain audit — a stronger record than a
+            // central row, not a weaker one, because it also captures the
+            // anonymous VIEW events a central actor-keyed table has no way to
+            // express (TRK-024, Rule 46).
+            'api.v1.orders.tracking-link.store' => null,
+            'api.v1.tracking-links.rotate' => null,
+            'api.v1.tracking-links.revoke' => null,
+
+            // The two PUBLIC OTP routes are exempt for a different and stronger
+            // reason: there is NO authenticated actor to record. They are reached
+            // by an anonymous visitor holding a link, so a central audit row keyed
+            // on actor_membership_id could only ever record NULL. What they do
+            // append is a `tracking_access_events` row carrying the tenant, the
+            // action, and a HASHED client fingerprint — which is the honest
+            // description of what is actually known about the caller (Rule 21).
+            'api.v1.public.tracking.otp.request' => null,
+            'api.v1.public.tracking.otp.verify' => null,
+
+            // These two ARE centrally audited. `notification_attempts` records
+            // what the PROVIDER did and carries no actor column, because a
+            // dispatch is normally made by a worker. But a staff member choosing
+            // to retry a message or prepare a manual link is a human act that
+            // spends the tenant's messaging budget with a third-party provider
+            // (Rule 14 guardrail 8, NOT-020) — so "who caused this send" needs a
+            // row that names them.
+            'api.v1.notifications.retry' => AuditAction::NOTIFICATION_RETRY_REQUESTED,
+            'api.v1.notifications.manual-link' => AuditAction::NOTIFICATION_MANUAL_LINK_PREPARED,
+
             // --- Framework routes outside /api/v1 -------------------------
             //
             // DELIBERATELY NOT AUDITED, with the reason in the open.

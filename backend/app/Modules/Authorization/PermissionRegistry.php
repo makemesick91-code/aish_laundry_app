@@ -202,6 +202,38 @@ final class PermissionRegistry
     // a tenant may separate the inspector from the operator being inspected.
     public const PRODUCTION_QC = 'production.qc';
 
+    // --- Step 7: customer tracking and WhatsApp (FR-086 … FR-099) ---------
+    /**
+     * Read tracking-link METADATA: state, issued/expiry, view count.
+     *
+     * It can never read the token itself, because the token is not stored — only
+     * its hash is (TRK-002). No permission in this registry grants access to a
+     * plaintext tracking token, and none ever can.
+     */
+    public const TRACKING_VIEW = 'tracking.view';
+
+    /**
+     * Issue, rotate, and revoke a customer's tracking link.
+     *
+     * Separated from TRACKING_VIEW because rotating a link invalidates the one the
+     * customer is holding, and revoking one is terminal with no undo
+     * (TRACKING_ACCESS_LIFECYCLE §4.2) — the same reasoning that keeps
+     * PRICE_LIST_PUBLISH separate from PRICE_LIST_MANAGE.
+     */
+    public const TRACKING_MANAGE = 'tracking.manage';
+
+    /** Read notification history and attempt outcomes within the active tenant. */
+    public const NOTIFICATION_VIEW = 'notification.view';
+
+    /**
+     * Retry a failed notification, or prepare the manual WhatsApp fallback.
+     *
+     * Split from NOTIFICATION_VIEW because every send costs the tenant real money
+     * with a third-party provider (Rule 14, NOT-020). Reading what was sent and
+     * causing another send are not the same act.
+     */
+    public const NOTIFICATION_SEND = 'notification.send';
+
     /** Manage outlet master data: hours, capacity, zones, shifts, printers. */
     public const OUTLET_MASTER_DATA_MANAGE = 'outlet.master_data.manage';
 
@@ -297,6 +329,12 @@ final class PermissionRegistry
             self::PRODUCTION_VIEW => ['description' => 'Melihat antrean produksi, pekerjaan, item, dan riwayatnya', 'category' => self::CATEGORY_TENANT],
             self::PRODUCTION_OPERATE => ['description' => 'Menjalankan produksi: tahap, tahan/lanjut, penugasan, batch, dan penandaan siap diambil', 'category' => self::CATEGORY_TENANT],
             self::PRODUCTION_QC => ['description' => 'Mencatat verdict quality control dan mengelola rework', 'category' => self::CATEGORY_TENANT],
+
+            // --- Step 7 tracking and notification (DEC-0039) ---
+            self::TRACKING_VIEW => ['description' => 'Melihat status tautan pelacakan pesanan (tanpa token)', 'category' => self::CATEGORY_TENANT],
+            self::TRACKING_MANAGE => ['description' => 'Membuat, merotasi, dan mencabut tautan pelacakan pesanan', 'category' => self::CATEGORY_TENANT],
+            self::NOTIFICATION_VIEW => ['description' => 'Melihat riwayat pesan dan hasil pengirimannya', 'category' => self::CATEGORY_TENANT],
+            self::NOTIFICATION_SEND => ['description' => 'Mengirim ulang pesan atau menyiapkan tautan WhatsApp manual', 'category' => self::CATEGORY_TENANT],
             self::OUTLET_MASTER_DATA_MANAGE => ['description' => 'Mengelola data induk outlet: jam, kapasitas, zona, shift, printer', 'category' => self::CATEGORY_TENANT],
             self::STAFF_ASSIGNMENT_MANAGE => ['description' => 'Menugaskan keanggotaan ke outlet pada tenant aktif', 'category' => self::CATEGORY_TENANT],
 
@@ -379,6 +417,13 @@ final class PermissionRegistry
             self::PAYMENT_VIEW,
             self::PAYMENT_RECORD,
             self::PAYMENT_REFUND,
+
+            // Step 7 tracking and notification. Operational rather than
+            // financial, so the admin deputy inherits all four (below).
+            self::TRACKING_VIEW,
+            self::TRACKING_MANAGE,
+            self::NOTIFICATION_VIEW,
+            self::NOTIFICATION_SEND,
         ];
 
         // The admin is an operational deputy, not a co-owner. Two capabilities
@@ -446,6 +491,14 @@ final class PermissionRegistry
                     self::PRODUCTION_VIEW,
                     self::PRODUCTION_OPERATE,
                     self::PRODUCTION_QC,
+
+                    // Step 7. Handing a customer their tracking link, rotating a
+                    // link that was over-shared, and chasing a failed message are
+                    // all outlet-floor work (TRACKING_ACCESS_LIFECYCLE K-01/K-08/K-10).
+                    self::TRACKING_VIEW,
+                    self::TRACKING_MANAGE,
+                    self::NOTIFICATION_VIEW,
+                    self::NOTIFICATION_SEND,
                 ]),
             ],
             self::ROLE_CASHIER => [
@@ -478,6 +531,15 @@ final class PermissionRegistry
                     // the financial control point FR-065 guards.
                     self::PAYMENT_VIEW,
                     self::PAYMENT_RECORD,
+
+                    // Step 7. Handing the customer their tracking link at the
+                    // counter is the kasir's job (TRACKING_ACCESS_LIFECYCLE K-01),
+                    // as is rotating one that was over-shared (K-10) and revoking
+                    // one (K-08). Chasing a message that failed is counter work too.
+                    self::TRACKING_VIEW,
+                    self::TRACKING_MANAGE,
+                    self::NOTIFICATION_VIEW,
+                    self::NOTIFICATION_SEND,
                 ]),
             ],
             self::ROLE_PRODUCTION_OPERATOR => [
@@ -512,6 +574,13 @@ final class PermissionRegistry
                 // No OUTLET_SWITCH: a courier works an assignment, and does not
                 // roam the tenant's outlets. Rule 32 hard rule 11 — the courier
                 // surface shows the minimum and offers no traversal path.
+                //
+                // Step 7 adds NOTHING here, deliberately. A courier holds no
+                // tracking permission and no notification permission: a courier
+                // able to read a tenant's notification history, or to mint and
+                // read customers' tracking links, would be exactly the traversal
+                // path Rule 32 hard rule 11 forbids. The external-courier guest
+                // credential is a different thing entirely and is Step 8.
                 'description' => 'Kurir — penjemputan dan pengantaran sesuai penugasan',
                 'category' => self::CATEGORY_TENANT,
                 'permissions' => self::merge($baseline, [
@@ -540,6 +609,14 @@ final class PermissionRegistry
                     self::ORDER_VIEW,
                     self::PAYMENT_VIEW,
                     self::PAYMENT_REFUND,
+
+                    // Step 7, READ ONLY. Messaging carries a real per-message
+                    // provider cost that finance reports on (NOT-020, Rule 14), so
+                    // finance can see what was sent. It does not send, and it does
+                    // not manage a customer's tracking link — the same separation
+                    // that lets finance read prices without setting them.
+                    self::TRACKING_VIEW,
+                    self::NOTIFICATION_VIEW,
                 ]),
             ],
             self::ROLE_CUSTOMER => [

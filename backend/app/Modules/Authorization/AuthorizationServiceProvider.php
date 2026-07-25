@@ -10,7 +10,9 @@ use App\Modules\Authorization\Policies\CustomerPolicy;
 use App\Modules\Authorization\Policies\DeviceSessionPolicy;
 use App\Modules\Authorization\Policies\LaundryBrandPolicy;
 use App\Modules\Authorization\Policies\MembershipPolicy;
+use App\Modules\Authorization\Policies\NotificationIntentPolicy;
 use App\Modules\Authorization\Policies\OrderPolicy;
+use App\Modules\Authorization\Policies\TrackingTokenPolicy;
 use App\Modules\Authorization\Policies\ProductionBatchPolicy;
 use App\Modules\Authorization\Policies\ProductionJobPolicy;
 use App\Modules\Authorization\Policies\OutletPolicy;
@@ -19,7 +21,9 @@ use App\Modules\Authorization\Policies\PriceListPolicy;
 use App\Modules\Authorization\Policies\ServicePolicy;
 use App\Modules\CustomerManagement\Models\Customer;
 use App\Modules\Identity\Models\User;
+use App\Modules\Notification\Models\NotificationIntent;
 use App\Modules\Ordering\Models\Order;
+use App\Modules\Tracking\Models\TrackingToken;
 use App\Modules\Production\Models\ProductionBatch;
 use App\Modules\Production\Models\ProductionJob;
 use App\Modules\Payments\Models\Payment;
@@ -83,6 +87,12 @@ final class AuthorizationServiceProvider extends ServiceProvider
         // Step 6 batch operations (FR-074, DEC-0037).
         Gate::policy(ProductionBatch::class, ProductionBatchPolicy::class);
         Gate::policy(Payment::class, PaymentPolicy::class);
+
+        // Step 7 customer tracking and notification (FR-086 … FR-099, DEC-0039).
+        // Both are tenant-bound: a foreign tenant's tracking link or notification
+        // history 404s exactly like an absent one (Rule 48).
+        Gate::policy(TrackingToken::class, TrackingTokenPolicy::class);
+        Gate::policy(NotificationIntent::class, NotificationIntentPolicy::class);
 
         $this->defineContextGates();
     }

@@ -69,15 +69,39 @@ const STEP6_ALLOWED_TABLES = [
     'production_events', 'production_ready_events',
 ];
 
-// Step 7 and later own these. Their presence means scope leaked, however the
+/**
+ * Tables Step 7 is authorised to create (DEC-0039), matching the four permitted
+ * tracking/WhatsApp/notification feature labels. The DB-level twin of the
+ * STEP7_FEATURE_TOKENS split in validate-runtime-scope.py: both moved together when
+ * Step 7 was authorised, exactly as the Step 4, Step 5, and Step 6 sets moved
+ * before them under DEC-0030, DEC-0035, and DEC-0037. Leaving this pinned to "no
+ * Step 7 table" would block the very tables DEC-0039 authorised while claiming to
+ * guard Step 8.
+ *
+ * Listed EXPLICITLY, not by prefix. A prefix rule such as "anything starting with
+ * notification_" would silently admit a Step 9 `notification_reminder_schedules`.
+ */
+const STEP7_ALLOWED_TABLES = [
+    'tracking_tokens', 'tracking_access_events', 'tracking_otp_challenges',
+    'notification_intents', 'notification_attempts',
+];
+
+// Step 8 and later own these. Their presence means scope leaked, however the
 // migration that created them was named (Rule 36 hard rule 4, Rule 42).
 //
 // `services` stays forbidden while `service_catalog` is allowed: the Step 4
 // catalogue table is `service_catalog`, and a bare `services` table is not one
 // that step created.
+//
+// `notifications` and `whatsapp_messages` stay forbidden while the five Step 7
+// tables above are allowed, and the distinction is deliberate rather than
+// cosmetic: the tables DEC-0039 authorised are the ones this step actually built
+// and named, and a bare `notifications` or `whatsapp_messages` table is not one of
+// them. Keeping them rejected preserves the guard against a later step growing a
+// second, differently-shaped messaging store beside the outbox.
 const FORBIDDEN_TABLES = [
     'services',
-    'tracking_tokens', 'deliveries', 'pickups', 'courier_routes',
+    'deliveries', 'pickups', 'courier_routes',
     'delivery_proofs', 'reminders', 'reminder_stages', 'storage_fees',
     'receivables', 'finance_reports', 'loyalty', 'loyalty_points',
     'subscriptions', 'subscription_invoices',
@@ -121,7 +145,7 @@ $tables = $pdo
 echo "  tables present: " . count($tables) . "\n";
 
 $violations = array_values(array_intersect(FORBIDDEN_TABLES, $tables));
-echo "  forbidden Step 7+ tables: " . count($violations) . "\n";
+echo "  forbidden Step 8+ tables: " . count($violations) . "\n";
 
 $step4Present = array_values(array_intersect(STEP4_ALLOWED_TABLES, $tables));
 echo "  authorised Step 4 tables present: " . count($step4Present) . "\n";
@@ -132,9 +156,12 @@ echo "  authorised Step 5 tables present: " . count($step5Present) . "\n";
 $step6Present = array_values(array_intersect(STEP6_ALLOWED_TABLES, $tables));
 echo "  authorised Step 6 tables present: " . count($step6Present) . "\n";
 
+$step7Present = array_values(array_intersect(STEP7_ALLOWED_TABLES, $tables));
+echo "  authorised Step 7 tables present: " . count($step7Present) . "\n";
+
 if ($violations !== []) {
     fwrite(STDERR, "  SCOPE LEAK: " . implode(', ', $violations) . "\n");
-    fwrite(STDERR, "  These belong to Step 7 or later. Remove them; renaming to\n");
+    fwrite(STDERR, "  These belong to Step 8 or later. Remove them; renaming to\n");
     fwrite(STDERR, "  evade detection is the same violation (Rule 36).\n");
     exit(1);
 }
@@ -161,5 +188,5 @@ if (in_array('--check-seeded-passwords', $argv, true)) {
     echo "  every seeded credential is distinct and hashed\n";
 }
 
-echo "schema is within Step 6 scope\n";
+echo "schema is within Step 7 scope\n";
 exit(0);
